@@ -342,6 +342,7 @@ enum class ConnState { DISCONNECTED, CONNECTING, CONNECTED, ERROR }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProfile) -> Unit = {}) {
+    val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var password by remember { mutableStateOf("") }
     var command by remember { mutableStateOf("") }
@@ -407,6 +408,30 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         if (CommandRisk.riskLevel(cmd).needsConfirm) pendingConfirm = cmd else send(cmd)
     }
 
+    // 排障工作流：真实执行各诊断命令 → AI 总结结论（A3b 升级）
+    fun runDiagnostic(wf: DiagnosticWorkflow) {
+        if (password.isBlank()) { output += "⚠️ 请先输入密码（排障需连接执行）\n"; return }
+        output += "\n🩺 执行排障「${wf.name}」…\n"
+        scope.launch {
+            // 一次性跑所有命令（用分隔符串起），按分隔符拆回各命令输出
+            val joined = wf.joinedCommand(DiagnosticWorkflow.SEP)
+            val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, joined, timeoutMs = 30_000)
+            r.onSuccess { raw ->
+                val outs = raw.split(DiagnosticWorkflow.SEP)
+                output += Redactor.redact(raw.replace(DiagnosticWorkflow.SEP, "──────")) + "\n"
+                if (SettingsStore.isConfigured(ctx)) {
+                    output += "\n🤖 AI 分析中…\n"
+                    val sys = wf.summaryPrompt
+                    val ai = AiClient.chat(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
+                        listOf("user" to wf.composeForAI(outs)), sys)
+                    output += "【AI 结论】\n" + ai.getOrElse { "⚠️ ${it.message}" } + "\n"
+                } else {
+                    output += "（配置 API Key 后可由 AI 自动总结结论）\n"
+                }
+            }.onFailure { output += "⚠️ 排障执行失败：${it.message}\n" }
+        }
+    }
+
     // 离开工作区时关闭会话，避免泄漏
     DisposableEffect(Unit) { onDispose { shellSession?.close() } }
 
@@ -442,9 +467,9 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     Box {
                         IconButton(onClick = { diagMenu = true }) { Icon(Icons.Filled.MonitorHeart, "排障", tint = TextSecondary) }
                         DropdownMenu(expanded = diagMenu, onDismissRequest = { diagMenu = false }) {
-                            DropdownMenuItem(enabled = false, text = { Text("一键排障", color = TextSecondary, fontSize = 12.sp) }, onClick = {})
+                            DropdownMenuItem(enabled = false, text = { Text("一键排障（真跑+AI总结）", color = TextSecondary, fontSize = 12.sp) }, onClick = {})
                             DiagnosticWorkflow.builtins.forEach { wf ->
-                                DropdownMenuItem(text = { Text(wf.name) }, onClick = { diagMenu = false; command = wf.commands.joinToString(" && ") })
+                                DropdownMenuItem(text = { Text(wf.name) }, onClick = { diagMenu = false; runDiagnostic(wf) })
                             }
                         }
                     }

@@ -13,7 +13,20 @@ data class DiagnosticWorkflow(
     val commands: List<String>,
     val summaryPrompt: String
 ) {
+    /** 用分隔符把各命令串成一条 shell，便于一次执行后按分隔符拆回各命令输出 */
+    fun joinedCommand(sep: String): String =
+        commands.joinToString("; echo '$sep'; ")
+
+    /** 把「工作流名 + 各命令及输出」拼成给 AI 的分析素材（对齐 apple composeForAI） */
+    fun composeForAI(outputs: List<String>): String = buildString {
+        append("【排障工作流：$name】\n以下是依次执行的诊断命令及输出，请据此分析：\n")
+        commands.forEachIndexed { i, cmd ->
+            append("\n$ $cmd\n${outputs.getOrNull(i)?.trim().orEmpty().ifBlank { "(无输出)" }}\n")
+        }
+    }
+
     companion object {
+        const val SEP = "===TERMIND-DIAG-SEP==="
         val builtins = listOf(
             DiagnosticWorkflow(
                 "web-down", "网站打不开排查",

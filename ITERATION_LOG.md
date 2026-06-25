@@ -6,6 +6,15 @@
 
 ---
 
+## Doc · PARITY 校正（apple 终端控制键栏/批量群发 文档滞后纠正）
+- **发现**：读 `apple/App/Sources/Views/TerminalKeyBar.swift` 确认 apple **已有完整终端控制键栏**——18 键(Esc/Tab/^C/^D/^Z/^L/^R/^U/↑↓←→/|~/-*$)，`ContentView` 在 `#if os(iOS) && !isLocal && !split` 接入(iOS SSH 会话触屏键栏，macOS 用物理键盘)。PARITY 原标 apple🟡 系文档滞后。
+- **校正**：PARITY 终端控制键栏 apple 🟡→✅(渲染 06-keybar.png 确认 18 键完整)；阶段N 批量群发命令/群发 AI 汇总 apple 🟡→✅(已接 AppModel.runBatch 真 SSHTerminalSession)；小结说明剩余🟡均 android 独有便捷功能(连接测试/SFTP 增删改/终端搜索/提示词库/消息复制)非核心缺口。
+- **改动**：`docs/PARITY.md`、`apple/screenshots/06-keybar.png`(重渲染)。
+- **验证**：apple swift build Build complete；swift run Shots 渲染 06-keybar 核对键栏完整。推送 633df9c。
+- **意义**：PARITY 如实反映——apple↔android 核心+主线能力全对齐，apple 终端键栏甚至比 android 更全(18 vs 12 键)。文档准确性维护。
+
+---
+
 ## apple AI 代码块渲染对齐（轮换 apple 端打磨）
 - **内容**：`AIAgentView.MessageBubble` 抽出 `bubbleContent` @ViewBuilder——助手消息含 ``` 时 `displayText.components(separatedBy: "```")` 拆分，奇数段为代码块用 `.font(.system(size:12, design:.monospaced))` 等宽 + `Color.black.opacity(0.35)` 深色背景框渲染，`stripLangLine` 去掉首行语言标识(如 bash)；偶数段普通文本。对齐 android A-Md。`Showcase.AIPanelShowcase.bubble` 同步 `bubbleBody`(代码块深色框)；`Screenshots.swift` 样例消息改为含 Nginx 日志代码块。
 - **改动**：`apple/App/Sources/Views/AIAgentView.swift`(bubbleContent+stripLangLine)、`DevTools/Showcase.swift`(bubbleBody)、`DevTools/Screenshots.swift`(代码块样例)、`apple/screenshots/03-ai-panel.png`。

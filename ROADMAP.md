@@ -75,6 +75,7 @@
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-SnippetCRUD** 快捷命令自定义增删 ✅（SnippetStore SharedPreferences 持久化；ServerWorkspace 快捷命令 Chip 默认+自定义+「+新建」对话框+删除；修 termColors 前向引用；构建 20s；推送 2c48299→88b814a）
+- [x] **PARITY 校正** ✅（确认 apple TerminalKeyBar 18 键完整→终端控制键栏 apple✅；批量群发已接 runBatch→apple✅；渲染 06-keybar 验证；推送 633df9c）
 - [x] **apple AI 代码块渲染对齐** ✅（MessageBubble 按 ``` 拆代码块等宽深色框+stripLangLine；Showcase 同步+渲染 03-ai-panel 验证；PARITY apple 🟡→✅；推送 c60e6a0）
 - [x] **A-About** 设置页开源仓库链接 ✅（「开源仓库」行→Intent 打开 github.com/DoBest369/ai-terminal；构建 21s 无 warning；推送 7fce75b）
 - [x] **A-FormValid** 连接编辑表单校验 ✅（端口/跳板端口 1-65535 isError 红字；跳板填主机需补用户名；保存按钮 canSave 联动禁用；构建 12s 无 warning；推送 c2f2d6a）

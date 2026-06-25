@@ -1,119 +1,106 @@
 <div align="center">
 
-<img src="apple/App/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png" width="120" alt="AI Terminal" />
+<img src="apple/App/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png" width="120" alt="Termind" />
 
-# AI Terminal
+# Termind
 
-**全平台覆盖的终端 + SSH + AI 工具** —— 本地终端、SSH 远程连接、AI 自然语言执行命令，一套体验贯穿 macOS / iOS / Windows / Linux / Android。
+**智能 SSH 服务器运维工作台** —— 不是又一个本地终端，而是以 SSH 为入口、AI 为助手、服务器管理为核心的运维工作台。对标 Xshell / Termius / FinalShell，护城河是 **AI + 真实服务器状态 + 安全执行 + 可回滚**。
 
-[![Platform](https://img.shields.io/badge/Platform-macOS%20·%20iOS%20·%20Windows%20·%20Linux%20·%20Android-blue)](#平台矩阵)
+[![Platform](https://img.shields.io/badge/原生-macOS%20·%20iOS%20·%20Android-blue)](#平台矩阵)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 </div>
 
-## 平台矩阵
+## 定位
 
-| 平台 | 技术栈 | 目录 | 状态 |
-|------|--------|------|------|
-| **macOS / iOS / iPadOS** | SwiftUI 原生（SwiftTerm + Citadel） | [`apple/`](apple/README.md) | ✅ 推荐，精品原生体验 |
-| **Windows / Linux / macOS** | Electron + React（node-pty + ssh2） | [`src/`](#electron-桌面版) | ✅ 跨桌面 |
-| **Android / iOS** | Capacitor 包裹 Web UI | [`mobile/`](mobile/README.md) | 🟡 脚手架 + Web 壳 |
-| **移动 / 网页 SSH 中继** | Node（ws + ssh2） | [`relay/`](relay/README.md) | 🟡 WebSocket→SSH 桥接 |
+传统 SSH 工具只是「连上去敲命令」。Termind 让 AI 真正理解你这台服务器——装了什么、什么系统、当前状态——再给出**针对性、可直接执行、出问题能回滚**的运维建议。围绕一条闭环：
 
-> Apple 平台首选原生版；三大桌面端用 Electron；Android / 纯网页通过 Capacitor + 中继。**全端共享多套配色主题与统一设计语言。**
+> 理解环境 → 规划 → 评估风险 → 确认 → 执行 → 验证 → 回滚
 
-## 功能对照
+详见产品构想 [`docs/PRODUCT.md`](docs/PRODUCT.md)。
 
-各端能力差异（原生 apple/ 最全；Electron 次之；移动最基础）：
+## 平台矩阵（全平台原生）
 
-| 功能 | 原生 (mac/iOS) | Electron (win/linux/mac) | 移动 (Capacitor) |
-|------|:---:|:---:|:---:|
-| 本地终端 | ✅ | ✅ | — |
-| SSH 连接 / 私钥认证 | ✅ | ✅ | ✅（经中继） |
-| 跳板机 / 端口转发 | ✅ | — | — |
-| TOFU 主机密钥校验 | ✅ | ✅ | — |
-| SFTP 浏览 / 拖拽上传 | ✅ | — | — |
-| 连接分组 / 备注 / 克隆 | ✅ | ✅ | — |
-| 连接可达性 / 排序 / 连接级字号·启动命令 | ✅ | — | — |
-| JSON 导入导出 / ~/.ssh/config | ✅ | ✅（JSON） | — |
-| 复制配置到剪贴板 | ✅ | ✅ | — |
-| 二维码分享 | ✅ | — | — |
-| 配色主题 | ✅（5+自定义+预览） | ✅（5 套） | ✅（5 套） |
-| 分屏 / 终端搜索 / 会话录制 | ✅ | — | — |
-| 终端右键 复制/粘贴/清屏 | ✅ | ✅（浏览器原生） | — |
-| AI 助手（流式/停止/重生成） | ✅ | ✅（基础） | — |
-| AI 多对话 / 搜索 / 预设 / 导出 | ✅ | — | — |
+按平台用各自最佳原生技术，无 Electron / WebView 中间层。
 
-> ✅=支持，—=暂无。移动端经 [`relay/`](relay/README.md) 中继提供基础 SSH 终端。功能持续向 Electron/移动对齐中。
+| 平台 | 原生技术 | 目录 | 状态 |
+|------|---------|------|------|
+| **macOS / iOS / iPadOS** | Swift + SwiftUI（Citadel SSH + SwiftTerm） | [`apple/`](apple/README.md) | ✅ 旗舰，智能运维 Z1–Z8 大部完成 |
+| **Android** | Kotlin + Jetpack Compose（sshj + OkHttp） | [`android/`](android/) | ✅ 能力全齐，可构建 APK（~30 MB） |
+| **Windows** | C# + WinUI 3 / .NET | `windows/` | ⬜ 待起（需 Windows 环境） |
+| **Linux** | Rust + GTK4 / C++ Qt | `linux/` | ⬜ 待起（需 Linux 环境） |
 
-## ✨ 功能
+> 早期 Electron / Capacitor Web 方案已按「全平台原生」决策删除，git 历史保留。
 
-- 🖥️ **本地终端**（macOS / 桌面）：完整 shell，实时 CPU / 内存 / 负载监控（状态栏可展开详情）
-- 🔐 **SSH 远程**：密码 / ed25519·RSA 私钥认证，**跳板机（bastion）**、**TOFU 主机密钥校验**（known_hosts 管理）、**本地端口转发**、多会话标签，**敏感字段走系统 Keychain**
-- 📁 **SFTP 文件浏览**：列目录 / 下载 / 上传，支持**拖拽上传**到当前目录
-- 🗂️ **连接管理**：**分组** / **备注** / **可达性探测**（绿/红指示 + 一键刷新）/ **最近使用排序** / **克隆** / 连接级**终端字号** / **启动命令**（连上自动执行）
-- 🔁 **跨端互通 / 分享**：通用 JSON 导入 / 导出（含 ~/.ssh/config 导入；[格式](docs/connection-format.md)）、**二维码扫码导入**、复制配置到剪贴板，原生 ↔ Electron ↔ 移动；侧边栏可按 最近使用 / 名称 / 添加顺序排序
-- 🤖 **AI 助手**：自然语言生成并执行命令，**流式输出**（可停止 / 重新生成），**多对话**（切换 / 重命名 / 搜索 / 导出当前或全部 Markdown），**自定义系统提示词**（含只读/详解/精简预设），默认 **Anthropic Claude（claude-opus-4-8）**，兼容 OpenAI；高危命令拦截
-- 🎨 **主题**：午夜 / One Dark / Dracula / Solarized / Nord + **自定义配色**（UI + 终端一致，预览缩略图，即时切换）
-- 🧰 **终端体验**：**可拖拽分屏** · 🔍 搜索（⌘F）· 🔡 字号缩放 · **右键复制/粘贴/全选/清屏** · **会话录制导出** · ↩︎ 会话恢复 · ⚡ 快捷命令片段（可分组搜索）· 📱 iOS 辅助键栏
+## 智能运维能力（双端已落地）
 
-## 截图（原生版）
+围绕护城河闭环的差异化能力，**apple 与 android 双端均已实现**：
 
-| 主界面 | 设置（主题/AI/备份） |
-|---|---|
-| ![main](apple/screenshots/07-main-overview.png) | ![settings](apple/screenshots/05-settings.png) |
+| 能力 | 说明 | apple | android |
+|------|------|:---:|:---:|
+| 连接管理 | 分组 / 备注 / 持久化 / 增删改 | ✅ | ✅ |
+| 真实 SSH | 密码 / 密钥认证，交互式 PTY 终端 | ✅ | ✅ |
+| SFTP 文件 | 远程目录浏览 + 查看文件内容 | ✅ | ✅ |
+| 服务器状态 | CPU / 内存 / 磁盘实时采集 | ✅ | ✅ |
+| **环境感知** | 探测系统/发行版/已装服务 → 喂给 AI | ✅ | ✅ |
+| **AI 助手** | 对话 / 命令解释 / 报错分析，流式输出 | ✅ | ✅ |
+| **排障工作流** | 网站打不开/磁盘/SSL/Nginx/Docker 一键诊断 + AI 总结 | ✅ | ✅ |
+| **初始化模板** | Ubuntu Web / Docker / Node / LNMP 一键部署 | ✅ | ✅ |
+| **风险分级** | 命令四级风险（安全/注意/高/极高）+ 高危二次确认 | ✅ | ✅ |
+| **敏感脱敏** | 终端输出里的密码/密钥/Token 自动打码 | ✅ | ✅ |
+| **操作回滚** | 改关键配置前自动备份 + 时间线 + 一键还原 | ✅ | ✅ |
 
-| Dracula 主题 | Nord 主题 |
-|---|---|
-| ![dracula](apple/screenshots/10-theme-dracula.png) | ![nord](apple/screenshots/11-theme-nord.png) |
-
-更多：[`apple/screenshots/`](apple/screenshots/)（侧边栏 / 连接编辑 / SFTP / 分屏 / 搜索 / 快捷命令…）
+> 这套能力让 AI 不再只会给通用教程，而是结合**这台机器的真实环境与状态**给出可执行、可回滚的运维方案。
 
 ## 快速开始
 
-### 🍎 Apple 原生版（推荐，macOS / iOS）
+### 🍎 Apple 原生（macOS / iOS）
 
 ```bash
 brew install xcodegen
 cd apple/App && xcodegen generate && open AITerminal.xcodeproj
 ```
-选 `AITerminal (macOS)` 或 `AITerminal (iOS)` scheme 运行。详见 [`apple/README.md`](apple/README.md)。
-> 需完整 Xcode 16+。无 Xcode 时可 `cd apple/AITerminalCore && swift build` 校验核心逻辑。
-
-### 🖥️ Electron 桌面版（Windows / Linux / macOS）
+选 `AITerminal (macOS)` 或 `AITerminal (iOS)` scheme 运行（需完整 Xcode 16+）。
+无 Xcode 时可只校验核心逻辑与自测：
 
 ```bash
-npm install && npm run rebuild   # 编译原生模块
-npm run dev                      # 开发模式
-npm run package                  # 打包
+cd apple/AITerminalCore && swift build       # 平台无关核心
+cd apple/App && swift build                  # App 源码（AppCheck 包）
+swift run Shots --risk-test                  # 风险分级/脱敏自测（另有 env-detect/diag/rollback/template 等）
 ```
 
-### 📱 Android / Web（Capacitor）
+### 🤖 Android 原生
 
 ```bash
-cd mobile && npm install
-npx cap add android && npx cap sync && npx cap open android
+cd android
+ANDROID_HOME=~/Library/Android/sdk ./gradlew assembleDebug
+# 产物：android/app/build/outputs/apk/debug/app-debug.apk
 ```
-详见 [`mobile/README.md`](mobile/README.md)。移动端 SSH 经 [`relay/`](relay/README.md) 中继（自托管）。
+需 Android SDK（android-34）+ JDK 17。安装到设备/模拟器后，新建连接、输入密码即可连真实服务器；AI 功能需在「设置」配置 Anthropic API Key。
 
 ## 项目结构
 
 ```
 ai-terminal/
-├── apple/        # SwiftUI 原生（macOS + iOS）—— 推荐
-│   ├── AITerminalCore/   # 平台无关核心（SSH/AI/模型/持久化）
-│   └── App/              # SwiftUI App + xcodegen 工程
-├── src/          # Electron + React（Windows/Linux/macOS）
-├── mobile/       # Capacitor（Android/iOS Web 壳）
-├── relay/        # WebSocket → SSH 中继（移动/网页用）
-├── docs/         # 连接交换格式等
-├── ROADMAP.md    # 路线图 + 迭代日志摘要
-└── ITERATION_LOG.md  # 每轮详细日志
+├── apple/            # Swift + SwiftUI（macOS + iOS）—— 旗舰
+│   ├── AITerminalCore/   # 平台无关核心（SSH/AI/环境感知/风险/回滚/模板）
+│   └── App/              # SwiftUI App + xcodegen 工程 + Shots 自测
+├── android/          # Kotlin + Jetpack Compose（sshj + OkHttp）
+├── relay/            # 可选 WebSocket → SSH 中继（自托管/可信网络）
+├── docs/PRODUCT.md   # 产品构想（定位/护城河/MVP）
+├── ROADMAP.md        # 路线图 + 阶段进度
+└── ITERATION_LOG.md  # 每轮详细迭代日志
 ```
+
+## 现状与边界（真实说明）
+
+- apple 端：核心逻辑 + UI 均 `swift build` 通过、自测齐全；**出 iOS/macOS 安装包需完整 Xcode**（开发机仅 Command Line Tools，未出包）。
+- android 端：`gradle assembleDebug` 通过、产出可安装 APK；**真实连接/AI 对话需真机或模拟器 + 目标服务器 + API Key** 实测。
+- Windows / Linux 原生端：架构已定，待在对应平台环境起步。
 
 ## 路线图
 
-迭代进展见 [`ROADMAP.md`](ROADMAP.md)、[`ITERATION_LOG.md`](ITERATION_LOG.md)。已完成阶段 A（Apple 原生体验，R1–R14）与阶段 B（全端统一，R15–R19）。
+迭代进展见 [`ROADMAP.md`](ROADMAP.md) 与 [`ITERATION_LOG.md`](ITERATION_LOG.md)。
 
 ## 许可证
 

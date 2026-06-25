@@ -6,6 +6,13 @@
 
 ---
 
+## Doc · README 全面更新（反映双端原生真实现状）
+- **内容**：旧 README 严重过时（旧名「AI Terminal」、本地终端定位、已删的 Electron(src/)/Capacitor(mobile/) 平台矩阵与构建说明）。全面重写为：Termind 智能 SSH 运维工作台定位 + 护城河闭环；全平台原生矩阵（apple Swift ✅旗舰 / android Kotlin ✅可构建 / Windows·Linux ⬜待起）；**智能运维能力双端对照表**（连接管理/真实SSH/SFTP/状态/环境感知/AI助手/排障/模板/风险分级/脱敏/回滚 apple✅android✅）；真实快速开始（apple xcodegen+swift build 自测、android gradle assembleDebug）；项目结构（去掉 src/mobile）；**现状与边界真实说明**（apple 无 Xcode 未出包、android 实测需真机+服务器+Key、Win/Linux 待起）。
+- **改动**：`README.md`（全量重写）。
+- **验证**：纯文档，无需构建（未动 apple/android 代码）。措辞如实不夸大。
+
+---
+
 ## A-AIActions · 安卓 AI 快捷入口（命令解释 + 报错分析）
 - **内容**：`AiClient` 加 `EXPLAIN_PROMPT`(命令讲解:作用/关键参数/风险/安全等级，不执行不给 [EXECUTE]) + `ERROR_PROMPT`(报错分析:含义/最可能原因/修复步骤/验证，识别 502/Permission denied/端口占用等)，对齐 apple commandExplainPrompt/errorAnalysisPrompt。`AIAssistantScreen.send(text, basePrompt=SYSTEM_PROMPT)` 加 basePrompt 参数（仍注入 profile.aiSummary 环境摘要）；输入栏上方加「解释命令」(Lightbulb 黄)「分析报错」(BugReport 红) AssistChip，点击 `send(input, EXPLAIN/ERROR_PROMPT)` 流式发送。
 - **改动**：`android/.../AiClient.kt`(两常量)、`MainActivity.kt`(send basePrompt + 两 Chip + 文件图标 Description)。

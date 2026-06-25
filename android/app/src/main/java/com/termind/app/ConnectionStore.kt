@@ -57,6 +57,27 @@ object ConnectionStore {
             .putString(KEY, arr.toString()).apply()
     }
 
+    /** 导出连接列表为 JSON（不含密码/私钥，敏感信息不导出） */
+    fun exportJson(conns: List<ServerConn>): String {
+        val arr = JSONArray(); conns.forEach { arr.put(it.toJson()) }
+        return JSONObject().put("termind_connections", arr).put("version", 1).toString(2)
+    }
+
+    /** 从 JSON 导入连接（解析 termind_connections 数组，生成新 id 避免冲突） */
+    fun importJson(json: String): List<ServerConn> {
+        return runCatching {
+            val arr = JSONObject(json).getJSONArray("termind_connections")
+            (0 until arr.length()).map { i ->
+                val o = arr.getJSONObject(i)
+                ServerConn(
+                    name = o.optString("name"), host = o.optString("host"), user = o.optString("user"),
+                    port = o.optInt("port", 22), group = o.optString("group"), note = o.optString("note"),
+                    authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD)
+                )
+            }
+        }.getOrElse { emptyList() }
+    }
+
     /** 首次启动的示例连接（用户可删改） */
     private fun seedDefaults() = listOf(
         ServerConn(name = "生产 Web 01", host = "web01.example.com", user = "deploy", port = 22, group = "生产环境", note = "官网 + API"),

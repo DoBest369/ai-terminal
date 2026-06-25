@@ -172,6 +172,18 @@ fun TermindApp() {
                     onRefresh = { probeAll() },
                     onBatch = { showBatch = true },
                     onInspect = { showInspect = true },
+                    onExport = {
+                        runCatching {
+                            ctx.startActivity(android.content.Intent.createChooser(
+                                android.content.Intent(android.content.Intent.ACTION_SEND).setType("application/json")
+                                    .putExtra(android.content.Intent.EXTRA_TEXT, ConnectionStore.exportJson(conns.toList())), "导出连接"))
+                        }
+                    },
+                    onImport = { imported ->
+                        val existing = conns.map { "${it.user}@${it.host}:${it.port}" }.toSet()
+                        imported.filter { "${it.user}@${it.host}:${it.port}" !in existing }.forEach { conns.add(it) }
+                        persist()
+                    },
                     onOpen = { detail = it },
                     onEdit = { editing = it; showEditor = true },
                     onDelete = { conns.remove(it); persist() }
@@ -210,10 +222,21 @@ fun ServerListScreen(
     onRefresh: () -> Unit,
     onBatch: () -> Unit,
     onInspect: () -> Unit,
+    onExport: () -> Unit,
+    onImport: (List<ServerConn>) -> Unit,
     onOpen: (ServerConn) -> Unit,
     onEdit: (ServerConn) -> Unit,
     onDelete: (ServerConn) -> Unit
 ) {
+    val ctxLocal = LocalContext.current
+    val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        runCatching {
+            val json = ctxLocal.contentResolver.openInputStream(uri)!!.bufferedReader().use { it.readText() }
+            onImport(ConnectionStore.importJson(json))
+        }
+    }
+    var overflow by remember { mutableStateOf(false) }
     Column {
         // 顶栏 + 刷新状态
         Surface(color = Surface) {
@@ -224,6 +247,13 @@ fun ServerListScreen(
                 Spacer(Modifier.width(8.dp))
                 Text("智能 SSH 运维", fontSize = 12.sp, color = TextSecondary)
                 Spacer(Modifier.weight(1f))
+                Box {
+                    IconButton(onClick = { overflow = true }) { Icon(Icons.Filled.MoreVert, "更多", tint = TextSecondary) }
+                    DropdownMenu(expanded = overflow, onDismissRequest = { overflow = false }) {
+                        DropdownMenuItem(text = { Text("📤 导出连接") }, onClick = { overflow = false; onExport() })
+                        DropdownMenuItem(text = { Text("📥 导入连接") }, onClick = { overflow = false; importPicker.launch("application/json") })
+                    }
+                }
                 IconButton(onClick = onInspect, enabled = conns.isNotEmpty()) {
                     Icon(Icons.Filled.MonitorHeart, "健康巡检", tint = Accent, modifier = Modifier.size(18.dp))
                 }

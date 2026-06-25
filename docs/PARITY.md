@@ -71,8 +71,8 @@
 | 能力 | apple | android | 说明 |
 |------|:---:|:---:|------|
 | 命令历史（去重/调出） | ✅ | ✅ | 双端 |
-| 批量群发命令 | ✅ | ✅ | apple AppModel.runBatch 真接 SSHTerminalSession；android 完整实测 |
-| 群发结果 AI 汇总 | ✅ | ✅ | apple summarizeBatch + composeForAI；android 完整 |
+| 批量群发命令 | ✅ | ✅ | 双端完整 UI（apple BatchView 多选+风险徽章+确认+runBatch；android BatchScreen） |
+| 群发结果 AI 汇总 | ✅ | ✅ | 双端（apple summarizeBatch；android 完整） |
 | 批量健康巡检 | ✅ | ✅ | 双端（apple InspectView 多选+采集+告警置顶；android InspectScreen） |
 | 巡检结果 AI 总结 | ✅ | ✅ | 双端（apple summarizeInspection；android 完整） |
 | 定时后台巡检 + 通知 | ⬜ | ✅ | android WorkManager（主动运维，离线推通知） |
@@ -86,7 +86,7 @@
 | 凭据安全存储 | ✅ | ✅ | apple Keychain / android EncryptedSharedPreferences |
 | 快捷命令片段（风险着色 + 自定义增删） | ✅ | ✅ | |
 | 命令历史（去重/置顶/限长/调出） | ✅ | ✅ | N-History 双端 UI 接入 |
-| 批量群发命令（多服务器同命令） | ✅ | ✅ | apple AppModel.runBatch 真接 SSHTerminalSession + BatchShowcase 渲染 |
+| 批量群发命令（多服务器同命令） | ✅ | ✅ | 双端完整 UI（apple BatchView + BatchShowcase 渲染） |
 | 群发结果 AI 汇总 | ✅ | ✅ | apple summarizeBatch + composeForAI；android 完整 |
 | 多主题配色 | ✅ | ✅ | 双端 5 套（午夜/One Dark/Dracula/Solarized/Nord） |
 | 连接配置导出/导入 | ✅ | ✅ | JSON（不含密码）；apple ConnectionPortability / android 分享Intent |

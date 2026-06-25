@@ -6,6 +6,14 @@
 
 ---
 
+## apple 批量群发 UI（BatchView，N-Multi 完整对齐 android）
+- **内容**：新建 `apple/App/Sources/Views/BatchView.swift`(sheet)——`setupArea` 连接多选(Set<UUID>)+底部命令 TextField(显 `CommandRisk.riskLevel` 风险徽章+色点 Color(hex:colorHex))→工具栏「群发执行」(risk.needsConfirm 时 `.alert` 高危二次确认)→`runBatch(选中, command)`；`resultArea` ForEach `batchResults`：ok 绿勾/失败红+name+输出(3 行)；底部「让 AI 汇总这批结果」→`summarizeBatch`+dismiss。`ContentView` 工具栏「批量群发」(square.stack.3d.up)+`.sheet($model.showBatch)`；`AppModel.showBatch`。与上轮 InspectView 对称。
+- **改动**：`BatchView.swift`(新)、`ContentView.swift`(入口+sheet)、`AppModel.swift`(showBatch)。
+- **验证**：Core+App swift build Build complete(BatchShowcase 22-batch 已渲染过)。推送 730ae50。
+- **意义**：apple 批量群发从逻辑→完整 UI 可用，与巡检 UI 对称。**阶段 N 批量运维核心(群发+巡检)双端完整 UI 对齐**。剩余仅 apple 定时后台巡检(macOS 后台任务)+apple 独有分屏录制 未双端。
+
+---
+
 ## apple 批量巡检 UI（InspectView，N-Cron 完整对齐 android）
 - **内容**：新建 `apple/App/Sources/Views/InspectView.swift`(sheet)——`selectionList` 连接多选(Set<UUID>，勾选圈)→工具栏「开始巡检」`runHealthInspection(选中)`→`resultList` ForEach `inspectionResults`：告警图标(hasWarning 红三角/正常绿勾)+name+CPU/内存/磁盘 metric(>85% 红)+采集失败提示；底部「让 AI 总结这批巡检」→`summarizeInspection`+dismiss。`ContentView` 工具栏加「批量巡检」按钮(stethoscope)+`.sheet($model.showInspect)`；`AppModel.showInspect`。`Showcase.InspectShowcase`(纯布局)+`Screenshots` 渲染 23-inspect(数据库主机告警/生产正常/开发机失败 三态)。
 - **改动**：`InspectView.swift`(新)、`ContentView.swift`(入口+sheet)、`AppModel.swift`(showInspect)、`Showcase.swift`(InspectShowcase)、`Screenshots.swift`(渲染)、`apple/screenshots/23-inspect.png`。

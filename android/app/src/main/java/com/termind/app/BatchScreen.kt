@@ -35,6 +35,7 @@ data class BatchResult(val conn: ServerConn, val running: Boolean, val output: S
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BatchScreen(conns: List<ServerConn>, onBack: () -> Unit) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     val selected = remember { mutableStateListOf<String>() }   // 选中连接 id
     var command by remember { mutableStateOf("") }
@@ -42,6 +43,24 @@ fun BatchScreen(conns: List<ServerConn>, onBack: () -> Unit) {
     var running by remember { mutableStateOf(false) }
     var pendingConfirm by remember { mutableStateOf(false) }
     val results = remember { mutableStateListOf<BatchResult>() }
+    var aiSummary by remember { mutableStateOf<String?>(null) }   // N-Multi-AI 群发结果 AI 汇总
+    val allDone = results.isNotEmpty() && results.none { it.running }
+
+    // N-Multi-AI：把各结果拼给 AI 汇总
+    fun summarize() {
+        if (!SettingsStore.isConfigured(ctx)) { aiSummary = "请先在「设置」配置 API Key 以使用 AI 汇总。"; return }
+        aiSummary = ""
+        val material = buildString {
+            append("对 ${results.size} 台服务器执行了同一命令：`$command`\n各自结果如下：\n")
+            results.forEach { append("\n【${it.conn.name}】${if (it.ok) "成功" else "失败"}\n${it.output.take(500)}\n") }
+        }
+        scope.launch {
+            AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
+                listOf("user" to material),
+                "你是运维助手。这是一批服务器执行同一命令的结果，请：① 总览(成功/失败台数) ② 失败的机器及原因 ③ 共性问题或差异 ④ 后续建议。精炼中文。"
+            ) { delta -> aiSummary = (aiSummary ?: "") + delta }.onFailure { aiSummary = "⚠️ ${it.message}" }
+        }
+    }
 
     fun exec() {
         val cmd = command.trim()
@@ -76,6 +95,18 @@ fun BatchScreen(conns: List<ServerConn>, onBack: () -> Unit) {
             text = { Text("即将对 ${selected.size} 台服务器执行：\n$command\n\n群发${risk.label}命令影响面更大，确认？", color = TextSecondary) },
             confirmButton = { TextButton(onClick = { pendingConfirm = false; exec() }) { Text("确认群发", color = risk.color) } },
             dismissButton = { TextButton(onClick = { pendingConfirm = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+
+    // N-Multi-AI 汇总弹窗
+    aiSummary?.let { sum ->
+        AlertDialog(
+            onDismissRequest = { aiSummary = null },
+            icon = { Icon(Icons.Filled.AutoAwesome, null, tint = Accent) },
+            title = { Text("AI 群发汇总", color = TextPrimary) },
+            text = { Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) { Text(sum.ifEmpty { "分析中…" }, color = TextPrimary, fontSize = 13.sp) } },
+            confirmButton = { TextButton(onClick = { aiSummary = null }) { Text("关闭", color = Accent) } },
             containerColor = Surface
         )
     }
@@ -130,6 +161,13 @@ fun BatchScreen(conns: List<ServerConn>, onBack: () -> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = Accent), modifier = Modifier.fillMaxWidth()) {
                 if (running) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
                 else Text("群发执行（${selected.size} 台）", color = Color.White)
+            }
+            // N-Multi-AI：全部完成后可一键 AI 汇总
+            if (allDone) {
+                OutlinedButton(onClick = { summarize() }, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(8.dp)); Text("AI 汇总这批结果", color = Accent, fontSize = 13.sp)
+                }
             }
             // 结果
             LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {

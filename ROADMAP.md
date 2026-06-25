@@ -62,6 +62,7 @@
 - [x] **A-Themes** 多主题配色 ✅（Themes.kt 5 套 ThemeScheme[午夜/One Dark/Dracula/Solarized/Nord，对齐 apple]+全局 activeTheme；顶层颜色改计算属性自动跟随；SettingsStore themeId；SettingsScreen 主题选择 dialog 即时切换+持久化；构建 18s；推送 9bf20ff。PARITY 多主题 🟡→✅）
 - [x] **A-Download** SFTP 文件下载 ✅（SshClient.downloadFile sftp.get→getExternalFilesDir；SftpBrowser 文件行下载图标+toast 显路径；构建 18s；推送 45971f8）
 - [x] **A-Upload** SFTP 文件上传 ✅（SshClient.uploadFile sftp.put；SftpBrowser GetContent 文件选择器→contentResolver 查名+复制到 cacheDir→上传当前目录→刷新+toast；头部「上传」按钮；修 load() 前向引用；构建 18s；推送 91e8c1c→e0f5016。安卓 SFTP 完整=浏览/查看/下载/上传）
+- [x] **A-Portability** 连接配置导出/导入 ✅（ConnectionStore exportJson[不含密码]/importJson；ServerListScreen 更多菜单 导出分享/导入文件去重 merge；对齐 apple ConnectionPortability；构建 18s；推送 9b9fd7c）
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-Ansi** 终端 ANSI 颜色渲染 ✅（AnsiParser.parse→AnnotatedString 解析 SGR 前景色 30-37/90-97+粗体+重置；openShell 传原始 ANSI；终端区彩色显示替代删色单色；构建 18s；推送 c2f4941）

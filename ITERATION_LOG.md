@@ -6,6 +6,14 @@
 
 ---
 
+## A-TOFU · 安卓主机密钥 TOFU 校验（安全：防 MITM）
+- **内容**：`KnownHosts.kt`——`object KnownHosts`(init(ctx) 注入 applicationContext 的 SharedPreferences「termind_knownhosts」；`fingerprint(PublicKey)`=SHA-256(key.encoded) Base64.NO_WRAP；`check(host,port,fp): Result{NEW/MATCH/MISMATCH}`——saved==null→存+NEW，==fp→MATCH，否则 MISMATCH；forget()) + `class TofuVerifier: HostKeyVerifier`(override verify(hostname,port,key)：fingerprint→check→NEW/MATCH 返回 true，MISMATCH 返回 false[sshj 抛异常拒绝连接]；override findExistingAlgorithms=emptyList)。`SshClient` 5 处 `PromiscuousVerifier()`→`TofuVerifier()`，删冗余 import。`MainActivity.onCreate` `KnownHosts.init(this)`。
+- **改动**：新增 `android/.../KnownHosts.kt`；改 `SshClient.kt`(5×TofuVerifier+去 import)、`MainActivity.kt`(onCreate init)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 18s** → app-debug.apk。**sshj 0.38 HostKeyVerifier 接口(verify(String,int,PublicKey)+findExistingAlgorithms) 编译通过**。推送 da3ffa9。
+- **意义**：安卓从「PromiscuousVerifier 无脑跳过校验(MITM 风险)」升级为「TOFU 首次信任+指纹比对」，安全对齐 apple known_hosts。PARITY TOFU 🟡→✅。android 仅剩 跳板机/端口转发、AI 多对话、分屏录制 未与 apple 对齐。
+
+---
+
 ## A-Themes · 安卓多主题配色（对齐 apple 5 套）
 - **内容**：`Themes.kt`——`ThemeScheme`(id/name + bg/surface/surfaceLight/accent/textPrimary/textSecondary/success/warning/danger 9 色) + `builtins` 5 套（午夜/One Dark/Dracula/Solarized/Nord，配色值对齐 apple AppColorScheme）+ 全局 `var activeTheme by mutableStateOf`。`MainActivity` 顶层 `val Bg/Surface/Accent/...` 由固定 Color 常量改为 `get() = activeTheme.xxx` **计算属性**——所有现有 200+ 处颜色引用零改动，主题切换即全局 recompose 跟随。`onCreate` 启动 `activeTheme = byId(SettingsStore.loadTheme())`；`TermindTheme` 读 activeTheme 生成 colorScheme。`SettingsStore` themeId 存取；`SettingsScreen` 加 `pickingTheme` AlertDialog（5 套，每行 4 色预览点+名称+当前勾选，点选 `activeTheme=th`+saveTheme 即时切换+持久化）。
 - **改动**：新增 `android/.../Themes.kt`；改 `MainActivity.kt`(颜色计算属性+onCreate+TermindTheme+SettingsScreen 主题选择)、`SettingsStore.kt`(theme)。

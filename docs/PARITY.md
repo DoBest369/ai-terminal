@@ -14,7 +14,7 @@
 | 跳板机 / 端口转发 | ✅ | ⬜ | apple PortForward |
 | 交互式 PTY 终端 | ✅ | ✅ | |
 | 终端 ANSI 颜色渲染 | ✅ | ✅ | android AnsiParser→AnnotatedString |
-| TOFU 主机密钥校验 | ✅ | 🟡 | android 暂用 Promiscuous（TODO TOFU） |
+| TOFU 主机密钥校验 | ✅ | ✅ | android KnownHosts 指纹首次信任+比对（防 MITM） |
 | SFTP 浏览 | ✅ | ✅ | |
 | SFTP 查看文件内容 | ✅ | ✅ | |
 | SFTP 下载 / 上传 | ✅ | ✅ | android sftp.get/put + 文件选择器 |

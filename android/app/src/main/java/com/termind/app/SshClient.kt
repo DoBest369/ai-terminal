@@ -85,7 +85,8 @@ object SshClient {
                     if (n < 0) break
                     if (n > 0) {
                         val chunk = String(buf, 0, n, Charsets.UTF_8)
-                        withContext(Dispatchers.Main) { onOutput(stripAnsi(chunk)) }
+                        // 保留原始 ANSI（含颜色码），由 UI 的 AnsiParser 渲染彩色（A-Ansi）
+                        withContext(Dispatchers.Main) { onOutput(chunk) }
                     }
                 }
             } catch (_: Exception) { /* 会话关闭/断开，正常退出 */ }

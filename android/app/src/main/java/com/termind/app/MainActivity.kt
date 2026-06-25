@@ -667,10 +667,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     colors = termColors, modifier = Modifier.fillMaxWidth()
                 )
             }
-            // 终端输出区
+            // 终端输出区（A-Ansi：解析 ANSI 颜色码彩色渲染）
             Surface(color = Color(0xFF0D0D1A), shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f).fillMaxWidth()) {
                 Text(
-                    output, color = Success, fontSize = 12.sp, fontFamily = FontFamily.Monospace,
+                    AnsiParser.parse(output), fontSize = 12.sp, fontFamily = FontFamily.Monospace,
                     modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
                 )
             }

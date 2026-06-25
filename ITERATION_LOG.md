@@ -6,6 +6,16 @@
 
 ---
 
+## A-Regen + A-TestConn + 质量收口 · 安卓 AI/连接打磨
+- **A-Regen**（AI 重新生成）：AIAssistantScreen send 记录 `lastSent: Pair<text,basePrompt>`；`regenerate()` 移除末条 assistant+对应 user 后用 lastSent 重发；末条是 assistant 且非 sending 时显「🔄 重新生成」AssistChip。构建 20s，推送 dbb1f98。
+- **A-TestConn**（连接测试）：EditConnectionScreen host/port 下加「测试连接」OutlinedButton(host 非空可点)→协程 `Reachability.probe(host,port)`→显示「✅可达/❌不可达」+加载圈。建连接前验证地址端口通不通。构建 13s，推送 45e77b4。
+- **质量收口**：apple `AITerminalCore`+`App` swift build 均 Build complete；--history/--batch/--risk/--metrics/--env-detect 五自测全 true，无回归。
+- **改动**：`MainActivity.kt`(regen)、`EditConnectionScreen.kt`(测试连接)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL；apple swift build + 5 自测全过。
+- **意义**：安卓 AI 助手(停止/重新生成)与连接(建前测试)体验完善，对话与连接管理更顺手。双端稳健。
+
+---
+
 ## N-Multi apple 真实接入 · AppModel.runBatch + summarizeBatch
 - **内容**：`AppModel` 加 `@Published batchResults: [BatchOutcome]` + `batchRunning`。`runBatch(targets, command)`：Task @MainActor 里 `BatchRunner.run(targets, name:)` + runner 对每 Connection 建临时 `SSHTerminalSession(connection:)` → `connect()` → `runCommand(cmd)`(Citadel executeCommand) → `close()`，成功脱敏输出 ok=true，异常 ok=false+错误信息；聚合存 batchResults。`summarizeBatch(command)`：`BatchRunner.composeForAI` 拼群发结果作 user 消息 → `runAICompletion(systemPrompt: 群发汇总提示)`，对齐 android N-Multi-AI。各连接用自身凭据(savePassword 的密码/私钥)；未存密码连接需运行时输入(TODO)。
 - **改动**：`apple/App/Sources/AppModel.swift`(runBatch+summarizeBatch+batchResults)。

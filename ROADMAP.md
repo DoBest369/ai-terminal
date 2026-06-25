@@ -75,6 +75,8 @@
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-SnippetCRUD** 快捷命令自定义增删 ✅（SnippetStore SharedPreferences 持久化；ServerWorkspace 快捷命令 Chip 默认+自定义+「+新建」对话框+删除；修 termColors 前向引用；构建 20s；推送 2c48299→88b814a）
+- [x] **A-TestConn** 连接编辑测试连接 ✅（EditConnectionScreen「测试连接」按钮→Reachability.probe→✅可达/❌不可达；建连前验证地址端口；构建 13s；推送 45e77b4）
+- [x] **A-Regen** AI 重新生成上一条 ✅（lastSent 记录上次(text,basePrompt)；regenerate 移除末 assistant+user 重发；末条 assistant 时显「🔄 重新生成」Chip；构建 20s；推送 dbb1f98）
 - [x] **A-Stop** AI 助手停止生成 ✅（send 流式任务存 sendJob；stop() cancel 协程+保留已生成+[已停止]；输入栏发送按钮生成中变红停止按钮；构建 19s；推送 1aa07f3）
 - [x] **A-Filter** 连接列表搜索过滤 ✅（ServerListScreen 搜索框按 name/host/user/group contains 过滤；构建 20s；推送 21b4416）
 - [x] **A-Sort** 连接列表排序 ✅（ServerConn.lastUsed[打开连接更新]+JSON 持久化；ServerListScreen 排序 Menu 名称/最近使用/在线优先；构建 23s；推送 4731fae）

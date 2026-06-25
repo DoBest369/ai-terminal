@@ -406,6 +406,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
     var input by remember { mutableStateOf("") }
     var sending by remember { mutableStateOf(false) }
     var sendJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }   // A-Stop 当前流式任务
+    var lastSent by remember { mutableStateOf<Pair<String, String>?>(null) }   // A-Regen 上次(text,basePrompt)
     var searchActive by remember { mutableStateOf(false) }   // A-ConvoSearch
     var search by remember { mutableStateOf("") }
     val suggestions = listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器")
@@ -413,6 +414,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
     fun send(text: String, basePrompt: String = AiClient.SYSTEM_PROMPT) {
         val t = text.trim(); if (t.isEmpty() || sending) return
         if (!SettingsStore.isConfigured(ctx)) { onGoSettings(); return }
+        lastSent = t to basePrompt   // A-Regen 记录
         messages.add("user" to t); input = ""; sending = true
         // A-Env：把当前服务器环境摘要注入系统提示，让 AI 结合真实环境回答（对齐 apple Z3）
         val sys = profile?.aiSummary?.takeIf { it.isNotEmpty() }?.let {
@@ -436,6 +438,15 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
         sendJob?.cancel(); sendJob = null; sending = false
         messages.lastOrNull()?.let { if (it.first == "assistant") messages[messages.size - 1] = "assistant" to (it.second + "\n[已停止]") }
         persistConvos()
+    }
+    // A-Regen：重新生成上一条 AI 回复
+    fun regenerate() {
+        if (sending) return
+        val (txt, prompt) = lastSent ?: return
+        // 移除末尾的 assistant + 对应 user（send 会重新加 user）
+        if (messages.lastOrNull()?.first == "assistant") messages.removeAt(messages.size - 1)
+        if (messages.lastOrNull()?.first == "user") messages.removeAt(messages.size - 1)
+        send(txt, prompt)
     }
 
     Column {
@@ -505,6 +516,14 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
                 if (q.isNotEmpty()) item { Text("${shown.size} 条匹配", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.padding(4.dp)) }
                 items(shown.size) { i -> ChatBubble(shown[i].first, shown[i].second) }
                 if (sending && q.isEmpty()) item { Text("AI 思考中…", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(8.dp)) }
+            }
+        }
+        // A-Regen：重新生成上一条（末条是 assistant 且未生成中）
+        if (!sending && messages.lastOrNull()?.first == "assistant" && lastSent != null) {
+            Row(Modifier.padding(horizontal = 12.dp)) {
+                AssistChip(onClick = { regenerate() }, label = { Text("重新生成", fontSize = 12.sp) },
+                    leadingIcon = { Icon(Icons.Filled.Refresh, null, tint = Accent, modifier = Modifier.size(16.dp)) },
+                    colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary))
             }
         }
         // A-AIActions：命令解释 / 报错分析 快捷入口（对齐 apple AIAgentView）

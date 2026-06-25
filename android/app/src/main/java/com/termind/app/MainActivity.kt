@@ -821,12 +821,27 @@ fun HealthAISheet(status: ServerStatus, onClose: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose: () -> Unit) {
+    val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var path by remember { mutableStateOf(".") }
     var files by remember { mutableStateOf<List<RemoteFile>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var viewing by remember { mutableStateOf<Pair<String, String>?>(null) }  // A-FileView：文件名→内容
+    var toast by remember { mutableStateOf<String?>(null) }                  // A-Upload 下载提示
+
+    // 下载远程文件到 app 外部文件目录
+    fun download(f: RemoteFile) {
+        loading = true
+        scope.launch {
+            val dir = ctx.getExternalFilesDir("Downloads") ?: ctx.cacheDir
+            val local = java.io.File(dir, f.name)
+            SshClient.downloadFile(conn.host, conn.port, conn.user, password, f.path, local.absolutePath, privateKey)
+                .onSuccess { toast = "已下载到 ${local.absolutePath}" }
+                .onFailure { error = it.message }
+            loading = false
+        }
+    }
 
     fun load(p: String) {
         loading = true; error = null
@@ -881,6 +896,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
                 load(if (path == "." || path == "/") "/" else parent)
             }) { Icon(Icons.Filled.ArrowUpward, null, tint = Accent, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text("上级目录", color = Accent, fontSize = 12.sp) }
             error?.let { Text("⚠️ $it", color = Danger, fontSize = 12.sp) }
+            toast?.let { Text("✅ $it", color = Success, fontSize = 11.sp, maxLines = 2) }
             LazyColumn(Modifier.weight(1f)) {
                 items(files.size) { i ->
                     val f = files[i]
@@ -893,6 +909,11 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
                         Spacer(Modifier.width(12.dp))
                         Text(f.name, color = TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f), maxLines = 1)
                         Text(f.sizeLabel, color = TextSecondary, fontSize = 11.sp)
+                        if (!f.isDir) {
+                            IconButton(onClick = { download(f) }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Filled.Download, "下载", tint = Accent, modifier = Modifier.size(16.dp))
+                            }
+                        }
                     }
                 }
             }

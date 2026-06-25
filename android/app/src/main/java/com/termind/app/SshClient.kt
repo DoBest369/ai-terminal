@@ -144,6 +144,27 @@ object SshClient {
         }
     }
 
+    /** 下载远程文件到本地路径（A-Upload）：sshj SFTPClient.get。 */
+    suspend fun downloadFile(
+        host: String, port: Int, user: String, password: String,
+        remotePath: String, localPath: String, privateKey: String? = null
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            withTimeout(60_000) {
+                val ssh = SSHClient()
+                ssh.addHostKeyVerifier(PromiscuousVerifier())
+                ssh.connectTimeout = 10_000
+                ssh.connect(host, port)
+                try {
+                    authenticate(ssh, user, password, privateKey)
+                    ssh.newSFTPClient().use { it.get(remotePath, localPath) }
+                } finally {
+                    runCatching { ssh.disconnect() }
+                }
+            }
+        }
+    }
+
     /** 读取远程文本文件内容（A-FileView）：head -c 限制大小，避免大文件/二进制卡顿。 */
     suspend fun readFile(
         host: String, port: Int, user: String, password: String, path: String, maxBytes: Int = 200_000, privateKey: String? = null

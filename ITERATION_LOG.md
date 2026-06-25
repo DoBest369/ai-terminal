@@ -6,6 +6,15 @@
 
 ---
 
+## Doc · PARITY 续校正（apple 终端搜索/连接测试 文档滞后纠正）
+- **发现**：读 `apple/App/Sources/Views/TerminalSearchBar.swift` → apple **已有完整终端搜索**(SwiftTerm 内置搜索，增量/上一个/下一个/匹配定位，`ContentView` 接入 `model.searchActive`)，比 android 高亮计数更强(真搜索导航)。读 `ConnectionEditView.swift` → apple **已有测试连接**(line 14-54 内联测试 UI + `ReachabilityChecker.probe`)。两处 PARITY 原标 apple🟡 系滞后。
+- **校正**：终端输出搜索 apple🟡→✅(渲染 13-search.png 确认高亮 ERROR+已定位+上下导航)；连接编辑测试连通 apple🟡→✅。小结：剩余🟡仅 android 独有便捷功能(SFTP 增删改/路径跳转、AI 提示词库、消息长按复制)。
+- **改动**：`docs/PARITY.md`、`apple/screenshots/13-search.png`+`04-connection-edit.png`(重渲染)。
+- **验证**：apple swift build Build complete；渲染核对终端搜索。推送 73e6de7。
+- **意义**：连续两轮源码核查纠正文档滞后——apple 实际能力比 PARITY 早先记录的更全(终端键栏/搜索/连接测试/批量群发均✅)。双端对齐度比文档显示的更高，剩余差异极小。
+
+---
+
 ## Doc · PARITY 校正（apple 终端控制键栏/批量群发 文档滞后纠正）
 - **发现**：读 `apple/App/Sources/Views/TerminalKeyBar.swift` 确认 apple **已有完整终端控制键栏**——18 键(Esc/Tab/^C/^D/^Z/^L/^R/^U/↑↓←→/|~/-*$)，`ContentView` 在 `#if os(iOS) && !isLocal && !split` 接入(iOS SSH 会话触屏键栏，macOS 用物理键盘)。PARITY 原标 apple🟡 系文档滞后。
 - **校正**：PARITY 终端控制键栏 apple 🟡→✅(渲染 06-keybar.png 确认 18 键完整)；阶段N 批量群发命令/群发 AI 汇总 apple 🟡→✅(已接 AppModel.runBatch 真 SSHTerminalSession)；小结说明剩余🟡均 android 独有便捷功能(连接测试/SFTP 增删改/终端搜索/提示词库/消息复制)非核心缺口。

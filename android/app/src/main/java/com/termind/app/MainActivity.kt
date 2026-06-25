@@ -233,9 +233,15 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
         val sys = profile?.aiSummary?.takeIf { it.isNotEmpty() }?.let {
             "${AiClient.SYSTEM_PROMPT}\n\n$it\n请结合以上真实服务器环境给出针对性、可直接执行的回答。"
         } ?: AiClient.SYSTEM_PROMPT
+        // A-Stream：流式逐字显示。先放一个空 assistant 消息，delta 时追加到它
+        val history = messages.toList()
+        val aiIndex = messages.size
+        messages.add("assistant" to "")
         scope.launch {
-            val r = AiClient.chat(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx), messages.toList(), sys)
-            messages.add("assistant" to r.getOrElse { "⚠️ ${it.message ?: "请求失败"}" })
+            val r = AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx), history, sys) { delta ->
+                messages[aiIndex] = "assistant" to (messages[aiIndex].second + delta)
+            }
+            r.onFailure { messages[aiIndex] = "assistant" to "⚠️ ${it.message ?: "请求失败"}" }
             sending = false
         }
     }

@@ -74,4 +74,58 @@ object AiClient {
             }
         }
     }
+
+    /**
+     * 流式对话（A-Stream）：SSE 逐块回调 onDelta（已切到 Main 线程）。
+     * 解析 Anthropic 流事件：content_block_delta 的 delta.text。
+     */
+    suspend fun chatStream(
+        apiKey: String,
+        model: String,
+        messages: List<Pair<String, String>>,
+        systemPrompt: String = SYSTEM_PROMPT,
+        onDelta: suspend (String) -> Unit
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            val msgArr = JSONArray()
+            messages.forEach { (role, content) -> msgArr.put(JSONObject().put("role", role).put("content", content)) }
+            val body = JSONObject()
+                .put("model", model).put("max_tokens", 1024)
+                .put("system", systemPrompt).put("messages", msgArr)
+                .put("stream", true).toString()
+
+            val req = Request.Builder()
+                .url("https://api.anthropic.com/v1/messages")
+                .addHeader("x-api-key", apiKey)
+                .addHeader("anthropic-version", "2023-06-01")
+                .addHeader("content-type", "application/json")
+                .post(body.toRequestBody(JSON))
+                .build()
+
+            http.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) {
+                    val raw = resp.body?.string() ?: ""
+                    val errMsg = runCatching { JSONObject(raw).getJSONObject("error").getString("message") }
+                        .getOrDefault("HTTP ${resp.code}")
+                    throw RuntimeException(errMsg)
+                }
+                val source = resp.body?.source() ?: throw RuntimeException("无响应体")
+                // 逐行读 SSE：data: {json}
+                while (true) {
+                    val line = source.readUtf8Line() ?: break
+                    if (!line.startsWith("data:")) continue
+                    val payload = line.removePrefix("data:").trim()
+                    if (payload.isEmpty()) continue
+                    val obj = runCatching { JSONObject(payload) }.getOrNull() ?: continue
+                    when (obj.optString("type")) {
+                        "content_block_delta" -> {
+                            val text = obj.optJSONObject("delta")?.optString("text").orEmpty()
+                            if (text.isNotEmpty()) withContext(Dispatchers.Main) { onDelta(text) }
+                        }
+                        "message_stop" -> return@use
+                    }
+                }
+            }
+        }
+    }
 }

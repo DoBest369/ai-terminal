@@ -6,6 +6,14 @@
 
 ---
 
+## A-SFTP · 安卓远程文件浏览（sshj SFTPClient）
+- **内容**：`SshClient.listDir(host,port,user,password,path)`——connect+auth 后 `ssh.newSFTPClient().use { it.ls(path) }`，映射 `RemoteResourceInfo`→`RemoteFile`(过滤 `.`/`..`，`attributes.type==FileMode.Type.DIRECTORY` 判文件夹，size，文件夹优先+按名排序)，Dispatchers.IO+15s 超时。`RemoteFile(name/isDir/size/path + sizeLabel[B/KB/MB/GB])`。`ServerWorkspace` 顶栏「文件」IconButton(Folder，仅 CONNECTED 可用)→`showFiles`→`SftpBrowser`(ModalBottomSheet：标题+加载圈 + 当前路径(等宽) + 上级目录按钮(path substringBeforeLast) + LazyColumn 文件列表[文件夹 Accent/文件灰 图标 + 名 + sizeLabel]，点文件夹 load(f.path)，错误态显示)。
+- **改动**：`android/.../SshClient.kt`(listDir+RemoteFile+FileMode import)、`MainActivity.kt`(文件入口+showFiles+SftpBrowser)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 16s** → app-debug.apk 30.8MB（仅 InsertDriveFile 图标 deprecated 警告）。推送 cbd4e44。真实浏览需真服务器。
+- **安卓打磨**：A-Diag/A-Snippets/A-Stream/**A-SFTP** ✅。下一步初始化模板真执行 / SFTP 下载查看。
+
+---
+
 ## A-Stream · 安卓 AI 流式输出（SSE 逐字）
 - **内容**：`AiClient.chatStream(apiKey,model,messages,systemPrompt,onDelta)`——body 加 `"stream": true`，OkHttp execute 后 `response.body.source()` 逐行 `readUtf8Line` 读 SSE，对 `data:` 行解析 JSON：`type==content_block_delta` 取 `delta.text` 逐块 `withContext(Main) onDelta(text)`，`type==message_stop` 结束；HTTP 错误取 error.message；Result 封装。`AIAssistantScreen.send` 改流式：保存 history + 先 `messages.add("assistant" to "")` 占位 + 记 aiIndex，chatStream 的 onDelta 里 `messages[aiIndex] = "assistant" to (旧+delta)` 逐字追加，失败则替换为错误。
 - **改动**：`android/.../AiClient.kt`(chatStream)、`MainActivity.kt`(AIAssistantScreen.send 流式)。

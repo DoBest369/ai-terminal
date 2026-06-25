@@ -6,6 +6,14 @@
 
 ---
 
+## N-Multi apple 真实接入 · AppModel.runBatch + summarizeBatch
+- **内容**：`AppModel` 加 `@Published batchResults: [BatchOutcome]` + `batchRunning`。`runBatch(targets, command)`：Task @MainActor 里 `BatchRunner.run(targets, name:)` + runner 对每 Connection 建临时 `SSHTerminalSession(connection:)` → `connect()` → `runCommand(cmd)`(Citadel executeCommand) → `close()`，成功脱敏输出 ok=true，异常 ok=false+错误信息；聚合存 batchResults。`summarizeBatch(command)`：`BatchRunner.composeForAI` 拼群发结果作 user 消息 → `runAICompletion(systemPrompt: 群发汇总提示)`，对齐 android N-Multi-AI。各连接用自身凭据(savePassword 的密码/私钥)；未存密码连接需运行时输入(TODO)。
+- **改动**：`apple/App/Sources/AppModel.swift`(runBatch+summarizeBatch+batchResults)。
+- **验证**：Core+App swift build 通过。本机无 Xcode 不能真跑批量(需真服务器)，逻辑编译验证。推送 02d22bf。
+- **意义**：apple 批量群发从 Core 框架 → 真接 SSHTerminalSession，逻辑对齐 android。PARITY 批量群发/群发AI汇总 apple 🟡→✅(逻辑层；真实 BatchView UI 列表+触发待接入)。
+
+---
+
 ## apple 连接颜色标签对齐（Core + 导入导出 + 渲染）
 - **内容**：apple/AITerminalCore `Connection.swift` 加 `enum ColorTag{none/red/orange/green/blue/purple}`(rawValue 持久化 + hex 计算属性) + `Connection.colorTag: ColorTag?`(Optional 保证旧 JSON 缺失向后兼容，加 init 参数+赋值)。`ConnectionPortability` Item 加 `colorTag: String?`，export(c.colorTag 非 none 才写 rawValue)/parse(ColorTag(rawValue:))，参与跨端导出。`DevTools/Showcase.swift` `SidebarShowcase.connRow` 加颜色标签色条(`conn.colorTag?.hex` → RoundedRectangle 3×30 色条)；样例连接设 colorTag(生产红/开发绿/数据库蓝)。
 - **改动**：`Connection.swift`(ColorTag+colorTag)、`ConnectionPortability.swift`(导入导出)、`Showcase.swift`(connRow 色条)、`Screenshots.swift`(样例 colorTag)；`apple/screenshots/01-sidebar.png`。

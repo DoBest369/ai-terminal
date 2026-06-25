@@ -76,8 +76,8 @@
 | 凭据安全存储 | ✅ | ✅ | apple Keychain / android EncryptedSharedPreferences |
 | 快捷命令片段（风险着色 + 自定义增删） | ✅ | ✅ | |
 | 命令历史（去重/置顶/限长/调出） | ✅ | ✅ | N-History 双端 UI 接入 |
-| 批量群发命令（多服务器同命令） | 🟡 | ✅ | apple Core BatchRunner 框架 + BatchShowcase 界面渲染；真实 SSH 接入 TODO |
-| 群发结果 AI 汇总 | 🟡 | ✅ | apple composeForAI 框架 + UI 入口；android 完整 |
+| 批量群发命令（多服务器同命令） | ✅ | ✅ | apple AppModel.runBatch 真接 SSHTerminalSession + BatchShowcase 渲染 |
+| 群发结果 AI 汇总 | ✅ | ✅ | apple summarizeBatch + composeForAI；android 完整 |
 | 多主题配色 | ✅ | ✅ | 双端 5 套（午夜/One Dark/Dracula/Solarized/Nord） |
 | 连接配置导出/导入 | ✅ | ✅ | JSON（不含密码）；apple ConnectionPortability / android 分享Intent |
 | 分屏 / 会话录制 | ✅ | ⬜ | apple 独有 |

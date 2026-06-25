@@ -21,6 +21,10 @@ object SettingsStore {
     fun loadTheme(ctx: Context): String = prefs(ctx).getString(K_THEME, "midnight") ?: "midnight"
     fun saveTheme(ctx: Context, id: String) = prefs(ctx).edit().putString(K_THEME, id).apply()
 
+    private const val K_AUTO_INSPECT = "auto_inspect"
+    fun loadAutoInspect(ctx: Context): Boolean = prefs(ctx).getBoolean(K_AUTO_INSPECT, false)
+    fun saveAutoInspect(ctx: Context, on: Boolean) = prefs(ctx).edit().putBoolean(K_AUTO_INSPECT, on).apply()
+
     private fun prefs(ctx: Context) = ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE)
 
     /** 加密 prefs（失败则回退普通 prefs，保证可用） */

@@ -560,6 +560,26 @@ fun SettingsScreen() {
             SettingRow(Icons.Filled.Palette, "配色主题", activeTheme.name) { pickingTheme = true }
             SettingRow(Icons.Filled.SmartToy, "AI 服务商", "Anthropic Claude")
             SettingRow(Icons.Filled.Key, "API Key", if (apiKey.isBlank()) "未配置（点击设置）" else "已配置 ••••${apiKey.takeLast(4)}") { keyInput = apiKey; editingKey = true }
+            // N-CronAuto：定时后台巡检开关
+            var autoInspect by remember { mutableStateOf(SettingsStore.loadAutoInspect(ctx)) }
+            val notifPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+            Surface(color = SurfaceLight.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.MonitorHeart, null, tint = Accent, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("定时后台巡检", color = TextPrimary, fontSize = 14.sp)
+                        Text("每 15 分钟探测服务器在线，离线通知", color = TextSecondary, fontSize = 11.sp)
+                    }
+                    Switch(checked = autoInspect, onCheckedChange = { on ->
+                        autoInspect = on; SettingsStore.saveAutoInspect(ctx, on)
+                        if (on) {
+                            if (android.os.Build.VERSION.SDK_INT >= 33) notifPerm.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                            InspectWorker.enable(ctx)
+                        } else InspectWorker.disable(ctx)
+                    }, colors = SwitchDefaults.colors(checkedThumbColor = Accent, checkedTrackColor = Accent.copy(alpha = 0.4f)))
+                }
+            }
             SettingRow(Icons.Filled.Info, "关于 Termind", "智能 SSH 运维工作台 v1.0")
         }
     }

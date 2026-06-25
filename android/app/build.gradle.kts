@@ -60,4 +60,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     // API Key 加密存储（对齐 apple Keychain）
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    // 定时后台巡检（主动运维）
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 }

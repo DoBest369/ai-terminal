@@ -6,6 +6,14 @@
 
 ---
 
+## A1 · 安卓真实 SSH 连接（sshj exec）· 核心能力
+- **内容**：app/build.gradle.kts 加 `com.hierynomus:sshj:0.38.0` + `org.slf4j:slf4j-nop:2.0.9` + `kotlinx-coroutines-android`；packaging.resources.excludes 加 META-INF 签名/冲突排除（*.SF/*.DSA/*.RSA/BC*KE.RSA/INDEX.LIST/DEPENDENCIES，避免 sshj+BouncyCastle 打包冲突）。`SshClient.kt`：`suspend connectAndExec(host,port,user,password,command,timeoutMs)` —— sshj SSHClient + `PromiscuousVerifier`(MVP，TODO TOFU 对齐 apple R20) + connect + authPassword + startSession().exec 读 stdout/stderr/exitStatus，Dispatchers.IO + withTimeout，Result 封装。`ServerWorkspace` 接入：密码框(PasswordVisualTransformation)+命令框+执行 FilledIconButton(rememberCoroutineScope.launch 调 connectAndExec，running 显 CircularProgressIndicator)+滚动终端输出区；状态面板改占位（A4 真采集）。
+- **改动**：`android/app/build.gradle.kts`；新增 `SshClient.kt`；改 `MainActivity.kt`(ServerWorkspace + imports)。
+- **验证**：gradle assembleDebug **BUILD SUCCESSFUL in 7m**（拉 sshj+BouncyCastle+重打包）→ **app-debug.apk 25.9MB**（从 14.8MB 增 ~11MB=sshj+BC），含 8 sshj/BC 条目，**无 Duplicate/META-INF 冲突**（排除生效）。sshj 成功编译进 APK=安卓端具备真实 SSH 能力。推送 479ef31。实连验证需真服务器。
+- **安卓进度**：A0 骨架/A2-UI/A2 连接管理/**A1 真实 SSH** ✅。下一步 A1b 交互 PTY 终端 / A3 智能运维 Kotlin 化。
+
+---
+
 ## A2 · 安卓连接管理（持久化 + 增删改）
 - **内容**：`ConnectionStore.kt`——`ServerConn`(加 id=UUID + toJson)；`object ConnectionStore`(SharedPreferences 存连接 JSON 数组[org.json，零额外依赖] load/save，首次 seedDefaults 3 示例)。`EditConnectionScreen.kt`——新建/编辑表单(名称/host/user/port[数字]/分组/备注 OutlinedTextField，珊瑚红主题色，host+user trim 非空才可保存，保存回调 copy 更新)。`MainActivity`：连接列表改 `mutableStateListOf` 从 ConnectionStore.load 初始化；`FloatingActionButton`(连接 tab 显示)新建；ServerCard 加 ⋮ DropdownMenu(编辑/删除)；空状态(无连接提示点 + 新建)；增删改后 persist()。移除写死 demoConns。
 - **改动**：新增 `android/.../ConnectionStore.kt`、`EditConnectionScreen.kt`；改 `MainActivity.kt`。

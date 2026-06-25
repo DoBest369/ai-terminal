@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.AltRoute
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -356,7 +357,7 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
                 // A-CardBadge：名称 + 特性小图标（跳板/启动命令/私钥认证）
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(conn.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp)
-                    if (conn.hasJump) Icon(Icons.Filled.AltRoute, "经跳板机", tint = TextSecondary, modifier = Modifier.size(13.dp))
+                    if (conn.hasJump) Icon(Icons.AutoMirrored.Filled.AltRoute, "经跳板机", tint = TextSecondary, modifier = Modifier.size(13.dp))
                     if (conn.startupCommand.isNotEmpty()) Icon(Icons.Filled.Bolt, "有启动命令", tint = TextSecondary, modifier = Modifier.size(13.dp))
                     if (conn.authType == AuthType.KEY) Icon(Icons.Filled.VpnKey, "私钥认证", tint = TextSecondary, modifier = Modifier.size(13.dp))
                 }

@@ -10,6 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.NetworkCheck
+import kotlinx.coroutines.launch
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,6 +35,10 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
     var authType by remember { mutableStateOf(existing?.authType ?: AuthType.PASSWORD) }
     var colorTag by remember { mutableStateOf(existing?.colorTag ?: ColorTag.NONE) }
     var startup by remember { mutableStateOf(existing?.startupCommand ?: "") }
+    // A-TestConn 测试连接
+    val scope = rememberCoroutineScope()
+    var testing by remember { mutableStateOf(false) }
+    var testResult by remember { mutableStateOf<Boolean?>(null) }
 
     val canSave = host.trim().isNotEmpty() && user.trim().isNotEmpty()
 
@@ -77,6 +83,24 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(user, { user = it }, label = { Text("用户名 *") }, singleLine = true, colors = fieldColors, modifier = Modifier.weight(2f))
                 OutlinedTextField(port, { port = it.filter { c -> c.isDigit() } }, label = { Text("端口") }, singleLine = true, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number), colors = fieldColors, modifier = Modifier.weight(1f))
+            }
+            // A-TestConn：测试连接（TCP 可达性）
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = {
+                    if (host.isBlank() || testing) return@OutlinedButton
+                    testing = true; testResult = null
+                    scope.launch {
+                        testResult = Reachability.probe(host.trim(), port.toIntOrNull() ?: 22)
+                        testing = false
+                    }
+                }, enabled = host.isNotBlank() && !testing) {
+                    if (testing) CircularProgressIndicator(Modifier.size(14.dp), color = Accent, strokeWidth = 2.dp)
+                    else Icon(Icons.Filled.NetworkCheck, null, tint = Accent, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp)); Text("测试连接", color = Accent, fontSize = 13.sp)
+                }
+                testResult?.let {
+                    Text(if (it) "✅ 可达" else "❌ 不可达", color = if (it) Success else Danger, fontSize = 13.sp)
+                }
             }
             OutlinedTextField(group, { group = it }, label = { Text("分组（可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(note, { note = it }, label = { Text("备注（可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())

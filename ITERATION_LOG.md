@@ -6,6 +6,14 @@
 
 ---
 
+## A4 + A3b · 安卓 AI 助手对话 + 排障/模板 Kotlin 化
+- **A4 AI 助手**：加 okhttp:4.12.0；`SettingsStore.kt`(SharedPreferences 存 ai_api_key/ai_model[默认 claude-opus-4-8] + isConfigured，TODO 迁 Keystore)；`AiClient.kt`(suspend chat(apiKey,model,messages,systemPrompt)→Anthropic Messages API[x-api-key+anthropic-version 2023-06-01，org.json 拼 body+解析 content text]，IO+超时+Result，错误取 error.message；SSH 运维助手系统提示)。`AIAssistantScreen` 改真对话(mutableStateListOf<Pair<role,content>> + ChatBubble 气泡[user 右珊瑚/assistant 左] + 输入栏发送[协程 AiClient.chat] + 空态示例可点 + 未配 Key 跳设置)。`SettingsScreen` API Key 行点击 AlertDialog 输入保存(显示 ••••后4位)。验证：构建 58s → APK 30.8MB(含 OkHttp)。推送 6df2aff。
+- **A3b 排障+模板**：`OpsWorkflows.kt`——`DiagnosticWorkflow`(5 内置:网站打不开/磁盘清理/SSL/Nginx/Docker，commands+summaryPrompt) + `SetupTemplate`/`SetupStep`(5 内置:Ubuntu Web 10 步/Docker/Node/静态站/LNMP，step.risk 复用 CommandRisk，previewText 预览)，移植 apple DiagnosticWorkflow.swift+SetupTemplate.swift。`ServerWorkspace` 顶栏加「排障」(MonitorHeart)「初始化模板」(Dns) DropdownMenu，点击把命令序列填入命令框(排障 && 串联；模板换行+过滤注释)。验证：构建 16s → APK 30.8MB。推送 80b3533。
+- **意义**：安卓端已具备 连接管理/真实 SSH/风险分级脱敏/AI 对话/排障/初始化模板——与 apple 端核心能力基本对齐。本机无 Key/服务器不能实测对话与连接，编译+逻辑验证。
+- **安卓进度**：A0/A2-UI/A2/A1/A3/**A4/A3b** ✅。剩 A1b PTY 交互终端 / 状态面板真采集 / 流式 AI。
+
+---
+
 ## A3 · 安卓智能运维 Kotlin 化（风险分级 + 脱敏）· 护城河移植
 - **内容**：新建 `OpsCore.kt`——`enum CommandRisk{LOW/MEDIUM/HIGH/CRITICAL}`（level + label[安全/注意/高风险/极高危] + color[Compose Color，与 apple colorHex 一致] + needsConfirm[>=HIGH] + companion riskLevel(cmd) 规则匹配 critical>high>medium>low，patterns 照搬 apple CommandRisk.swift）+ `object Redactor.redact`（Kotlin Regex 移植：sensitiveKeys=值、sk-***、Bearer ***、AKIA***、PRIVATE KEY 块 打码）。`ServerWorkspace` 接入：命令框非空实时风险徽章（色点+「风险：X」+需确认提示）；`submit()` 对 needsConfirm 命令弹 `AlertDialog` 二次确认（按风险着色）再 exec；SSH 输出经 `Redactor.redact` 脱敏再显示。
 - **改动**：新增 `android/.../OpsCore.kt`；改 `MainActivity.kt`(ServerWorkspace)。

@@ -15,7 +15,11 @@ object SettingsStore {
     private const val SECURE_PREF = "termind_secure"       // 加密（API Key）
     private const val K_API_KEY = "ai_api_key"
     private const val K_MODEL = "ai_model"
+    private const val K_THEME = "theme_id"
     const val DEFAULT_MODEL = "claude-opus-4-8"
+
+    fun loadTheme(ctx: Context): String = prefs(ctx).getString(K_THEME, "midnight") ?: "midnight"
+    fun saveTheme(ctx: Context, id: String) = prefs(ctx).edit().putString(K_THEME, id).apply()
 
     private fun prefs(ctx: Context) = ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE)
 

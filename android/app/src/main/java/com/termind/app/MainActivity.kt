@@ -6,7 +6,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,16 +32,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Termind 品牌配色（呼应 apple 端：午夜深蓝 + 珊瑚红 accent）
-val Bg = Color(0xFF1A1A2E)
-val Surface = Color(0xFF16213E)
-val SurfaceLight = Color(0xFF0F3460)
-val Accent = Color(0xFFE94560)
-val TextPrimary = Color(0xFFEEEEEE)
-val TextSecondary = Color(0xFFA0A0A0)
-val Success = Color(0xFF2ECC71)
-val Warning = Color(0xFFF39C12)
-val Danger = Color(0xFFE74C3C)
+// Termind 配色（A-Themes：读全局 activeTheme，切换主题即全局 recompose 跟随）
+val Bg: Color get() = activeTheme.bg
+val Surface: Color get() = activeTheme.surface
+val SurfaceLight: Color get() = activeTheme.surfaceLight
+val Accent: Color get() = activeTheme.accent
+val TextPrimary: Color get() = activeTheme.textPrimary
+val TextSecondary: Color get() = activeTheme.textSecondary
+val Success: Color get() = activeTheme.success
+val Warning: Color get() = activeTheme.warning
+val Danger: Color get() = activeTheme.danger
 
 // A-Rollback 时间戳：备份文件名用 yyyyMMdd-HHmmss，时间线显示用 HH:mm:ss
 private fun backupStamp(): String = java.text.SimpleDateFormat("yyyyMMdd-HHmmss", java.util.Locale.US).format(java.util.Date())
@@ -49,16 +51,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        activeTheme = ThemeScheme.byId(SettingsStore.loadTheme(this))  // A-Themes：启动应用已存主题
         setContent { TermindTheme { TermindApp() } }
     }
 }
 
 @Composable
 fun TermindTheme(content: @Composable () -> Unit) {
+    val t = activeTheme  // 读全局主题，切换即 recompose
     MaterialTheme(
         colorScheme = darkColorScheme(
-            primary = Accent, background = Bg, surface = Surface,
-            onPrimary = Color.White, onBackground = TextPrimary, onSurface = TextPrimary
+            primary = t.accent, background = t.bg, surface = t.surface,
+            onPrimary = Color.White, onBackground = t.textPrimary, onSurface = t.textPrimary
         ),
         content = content
     )
@@ -368,6 +372,38 @@ fun SettingsScreen() {
     var apiKey by remember { mutableStateOf(SettingsStore.loadApiKey(ctx)) }
     var editingKey by remember { mutableStateOf(false) }
     var keyInput by remember { mutableStateOf("") }
+    var pickingTheme by remember { mutableStateOf(false) }
+
+    // A-Themes：主题选择
+    if (pickingTheme) {
+        AlertDialog(
+            onDismissRequest = { pickingTheme = false },
+            title = { Text("配色主题", color = TextPrimary) },
+            text = {
+                Column {
+                    ThemeScheme.builtins.forEach { th ->
+                        Row(
+                            Modifier.fillMaxWidth().clickable {
+                                activeTheme = th; SettingsStore.saveTheme(ctx, th.id); pickingTheme = false
+                            }.padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // 配色预览点
+                            listOf(th.bg, th.surface, th.accent, th.success).forEach {
+                                Box(Modifier.size(14.dp).clip(androidx.compose.foundation.shape.CircleShape).background(it))
+                                Spacer(Modifier.width(3.dp))
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            Text(th.name, color = TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                            if (activeTheme.id == th.id) Icon(Icons.Filled.Check, null, tint = Accent, modifier = Modifier.size(18.dp))
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { pickingTheme = false }) { Text("关闭", color = Accent) } },
+            containerColor = Surface
+        )
+    }
 
     if (editingKey) {
         AlertDialog(
@@ -386,7 +422,7 @@ fun SettingsScreen() {
     Column {
         TopBar("设置")
         Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SettingRow(Icons.Filled.Palette, "配色主题", "午夜")
+            SettingRow(Icons.Filled.Palette, "配色主题", activeTheme.name) { pickingTheme = true }
             SettingRow(Icons.Filled.SmartToy, "AI 服务商", "Anthropic Claude")
             SettingRow(Icons.Filled.Key, "API Key", if (apiKey.isBlank()) "未配置（点击设置）" else "已配置 ••••${apiKey.takeLast(4)}") { keyInput = apiKey; editingKey = true }
             SettingRow(Icons.Filled.Info, "关于 Termind", "智能 SSH 运维工作台 v1.0")

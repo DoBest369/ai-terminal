@@ -6,6 +6,13 @@
 
 ---
 
+## Z1 · AI 命令解释（智能运维 MVP 差异化第一项）
+- **内容**：Core AIService.swift 加 `commandExplainPrompt`（命令解释模块系统提示：只讲解不执行、不输出 [EXECUTE]，按 作用/关键参数/风险/安全等级 四段，高危用 ⚠️ + 后果）。AppModel 加 `explainCommand(_:)`：trim+配置校验，本地 `AIService.isDangerous(cmd)` 先给规则判定的安全等级提示，追加用户消息「解释这条命令（…）：```cmd```」，调 `runAICompletion(systemPrompt: commandExplainPrompt)`。`runAICompletion` 改为可选 `systemPrompt` 覆盖（默认 agentSystemPrompt）。AIAgentView 输入栏在发送按钮前加「解释」Button（questionmark.circle，warning 色，canSend 时可点）：取当前 input 当命令讲解、清空输入、不执行。
+- **改动**：`apple/AITerminalCore/.../AIService.swift`、`apple/App/Sources/AppModel.swift`、`Views/AIAgentView.swift`。
+- **验证**：`cd apple/AITerminalCore && swift build` ✓ + `cd apple/App && swift build` ✓。推送 1bceb26。
+
+---
+
 ## N2 · 原生 SwiftUI 液态玻璃（原生重构开始）
 - **背景**：Web 删除后，apple/（SwiftUI 原生）按 SSH 运维愿景重设计。本轮做 iOS 26 玻璃。
 - **内容**：`Platform.swift` 加 `.glassPanel(tint, opacity)`（`tint.opacity(N).background(.ultraThinMaterial)`=主题色半透明叠原生毛玻璃）+ `.glassOverlay()`（浮层用，高不透明+描边+圆角+阴影）。`SidebarView` 根 `.background(Theme.surface)`→`.glassPanel(opacity:0.55)`、navigationTitle 改 Termind；`AIAgentView` 根→`.glassPanel(opacity:0.45)`；`StatusBarView` 根→`.glassPanel(opacity:0.5)`。终端正文(TerminalPane)不动保可读。

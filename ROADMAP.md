@@ -21,7 +21,7 @@
 ## 🤖 阶段 Z — 智能 SSH 运维能力（MVP 差异化核心）· 最高优先级
 
 围绕「理解环境→规划→评估风险→确认→验证→回滚」闭环，建 MVP 差异化能力（已具备 SSH/SFTP/分组/密钥/危险拦截/确认/脚本/状态栏）：
-- [ ] **Z1** AI 命令解释：终端/AI 面板对命令解释作用+风险+安全等级（执行前），先做规则+AI 双轨
+- [x] **Z1** AI 命令解释 ✅（Core commandExplainPrompt[只讲解不执行：作用/参数/风险/安全等级，高危⚠️]；AppModel.explainCommand[本地 isDangerous 先判+解释 prompt 流式]；AIAgentView 输入栏「解释」按钮[questionmark.circle 警示色，不执行]；runAICompletion 支持 systemPrompt 覆盖；双端 build 通过；推送 1bceb26）
 - [ ] **Z2** AI 报错分析：捕获/粘贴报错 → AI 解释含义+定位原因+给可执行修复（含 502/permission denied/no space 等常见）
 - [ ] **Z3** 环境感知：连接后探测 OS/发行版/已装服务(nginx/docker/node…)/项目类型，做成「服务器卡片」喂给 AI
 - [ ] **Z4** 场景化排障工作流：内置「网站打不开/磁盘清理/SSL 检查/Nginx 状态/Docker 日志」一键诊断（跑命令序列→AI 总结）

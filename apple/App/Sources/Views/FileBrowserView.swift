@@ -38,6 +38,8 @@ struct FileBrowserView: View {
     @State private var renameTarget: SFTPEntry?
     @State private var renameText = ""
     @State private var deleteTarget: SFTPEntry?
+    @State private var showGoto = false       // 路径直接跳转
+    @State private var gotoText = ""
 
     var body: some View {
         NavigationStack {
@@ -86,6 +88,11 @@ struct FileBrowserView: View {
                     }
                 }
             }
+            .alert("跳转到路径", isPresented: $showGoto) {
+                TextField("如 /var/log", text: $gotoText)
+                Button("取消", role: .cancel) {}
+                Button("跳转") { let t = gotoText.trimmingCharacters(in: .whitespaces); if !t.isEmpty { Task { await load(t) } } }
+            }
             .alert("新建文件夹", isPresented: $showMkdir) {
                 TextField("文件夹名", text: $mkdirName)
                 Button("取消", role: .cancel) {}
@@ -121,11 +128,19 @@ struct FileBrowserView: View {
             .buttonStyle(.plain)
             .disabled(path == "/" || loading)
 
-            Text(path)
-                .font(.system(size: 12, design: .monospaced))
-                .foregroundStyle(Theme.textSecondary)
-                .lineLimit(1)
-                .truncationMode(.head)
+            Button {
+                gotoText = path; showGoto = true
+            } label: {
+                HStack(spacing: 4) {
+                    Text(path)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundStyle(Theme.textSecondary)
+                        .lineLimit(1)
+                        .truncationMode(.head)
+                    Image(systemName: "pencil").font(.system(size: 10)).foregroundStyle(Theme.accent)
+                }
+            }
+            .buttonStyle(.plain)
             Spacer()
             if loading || busy != nil {
                 ProgressView().controlSize(.small)

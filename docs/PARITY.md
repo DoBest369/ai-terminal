@@ -31,7 +31,7 @@
 | SFTP 文件重命名 | 🟡 | ✅ | android sftp.rename |
 | SFTP 路径直接跳转 | 🟡 | ✅ | android 输路径直达深目录 |
 | 终端输出搜索高亮 | 🟡 | ✅ | android 关键词高亮+匹配计数 |
-| 终端控制键栏（Tab/Ctrl/方向键） | 🟡 | ✅ | android（移动端刚需）；apple 物理键盘 |
+| 终端控制键栏（Tab/Ctrl/方向键） | ✅ | ✅ | 双端；apple TerminalKeyBar（iOS SSH 会话，18 键含 ^R/^U/管道符）+ macOS 物理键盘 |
 | AI 代码块渲染 | ✅ | ✅ | 双端按 ``` 拆等宽深色框（apple MessageBubble + 渲染验证） |
 
 ## AI 助手
@@ -71,8 +71,8 @@
 | 能力 | apple | android | 说明 |
 |------|:---:|:---:|------|
 | 命令历史（去重/调出） | ✅ | ✅ | 双端 |
-| 批量群发命令 | 🟡 | ✅ | apple Core 框架+UI 渲染；android 完整实测 |
-| 群发结果 AI 汇总 | 🟡 | ✅ | apple composeForAI；android 完整 |
+| 批量群发命令 | ✅ | ✅ | apple AppModel.runBatch 真接 SSHTerminalSession；android 完整实测 |
+| 群发结果 AI 汇总 | ✅ | ✅ | apple summarizeBatch + composeForAI；android 完整 |
 | 批量健康巡检 | ⬜ | ✅ | android InspectScreen（并发查全部+异常置顶） |
 | 巡检结果 AI 总结 | ⬜ | ✅ | android |
 | 定时后台巡检 + 通知 | ⬜ | ✅ | android WorkManager（主动运维，离线推通知） |
@@ -95,7 +95,8 @@
 ## 小结
 
 - **核心智能运维护城河（Z1–Z8）双端完全对齐** ✅
-- **SSH/终端/SFTP/AI/安全/端口转发/跳板机/多主题/多对话 双端齐平**
+- **SSH/终端（含控制键栏）/SFTP/AI（含代码块渲染）/安全/端口转发/跳板机/批量群发/多主题/多对话 双端齐平**
+- 标 🟡 的均为 **android 独有便捷功能**（连接测试/SFTP 增删改路径跳转/终端搜索/AI 提示词库/消息复制）——apple 可后续补，非核心缺口
 - apple 为功能最全的旗舰；**android 已是功能完整、体验接近桌面的第二原生端，核心能力与 apple 高度对齐**
 - **android AI 能力已与 apple 完全对齐**（对话/解释/报错/健康/环境感知/流式/停止/重新生成/多对话/持久化/搜索/导出/代码块/消息复制）
 - android 跳板机 ProxyJump 已**完整覆盖所有 SSH 操作**（终端/状态/环境/排障/模板/SFTP/端口转发）——**仅剩 分屏/会话录制**（移动端意义有限，标 N/A）未对齐

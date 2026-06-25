@@ -527,6 +527,19 @@ final class AppModel: ObservableObject {
         runAICompletion(systemPrompt: commandExplainPrompt)
     }
 
+    /// 分析一段报错/日志（Z2）：解释含义+定位原因+给可执行修复。
+    func analyzeError(_ text: String) {
+        let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty, !aiProcessing else { return }
+        guard aiConfig.isConfigured else {
+            toast = "请先在设置中配置 API Key"
+            showSettings = true
+            return
+        }
+        aiMessages.append(ChatMessage(role: .user, content: "分析这段报错并给修复：\n```\n\(t)\n```"))
+        runAICompletion(systemPrompt: errorAnalysisPrompt)
+    }
+
     /// 公共流式生成：假定用户消息已在 aiMessages 末尾，追加占位 assistant 并流式填充。
     /// systemPrompt 可覆盖（命令解释等专用模式）。
     private func runAICompletion(systemPrompt: String? = nil) {

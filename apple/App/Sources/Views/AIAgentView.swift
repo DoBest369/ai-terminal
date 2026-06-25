@@ -330,6 +330,19 @@ struct AIAgentView: View {
                 .buttonStyle(.plain)
                 .disabled(!canSend)
                 .help("解释这条命令（不执行）")
+                // Z2：把当前输入当报错/日志分析（含义+原因+修复）
+                Button {
+                    let err = input
+                    input = ""
+                    model.analyzeError(err)
+                } label: {
+                    Image(systemName: "exclamationmark.magnifyingglass")
+                        .font(.system(size: 21))
+                        .foregroundStyle(canSend ? Theme.danger : Theme.textSecondary)
+                }
+                .buttonStyle(.plain)
+                .disabled(!canSend)
+                .help("分析这段报错并给修复")
                 Button {
                     send()
                 } label: {

@@ -74,6 +74,7 @@
 - [x] **A-Portability** 连接配置导出/导入 ✅（ConnectionStore exportJson[不含密码]/importJson；ServerListScreen 更多菜单 导出分享/导入文件去重 merge；对齐 apple ConnectionPortability；构建 18s；推送 9b9fd7c）
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
+- [x] **A-Keys** 终端控制键栏 ✅（ServerWorkspace 终端区下方横滑键栏：Tab/Esc/Ctrl+C/D/L/Z/A/E+方向键↑↓←→→shellSession.write 控制字符/ESC 序列；移动端无 Ctrl/Tab，让 vim/top 可用；构建 19s；推送 370a550）
 - [x] **A-Ansi** 终端 ANSI 颜色渲染 ✅（AnsiParser.parse→AnnotatedString 解析 SGR 前景色 30-37/90-97+粗体+重置；openShell 传原始 ANSI；终端区彩色显示替代删色单色；构建 18s；推送 c2f4941）
 - [x] **A-HealthAI** 状态面板↔AI 联动 ✅（ServerStatus.healthSummary/hasWarning/cpuPercent/diskPercent；AiClient.HEALTH_PROMPT；ServerWorkspace 状态面板 CPU/磁盘>85% 红+「问 AI」按钮[告警高亮]→HealthAISheet chatStream 流式分析；对齐 apple Z6b；构建 17s；推送 15f597d）
 - [x] **A-Secure** API Key 加密存储 ✅（security-crypto:1.1.0-alpha06；SettingsStore API Key 走 EncryptedSharedPreferences[MasterKey AES256_GCM]，对齐 apple Keychain；旧明文→加密迁移+失败回退；构建 1m12s 加 Tink 触发 multidex；推送 9be395f）

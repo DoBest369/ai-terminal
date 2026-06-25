@@ -18,6 +18,16 @@ object AiClient {
         "涉及删除、格式化、重启服务、改防火墙/SSH 等危险操作时，必须明确警示风险并建议先备份。" +
         "回答精炼、用中文，命令用代码块。"
 
+    /** 命令解释（对齐 apple commandExplainPrompt）：只讲解不执行 */
+    const val EXPLAIN_PROMPT =
+        "你是命令讲解助手。请讲解用户给出的这条命令：① 作用 ② 关键参数含义 ③ 潜在风险 ④ 安全等级（安全/注意/高风险/极高危）。" +
+        "高危操作用 ⚠️ 标注。只讲解，不要执行、不要给 [EXECUTE]。精炼中文。"
+
+    /** 报错分析（对齐 apple errorAnalysisPrompt） */
+    const val ERROR_PROMPT =
+        "你是运维报错分析助手。请分析用户给出的这段报错：① 含义 ② 最可能的原因 ③ 可执行的修复步骤（命令用代码块）④ 修复后如何验证。" +
+        "识别常见错误（502/Permission denied/No space/端口占用/Nginx/SSL 等）。精炼中文。"
+
     private val http = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)

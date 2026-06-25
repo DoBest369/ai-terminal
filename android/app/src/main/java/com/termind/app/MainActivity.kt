@@ -229,14 +229,14 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
     var sending by remember { mutableStateOf(false) }
     val suggestions = listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器")
 
-    fun send(text: String) {
+    fun send(text: String, basePrompt: String = AiClient.SYSTEM_PROMPT) {
         val t = text.trim(); if (t.isEmpty() || sending) return
         if (!SettingsStore.isConfigured(ctx)) { onGoSettings(); return }
         messages.add("user" to t); input = ""; sending = true
         // A-Env：把当前服务器环境摘要注入系统提示，让 AI 结合真实环境回答（对齐 apple Z3）
         val sys = profile?.aiSummary?.takeIf { it.isNotEmpty() }?.let {
-            "${AiClient.SYSTEM_PROMPT}\n\n$it\n请结合以上真实服务器环境给出针对性、可直接执行的回答。"
-        } ?: AiClient.SYSTEM_PROMPT
+            "$basePrompt\n\n$it\n请结合以上真实服务器环境给出针对性、可直接执行的回答。"
+        } ?: basePrompt
         // A-Stream：流式逐字显示。先放一个空 assistant 消息，delta 时追加到它
         val history = messages.toList()
         val aiIndex = messages.size
@@ -270,6 +270,21 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
                 items(messages.size) { i -> ChatBubble(messages[i].first, messages[i].second) }
                 if (sending) item { Text("AI 思考中…", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(8.dp)) }
             }
+        }
+        // A-AIActions：命令解释 / 报错分析 快捷入口（对齐 apple AIAgentView）
+        Row(Modifier.padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AssistChip(
+                onClick = { send(input, AiClient.EXPLAIN_PROMPT) },
+                label = { Text("解释命令", fontSize = 12.sp) },
+                leadingIcon = { Icon(Icons.Filled.Lightbulb, null, tint = Warning, modifier = Modifier.size(16.dp)) },
+                colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
+            )
+            AssistChip(
+                onClick = { send(input, AiClient.ERROR_PROMPT) },
+                label = { Text("分析报错", fontSize = 12.sp) },
+                leadingIcon = { Icon(Icons.Filled.BugReport, null, tint = Danger, modifier = Modifier.size(16.dp)) },
+                colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
+            )
         }
         // 输入栏
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -4,150 +4,263 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // Termind 品牌配色（呼应 apple 端：午夜深蓝 + 珊瑚红 accent）
-private val Bg = Color(0xFF1A1A2E)
-private val Surface = Color(0xFF16213E)
-private val SurfaceLight = Color(0xFF0F3460)
-private val Accent = Color(0xFFE94560)
-private val TextPrimary = Color(0xFFEEEEEE)
-private val TextSecondary = Color(0xFFA0A0A0)
-private val Success = Color(0xFF2ECC71)
-private val Danger = Color(0xFFE74C3C)
-
-/** 占位 SSH 连接（后续接入真实连接管理 + dartssh 替代物 sshj/JSch） */
-data class ServerConn(
-    val name: String,
-    val host: String,
-    val user: String,
-    val port: Int,
-    val group: String,
-    val online: Boolean,
-    val note: String = ""
-)
-
-private val demoConns = listOf(
-    ServerConn("生产 Web 01", "web01.example.com", "deploy", 22, "生产环境", true, "官网 + API"),
-    ServerConn("数据库主机", "db.internal.net", "admin", 22, "生产环境", true, "MySQL 主库"),
-    ServerConn("开发机", "dev.example.com", "deploy", 2222, "开发环境", false),
-    ServerConn("香港节点", "hk.example.com", "root", 22, "海外", false, "SSL 7 天后过期")
-)
+val Bg = Color(0xFF1A1A2E)
+val Surface = Color(0xFF16213E)
+val SurfaceLight = Color(0xFF0F3460)
+val Accent = Color(0xFFE94560)
+val TextPrimary = Color(0xFFEEEEEE)
+val TextSecondary = Color(0xFFA0A0A0)
+val Success = Color(0xFF2ECC71)
+val Warning = Color(0xFFF39C12)
+val Danger = Color(0xFFE74C3C)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            TermindTheme {
-                ServerListScreen(demoConns)
-            }
-        }
+        setContent { TermindTheme { TermindApp() } }
     }
 }
 
 @Composable
 fun TermindTheme(content: @Composable () -> Unit) {
-    val colors = darkColorScheme(
-        primary = Accent,
-        background = Bg,
-        surface = Surface,
-        onPrimary = Color.White,
-        onBackground = TextPrimary,
-        onSurface = TextPrimary
+    MaterialTheme(
+        colorScheme = darkColorScheme(
+            primary = Accent, background = Bg, surface = Surface,
+            onPrimary = Color.White, onBackground = TextPrimary, onSurface = TextPrimary
+        ),
+        content = content
     )
-    MaterialTheme(colorScheme = colors, content = content)
+}
+
+enum class Tab(val label: String, val icon: ImageVector) {
+    Servers("连接", Icons.Filled.Dns),
+    AI("AI 助手", Icons.Filled.AutoAwesome),
+    Settings("设置", Icons.Filled.Settings)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServerListScreen(conns: List<ServerConn>) {
+fun TermindApp() {
+    var tab by remember { mutableStateOf(Tab.Servers) }
+    var detail by remember { mutableStateOf<ServerConn?>(null) }
+
+    // 连接详情「工作区」覆盖在最上层
+    detail?.let { conn ->
+        ServerWorkspace(conn, onBack = { detail = null })
+        return
+    }
+
     Scaffold(
         containerColor = Bg,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Bolt, contentDescription = null, tint = Accent)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Termind", fontWeight = FontWeight.Bold, color = TextPrimary)
-                        Spacer(Modifier.width(8.dp))
-                        Text("智能 SSH 运维", fontSize = 12.sp, color = TextSecondary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Surface)
-            )
+        bottomBar = {
+            NavigationBar(containerColor = Surface) {
+                Tab.values().forEach { t ->
+                    NavigationBarItem(
+                        selected = tab == t,
+                        onClick = { tab = t },
+                        icon = { Icon(t.icon, contentDescription = t.label) },
+                        label = { Text(t.label, fontSize = 11.sp) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Accent, selectedTextColor = Accent,
+                            indicatorColor = SurfaceLight, unselectedIconColor = TextSecondary,
+                            unselectedTextColor = TextSecondary
+                        )
+                    )
+                }
+            }
         }
     ) { padding ->
-        // 按分组展示连接（运维工作台：服务器资产列表）
+        Box(Modifier.padding(padding)) {
+            when (tab) {
+                Tab.Servers -> ServerListScreen(demoConns) { detail = it }
+                Tab.AI -> AIAssistantScreen()
+                Tab.Settings -> SettingsScreen()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopBar(title: String, subtitle: String? = null) {
+    TopAppBar(
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Bolt, contentDescription = null, tint = Accent)
+                Spacer(Modifier.width(8.dp))
+                Text(title, fontWeight = FontWeight.Bold, color = TextPrimary)
+                subtitle?.let {
+                    Spacer(Modifier.width(8.dp))
+                    Text(it, fontSize = 12.sp, color = TextSecondary)
+                }
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Surface)
+    )
+}
+
+@Composable
+fun ServerListScreen(conns: List<ServerConn>, onOpen: (ServerConn) -> Unit) {
+    Column {
+        TopBar("Termind", "智能 SSH 运维")
         val grouped = conns.groupBy { it.group }
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 12.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             grouped.forEach { (group, list) ->
-                item {
-                    Text(
-                        group,
-                        fontSize = 12.sp,
-                        color = TextSecondary,
-                        modifier = Modifier.padding(top = 14.dp, bottom = 2.dp)
-                    )
+                item { Text(group, fontSize = 12.sp, color = TextSecondary, modifier = Modifier.padding(top = 14.dp, bottom = 2.dp)) }
+                items(list) { conn -> ServerCard(conn) { onOpen(conn) } }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ServerCard(conn: ServerConn, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = SurfaceLight.copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.Circle, null, tint = if (conn.online) Success else TextSecondary, modifier = Modifier.size(10.dp))
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(conn.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+                Text("${conn.user}@${conn.host}:${conn.port}", color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+                if (conn.note.isNotEmpty()) Text("📝 ${conn.note}", color = TextSecondary.copy(alpha = 0.85f), fontSize = 11.sp)
+            }
+            Icon(Icons.Filled.ChevronRight, null, tint = TextSecondary)
+        }
+    }
+}
+
+@Composable
+fun AIAssistantScreen() {
+    Column {
+        TopBar("AI 运维助手")
+        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("让 AI 结合服务器真实环境帮你运维", color = TextSecondary, fontSize = 13.sp)
+            listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器").forEach {
+                Card(colors = CardDefaults.cardColors(containerColor = SurfaceLight.copy(alpha = 0.45f)), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(10.dp))
+                        Text(it, color = TextPrimary, fontSize = 13.sp)
+                    }
                 }
-                items(list) { conn -> ServerCard(conn) }
+            }
+            Spacer(Modifier.weight(1f))
+            Surface(color = Surface, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("用自然语言描述运维任务…", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                    Icon(Icons.Filled.ArrowUpward, null, tint = Accent)
+                }
             }
         }
     }
 }
 
 @Composable
-fun ServerCard(conn: ServerConn) {
-    Surface(
-        color = SurfaceLight.copy(alpha = 0.5f),
-        shape = RoundedCornerShape(14.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Filled.Circle,
-                contentDescription = null,
-                tint = if (conn.online) Success else TextSecondary,
-                modifier = Modifier.size(10.dp)
-            )
+fun SettingsScreen() {
+    Column {
+        TopBar("设置")
+        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SettingRow(Icons.Filled.Palette, "配色主题", "午夜")
+            SettingRow(Icons.Filled.SmartToy, "AI 服务商", "Anthropic Claude")
+            SettingRow(Icons.Filled.Key, "API Key", "未配置")
+            SettingRow(Icons.Filled.Info, "关于 Termind", "智能 SSH 运维工作台 v1.0")
+        }
+    }
+}
+
+@Composable
+private fun SettingRow(icon: ImageVector, title: String, value: String) {
+    Surface(color = SurfaceLight.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, null, tint = Accent, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(conn.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp)
-                Text(
-                    "${conn.user}@${conn.host}:${conn.port}",
-                    color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace
-                )
-                if (conn.note.isNotEmpty()) {
-                    Text("📝 ${conn.note}", color = TextSecondary.copy(alpha = 0.85f), fontSize = 11.sp)
+            Text(title, color = TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f))
+            Text(value, color = TextSecondary, fontSize = 12.sp)
+        }
+    }
+}
+
+/** 连接后「工作区」：终端 + 状态面板 + AI 入口（占位，呼应运维工作台三层） */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
+    Scaffold(
+        containerColor = Bg,
+        topBar = {
+            TopAppBar(
+                title = { Column { Text(conn.name, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold); Text("${conn.user}@${conn.host}:${conn.port}", color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace) } },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, null, tint = TextPrimary) } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Surface)
+            )
+        }
+    ) { padding ->
+        Column(Modifier.padding(padding).fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            // 状态面板占位
+            Surface(color = SurfaceLight.copy(alpha = 0.5f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                Row(Modifier.padding(14.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    StatCell("CPU", "12%", Success)
+                    StatCell("内存", "1.8/4 GB", Warning)
+                    StatCell("磁盘", "36/80 GB", Success)
+                }
+            }
+            // 终端区占位
+            Surface(color = Color(0xFF0D0D1A), shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f).fillMaxWidth()) {
+                Text("deploy@${conn.host}:~\$ ", color = Success, fontSize = 13.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(14.dp))
+            }
+            // AI 助手入口
+            Surface(color = Accent.copy(alpha = 0.18f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(10.dp))
+                    Text("问 AI：这台服务器有什么异常？", color = TextPrimary, fontSize = 13.sp)
                 }
             }
         }
     }
 }
+
+@Composable
+private fun RowScope.StatCell(label: String, value: String, color: Color) {
+    Column(Modifier.weight(1f)) {
+        Text(label, color = TextSecondary, fontSize = 11.sp)
+        Text(value, color = color, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+// ===== 占位数据 =====
+data class ServerConn(val name: String, val host: String, val user: String, val port: Int, val group: String, val online: Boolean, val note: String = "")
+
+val demoConns = listOf(
+    ServerConn("生产 Web 01", "web01.example.com", "deploy", 22, "生产环境", true, "官网 + API"),
+    ServerConn("数据库主机", "db.internal.net", "admin", 22, "生产环境", true, "MySQL 主库"),
+    ServerConn("开发机", "dev.example.com", "deploy", 2222, "开发环境", false),
+    ServerConn("香港节点", "hk.example.com", "root", 22, "海外", false, "SSL 7 天后过期")
+)

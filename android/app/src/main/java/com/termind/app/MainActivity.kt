@@ -683,6 +683,8 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var showHistory by remember { mutableStateOf(false) }   // N-History 命令历史
     val cmdHistory = remember { mutableStateListOf<String>().apply { addAll(CommandHistory.load(ctx)) } }
     var termFont by remember { mutableStateOf(SettingsStore.loadTermFont(ctx)) }   // A-FontSize 终端字号
+    val customSnippets = remember { mutableStateListOf<CommandSnippet>().apply { addAll(SnippetStore.load(ctx)) } }  // A-SnippetCRUD
+    var showNewSnippet by remember { mutableStateOf(false) }
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -910,6 +912,28 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         }
     }
 
+    // A-SnippetCRUD：新建快捷命令对话框
+    if (showNewSnippet) {
+        var t by remember { mutableStateOf("") }
+        var c by remember { mutableStateOf(command) }
+        AlertDialog(
+            onDismissRequest = { showNewSnippet = false },
+            title = { Text("新建快捷命令", color = TextPrimary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(t, { t = it }, label = { Text("名称") }, singleLine = true, colors = termColors)
+                    OutlinedTextField(c, { c = it }, label = { Text("命令") }, singleLine = true, colors = termColors)
+                }
+            },
+            confirmButton = { TextButton(onClick = {
+                if (c.isNotBlank()) { customSnippets.clear(); customSnippets.addAll(SnippetStore.add(ctx, CommandSnippet(t.trim().ifEmpty { c.trim() }, c.trim(), "自定义"))) }
+                showNewSnippet = false
+            }) { Text("保存", color = Accent) } },
+            dismissButton = { TextButton(onClick = { showNewSnippet = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+
     // 离开工作区时关闭会话/转发，避免泄漏
     DisposableEffect(Unit) { onDispose { shellSession?.close(); forwardHandle?.close() } }
 
@@ -1079,17 +1103,24 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     }
                 }
             }
-            // A-Snippets：快捷命令横滑 Chip（已连接时显示，点击填入命令框，带风险色）
+            // A-Snippets+CRUD：快捷命令横滑 Chip（默认+自定义，点击填入；末尾「+」新建，长按自定义项删除）
             if (state == ConnState.CONNECTED) {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    CommandSnippet.defaults.forEach { sn ->
+                    (CommandSnippet.defaults + customSnippets).forEach { sn ->
+                        val custom = sn in customSnippets
                         AssistChip(
                             onClick = { command = sn.command },
                             label = { Text(sn.title, fontSize = 11.sp) },
                             leadingIcon = { Icon(Icons.Filled.Circle, null, tint = sn.risk.color, modifier = Modifier.size(8.dp)) },
+                            trailingIcon = if (custom) { {
+                                Icon(Icons.Filled.Close, "删除", tint = TextSecondary,
+                                    modifier = Modifier.size(14.dp).clickable { customSnippets.clear(); customSnippets.addAll(SnippetStore.remove(ctx, sn)) })
+                            } } else null,
                             colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
                         )
                     }
+                    AssistChip(onClick = { showNewSnippet = true }, label = { Text("+ 新建", fontSize = 11.sp) },
+                        colors = AssistChipDefaults.assistChipColors(containerColor = Accent.copy(alpha = 0.2f), labelColor = Accent))
                 }
             }
             // A3：命令实时风险徽章

@@ -44,7 +44,11 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
     var testing by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<Boolean?>(null) }
 
-    val canSave = host.trim().isNotEmpty() && user.trim().isNotEmpty()
+    // A-FormValid：表单校验
+    val portOk = port.isEmpty() || (port.toIntOrNull()?.let { it in 1..65535 } == true)
+    val jumpPortOk = jumpPort.isEmpty() || (jumpPort.toIntOrNull()?.let { it in 1..65535 } == true)
+    val jumpOk = jumpHost.trim().isEmpty() || jumpUser.trim().isNotEmpty()  // 填了跳板机主机则需跳板用户
+    val canSave = host.trim().isNotEmpty() && user.trim().isNotEmpty() && portOk && jumpPortOk && jumpOk
 
     val fieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight,
@@ -87,8 +91,9 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
             OutlinedTextField(host, { host = it }, label = { Text("主机地址 *") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(user, { user = it }, label = { Text("用户名 *") }, singleLine = true, colors = fieldColors, modifier = Modifier.weight(2f))
-                OutlinedTextField(port, { port = it.filter { c -> c.isDigit() } }, label = { Text("端口") }, singleLine = true, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number), colors = fieldColors, modifier = Modifier.weight(1f))
+                OutlinedTextField(port, { port = it.filter { c -> c.isDigit() } }, label = { Text("端口") }, singleLine = true, isError = !portOk, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number), colors = fieldColors, modifier = Modifier.weight(1f))
             }
+            if (!portOk) Text("端口需在 1–65535 之间", color = Danger, fontSize = 11.sp)
             // A-TestConn：测试连接（TCP 可达性）
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = {
@@ -114,9 +119,11 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
             Text("跳板机 / 堡垒机（可选，经其转连目标）", color = TextSecondary, fontSize = 12.sp)
             OutlinedTextField(jumpHost, { jumpHost = it }, label = { Text("跳板机主机") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(jumpUser, { jumpUser = it }, label = { Text("跳板用户名") }, singleLine = true, colors = fieldColors, modifier = Modifier.weight(2f))
-                OutlinedTextField(jumpPort, { jumpPort = it.filter { c -> c.isDigit() } }, label = { Text("跳板端口") }, singleLine = true, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number), colors = fieldColors, modifier = Modifier.weight(1f))
+                OutlinedTextField(jumpUser, { jumpUser = it }, label = { Text("跳板用户名") }, singleLine = true, isError = !jumpOk, colors = fieldColors, modifier = Modifier.weight(2f))
+                OutlinedTextField(jumpPort, { jumpPort = it.filter { c -> c.isDigit() } }, label = { Text("跳板端口") }, singleLine = true, isError = !jumpPortOk, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number), colors = fieldColors, modifier = Modifier.weight(1f))
             }
+            if (!jumpOk) Text("填了跳板机主机，请补跳板用户名", color = Danger, fontSize = 11.sp)
+            if (!jumpPortOk) Text("跳板端口需在 1–65535 之间", color = Danger, fontSize = 11.sp)
             // A-KeyAuth：认证方式
             Text("认证方式", color = TextSecondary, fontSize = 12.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

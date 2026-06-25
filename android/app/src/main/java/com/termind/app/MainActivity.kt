@@ -311,6 +311,8 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
     }
     var input by remember { mutableStateOf("") }
     var sending by remember { mutableStateOf(false) }
+    var searchActive by remember { mutableStateOf(false) }   // A-ConvoSearch
+    var search by remember { mutableStateOf("") }
     val suggestions = listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器")
 
     fun send(text: String, basePrompt: String = AiClient.SYSTEM_PROMPT) {
@@ -364,10 +366,22 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
                     Spacer(Modifier.width(8.dp)); Text("已感知环境", fontSize = 12.sp, color = TextSecondary)
                 }
                 Spacer(Modifier.weight(1f))
+                IconButton(onClick = { searchActive = !searchActive; if (!searchActive) search = "" }, enabled = messages.isNotEmpty()) {
+                    Icon(Icons.Filled.Search, "搜索对话", tint = if (searchActive) Accent else TextSecondary)
+                }
                 IconButton(onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; persistConvos() }) {
                     Icon(Icons.Filled.Add, "新建对话", tint = TextSecondary)
                 }
             }
+        }
+        // A-ConvoSearch：搜索框
+        if (searchActive) {
+            OutlinedTextField(
+                search, { search = it }, placeholder = { Text("搜索当前对话…", color = TextSecondary) }, singleLine = true,
+                leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSecondary) },
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)
+            )
         }
         if (messages.isEmpty()) {
             Column(Modifier.weight(1f).fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -383,9 +397,13 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
                 }
             }
         } else {
+            // A-ConvoSearch：搜索时只显匹配的消息
+            val q = search.trim()
+            val shown = if (q.isEmpty()) messages.toList() else messages.filter { it.second.contains(q, ignoreCase = true) }
             LazyColumn(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(messages.size) { i -> ChatBubble(messages[i].first, messages[i].second) }
-                if (sending) item { Text("AI 思考中…", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(8.dp)) }
+                if (q.isNotEmpty()) item { Text("${shown.size} 条匹配", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.padding(4.dp)) }
+                items(shown.size) { i -> ChatBubble(shown[i].first, shown[i].second) }
+                if (sending && q.isEmpty()) item { Text("AI 思考中…", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(8.dp)) }
             }
         }
         // A-AIActions：命令解释 / 报错分析 快捷入口（对齐 apple AIAgentView）

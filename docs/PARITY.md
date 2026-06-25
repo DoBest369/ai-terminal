@@ -29,7 +29,8 @@
 | 报错分析 | ✅ | ✅ | |
 | 环境感知（探测→喂 AI） | ✅ | ✅ | ServerProfile / EnvDetector 双端 |
 | 健康分析（状态↔AI 联动） | ✅ | ✅ | apple Z6b / android A-HealthAI |
-| 多对话（新建/切换/删除） | ✅ | ✅ | android 内存多对话；搜索/导出 apple 独有 |
+| 多对话（新建/切换/删除/持久化） | ✅ | ✅ | 双端持久化 |
+| 对话导出 Markdown | ✅ | ✅ | android 分享 Intent |
 
 ## 智能运维护城河（阶段 Z）
 

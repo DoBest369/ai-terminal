@@ -11,7 +11,8 @@
 | 连接可达性 TCP 探测 | ✅ | ✅ | apple ReachabilityChecker / android Reachability |
 | 密码认证 | ✅ | ✅ | |
 | 私钥认证 | ✅ | ✅ | android sshj authPublickey |
-| 跳板机 / 端口转发 | ✅ | ⬜ | apple PortForward |
+| 本地端口转发 | ✅ | ✅ | android sshj LocalPortForwarder |
+| 跳板机（多跳串联） | ✅ | ⬜ | apple 独有 |
 | 交互式 PTY 终端 | ✅ | ✅ | |
 | 终端 ANSI 颜色渲染 | ✅ | ✅ | android AnsiParser→AnnotatedString |
 | TOFU 主机密钥校验 | ✅ | ✅ | android KnownHosts 指纹首次信任+比对（防 MITM） |
@@ -55,6 +56,6 @@
 ## 小结
 
 - **核心智能运维护城河（Z1–Z8）双端完全对齐** ✅
-- **SSH/终端/SFTP/AI 主线双端齐平**；android 仅差 跳板机/端口转发、TOFU、多对话管理、多主题、分屏录制等 apple 既有的增强项
-- apple 为功能最全的旗舰；android 已是功能完整、体验接近桌面的第二原生端
+- **SSH/终端/SFTP/AI/安全/端口转发/多主题/多对话 双端齐平**；android 仅差 跳板机多跳串联、AI 对话搜索/导出、分屏/录制 等 apple 增强项（多为移动端意义有限或锦上添花）
+- apple 为功能最全的旗舰；**android 已是功能完整、体验接近桌面的第二原生端，核心能力与 apple 高度对齐**
 - `linux/`（Rust+egui）🟡 骨架；`windows/`（C#/.NET）⬜ 待起

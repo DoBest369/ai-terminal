@@ -6,6 +6,15 @@
 
 ---
 
+## A-Forward · 安卓本地端口转发（对齐 apple PortForward）
+- **内容**：`SshClient.openForward(...,localPort,remoteHost,remotePort,scope,privateKey)`——连接认证后 `ServerSocket().bind(127.0.0.1:localPort)` + `ssh.newLocalPortForwarder(Parameters("127.0.0.1",localPort,remoteHost,remotePort), ss)`，传入 scope 的 IO 协程跑 `forwarder.listen()`（阻塞），返回 `PortForwardHandle`(close=关 ServerSocket+cancel job+断开 ssh)。`ServerWorkspace` 顶栏「端口转发」IconButton(SwapHoriz，forwardHandle 非空时高亮)→`PortForwardDialog`(无活动转发→输入 本地端口/远程主机/远程端口「建立」；有→显当前 `127.0.0.1:lp→rh:rp`+「停止转发」)；DisposableEffect 离开关闭。
+- **改动**：`SshClient.kt`(openForward+PortForwardHandle)、`MainActivity.kt`(端口转发按钮+PortForwardDialog+state)。
+- **踩坑（sshj API 两修）**：① `LocalPortForwarder` 在 `net.schmizz.sshj.connection.channel.direct`（非 .forwarded.）② `Parameters` 是**独立类** `net.schmizz.sshj.connection.channel.direct.Parameters(String,int,String,int)`，非 LocalPortForwarder 内部类（javap 反编译 SSHClient.newLocalPortForwarder 签名确认）。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 19s** → app-debug.apk。推送 df6989f。真实转发需真服务器。
+- **意义**：PARITY 端口转发 ⬜→✅。android 与 apple **核心能力高度对齐**，仅剩 跳板机多跳、AI 搜索/导出、分屏录制 等 apple 增强项（移动端意义有限）。
+
+---
+
 ## A-Convos · 安卓 AI 多对话管理（对齐 apple AIConversation）
 - **内容**：`AIAssistantScreen` 把单一 `messages` 改为 `convos: mutableStateListOf<SnapshotStateList<Pair>>`（对话列表，每个一组消息）+ `curIdx`；`messages = convos[curIdx]`（当前对话，send/渲染逻辑不变）。顶栏改自绘 Surface Row：对话标题（`convoTitle`=首条 user 消息前 16 字 / 「新对话 N」）+ ArrowDropDown → `DropdownMenu`（列各对话点击切换 + HorizontalDivider + 「➕ 新建对话」+ 「🗑 删除当前」[convos.size>1]）；右侧 Add 按钮新建。环境感知「已感知环境」标签保留。
 - **改动**：`MainActivity.kt`(AIAssistantScreen 多对话 state + 顶栏对话切换菜单)。

@@ -34,7 +34,13 @@ android {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
-        resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        resources.excludes += listOf(
+            "/META-INF/{AL2.0,LGPL2.1}",
+            "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA",
+            "META-INF/versions/9/OSGI-INF/MANIFEST.MF",
+            "META-INF/BC1024KE.RSA", "META-INF/BC2048KE.RSA",
+            "META-INF/INDEX.LIST", "META-INF/DEPENDENCIES"
+        )
     }
 }
 
@@ -46,4 +52,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    // SSH（纯 Java，适合 Android）
+    implementation("com.hierynomus:sshj:0.38.0")
+    implementation("org.slf4j:slf4j-nop:2.0.9")
 }

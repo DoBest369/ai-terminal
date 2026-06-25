@@ -7,7 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -260,10 +263,21 @@ private fun SettingRow(icon: ImageVector, title: String, value: String) {
     }
 }
 
-/** 连接后「工作区」：终端 + 状态面板 + AI 入口（占位，呼应运维工作台三层） */
+/** 连接后「工作区」：真实 SSH 执行命令 + 终端输出 + 状态面板 + AI 入口（A1） */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    var password by remember { mutableStateOf("") }
+    var command by remember { mutableStateOf("") }
+    var output by remember { mutableStateOf("提示：输入密码与命令，点「执行」经 SSH 运行。\n（A1 先支持单条命令 exec；交互式终端 A1b）\n") }
+    var running by remember { mutableStateOf(false) }
+    val termColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight,
+        focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent,
+        focusedLabelColor = Accent, unfocusedLabelColor = TextSecondary
+    )
+
     Scaffold(
         containerColor = Bg,
         topBar = {
@@ -275,24 +289,48 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
         }
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            // 状态面板占位
+            // 状态面板占位（A4 接真实采集）
             Surface(color = SurfaceLight.copy(alpha = 0.5f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
                 Row(Modifier.padding(14.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    StatCell("CPU", "12%", Success)
-                    StatCell("内存", "1.8/4 GB", Warning)
-                    StatCell("磁盘", "36/80 GB", Success)
+                    StatCell("CPU", "—", Success)
+                    StatCell("内存", "—", Warning)
+                    StatCell("磁盘", "—", Success)
                 }
             }
-            // 终端区占位
+            // 密码（MVP；后续走 Keystore + 密钥）
+            OutlinedTextField(
+                password, { password = it }, label = { Text("SSH 密码") }, singleLine = true,
+                visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                colors = termColors, modifier = Modifier.fillMaxWidth()
+            )
+            // 终端输出区
             Surface(color = Color(0xFF0D0D1A), shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f).fillMaxWidth()) {
-                Text("deploy@${conn.host}:~\$ ", color = Success, fontSize = 13.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(14.dp))
+                Text(
+                    output, color = Success, fontSize = 12.sp, fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
+                )
             }
-            // AI 助手入口
-            Surface(color = Accent.copy(alpha = 0.18f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
-                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(10.dp))
-                    Text("问 AI：这台服务器有什么异常？", color = TextPrimary, fontSize = 13.sp)
+            // 命令输入 + 执行
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    command, { command = it }, label = { Text("命令") }, singleLine = true,
+                    colors = termColors, modifier = Modifier.weight(1f)
+                )
+                FilledIconButton(
+                    onClick = {
+                        val cmd = command.trim(); if (cmd.isEmpty() || running) return@FilledIconButton
+                        running = true
+                        output += "\n$ $cmd\n"
+                        scope.launch {
+                            val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, cmd)
+                            output += r.getOrElse { "⚠️ ${it.message ?: "连接失败"}" } + "\n"
+                            command = ""; running = false
+                        }
+                    },
+                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = Accent)
+                ) {
+                    if (running) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
+                    else Icon(Icons.Filled.ArrowUpward, "执行", tint = Color.White)
                 }
             }
         }

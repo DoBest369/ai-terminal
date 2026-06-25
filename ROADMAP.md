@@ -75,6 +75,8 @@
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-SnippetCRUD** 快捷命令自定义增删 ✅（SnippetStore SharedPreferences 持久化；ServerWorkspace 快捷命令 Chip 默认+自定义+「+新建」对话框+删除；修 termColors 前向引用；构建 20s；推送 2c48299→88b814a）
+- [x] **A-Model** AI 模型选择 ✅（SettingsScreen「AI 模型」行→对话框选 Opus 4.8/Sonnet 4.6/Haiku 4.5+持久化；AiClient 已用 loadModel；推送待构建）
+- [x] **零 deprecated warning** ✅（clean 全量编译确认 deprecated 计数=0；AltRoute/Sort/ArrowBack×3 全改 AutoMirrored）
 - [x] **A-CardBadge** 连接卡片特性图标 ✅（ServerCard 名称旁 跳板[AutoMirrored AltRoute]/启动命令[Bolt]/私钥[VpnKey] 小图标；修 AltRoute deprecated；PRODUCT.md 刷新现状；构建 21s；推送 2b1f12c→1016f85）
 - [x] **A-JumpAll** SFTP/端口转发经跳板补完 ✅（listDir/down/up/mkdir/del/readFile/openForward 全用 connectClient+关 bastion；SftpBrowser+openForward 调用传 jump；跳板覆盖全 SSH 操作；构建 21s；推送 90a8d21）
 - [x] **A-Jump** 跳板机 ProxyJump ✅（android 最后核心缺口！sshj connectVia：bastion.newDirectConnection→target.connectVia；ServerConn jumpHost/Port/User 持久化+跳板密码运行时；connectClient 助手；openShell/connectAndExec/fetchStatus/fetchEnv 接 jump；EditConnectionScreen 跳板字段；SFTP/转发 TODO；构建 24s；推送 b457378）

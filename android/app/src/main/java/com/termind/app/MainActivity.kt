@@ -620,6 +620,39 @@ fun SettingsScreen() {
     var editingKey by remember { mutableStateOf(false) }
     var keyInput by remember { mutableStateOf("") }
     var pickingTheme by remember { mutableStateOf(false) }
+    var model by remember { mutableStateOf(SettingsStore.loadModel(ctx)) }   // A-Model
+    var pickingModel by remember { mutableStateOf(false) }
+
+    // A-Model：AI 模型选择
+    if (pickingModel) {
+        val models = listOf(
+            "claude-opus-4-8" to "Opus 4.8（最强）",
+            "claude-sonnet-4-6" to "Sonnet 4.6（均衡）",
+            "claude-haiku-4-5-20251001" to "Haiku 4.5（快速）"
+        )
+        AlertDialog(
+            onDismissRequest = { pickingModel = false },
+            title = { Text("AI 模型", color = TextPrimary) },
+            text = {
+                Column {
+                    models.forEach { (id, label) ->
+                        Row(
+                            Modifier.fillMaxWidth().clickable { model = id; SettingsStore.saveModel(ctx, id); pickingModel = false }.padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(label, color = TextPrimary, fontSize = 14.sp)
+                                Text(id, color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+                            }
+                            if (model == id) Icon(Icons.Filled.Check, null, tint = Accent, modifier = Modifier.size(18.dp))
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { pickingModel = false }) { Text("关闭", color = Accent) } },
+            containerColor = Surface
+        )
+    }
 
     // A-Themes：主题选择
     if (pickingTheme) {
@@ -671,6 +704,8 @@ fun SettingsScreen() {
         Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             SettingRow(Icons.Filled.Palette, "配色主题", activeTheme.name) { pickingTheme = true }
             SettingRow(Icons.Filled.SmartToy, "AI 服务商", "Anthropic Claude")
+            // A-Model：模型选择
+            SettingRow(Icons.Filled.Memory, "AI 模型", model.substringBefore("-20")) { pickingModel = true }
             SettingRow(Icons.Filled.Key, "API Key", if (apiKey.isBlank()) "未配置（点击设置）" else "已配置 ••••${apiKey.takeLast(4)}") { keyInput = apiKey; editingKey = true }
             // N-CronAuto：定时后台巡检开关
             var autoInspect by remember { mutableStateOf(SettingsStore.loadAutoInspect(ctx)) }

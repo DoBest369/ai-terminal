@@ -126,17 +126,31 @@ struct SnippetsView: View {
     }
 
     private func snippetRow(_ snippet: CommandSnippet) -> some View {
-        Button {
+        let risk = CommandRisk.riskLevel(snippet.command)
+        let riskColor = Color(hex: risk.colorHex)
+        return Button {
             if model.runSnippet(snippet) { dismiss() }
         } label: {
             HStack(spacing: 10) {
-                Image(systemName: snippet.isDangerous ? "exclamationmark.triangle.fill" : "chevron.left.forwardslash.chevron.right")
+                // Z7：四级风险图标+颜色（低=代码图标 accent，中/高/极高=风险图标对应色）
+                Image(systemName: risk == .low ? "chevron.left.forwardslash.chevron.right" : risk.icon)
                     .font(.system(size: 13))
-                    .foregroundStyle(snippet.isDangerous ? Theme.danger : Theme.accent)
+                    .foregroundStyle(risk == .low ? Theme.accent : riskColor)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(snippet.title)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Theme.textPrimary)
+                    HStack(spacing: 6) {
+                        Text(snippet.title)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Theme.textPrimary)
+                        // 中风险以上显示风险标签徽章
+                        if risk.rawValue >= CommandRisk.medium.rawValue {
+                            Text(risk.label)
+                                .font(.system(size: 9, weight: .semibold))
+                                .padding(.horizontal, 5).padding(.vertical, 1)
+                                .background(riskColor.opacity(0.22))
+                                .foregroundStyle(riskColor)
+                                .clipShape(Capsule())
+                        }
+                    }
                     Text(snippet.command)
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundStyle(Theme.textSecondary)

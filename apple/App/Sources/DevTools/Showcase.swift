@@ -523,13 +523,24 @@ struct SnippetsShowcase: View {
     }
 
     private func snipRow(_ s: CommandSnippet) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: s.isDangerous ? "exclamationmark.triangle.fill" : "chevron.left.forwardslash.chevron.right")
+        let risk = CommandRisk.riskLevel(s.command)
+        let riskColor = Color(hex: risk.colorHex)
+        return HStack(spacing: 10) {
+            Image(systemName: risk == .low ? "chevron.left.forwardslash.chevron.right" : risk.icon)
                 .font(.system(size: 13))
-                .foregroundStyle(s.isDangerous ? Theme.danger : Theme.accent)
+                .foregroundStyle(risk == .low ? Theme.accent : riskColor)
                 .frame(width: 18)
             VStack(alignment: .leading, spacing: 2) {
-                Text(s.title).font(.system(size: 13, weight: .medium)).foregroundStyle(Theme.textPrimary)
+                HStack(spacing: 6) {
+                    Text(s.title).font(.system(size: 13, weight: .medium)).foregroundStyle(Theme.textPrimary)
+                    if risk.rawValue >= CommandRisk.medium.rawValue {
+                        Text(risk.label)
+                            .font(.system(size: 9, weight: .semibold))
+                            .padding(.horizontal, 5).padding(.vertical, 1)
+                            .background(riskColor.opacity(0.22)).foregroundStyle(riskColor)
+                            .clipShape(Capsule())
+                    }
+                }
                 Text(s.command).font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.textSecondary).lineLimit(1)
             }
             Spacer()

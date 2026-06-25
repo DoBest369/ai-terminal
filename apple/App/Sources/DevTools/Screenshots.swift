@@ -34,7 +34,13 @@ public enum AppScreenshots {
             .frame(width: 480, height: 1220), dir, "05-settings")
         render(KeyBarShowcase()
             .frame(width: 820, height: 50), dir, "06-keybar")
-        render(SnippetsShowcase(snippets: CommandSnippet.defaults)
+        // 加几个不同风险等级的示例片段，展示 Z7 四级风险颜色徽章
+        let riskDemo = CommandSnippet.defaults + [
+            CommandSnippet(title: "编辑 Nginx 配置", command: "vim /etc/nginx/nginx.conf", group: "系统"),
+            CommandSnippet(title: "重启 Nginx", command: "systemctl restart nginx", group: "系统"),
+            CommandSnippet(title: "清理日志", command: "rm -rf /var/log/*.log", group: "系统")
+        ]
+        render(SnippetsShowcase(snippets: riskDemo)
             .frame(width: 480, height: 720), dir, "08-snippets")
         render(SFTPShowcase()
             .frame(width: 480, height: 560), dir, "09-sftp")

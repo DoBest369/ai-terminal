@@ -384,6 +384,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
     }
     var input by remember { mutableStateOf("") }
     var sending by remember { mutableStateOf(false) }
+    var sendJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }   // A-Stop 当前流式任务
     var searchActive by remember { mutableStateOf(false) }   // A-ConvoSearch
     var search by remember { mutableStateOf("") }
     val suggestions = listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器")
@@ -400,7 +401,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
         val history = messages.toList()
         val aiIndex = messages.size
         messages.add("assistant" to "")
-        scope.launch {
+        sendJob = scope.launch {
             val r = AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx), history, sys) { delta ->
                 messages[aiIndex] = "assistant" to (messages[aiIndex].second + delta)
             }
@@ -408,6 +409,12 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
             sending = false
             persistConvos()   // A-ConvoPersist：回复完成后持久化
         }
+    }
+    // A-Stop：停止当前流式生成（保留已生成内容）
+    fun stop() {
+        sendJob?.cancel(); sendJob = null; sending = false
+        messages.lastOrNull()?.let { if (it.first == "assistant") messages[messages.size - 1] = "assistant" to (it.second + "\n[已停止]") }
+        persistConvos()
     }
 
     Column {
@@ -501,8 +508,10 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
                 colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
                 modifier = Modifier.weight(1f)
             )
-            FilledIconButton(onClick = { send(input) }, colors = IconButtonDefaults.filledIconButtonColors(containerColor = Accent)) {
-                if (sending) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
+            // A-Stop：生成中显示停止按钮
+            FilledIconButton(onClick = { if (sending) stop() else send(input) },
+                colors = IconButtonDefaults.filledIconButtonColors(containerColor = if (sending) Danger else Accent)) {
+                if (sending) Icon(Icons.Filled.Stop, "停止", tint = Color.White)
                 else Icon(Icons.Filled.ArrowUpward, "发送", tint = Color.White)
             }
         }

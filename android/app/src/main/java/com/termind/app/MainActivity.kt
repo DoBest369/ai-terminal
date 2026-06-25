@@ -997,6 +997,23 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
                 )
             }
+            // A-Keys：终端控制键栏（已连接时显示，移动端无 Ctrl/Tab/方向键，直发控制字符到 PTY）
+            if (state == ConnState.CONNECTED) {
+                val keys = listOf(
+                    "Tab" to "\t", "Esc" to "", "Ctrl+C" to "", "Ctrl+D" to "",
+                    "Ctrl+L" to "", "Ctrl+Z" to "", "↑" to "[A", "↓" to "[B",
+                    "←" to "[D", "→" to "[C", "Ctrl+A" to "", "Ctrl+E" to ""
+                )
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    keys.forEach { (label, seq) ->
+                        AssistChip(
+                            onClick = { shellSession?.write(seq) },
+                            label = { Text(label, fontSize = 11.sp, fontFamily = FontFamily.Monospace) },
+                            colors = AssistChipDefaults.assistChipColors(containerColor = Surface, labelColor = Accent)
+                        )
+                    }
+                }
+            }
             // A-Snippets：快捷命令横滑 Chip（已连接时显示，点击填入命令框，带风险色）
             if (state == ConnState.CONNECTED) {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {

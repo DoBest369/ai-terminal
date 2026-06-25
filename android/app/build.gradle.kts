@@ -56,4 +56,6 @@ dependencies {
     // SSH（纯 Java，适合 Android）
     implementation("com.hierynomus:sshj:0.38.0")
     implementation("org.slf4j:slf4j-nop:2.0.9")
+    // AI HTTP
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

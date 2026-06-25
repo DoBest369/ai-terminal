@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -127,7 +128,7 @@ fun TermindApp() {
                     onEdit = { editing = it; showEditor = true },
                     onDelete = { conns.remove(it); persist() }
                 )
-                Tab.AI -> AIAssistantScreen()
+                Tab.AI -> AIAssistantScreen(onGoSettings = { tab = Tab.Settings })
                 Tab.Settings -> SettingsScreen()
             }
         }
@@ -213,47 +214,113 @@ fun ServerCard(conn: ServerConn, onClick: () -> Unit, onEdit: () -> Unit, onDele
 }
 
 @Composable
-fun AIAssistantScreen() {
+fun AIAssistantScreen(onGoSettings: () -> Unit) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    // 对话消息（role=user/assistant）
+    val messages = remember { mutableStateListOf<Pair<String, String>>() }
+    var input by remember { mutableStateOf("") }
+    var sending by remember { mutableStateOf(false) }
+    val suggestions = listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器")
+
+    fun send(text: String) {
+        val t = text.trim(); if (t.isEmpty() || sending) return
+        if (!SettingsStore.isConfigured(ctx)) { onGoSettings(); return }
+        messages.add("user" to t); input = ""; sending = true
+        scope.launch {
+            val r = AiClient.chat(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx), messages.toList())
+            messages.add("assistant" to r.getOrElse { "⚠️ ${it.message ?: "请求失败"}" })
+            sending = false
+        }
+    }
+
     Column {
         TopBar("AI 运维助手")
-        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("让 AI 结合服务器真实环境帮你运维", color = TextSecondary, fontSize = 13.sp)
-            listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器").forEach {
-                Card(colors = CardDefaults.cardColors(containerColor = SurfaceLight.copy(alpha = 0.45f)), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
-                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(10.dp))
-                        Text(it, color = TextPrimary, fontSize = 13.sp)
+        if (messages.isEmpty()) {
+            Column(Modifier.weight(1f).fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("让 AI 结合服务器真实环境帮你运维", color = TextSecondary, fontSize = 13.sp)
+                suggestions.forEach { s ->
+                    Card(onClick = { send(s) }, colors = CardDefaults.cardColors(containerColor = SurfaceLight.copy(alpha = 0.45f)), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(10.dp))
+                            Text(s, color = TextPrimary, fontSize = 13.sp)
+                        }
                     }
                 }
             }
-            Spacer(Modifier.weight(1f))
-            Surface(color = Surface, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
-                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("用自然语言描述运维任务…", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                    Icon(Icons.Filled.ArrowUpward, null, tint = Accent)
-                }
+        } else {
+            LazyColumn(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(messages.size) { i -> ChatBubble(messages[i].first, messages[i].second) }
+                if (sending) item { Text("AI 思考中…", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(8.dp)) }
             }
+        }
+        // 输入栏
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(
+                input, { input = it }, placeholder = { Text("用自然语言描述运维任务…", color = TextSecondary) }, singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                modifier = Modifier.weight(1f)
+            )
+            FilledIconButton(onClick = { send(input) }, colors = IconButtonDefaults.filledIconButtonColors(containerColor = Accent)) {
+                if (sending) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
+                else Icon(Icons.Filled.ArrowUpward, "发送", tint = Color.White)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChatBubble(role: String, content: String) {
+    val isUser = role == "user"
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start) {
+        Surface(
+            color = if (isUser) Accent.copy(alpha = 0.25f) else SurfaceLight.copy(alpha = 0.5f),
+            shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth(0.85f)
+        ) {
+            Text(content, color = TextPrimary, fontSize = 13.sp, modifier = Modifier.padding(12.dp))
         }
     }
 }
 
 @Composable
 fun SettingsScreen() {
+    val ctx = LocalContext.current
+    var apiKey by remember { mutableStateOf(SettingsStore.loadApiKey(ctx)) }
+    var editingKey by remember { mutableStateOf(false) }
+    var keyInput by remember { mutableStateOf("") }
+
+    if (editingKey) {
+        AlertDialog(
+            onDismissRequest = { editingKey = false },
+            title = { Text("配置 API Key", color = TextPrimary) },
+            text = {
+                OutlinedTextField(keyInput, { keyInput = it }, placeholder = { Text("sk-ant-…", color = TextSecondary) }, singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent))
+            },
+            confirmButton = { TextButton(onClick = { SettingsStore.saveApiKey(ctx, keyInput); apiKey = keyInput.trim(); editingKey = false }) { Text("保存", color = Accent) } },
+            dismissButton = { TextButton(onClick = { editingKey = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+
     Column {
         TopBar("设置")
         Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             SettingRow(Icons.Filled.Palette, "配色主题", "午夜")
             SettingRow(Icons.Filled.SmartToy, "AI 服务商", "Anthropic Claude")
-            SettingRow(Icons.Filled.Key, "API Key", "未配置")
+            SettingRow(Icons.Filled.Key, "API Key", if (apiKey.isBlank()) "未配置（点击设置）" else "已配置 ••••${apiKey.takeLast(4)}") { keyInput = apiKey; editingKey = true }
             SettingRow(Icons.Filled.Info, "关于 Termind", "智能 SSH 运维工作台 v1.0")
         }
     }
 }
 
 @Composable
-private fun SettingRow(icon: ImageVector, title: String, value: String) {
-    Surface(color = SurfaceLight.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+private fun SettingRow(icon: ImageVector, title: String, value: String, onClick: (() -> Unit)? = null) {
+    Surface(
+        color = SurfaceLight.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth().let { if (onClick != null) it.clickable { onClick() } else it }
+    ) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, tint = Accent, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(12.dp))

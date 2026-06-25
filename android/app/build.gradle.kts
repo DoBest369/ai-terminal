@@ -58,4 +58,6 @@ dependencies {
     implementation("org.slf4j:slf4j-nop:2.0.9")
     // AI HTTP
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // API Key 加密存储（对齐 apple Keychain）
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 }

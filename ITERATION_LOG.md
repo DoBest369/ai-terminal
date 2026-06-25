@@ -6,6 +6,14 @@
 
 ---
 
+## A-Rollback · 安卓操作回滚 Kotlin 化（护城河移植收官）
+- **内容**：`RollbackCore.kt`——`object OpRollback`(criticalPrefixes[nginx/sshd/mysql/fstab/sudoers…]+isCriticalConfig+criticalTargets[写意图关键字+命中关键路径 token 启发式]+backupCommand[cp <p> <p>.bak-<stamp>]+backupCommands+sshAutoRollbackCommand[备份+at N 分钟自动还原重启 sshd 防锁门外])+`OpTimelineEntry`(time/action/command/rollbackable/backupPath + rollbackCommand[从 .bak-stamp 反推还原])，移植 apple OpRollback.swift。`ServerWorkspace`：`opTimeline` mutableStateListOf；`send` 改关键配置前先 write 各 cp 备份命令 + add OpTimelineEntry(rollbackable) + 提示；`rollback(entry)` write 还原命令；顶栏「时间线」History IconButton(有记录高亮 Accent)→ModalBottomSheet 列时间线(时间/动作/命令 + 可回滚项「回滚」按钮)；top-level backupStamp/nowLabel(SimpleDateFormat)。
+- **改动**：新增 `android/.../RollbackCore.kt`；改 `MainActivity.kt`(send 备份+opTimeline+rollback+时间线 sheet+History 入口+时间戳 helper)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 17s** → app-debug.apk 30.8MB。推送 8425732。
+- **🎉 里程碑**：安卓端智能运维护城河全移植完毕，与 apple 端完全对齐。安卓端核心+打磨全齐（连接管理/真实SSH/交互PTY/状态采集/SFTP/AI流式+环境感知/排障真执行/模板真执行/风险脱敏/操作回滚）。
+
+---
+
 ## A-Tpl-Exec · 安卓初始化模板真执行（确认预览 + 逐步反馈）
 - **内容**：`ServerWorkspace.runSetupTemplate(tpl)`——协程按 `tpl.steps` 逐步：过滤注释行(`#`)，每步终端显「▶ N. 步骤名」，`connectAndExec`(60s)跑该步命令(`&&` 串)→输出脱敏显示，全部完成显「✅ 模板执行完毕」+ refreshStatus。执行前 `pendingTemplate` → AlertDialog 确认(图标/「执行」按钮按 `tpl.risk.color` 着色，text 区滚动显示 `tpl.previewText()` 步骤/命令/风险/预计影响，对齐 apple U-Z8)。初始化模板 Menu 从「填命令框」改为 `pendingTemplate = tpl` 触发确认。同时修复上轮 A-SFTP 误重复的 showFiles/SftpBrowser 块。
 - **改动**：`MainActivity.kt`(ServerWorkspace runSetupTemplate + pendingTemplate 确认 + 模板菜单 + 去重)。

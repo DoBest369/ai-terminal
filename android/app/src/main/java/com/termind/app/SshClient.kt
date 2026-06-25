@@ -100,6 +100,12 @@ object SshClient {
         return connectAndExec(host, port, user, password, cmd).map { ServerStatus.parse(it) }
     }
 
+    /** 探测服务器环境（A-Env）：跑 EnvDetector.detectCommand → ServerProfile。 */
+    suspend fun fetchEnv(
+        host: String, port: Int, user: String, password: String
+    ): Result<ServerProfile> =
+        connectAndExec(host, port, user, password, EnvDetector.detectCommand).map { EnvDetector.parse(it) }
+
     /** 去除常见 ANSI 转义序列（颜色/光标控制），MVP 简化处理 */
     fun stripAnsi(s: String): String =
         s.replace(Regex("\\[[0-9;?]*[a-zA-Z]"), "")

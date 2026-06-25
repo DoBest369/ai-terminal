@@ -72,11 +72,12 @@ fun TermindApp() {
     val conns = remember { mutableStateListOf<ServerConn>().apply { addAll(ConnectionStore.load(ctx)) } }
     var editing by remember { mutableStateOf<ServerConn?>(null) }   // 当前编辑中的连接
     var showEditor by remember { mutableStateOf(false) }
+    var activeProfile by remember { mutableStateOf<ServerProfile?>(null) }  // A-Env：当前连接的环境画像，喂给 AI
     fun persist() = ConnectionStore.save(ctx, conns)
 
     // 连接详情「工作区」覆盖在最上层
     detail?.let { conn ->
-        ServerWorkspace(conn, onBack = { detail = null })
+        ServerWorkspace(conn, onBack = { detail = null }, onProfile = { activeProfile = it })
         return
     }
     // 新建/编辑表单覆盖
@@ -128,7 +129,7 @@ fun TermindApp() {
                     onEdit = { editing = it; showEditor = true },
                     onDelete = { conns.remove(it); persist() }
                 )
-                Tab.AI -> AIAssistantScreen(onGoSettings = { tab = Tab.Settings })
+                Tab.AI -> AIAssistantScreen(onGoSettings = { tab = Tab.Settings }, profile = activeProfile)
                 Tab.Settings -> SettingsScreen()
             }
         }
@@ -214,7 +215,7 @@ fun ServerCard(conn: ServerConn, onClick: () -> Unit, onEdit: () -> Unit, onDele
 }
 
 @Composable
-fun AIAssistantScreen(onGoSettings: () -> Unit) {
+fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     // 对话消息（role=user/assistant）
@@ -227,15 +228,19 @@ fun AIAssistantScreen(onGoSettings: () -> Unit) {
         val t = text.trim(); if (t.isEmpty() || sending) return
         if (!SettingsStore.isConfigured(ctx)) { onGoSettings(); return }
         messages.add("user" to t); input = ""; sending = true
+        // A-Env：把当前服务器环境摘要注入系统提示，让 AI 结合真实环境回答（对齐 apple Z3）
+        val sys = profile?.aiSummary?.takeIf { it.isNotEmpty() }?.let {
+            "${AiClient.SYSTEM_PROMPT}\n\n$it\n请结合以上真实服务器环境给出针对性、可直接执行的回答。"
+        } ?: AiClient.SYSTEM_PROMPT
         scope.launch {
-            val r = AiClient.chat(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx), messages.toList())
+            val r = AiClient.chat(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx), messages.toList(), sys)
             messages.add("assistant" to r.getOrElse { "⚠️ ${it.message ?: "请求失败"}" })
             sending = false
         }
     }
 
     Column {
-        TopBar("AI 运维助手")
+        TopBar("AI 运维助手", if (profile?.aiSummary?.isNotEmpty() == true) "已感知环境" else null)
         if (messages.isEmpty()) {
             Column(Modifier.weight(1f).fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("让 AI 结合服务器真实环境帮你运维", color = TextSecondary, fontSize = 13.sp)
@@ -336,7 +341,7 @@ enum class ConnState { DISCONNECTED, CONNECTING, CONNECTED, ERROR }
 /** 连接后「工作区」：交互式 PTY shell + 终端输出 + 状态面板 + AI 入口（A1b） */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
+fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProfile) -> Unit = {}) {
     val scope = rememberCoroutineScope()
     var password by remember { mutableStateOf("") }
     var command by remember { mutableStateOf("") }
@@ -372,6 +377,13 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
             }.onSuccess {
                 shellSession = it; state = ConnState.CONNECTED
                 refreshStatus()   // 连接成功后采集状态
+                // A-Env：探测环境画像 → 上报给 AI
+                scope.launch {
+                    SshClient.fetchEnv(conn.host, conn.port, conn.user, password).onSuccess { p ->
+                        onProfile(p)
+                        if (p.aiSummary.isNotEmpty()) output += "🔎 ${p.aiSummary}\n"
+                    }
+                }
             }.onFailure {
                 output += "⚠️ 连接失败：${it.message}\n"; state = ConnState.ERROR
             }

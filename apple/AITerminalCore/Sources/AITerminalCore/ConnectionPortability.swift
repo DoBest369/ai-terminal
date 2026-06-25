@@ -21,6 +21,7 @@ public enum ConnectionPortability {
         var startupCommands: String?
         var fontSizeOverride: Double?
         var note: String?
+        var colorTag: String?
         var password: String?
         var passphrase: String?
     }
@@ -38,6 +39,7 @@ public enum ConnectionPortability {
                 startupCommands: (c.startupCommands?.isEmpty == false) ? c.startupCommands : nil,
                 fontSizeOverride: c.fontSizeOverride,
                 note: c.noteText.isEmpty ? nil : c.noteText,
+                colorTag: (c.colorTag != nil && c.colorTag != .none) ? c.colorTag?.rawValue : nil,
                 password: (includeSecrets && c.savePassword && !c.password.isEmpty) ? c.password : nil,
                 passphrase: (includeSecrets && !c.passphrase.isEmpty) ? c.passphrase : nil
             )
@@ -77,7 +79,8 @@ public enum ConnectionPortability {
                 group: (grp?.isEmpty == false) ? grp : nil,
                 startupCommands: (item.startupCommands?.isEmpty == false) ? item.startupCommands : nil,
                 fontSizeOverride: item.fontSizeOverride,
-                note: (item.note?.isEmpty == false) ? item.note : nil
+                note: (item.note?.isEmpty == false) ? item.note : nil,
+                colorTag: item.colorTag.flatMap { ColorTag(rawValue: $0) }
             )
         }
     }

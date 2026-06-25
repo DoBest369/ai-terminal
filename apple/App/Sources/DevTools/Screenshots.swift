@@ -394,10 +394,10 @@ public enum AppScreenshots {
     static func makeSampleModel() -> AppModel {
         let model = AppModel()
         model.connections = [
-            Connection(name: "生产服务器", host: "192.168.1.10", port: 22, username: "root", authType: .password, group: "生产"),
-            Connection(name: "开发机", host: "dev.example.com", port: 2222, username: "deploy", authType: .privateKey),
+            Connection(name: "生产服务器", host: "192.168.1.10", port: 22, username: "root", authType: .password, group: "生产", colorTag: .red),
+            Connection(name: "开发机", host: "dev.example.com", port: 2222, username: "deploy", authType: .privateKey, colorTag: .green),
             // 数据库主机「最近使用」→ 在「生产」分组内排到生产服务器之前 + 显示相对时间 + 备注
-            Connection(name: "数据库主机", host: "db.internal.net", port: 22, username: "admin", authType: .password, group: "生产", lastUsedAt: Date().addingTimeInterval(-300), note: "数据库主库")
+            Connection(name: "数据库主机", host: "db.internal.net", port: 22, username: "admin", authType: .password, group: "生产", lastUsedAt: Date().addingTimeInterval(-300), note: "数据库主库", colorTag: .blue)
         ]
         model.aiMessages = [
             ChatMessage(role: .user, content: "列出当前目录文件并查看内存"),

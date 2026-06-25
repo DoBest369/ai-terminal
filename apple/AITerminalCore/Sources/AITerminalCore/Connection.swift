@@ -13,6 +13,23 @@ public enum AuthType: String, Codable, Sendable, CaseIterable {
     }
 }
 
+/// 连接颜色标签（一眼区分环境）。rawValue 持久化，hex 供 UI。
+public enum ColorTag: String, Codable, Sendable, CaseIterable {
+    case none, red, orange, green, blue, purple
+
+    /// 十六进制色（none 返回 nil）
+    public var hex: String? {
+        switch self {
+        case .none: return nil
+        case .red: return "#e74c3c"
+        case .orange: return "#f39c12"
+        case .green: return "#2ecc71"
+        case .blue: return "#3498db"
+        case .purple: return "#9b59b6"
+        }
+    }
+}
+
 /// 一条保存的 SSH 连接配置（会话模板）
 public struct Connection: Identifiable, Codable, Sendable, Equatable {
     public var id: UUID
@@ -57,6 +74,9 @@ public struct Connection: Identifiable, Codable, Sendable, Equatable {
     /// 自由文本备注（可选）。属连接配置，参与跨端导出。
     public var note: String?
 
+    /// 颜色标签（可选；Optional 保证旧 JSON 缺失时解码为 nil，向后兼容）。属连接配置，参与跨端导出。
+    public var colorTag: ColorTag?
+
     public init(
         id: UUID = UUID(),
         name: String = "",
@@ -77,7 +97,8 @@ public struct Connection: Identifiable, Codable, Sendable, Equatable {
         lastUsedAt: Date? = nil,
         startupCommands: String? = nil,
         fontSizeOverride: Double? = nil,
-        note: String? = nil
+        note: String? = nil,
+        colorTag: ColorTag? = nil
     ) {
         self.id = id
         self.name = name
@@ -99,6 +120,7 @@ public struct Connection: Identifiable, Codable, Sendable, Equatable {
         self.startupCommands = startupCommands
         self.fontSizeOverride = fontSizeOverride
         self.note = note
+        self.colorTag = colorTag
     }
 
     /// 归一化备注（去首尾空白；空则 ""）

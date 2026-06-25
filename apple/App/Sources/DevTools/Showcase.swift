@@ -140,6 +140,10 @@ struct SidebarShowcase: View {
 
     private func connRow(_ conn: Connection, active: Bool) -> some View {
         HStack(spacing: 10) {
+            // 连接颜色标签色条
+            if let hex = conn.colorTag?.hex {
+                RoundedRectangle(cornerRadius: 2).fill(Color(hex: hex)).frame(width: 3, height: 30)
+            }
             Circle().fill(active ? Theme.success : Theme.textSecondary).frame(width: 8, height: 8)
             VStack(alignment: .leading, spacing: 2) {
                 Text(conn.title).font(.system(size: 13, weight: .medium)).foregroundStyle(Theme.textPrimary)

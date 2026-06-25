@@ -1371,6 +1371,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
     var toast by remember { mutableStateOf<String?>(null) }                  // A-Upload 下载提示
     var showMkdir by remember { mutableStateOf(false) }                      // A-SftpEdit 新建文件夹
     var pendingDelete by remember { mutableStateOf<RemoteFile?>(null) }      // A-SftpEdit 待删除确认
+    var showGoto by remember { mutableStateOf(false) }                       // A-SftpPath 路径直跳
 
     fun load(p: String) {
         loading = true; error = null
@@ -1481,7 +1482,11 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                 }
             }
             Spacer(Modifier.height(6.dp))
-            Text(path, color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace, maxLines = 1)
+            // A-SftpPath：点路径直接输入跳转
+            Row(Modifier.fillMaxWidth().clickable { showGoto = true }, verticalAlignment = Alignment.CenterVertically) {
+                Text(path, color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace, maxLines = 1, modifier = Modifier.weight(1f))
+                Icon(Icons.Filled.Edit, "输入路径", tint = Accent, modifier = Modifier.size(14.dp))
+            }
             Spacer(Modifier.height(8.dp))
             // 上级目录
             TextButton(onClick = {
@@ -1517,6 +1522,19 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
         }
     }
 
+    // A-SftpPath：输入路径直跳对话框
+    if (showGoto) {
+        var p by remember { mutableStateOf(path) }
+        AlertDialog(
+            onDismissRequest = { showGoto = false },
+            title = { Text("跳转到路径", color = TextPrimary) },
+            text = { OutlinedTextField(p, { p = it }, placeholder = { Text("如 /var/log", color = TextSecondary) }, singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent)) },
+            confirmButton = { TextButton(onClick = { val t = p.trim(); if (t.isNotEmpty()) load(t); showGoto = false }) { Text("跳转", color = Accent) } },
+            dismissButton = { TextButton(onClick = { showGoto = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
     // A-SftpEdit：新建文件夹对话框
     if (showMkdir) {
         var name by remember { mutableStateOf("") }

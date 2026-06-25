@@ -37,6 +37,7 @@
 - [x] **A-Snippets** 快捷命令面板 ✅（Snippets.kt CommandSnippet+12 内置常用命令[磁盘/内存/进程/端口/Nginx/Docker/日志/登录失败等]+risk；ServerWorkspace 已连接时命令框上方横滑 AssistChip 行，点击填命令框，带风险色点；构建 17s 出 APK 30.8MB；推送 139238e）
 - [x] **A-Stream** AI 流式输出 ✅（AiClient.chatStream[stream=true，source().readUtf8Line 读 SSE，解析 content_block_delta.delta.text 逐块 onDelta 切 Main]；AIAssistantScreen.send 流式：空 assistant 消息→delta 追加；构建 16s 出 APK 30.8MB；推送 4195a06）
 - [x] **A-SFTP** 远程文件浏览 ✅（SshClient.listDir[newSFTPClient.ls→RemoteFile 列表，文件夹优先排序]+RemoteFile[sizeLabel]；ServerWorkspace「文件」入口→SftpBrowser ModalBottomSheet[路径栏+上级+列表 文件夹/文件图标+大小+点进入]；构建 16s 出 APK 30.8MB；推送 cbd4e44）
+- [x] **A-Tpl-Exec** 初始化模板真执行 ✅（ServerWorkspace.runSetupTemplate 按 SetupStep 逐步执行[过滤注释，每步「▶N.步骤名」+connectAndExec 输出脱敏，完成✅+刷新状态]；执行前 AlertDialog 确认[previewText+风险着色]；模板 Menu 改 pendingTemplate 触发；构建 16s 出 APK 30.8MB；推送 d178cca）
 
 ## 🤖 阶段 Z — 智能 SSH 运维能力（MVP 差异化核心）· 最高优先级
 

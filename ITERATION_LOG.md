@@ -6,6 +6,14 @@
 
 ---
 
+## A-Tpl-Exec · 安卓初始化模板真执行（确认预览 + 逐步反馈）
+- **内容**：`ServerWorkspace.runSetupTemplate(tpl)`——协程按 `tpl.steps` 逐步：过滤注释行(`#`)，每步终端显「▶ N. 步骤名」，`connectAndExec`(60s)跑该步命令(`&&` 串)→输出脱敏显示，全部完成显「✅ 模板执行完毕」+ refreshStatus。执行前 `pendingTemplate` → AlertDialog 确认(图标/「执行」按钮按 `tpl.risk.color` 着色，text 区滚动显示 `tpl.previewText()` 步骤/命令/风险/预计影响，对齐 apple U-Z8)。初始化模板 Menu 从「填命令框」改为 `pendingTemplate = tpl` 触发确认。同时修复上轮 A-SFTP 误重复的 showFiles/SftpBrowser 块。
+- **改动**：`MainActivity.kt`(ServerWorkspace runSetupTemplate + pendingTemplate 确认 + 模板菜单 + 去重)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 16s** → app-debug.apk 30.8MB。推送 d178cca。真实执行需真服务器。
+- **安卓打磨**：A-Diag/A-Snippets/A-Stream/A-SFTP/**A-Tpl-Exec** ✅。下一步操作回滚 Kotlin 化(A-Rollback)。
+
+---
+
 ## A-SFTP · 安卓远程文件浏览（sshj SFTPClient）
 - **内容**：`SshClient.listDir(host,port,user,password,path)`——connect+auth 后 `ssh.newSFTPClient().use { it.ls(path) }`，映射 `RemoteResourceInfo`→`RemoteFile`(过滤 `.`/`..`，`attributes.type==FileMode.Type.DIRECTORY` 判文件夹，size，文件夹优先+按名排序)，Dispatchers.IO+15s 超时。`RemoteFile(name/isDir/size/path + sizeLabel[B/KB/MB/GB])`。`ServerWorkspace` 顶栏「文件」IconButton(Folder，仅 CONNECTED 可用)→`showFiles`→`SftpBrowser`(ModalBottomSheet：标题+加载圈 + 当前路径(等宽) + 上级目录按钮(path substringBeforeLast) + LazyColumn 文件列表[文件夹 Accent/文件灰 图标 + 名 + sizeLabel]，点文件夹 load(f.path)，错误态显示)。
 - **改动**：`android/.../SshClient.kt`(listDir+RemoteFile+FileMode import)、`MainActivity.kt`(文件入口+showFiles+SftpBrowser)。

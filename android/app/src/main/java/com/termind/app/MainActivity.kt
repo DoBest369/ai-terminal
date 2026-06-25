@@ -330,33 +330,59 @@ private fun SettingRow(icon: ImageVector, title: String, value: String, onClick:
     }
 }
 
-/** 连接后「工作区」：真实 SSH 执行命令 + 终端输出 + 状态面板 + AI 入口（A1） */
+/** 连接状态（A1b 交互式 PTY 终端） */
+enum class ConnState { DISCONNECTED, CONNECTING, CONNECTED, ERROR }
+
+/** 连接后「工作区」：交互式 PTY shell + 终端输出 + 状态面板 + AI 入口（A1b） */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     var password by remember { mutableStateOf("") }
     var command by remember { mutableStateOf("") }
-    var output by remember { mutableStateOf("提示：输入密码与命令，点「执行」经 SSH 运行。\n（A1 先支持单条命令 exec；交互式终端 A1b）\n") }
-    var running by remember { mutableStateOf(false) }
+    var output by remember { mutableStateOf("提示：输入密码后点「连接」建立交互式 SSH 会话。\n") }
+    var state by remember { mutableStateOf(ConnState.DISCONNECTED) }
     var pendingConfirm by remember { mutableStateOf<String?>(null) }  // 高危命令二次确认
+    var shellSession by remember { mutableStateOf<SshShellSession?>(null) }
 
-    // 真正执行（输出经脱敏）
-    fun exec(cmd: String) {
-        running = true
-        output += "\n$ $cmd\n"
+    // 建立交互式 shell 会话
+    fun connect() {
+        if (state == ConnState.CONNECTING || state == ConnState.CONNECTED) return
+        if (password.isBlank()) { output += "⚠️ 请先输入密码\n"; return }
+        state = ConnState.CONNECTING
+        output += "正在连接 ${conn.user}@${conn.host}:${conn.port} …\n"
         scope.launch {
-            val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, cmd)
-            val raw = r.getOrElse { "⚠️ ${it.message ?: "连接失败"}" }
-            output += Redactor.redact(raw) + "\n"   // A3：敏感输出脱敏
-            command = ""; running = false
+            runCatching {
+                SshClient.openShell(conn.host, conn.port, conn.user, password, scope) { chunk ->
+                    output += Redactor.redact(chunk)   // A3：输出脱敏
+                }
+            }.onSuccess {
+                shellSession = it; state = ConnState.CONNECTED
+            }.onFailure {
+                output += "⚠️ 连接失败：${it.message}\n"; state = ConnState.ERROR
+            }
         }
     }
-    // 提交：高/极高风险先弹确认
-    fun submit() {
-        val cmd = command.trim(); if (cmd.isEmpty() || running) return
-        if (CommandRisk.riskLevel(cmd).needsConfirm) pendingConfirm = cmd else exec(cmd)
+    // 断开
+    fun disconnect() {
+        shellSession?.close(); shellSession = null; state = ConnState.DISCONNECTED
+        output += "\n[已断开连接]\n"
     }
+    // 发送命令到交互 shell
+    fun send(cmd: String) {
+        val s = shellSession ?: return
+        s.write(cmd + "\n")
+        command = ""
+    }
+    // 提交：未连先连；已连则高危确认后发送
+    fun submit() {
+        if (state != ConnState.CONNECTED) { connect(); return }
+        val cmd = command.trim(); if (cmd.isEmpty()) return
+        if (CommandRisk.riskLevel(cmd).needsConfirm) pendingConfirm = cmd else send(cmd)
+    }
+
+    // 离开工作区时关闭会话，避免泄漏
+    DisposableEffect(Unit) { onDispose { shellSession?.close() } }
 
     // 高危二次确认弹窗
     pendingConfirm?.let { cmd ->
@@ -366,7 +392,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
             icon = { Icon(Icons.Filled.Warning, null, tint = risk.color) },
             title = { Text("${risk.label}命令", color = TextPrimary) },
             text = { Text("即将执行：\n$cmd\n\n该命令为${risk.label}操作，确认执行？", color = TextSecondary) },
-            confirmButton = { TextButton(onClick = { pendingConfirm = null; exec(cmd) }) { Text("确认执行", color = risk.color) } },
+            confirmButton = { TextButton(onClick = { pendingConfirm = null; send(cmd) }) { Text("确认执行", color = risk.color) } },
             dismissButton = { TextButton(onClick = { pendingConfirm = null }) { Text("取消", color = TextSecondary) } },
             containerColor = Surface
         )
@@ -413,20 +439,31 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
         }
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            // 状态面板占位（A4 接真实采集）
+            // 连接状态条
             Surface(color = SurfaceLight.copy(alpha = 0.5f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
-                Row(Modifier.padding(14.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    StatCell("CPU", "—", Success)
-                    StatCell("内存", "—", Warning)
-                    StatCell("磁盘", "—", Success)
+                Row(Modifier.padding(14.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    val (dot, label) = when (state) {
+                        ConnState.CONNECTED -> Success to "已连接 · 交互式 shell"
+                        ConnState.CONNECTING -> Warning to "连接中…"
+                        ConnState.ERROR -> Danger to "连接失败"
+                        ConnState.DISCONNECTED -> TextSecondary to "未连接"
+                    }
+                    Icon(Icons.Filled.Circle, null, tint = dot, modifier = Modifier.size(9.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(label, color = TextPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                    if (state == ConnState.CONNECTED) {
+                        TextButton(onClick = { disconnect() }) { Text("断开", color = Danger, fontSize = 12.sp) }
+                    }
                 }
             }
-            // 密码（MVP；后续走 Keystore + 密钥）
-            OutlinedTextField(
-                password, { password = it }, label = { Text("SSH 密码") }, singleLine = true,
-                visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                colors = termColors, modifier = Modifier.fillMaxWidth()
-            )
+            // 密码（仅未连接时显示；MVP，后续走 Keystore + 密钥）
+            if (state != ConnState.CONNECTED) {
+                OutlinedTextField(
+                    password, { password = it }, label = { Text("SSH 密码") }, singleLine = true,
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    colors = termColors, modifier = Modifier.fillMaxWidth()
+                )
+            }
             // 终端输出区
             Surface(color = Color(0xFF0D0D1A), shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f).fillMaxWidth()) {
                 Text(
@@ -443,18 +480,27 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
                     if (risk.needsConfirm) Text("· 执行前需确认", color = TextSecondary, fontSize = 11.sp)
                 }
             }
-            // 命令输入 + 执行
+            // 命令输入 + 执行（已连接才可输命令；未连接显示「连接」）
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    command, { command = it }, label = { Text("命令") }, singleLine = true,
-                    colors = termColors, modifier = Modifier.weight(1f)
-                )
-                FilledIconButton(
-                    onClick = { submit() },
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = Accent)
-                ) {
-                    if (running) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
-                    else Icon(Icons.Filled.ArrowUpward, "执行", tint = Color.White)
+                if (state == ConnState.CONNECTED) {
+                    OutlinedTextField(
+                        command, { command = it }, label = { Text("命令") }, singleLine = true,
+                        colors = termColors, modifier = Modifier.weight(1f)
+                    )
+                    FilledIconButton(
+                        onClick = { submit() },
+                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = Accent)
+                    ) { Icon(Icons.Filled.ArrowUpward, "发送", tint = Color.White) }
+                } else {
+                    Button(
+                        onClick = { connect() },
+                        enabled = state != ConnState.CONNECTING,
+                        colors = ButtonDefaults.buttonColors(containerColor = Accent),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (state == ConnState.CONNECTING) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
+                        else Text("连接", color = Color.White)
+                    }
                 }
             }
         }

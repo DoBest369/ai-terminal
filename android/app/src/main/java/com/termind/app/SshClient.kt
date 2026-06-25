@@ -1,10 +1,15 @@
 package com.termind.app
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.connection.channel.direct.Session
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
+import java.io.OutputStream
 import java.util.concurrent.TimeUnit
 
 /** 安卓真实 SSH（sshj，纯 Java，适合 Android）。A1：先做 exec 命令+输出，交互式 PTY 留 A1b。 */
@@ -49,5 +54,65 @@ object SshClient {
                 }
             }
         }
+    }
+
+    /**
+     * 建立交互式 PTY shell 会话（A1b）。在 IO 线程连接 + 起读循环，输出经 onOutput 回调。
+     * 返回 SshShellSession（write 发命令、close 断开）；失败抛异常由调用方 catch。
+     */
+    suspend fun openShell(
+        host: String, port: Int, user: String, password: String,
+        scope: CoroutineScope,
+        onOutput: (String) -> Unit
+    ): SshShellSession = withContext(Dispatchers.IO) {
+        val ssh = SSHClient()
+        ssh.addHostKeyVerifier(PromiscuousVerifier())  // MVP，TODO TOFU
+        ssh.connectTimeout = 10_000
+        ssh.connect(host, port)
+        ssh.authPassword(user, password)
+        val session = ssh.startSession()
+        session.allocateDefaultPTY()
+        val shell = session.startShell()
+        val out = shell.outputStream
+        // 持续读 shell 输出 → 回调（去 ANSI）
+        scope.launch(Dispatchers.IO) {
+            val buf = ByteArray(4096)
+            val input = shell.inputStream
+            try {
+                while (isActive) {
+                    val n = input.read(buf)
+                    if (n < 0) break
+                    if (n > 0) {
+                        val chunk = String(buf, 0, n, Charsets.UTF_8)
+                        withContext(Dispatchers.Main) { onOutput(stripAnsi(chunk)) }
+                    }
+                }
+            } catch (_: Exception) { /* 会话关闭/断开，正常退出 */ }
+        }
+        SshShellSession(ssh, session, out)
+    }
+
+    /** 去除常见 ANSI 转义序列（颜色/光标控制），MVP 简化处理 */
+    fun stripAnsi(s: String): String =
+        s.replace(Regex("\\[[0-9;?]*[a-zA-Z]"), "")
+         .replace(Regex("[()][AB0-2]"), "")
+         .replace("]0;", "").replace("", "")
+}
+
+/** 交互式 shell 会话句柄：write 发命令到 PTY，close 断开。 */
+class SshShellSession(
+    private val ssh: SSHClient,
+    private val session: Session,
+    private val out: OutputStream
+) {
+    fun write(text: String) {
+        runCatching {
+            out.write(text.toByteArray(Charsets.UTF_8))
+            out.flush()
+        }
+    }
+    fun close() {
+        runCatching { session.close() }
+        runCatching { ssh.disconnect() }
     }
 }

@@ -6,6 +6,17 @@
 
 ---
 
+## N-Cron-AI + A-Portability + A-KeyFile + 质量收口
+- **N-Cron-AI**（巡检 AI 总结）：InspectScreen 汇总条「AI 总结」→各服务器状态拼素材→AiClient.chatStream(运维助手:总览/资源紧张/优先处理)流式 AlertDialog。修 verticalScroll 导入。构建 14s，推送 65fdabe。
+- **A-Portability**（连接导出/导入）：ConnectionStore.exportJson(不含密码)/importJson；ServerListScreen「更多」菜单 导出(分享 Intent)/导入(GetContent 选 JSON→去重 merge)。对齐 apple ConnectionPortability。构建 18s，推送 9b9fd7c。
+- **A-KeyFile**（私钥文件导入）：ServerWorkspace 私钥框「从文件选择私钥」GetContent→contentResolver 读文本填 privateKey。构建 19s，推送 ecf773f。
+- **质量收口**：apple `cd AITerminalCore && swift build`+`cd App && swift build` 均 Build complete；--history-test(去重置顶/限长 true)+--batch-test(统计/AI 素材 true)+--risk-test(分级/兼容/脱敏 true) 全过，无回归。README 加「🚀 批量运维」小节(批量群发/群发AI汇总/批量巡检/命令历史)反映阶段 N 杀手级能力。
+- **改动**：`InspectScreen.kt`/`ConnectionStore.kt`/`MainActivity.kt`、`README.md`、`docs/PARITY.md`(阶段 N 创新小节+连接导出导入)。
+- **验证**：android 各项 BUILD SUCCESSFUL；apple swift build + 3 自测全过。
+- **意义**：阶段 N 创新(命令历史/批量群发/群发AI/批量巡检/巡检AI) + 对齐打磨(连接导出导入/私钥文件) 持续丰富；Termind 运维工作台差异化越来越强，双端高度对齐。
+
+---
+
 ## N-Multi apple · Core 批量群发框架 + BatchShowcase 界面渲染
 - **Core BatchRunner**（BatchRunner.swift）：`BatchOutcome`(name/output/ok)+`run`(withTaskGroup 并发对多目标执行注入的 runner，任务外取 name 避逃逸捕获，按输入序 sorted 聚合)+`summary`(成功/失败统计)+`composeForAI`(群发结果拼 AI 汇总素材)，对齐 android。runner 闭包注入便于测试；真实接入走 SSHTerminalSession.runCommand(Citadel) 留 UI TODO。
 - **UI**：`Showcase.BatchShowcase`(批量群发界面：多选服务器勾选+命令风险标注+执行结果卡片[成功绿/失败红 octagon]+「AI 汇总这批结果」入口，Theme 配色)；renderAll 渲染 `22-batch.png`(3台/2成功1失败/systemctl restart nginx 高风险)。Read 核对清晰，存 apple/screenshots。

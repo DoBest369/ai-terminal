@@ -653,6 +653,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var forwardLabel by remember { mutableStateOf<String?>(null) }
     var showHistory by remember { mutableStateOf(false) }   // N-History 命令历史
     val cmdHistory = remember { mutableStateListOf<String>().apply { addAll(CommandHistory.load(ctx)) } }
+    var termFont by remember { mutableStateOf(SettingsStore.loadTermFont(ctx)) }   // A-FontSize 终端字号
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -1014,12 +1015,23 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     )
                 }
             }
-            // 终端输出区（A-Ansi：解析 ANSI 颜色码彩色渲染）
+            // 终端输出区（A-Ansi 彩色 + A-FontSize 可调字号）
             Surface(color = Color(0xFF0D0D1A), shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f).fillMaxWidth()) {
-                Text(
-                    AnsiParser.parse(output), fontSize = 12.sp, fontFamily = FontFamily.Monospace,
-                    modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
-                )
+                Box {
+                    Text(
+                        AnsiParser.parse(output), fontSize = termFont.sp, fontFamily = FontFamily.Monospace,
+                        modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
+                    )
+                    // A-FontSize：字号 +/-
+                    Row(Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+                        IconButton(onClick = { termFont = (termFont - 1).coerceIn(8, 22); SettingsStore.saveTermFont(ctx, termFont) }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Filled.Remove, "缩小", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                        }
+                        IconButton(onClick = { termFont = (termFont + 1).coerceIn(8, 22); SettingsStore.saveTermFont(ctx, termFont) }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Filled.Add, "放大", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                        }
+                    }
+                }
             }
             // A-Keys：终端控制键栏（已连接时显示，移动端无 Ctrl/Tab/方向键，直发控制字符到 PTY）
             if (state == ConnState.CONNECTED) {

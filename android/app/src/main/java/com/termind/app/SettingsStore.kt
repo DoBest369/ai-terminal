@@ -25,6 +25,10 @@ object SettingsStore {
     fun loadAutoInspect(ctx: Context): Boolean = prefs(ctx).getBoolean(K_AUTO_INSPECT, false)
     fun saveAutoInspect(ctx: Context, on: Boolean) = prefs(ctx).edit().putBoolean(K_AUTO_INSPECT, on).apply()
 
+    private const val K_TERM_FONT = "term_font"
+    fun loadTermFont(ctx: Context): Int = prefs(ctx).getInt(K_TERM_FONT, 12)
+    fun saveTermFont(ctx: Context, sp: Int) = prefs(ctx).edit().putInt(K_TERM_FONT, sp.coerceIn(8, 22)).apply()
+
     private fun prefs(ctx: Context) = ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE)
 
     /** 加密 prefs（失败则回退普通 prefs，保证可用） */

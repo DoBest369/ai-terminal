@@ -6,6 +6,14 @@
 
 ---
 
+## 🎉 A0 · 安卓原生骨架 + APK 跑通（里程碑：第二个原生端落地）
+- **内容**：新建 android/ Kotlin+Jetpack Compose 工程（settings/build/app build.gradle.kts、Manifest、themes/strings、MainActivity.kt[Termind 顶栏 ⚡+智能SSH运维 + 按分组 SSH 连接列表 ServerCard：状态点/name/user@host:port/备注，午夜深蓝+珊瑚红配色呼应 apple 端]）。
+- **构建踩坑**：① gradle 缓存中 8.2.1-bin 残缺(.part)，改用完整的 8.13-bin。② AGP 8.2.2 配 gradle 8.13 卡死（main 线程 parking 12 分钟无进展）→ 升 AGP 8.7.2 + Kotlin 1.9.24 + Compose compiler 1.5.14 后正常下载。③ 网络诊断确认 dl.google/maven/github/gradle 全通。
+- **验证**：`gradle assembleDebug`（用缓存 gradle 8.13 二进制，--no-daemon）**BUILD SUCCESSFUL in 1h5m**（首次下全部依赖）→ **android/app/build/outputs/apk/debug/app-debug.apk 14.7MB**。安卓原生端骨架跑通（真实可安装 APK）。推送 fa9dfc4→00f166b。
+- **意义**：Termind 现有两个可构建原生端——apple/(Swift 编译) + android/(Kotlin 出 APK)。运行需模拟器/真机（同 apple 需 Xcode）。
+
+---
+
 ## U-Z4 · 排障工作流预览确认（UI 打磨）
 - **内容**：`AIAgentView` 加 `@State previewWorkflow: DiagnosticWorkflow?`；「排障」Menu 各工作流 Button action 从直接 runDiagnostic 改为 `previewWorkflow = wf`；body 加 `.sheet(item: $previewWorkflow)` → `diagnosticPreview(wf)`：NavigationStack + ScrollView 展示 wf.description + 「将依次注入以下只读诊断命令」+ 各 `$ cmd`，工具栏「取消」/「注入诊断命令」(确认调 model.runDiagnostic + 清 previewWorkflow)。避免盲目注入诊断命令。
 - **改动**：`apple/App/Sources/Views/AIAgentView.swift`。

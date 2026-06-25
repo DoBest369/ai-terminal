@@ -11,12 +11,19 @@
 | 平台 | 原生技术 | 目录 | 本机可编译验证 |
 |------|---------|------|:---:|
 | macOS / iOS / iPadOS | **Swift + SwiftUI**（Citadel SSH + SwiftTerm） | `apple/` | ✅ swift build（无 Xcode 不能出包/跑） |
-| Android | **Kotlin + Jetpack Compose**（待建） | `android/` | ✅ 有 Android SDK + Java 17 |
+| Android | **Kotlin + Jetpack Compose**（✅ 骨架+APK 跑通） | `android/` | ✅ gradle 8.13+AGP 8.7.2 出 app-debug.apk 14.7MB |
 | Windows | **C# + WinUI 3 / .NET**（待建） | `windows/` | ❌ 需 Windows |
 | Linux | **Rust + GTK4 / C++ Qt**（待建） | `linux/` | ❌ 需 Linux |
 
 > apple/ 保留为 macOS/iOS 原生旗舰（按 SSH 运维愿景重设计），不推倒重来——它本就是原生 Swift。
 > 可选后端 `relay/`（Node WebSocket→SSH）保留供原生移动端可选使用。
+
+### 🤖 安卓原生 backlog（android/ Kotlin+Compose）
+- [x] **A0** 工程骨架 + APK 跑通 ✅（gradle 8.13[缓存] + AGP 8.7.2 + Kotlin 1.9.24 + Compose 1.5.14；MainActivity 连接列表 UI[Termind 顶栏+按分组 ServerCard]；assembleDebug 出 app-debug.apk 14.7MB；推送）
+- [ ] **A1** 安卓 SSH 连接：用 sshj 或 JSch 实现真实 SSH 连接 + 终端（Compose 终端视图）
+- [ ] **A2** 连接管理：本地存储连接（Room/DataStore）+ 增删改 + 分组/备注
+- [ ] **A3** 把智能运维能力搬到安卓（命令解释/报错分析/风险分级/排障/模板——逻辑可参照 apple Core 用 Kotlin 重写）
+- [ ] **A4** 安卓 AI 助手（OkHttp 调 Anthropic/OpenAI）+ 状态面板
 
 ## 🤖 阶段 Z — 智能 SSH 运维能力（MVP 差异化核心）· 最高优先级
 

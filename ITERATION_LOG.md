@@ -6,6 +6,14 @@
 
 ---
 
+## 收尾 · apple 回归确认 + README 双端能力更新
+- **apple 回归**：`cd apple/AITerminalCore && swift build`(Build complete) + `cd apple/App && swift build`(Build complete)；6 项自测全过——metrics 正确 / risk 正确 / env-detect 正确 / diag 工作流数=5 / rollback 全部正确 / template 内置模板数=5。安卓多轮迭代未影响 apple 端。
+- **README 更新**：能力对照表补充 SFTP 下载上传/终端 ANSI 彩色/可达性探测/本地端口转发/凭据安全存储/TOFU/多主题/AI 多对话（均双端 ✅），加指向 docs/PARITY.md 的「核心 Z1-Z8 双端完全对齐」说明；Android 快速开始补充 密码/私钥、彩色终端、SFTP、端口转发、5 主题、API Key 加密。
+- **改动**：`README.md`。
+- **验证**：纯文档 + apple swift build 回归确认。如实反映双端高度对齐的最终状态。
+
+---
+
 ## A-Forward · 安卓本地端口转发（对齐 apple PortForward）
 - **内容**：`SshClient.openForward(...,localPort,remoteHost,remotePort,scope,privateKey)`——连接认证后 `ServerSocket().bind(127.0.0.1:localPort)` + `ssh.newLocalPortForwarder(Parameters("127.0.0.1",localPort,remoteHost,remotePort), ss)`，传入 scope 的 IO 协程跑 `forwarder.listen()`（阻塞），返回 `PortForwardHandle`(close=关 ServerSocket+cancel job+断开 ssh)。`ServerWorkspace` 顶栏「端口转发」IconButton(SwapHoriz，forwardHandle 非空时高亮)→`PortForwardDialog`(无活动转发→输入 本地端口/远程主机/远程端口「建立」；有→显当前 `127.0.0.1:lp→rh:rp`+「停止转发」)；DisposableEffect 离开关闭。
 - **改动**：`SshClient.kt`(openForward+PortForwardHandle)、`MainActivity.kt`(端口转发按钮+PortForwardDialog+state)。

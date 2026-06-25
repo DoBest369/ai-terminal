@@ -49,8 +49,17 @@
 | **风险分级** | 命令四级风险（安全/注意/高/极高）+ 高危二次确认 | ✅ | ✅ |
 | **敏感脱敏** | 终端输出里的密码/密钥/Token 自动打码 | ✅ | ✅ |
 | **操作回滚** | 改关键配置前自动备份 + 时间线 + 一键还原 | ✅ | ✅ |
+| SFTP 下载 / 上传 | 文件下载到本地 / 选本地文件上传 | ✅ | ✅ |
+| 终端 ANSI 彩色 | 保留颜色高亮渲染 | ✅ | ✅ |
+| 连接可达性探测 | TCP 探测真实在线状态 | ✅ | ✅ |
+| 本地端口转发 | 本机端口经 SSH 转发到远端 | ✅ | ✅ |
+| 凭据安全存储 | Keychain（apple）/ EncryptedSharedPreferences（android） | ✅ | ✅ |
+| TOFU 主机密钥校验 | 首次信任 + 指纹比对防 MITM | ✅ | ✅ |
+| 多主题配色 | 午夜 / One Dark / Dracula / Solarized / Nord | ✅ | ✅ |
+| AI 多对话 | 新建 / 切换 / 删除 | ✅ | ✅ |
 
 > 这套能力让 AI 不再只会给通用教程，而是结合**这台机器的真实环境与状态**给出可执行、可回滚的运维方案。
+> 完整双端能力对照见 [`docs/PARITY.md`](docs/PARITY.md)——**核心智能运维护城河（Z1–Z8）与 SSH/SFTP/AI/安全主线双端完全对齐**。
 
 ## 快速开始
 
@@ -76,7 +85,7 @@ cd android
 ANDROID_HOME=~/Library/Android/sdk ./gradlew assembleDebug
 # 产物：android/app/build/outputs/apk/debug/app-debug.apk
 ```
-需 Android SDK（android-34）+ JDK 17。安装到设备/模拟器后，新建连接、输入密码即可连真实服务器；AI 功能需在「设置」配置 Anthropic API Key。
+需 Android SDK（android-34）+ JDK 17。安装到设备/模拟器后，新建连接（密码或私钥）即可连真实服务器，支持交互式彩色终端、SFTP 文件管理、端口转发、5 套主题；AI 功能需在「设置」配置 Anthropic API Key（加密存储）。
 
 ## 项目结构
 

@@ -832,6 +832,16 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
     var viewing by remember { mutableStateOf<Pair<String, String>?>(null) }  // A-FileView：文件名→内容
     var toast by remember { mutableStateOf<String?>(null) }                  // A-Upload 下载提示
 
+    fun load(p: String) {
+        loading = true; error = null
+        scope.launch {
+            SshClient.listDir(conn.host, conn.port, conn.user, password, p, privateKey)
+                .onSuccess { files = it; path = p }
+                .onFailure { error = it.message }
+            loading = false
+        }
+    }
+
     // 下载远程文件到 app 外部文件目录
     fun download(f: RemoteFile) {
         loading = true
@@ -867,15 +877,6 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
         }
     }
 
-    fun load(p: String) {
-        loading = true; error = null
-        scope.launch {
-            SshClient.listDir(conn.host, conn.port, conn.user, password, p, privateKey)
-                .onSuccess { files = it; path = p }
-                .onFailure { error = it.message }
-            loading = false
-        }
-    }
     // 查看文本文件内容
     fun openFile(f: RemoteFile) {
         loading = true

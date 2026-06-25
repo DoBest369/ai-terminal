@@ -53,8 +53,8 @@
 | 凭据安全存储 | ✅ | ✅ | apple Keychain / android EncryptedSharedPreferences |
 | 快捷命令片段（风险着色） | ✅ | ✅ | |
 | 命令历史（去重/置顶/限长/调出） | ✅ | ✅ | N-History 双端 UI 接入 |
-| 批量群发命令（多服务器同命令） | 🟡 | ✅ | N-Multi android（apple 待接入） |
-| 群发结果 AI 汇总 | 🟡 | ✅ | N-Multi-AI android |
+| 批量群发命令（多服务器同命令） | 🟡 | ✅ | apple Core BatchRunner 框架+自测；UI/真实 SSH 接入 TODO |
+| 群发结果 AI 汇总 | 🟡 | ✅ | apple composeForAI 框架；android 完整 |
 | 多主题配色 | ✅ | ✅ | 双端 5 套（午夜/One Dark/Dracula/Solarized/Nord） |
 | 分屏 / 会话录制 | ✅ | ⬜ | apple 独有 |
 

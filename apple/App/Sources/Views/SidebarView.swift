@@ -157,8 +157,8 @@ struct SidebarView: View {
             .listStyle(.sidebar)
             .scrollContentBackground(.hidden)
         }
-        .background(Theme.surface)
-        .navigationTitle("AI Terminal")
+        .glassPanel(Theme.surface, opacity: 0.55)
+        .navigationTitle("Termind")
     }
 
     private var searchField: some View {

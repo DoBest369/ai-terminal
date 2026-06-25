@@ -52,6 +52,29 @@ extension Color {
     }
 }
 
+extension View {
+    /// iOS 26 液态玻璃面板：主题色半透明叠在原生 `.ultraThinMaterial`（毛玻璃）之上。
+    /// 用于侧栏/AI 面板/设置/状态栏等容器；终端正文不要用（保持不透明可读）。
+    func glassPanel(_ tint: Color = Theme.surface, opacity: Double = 0.5) -> some View {
+        self
+            .background(tint.opacity(opacity))
+            .background(.ultraThinMaterial)
+    }
+
+    /// 浮层玻璃（弹窗/sheet）：更高不透明度 + 描边 + 阴影，保证内容可读。
+    func glassOverlay(_ tint: Color = Theme.surface, opacity: Double = 0.62) -> some View {
+        self
+            .background(tint.opacity(opacity))
+            .background(.ultraThinMaterial)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Theme.textPrimary.opacity(0.10), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: .black.opacity(0.35), radius: 28, y: 14)
+    }
+}
+
 /// 全局 UI 配色，读取当前 `activeColorScheme`，随主题切换生效
 enum Theme {
     static var background: Color { Color(hex: activeColorScheme.background) }

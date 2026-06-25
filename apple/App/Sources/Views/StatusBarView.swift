@@ -14,7 +14,7 @@ struct StatusBarView: View {
                 expandedDetail(info)
             }
         }
-        .background(Theme.surface)
+        .glassPanel(Theme.surface, opacity: 0.5)
         .task(id: session.id) {
             #if os(macOS)
             if session.isLocal {

@@ -27,7 +27,7 @@ struct AIAgentView: View {
             Divider().overlay(Theme.surfaceLight)
             inputBar
         }
-        .background(Theme.surface)
+        .glassPanel(Theme.surface, opacity: 0.45)
         .fileExporter(isPresented: $showExporter, document: exportDoc, contentType: .markdownDoc, defaultFilename: exportFilename) { _ in }
         .alert("重命名对话", isPresented: $showRename) {
             TextField("对话名称（留空恢复自动）", text: $renameText)

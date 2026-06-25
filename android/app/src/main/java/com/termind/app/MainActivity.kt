@@ -238,6 +238,8 @@ fun ServerListScreen(
         }
     }
     var overflow by remember { mutableStateOf(false) }
+    var searchActive by remember { mutableStateOf(false) }   // A-Filter
+    var search by remember { mutableStateOf("") }
     Column {
         // 顶栏 + 刷新状态
         Surface(color = Surface) {
@@ -248,6 +250,9 @@ fun ServerListScreen(
                 Spacer(Modifier.width(8.dp))
                 Text("智能 SSH 运维", fontSize = 12.sp, color = TextSecondary)
                 Spacer(Modifier.weight(1f))
+                IconButton(onClick = { searchActive = !searchActive; if (!searchActive) search = "" }, enabled = conns.isNotEmpty()) {
+                    Icon(Icons.Filled.Search, "搜索连接", tint = if (searchActive) Accent else TextSecondary, modifier = Modifier.size(18.dp))
+                }
                 Box {
                     IconButton(onClick = { overflow = true }) { Icon(Icons.Filled.MoreVert, "更多", tint = TextSecondary) }
                     DropdownMenu(expanded = overflow, onDismissRequest = { overflow = false }) {
@@ -267,6 +272,15 @@ fun ServerListScreen(
                 }
             }
         }
+        // A-Filter：搜索框
+        if (searchActive) {
+            OutlinedTextField(
+                search, { search = it }, placeholder = { Text("搜索 名称/主机/用户/分组…", color = TextSecondary) }, singleLine = true,
+                leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSecondary) },
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)
+            )
+        }
         if (conns.isEmpty()) {
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Icon(Icons.Filled.Dns, null, tint = TextSecondary, modifier = Modifier.size(48.dp))
@@ -275,7 +289,11 @@ fun ServerListScreen(
             }
             return
         }
-        val grouped = conns.groupBy { it.group }
+        val q = search.trim()
+        val shown = if (q.isEmpty()) conns else conns.filter {
+            it.name.contains(q, true) || it.host.contains(q, true) || it.user.contains(q, true) || it.group.contains(q, true)
+        }
+        val grouped = shown.groupBy { it.group }
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)

@@ -6,6 +6,14 @@
 
 ---
 
+## N2 · 原生 SwiftUI 液态玻璃（原生重构开始）
+- **背景**：Web 删除后，apple/（SwiftUI 原生）按 SSH 运维愿景重设计。本轮做 iOS 26 玻璃。
+- **内容**：`Platform.swift` 加 `.glassPanel(tint, opacity)`（`tint.opacity(N).background(.ultraThinMaterial)`=主题色半透明叠原生毛玻璃）+ `.glassOverlay()`（浮层用，高不透明+描边+圆角+阴影）。`SidebarView` 根 `.background(Theme.surface)`→`.glassPanel(opacity:0.55)`、navigationTitle 改 Termind；`AIAgentView` 根→`.glassPanel(opacity:0.45)`；`StatusBarView` 根→`.glassPanel(opacity:0.5)`。终端正文(TerminalPane)不动保可读。
+- **改动**：`apple/App/Sources/Support/Platform.swift`、`Views/SidebarView.swift`、`Views/AIAgentView.swift`、`Views/StatusBarView.swift`。
+- **验证**：`cd apple/AITerminalCore && swift build` ✓ + `cd apple/App && swift build` ✓；Showcase 渲染 20 张无 FAILED。真实玻璃材质需运行 App（ImageRenderer 渲不出 Material、本机无 Xcode）。推送 aee8551。
+
+---
+
 ## 架构决策 · 统一前端多端（阶段 Y 启动）
 - **背景**：用户授权自行决策「全面重构前端 UI / 甚至换语言换框架 / 覆盖 mac·iOS·win·linux·安卓」。
 - **工具链勘察**：Flutter/Dart 未装、Rust 未装、仅 CLT 无完整 Xcode；**但 Android SDK 完整（platform-tools/ndk/emulator/cmdline-tools）+ Java 17 在** → Capacitor 打安卓 APK 可行。

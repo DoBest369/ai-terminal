@@ -35,7 +35,8 @@
 ## 📦 原生重构 backlog（apple/ macOS·iOS 旗舰，按愿景重设计）
 
 - [ ] **N1** apple/ 产品重构：从「终端」改为「SSH 运维工作台」——主界面=服务器列表(资产卡片) + 连接后工作区(终端+状态面板+AI 助手)，对齐 docs/PRODUCT.md 三层形态
-- [ ] **N2** SwiftUI 液态玻璃（iOS 26 风）：Theme 引入 .ultraThinMaterial 半透明分层 + 精修配色
+- [x] **N2** SwiftUI 液态玻璃（iOS 26 风）✅（Platform.swift 加 .glassPanel()/.glassOverlay() 修饰器=主题色半透明叠 .ultraThinMaterial；侧栏/AI 面板/状态栏改用 glassPanel[终端正文不动]；Core+App swift build 通过；真实玻璃需运行 App[无 Xcode 约束]；推送 aee8551）
+- [ ] **N2b** 玻璃扩展到设置/连接编辑/sheet 弹窗用 .glassOverlay + 主界面窗口背景透明化（NSWindow，需运行验证）
 - [ ] **N3** 安卓原生新建：Kotlin + Jetpack Compose（android/），SSH 用 sshj/JSch，复用愿景设计
 - [ ] 阶段 Z 的智能运维能力（命令解释/报错分析/环境感知/排障/回滚）逐项落到各原生端
 

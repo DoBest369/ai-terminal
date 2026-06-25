@@ -215,6 +215,33 @@ public enum AppScreenshots {
         return "内置模板数=\(builtins.count)；ubuntu 步骤=\(ubuntu.steps.count) 风险=\(ubuntu.risk.label)；预览格式正确=\(ok)"
     }
 
+    /// 服务器状态面板解析自测（Z6）：验证 RemoteSystemMonitor.parse 解析 disk/服务/健康摘要
+    public static func metricsTest() -> String {
+        let fake = """
+        HOST@@web-01
+        CORES@@4
+        UPTIME@@10 days
+        LOAD@@0.50 0.40 0.30
+        MEM@@8000000 2000000
+        CPU@@9000 10000
+        DISK@@85899345920 36507222016
+        SVC@@nginx:active
+        SVC@@docker:active
+        SVC@@mysql:inactive
+        SVC@@redis:active
+        SVC@@sshd:active
+        """
+        let info = RemoteSystemMonitor.parse(fake, previousCPU: (idle: 8000, total: 9000)).info
+        let ok = info.hostname == "web-01"
+            && info.diskTotal == 85_899_345_920 && info.diskUsed == 36_507_222_016
+            && Int(info.diskPercent) == 42
+            && info.services["nginx"] == true && info.services["mysql"] == false
+            && info.stoppedServices == ["mysql"]
+            && info.hasWarning
+            && info.healthSummary.contains("未运行 mysql")
+        return "解析正确=\(ok)；健康摘要=「\(info.healthSummary)」"
+    }
+
     /// 命令风险分级 + 脱敏自测（Z7）
     public static func riskTest() -> String {
         func r(_ c: String) -> CommandRisk { CommandRisk.riskLevel(c) }

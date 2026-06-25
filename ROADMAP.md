@@ -77,6 +77,7 @@
 - [x] **A-SnippetCRUD** 快捷命令自定义增删 ✅（SnippetStore SharedPreferences 持久化；ServerWorkspace 快捷命令 Chip 默认+自定义+「+新建」对话框+删除；修 termColors 前向引用；构建 20s；推送 2c48299→88b814a）
 - [x] **A-Stop** AI 助手停止生成 ✅（send 流式任务存 sendJob；stop() cancel 协程+保留已生成+[已停止]；输入栏发送按钮生成中变红停止按钮；构建 19s；推送 1aa07f3）
 - [x] **A-Filter** 连接列表搜索过滤 ✅（ServerListScreen 搜索框按 name/host/user/group contains 过滤；构建 20s；推送 21b4416）
+- [x] **A-Startup** 连接启动命令 ✅（ServerConn.startupCommand+JSON 持久化；EditConnectionScreen 字段；connect 建立 shell 后自动执行 cd/source/tmux 等；构建 22s；推送 48230de）
 - [x] **A-Tags** 连接颜色标签 ✅（ServerConn.colorTag[6 色枚举]+JSON 持久化；EditConnectionScreen 颜色选择圆点；ServerCard 左侧色条；一眼区分环境；构建 22s；推送 2eee143）
 - [x] **A-FontSize** 终端字号调节 ✅（SettingsStore termFont[8-22sp]；终端区右上 +/- 按钮调字号+持久化；构建 20s；推送 506d155）
 - [x] **A-Copy** AI 代码块一键复制 ✅（ChatBubble 代码块右上复制图标→clipboard.setText；推送 199272e）

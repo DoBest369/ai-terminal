@@ -1081,8 +1081,15 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                         AnsiParser.parse(output), fontSize = termFont.sp, fontFamily = FontFamily.Monospace,
                         modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
                     )
-                    // A-FontSize：字号 +/-
+                    // A-FontSize / A-TermActions：字号 +/- + 复制全部 + 清屏
+                    val termClip = LocalClipboardManager.current
                     Row(Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+                        IconButton(onClick = { termClip.setText(androidx.compose.ui.text.AnnotatedString(SshClient.stripAnsi(output))) }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Filled.ContentCopy, "复制全部", tint = TextSecondary, modifier = Modifier.size(15.dp))
+                        }
+                        IconButton(onClick = { output = "" }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Filled.ClearAll, "清屏", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                        }
                         IconButton(onClick = { termFont = (termFont - 1).coerceIn(8, 22); SettingsStore.saveTermFont(ctx, termFont) }, modifier = Modifier.size(28.dp)) {
                             Icon(Icons.Filled.Remove, "缩小", tint = TextSecondary, modifier = Modifier.size(16.dp))
                         }

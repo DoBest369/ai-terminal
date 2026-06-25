@@ -6,6 +6,14 @@
 
 ---
 
+## apple 批量健康巡检逻辑接入（N-Cron 对齐 android）
+- **内容**：`AppModel` 加 `InspectionResult`(name/info:SystemInfo?/error/hasWarning) + `@Published inspectionResults/inspectionRunning`。`runHealthInspection(targets)`：`withTaskGroup` 并发对各连接建 `SSHTerminalSession`+`RemoteSystemMonitor.fetch(using:previousCPU:nil)` 采集 SystemInfo+close；聚合后 hasWarning 异常置顶排序。`summarizeInspection()`：拼各机 `info.healthSummary`→`runAICompletion`(总览/优先处理/共性/建议)。复用已有 SystemMonitor+SSHTerminalSession+runAICompletion 模式(类比 runBatch/summarizeBatch)。
+- **改动**：`apple/App/Sources/AppModel.swift`(runHealthInspection+summarizeInspection+InspectionResult)。
+- **验证**：Core+App swift build Build complete。推送 2bf2ddb。本机无 Xcode 不能真跑(需真服务器),逻辑编译验证。**UI(InspectView)待接**。
+- **意义**：apple 批量健康巡检从无→逻辑接入，PARITY 批量巡检/AI 总结 apple ⬜→🟡(逻辑层)。阶段 N 主动运维向双端推进。剩 apple 待补:巡检 UI + 定时后台巡检(macOS 后台任务)。
+
+---
+
 ## apple SFTP 路径跳转 + 消息复制确认（PARITY 🟡 清零）
 - **apple SFTP 路径跳转**（对齐 android A-SftpPath）：`FileBrowserView` 路径栏 `Text(path)` 改为 Button(带 pencil 图标)→`.alert` 输入路径(预填当前 path)→`load(新路径)`。直达 /etc、/var/log 等深目录。
 - **apple AI 消息复制确认**：apple `MessageBubble` 早已有 `.contextMenu` 「复制」(整条 message.content)+「复制纯文本」，等价 android A-MsgCopy 长按复制——PARITY 文档滞后，本轮校正 apple✅。

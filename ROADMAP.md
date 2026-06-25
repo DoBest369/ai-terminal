@@ -75,6 +75,7 @@
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-SnippetCRUD** 快捷命令自定义增删 ✅（SnippetStore SharedPreferences 持久化；ServerWorkspace 快捷命令 Chip 默认+自定义+「+新建」对话框+删除；修 termColors 前向引用；构建 20s；推送 2c48299→88b814a）
+- [x] **apple 批量巡检逻辑接入** ✅（AppModel.runHealthInspection[TaskGroup 并发采集 SystemInfo+异常置顶]+summarizeInspection[AI 总结]；复用 RemoteSystemMonitor；UI 待接；推送 2bf2ddb）
 - [x] **apple SFTP 路径跳转 + 消息复制确认** ✅（FileBrowserView 路径栏可点→alert 输路径→load；apple MessageBubble contextMenu 已有复制=等价；PARITY 🟡 清零；推送 ddea1fe）
 - [x] **apple AI 提示词库对齐** ✅（AIAgentView.emptyHint 5 类分类提示词+胶囊切换；Showcase 渲染 20-ai-empty；PARITY AI 提示词库 apple✅；推送 a6b4e54）
 - [x] **apple SFTP 增删改对齐** ✅（SSHTerminalSession sftpMakeDirectory/sftpRemove/sftpRename[Citadel createDirectory/rmdir/remove/rename]；FileBrowserView 新建文件夹工具栏+右键重命名/删除+确认；Showcase 渲染；PARITY SFTP 增删改/重命名 apple✅；推送 4ad9160）

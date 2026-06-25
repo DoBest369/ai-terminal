@@ -73,8 +73,8 @@
 | 命令历史（去重/调出） | ✅ | ✅ | 双端 |
 | 批量群发命令 | ✅ | ✅ | apple AppModel.runBatch 真接 SSHTerminalSession；android 完整实测 |
 | 群发结果 AI 汇总 | ✅ | ✅ | apple summarizeBatch + composeForAI；android 完整 |
-| 批量健康巡检 | ⬜ | ✅ | android InspectScreen（并发查全部+异常置顶） |
-| 巡检结果 AI 总结 | ⬜ | ✅ | android |
+| 批量健康巡检 | 🟡 | ✅ | apple AppModel.runHealthInspection 逻辑接入（UI 待接）；android InspectScreen 完整 |
+| 巡检结果 AI 总结 | 🟡 | ✅ | apple summarizeInspection；android 完整 |
 | 定时后台巡检 + 通知 | ⬜ | ✅ | android WorkManager（主动运维，离线推通知） |
 
 > 阶段 N 让 Termind 从「逐台 SSH」升级为「**一批机器的批量操作 + AI 智能洞察**」——这是单连接 SSH 工具（Xshell/Termius）做不到的运维工作台核心差异化。android 先行落地，apple 框架就绪待 UI 接入。
@@ -97,8 +97,9 @@
 - **核心智能运维护城河（Z1–Z8）双端完全对齐** ✅
 - **SSH/终端（含控制键栏）/SFTP/AI（含代码块渲染）/安全/端口转发/跳板机/批量群发/多主题/多对话 双端齐平**
 - **已无 🟡 部分项**：所有 SSH/终端/SFTP/AI/智能运维（Z1–Z8）/批量群发/安全能力均 ✅✅ 双端齐平
-- 仍非双端齐平的仅 4 项（均为单端独有，非缺陷）：
-  - **android 独有**：批量健康巡检 / 巡检 AI 总结 / 定时后台巡检（apple 有 BatchRunner 框架，巡检 UI + WorkManager 等价待补）
+- 仍非双端齐平的少数项（单端独有/部分，非缺陷）：
+  - **批量健康巡检 / AI 总结**：apple 逻辑已接入（runHealthInspection/summarizeInspection），UI 待接；android 完整
+  - **定时后台巡检**：android WorkManager 主动运维；apple 待补（macOS 后台任务）
   - **apple 独有**：分屏 / 会话录制（移动端意义有限）
 - 多处经源码核查纠正了文档滞后：apple 终端控制键栏/终端搜索/连接测试/批量群发/SFTP 增删改/AI 提示词库 实为 ✅
 - apple 为功能最全的旗舰；**android 已是功能完整、体验接近桌面的第二原生端，核心能力与 apple 高度对齐**

@@ -49,7 +49,7 @@
 |------|:---:|:---:|------|
 | 凭据安全存储 | ✅ | ✅ | apple Keychain / android EncryptedSharedPreferences |
 | 快捷命令片段（风险着色） | ✅ | ✅ | |
-| 多主题配色 | ✅ | 🟡 | apple 5 套+自定义；android 单主题（午夜） |
+| 多主题配色 | ✅ | ✅ | 双端 5 套（午夜/One Dark/Dracula/Solarized/Nord） |
 | 分屏 / 会话录制 | ✅ | ⬜ | apple 独有 |
 
 ## 小结

@@ -45,6 +45,7 @@
 - [x] **A-Rollback** 操作回滚 Kotlin 化 ✅（RollbackCore.kt OpRollback[criticalPrefixes/isCriticalConfig/criticalTargets/backupCommand/sshAutoRollbackCommand]+OpTimelineEntry[rollbackCommand]，移植 apple；ServerWorkspace.send 改关键配置前自动 cp 备份+记 opTimeline；顶栏「时间线」History 入口→ModalBottomSheet 列操作+可回滚项一键回滚；构建 17s 出 APK 30.8MB；推送 8425732）
 
 - [x] **A-FileView** SFTP 查看文本文件内容 ✅（SshClient.readFile[head -c 200KB 限大小+单引号转义]；SftpBrowser 点文件→openFile 读→AlertDialog 滚动显示(脱敏)；构建 17s 出 APK 30.8MB；推送 f922570）
+- [x] **A-Themes** 多主题配色 ✅（Themes.kt 5 套 ThemeScheme[午夜/One Dark/Dracula/Solarized/Nord，对齐 apple]+全局 activeTheme；顶层颜色改计算属性自动跟随；SettingsStore themeId；SettingsScreen 主题选择 dialog 即时切换+持久化；构建 18s；推送 9bf20ff。PARITY 多主题 🟡→✅）
 - [x] **A-Download** SFTP 文件下载 ✅（SshClient.downloadFile sftp.get→getExternalFilesDir；SftpBrowser 文件行下载图标+toast 显路径；构建 18s；推送 45971f8）
 - [x] **A-Upload** SFTP 文件上传 ✅（SshClient.uploadFile sftp.put；SftpBrowser GetContent 文件选择器→contentResolver 查名+复制到 cacheDir→上传当前目录→刷新+toast；头部「上传」按钮；修 load() 前向引用；构建 18s；推送 91e8c1c→e0f5016。安卓 SFTP 完整=浏览/查看/下载/上传）
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）

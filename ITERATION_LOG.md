@@ -6,6 +6,14 @@
 
 ---
 
+## A-Themes · 安卓多主题配色（对齐 apple 5 套）
+- **内容**：`Themes.kt`——`ThemeScheme`(id/name + bg/surface/surfaceLight/accent/textPrimary/textSecondary/success/warning/danger 9 色) + `builtins` 5 套（午夜/One Dark/Dracula/Solarized/Nord，配色值对齐 apple AppColorScheme）+ 全局 `var activeTheme by mutableStateOf`。`MainActivity` 顶层 `val Bg/Surface/Accent/...` 由固定 Color 常量改为 `get() = activeTheme.xxx` **计算属性**——所有现有 200+ 处颜色引用零改动，主题切换即全局 recompose 跟随。`onCreate` 启动 `activeTheme = byId(SettingsStore.loadTheme())`；`TermindTheme` 读 activeTheme 生成 colorScheme。`SettingsStore` themeId 存取；`SettingsScreen` 加 `pickingTheme` AlertDialog（5 套，每行 4 色预览点+名称+当前勾选，点选 `activeTheme=th`+saveTheme 即时切换+持久化）。
+- **改动**：新增 `android/.../Themes.kt`；改 `MainActivity.kt`(颜色计算属性+onCreate+TermindTheme+SettingsScreen 主题选择)、`SettingsStore.kt`(theme)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 18s** → app-debug.apk。推送 9bf20ff。计算属性方案让全局配色一键切换。
+- **意义**：android 多主题 PARITY 🟡→✅，与 apple 5 套主题对齐。安卓 ↔ apple 能力差距进一步缩小。
+
+---
+
 ## A-Upload + 双端对照文档
 - **A-Upload**：`SshClient.uploadFile`(sftp.put)；`SftpBrowser` 用 `rememberLauncherForActivityResult(GetContent)` 选本地文件→contentResolver 查 DISPLAY_NAME+openInputStream 复制到 cacheDir→uploadFile 到当前远程目录→load 刷新+toast；头部「上传」按钮。**踩坑**：SftpBrowser 局部函数 `load()` 被 download/picker 前向引用→BUILD FAILED，把 load() 前移修复。验证：重建 **BUILD SUCCESSFUL in 18s**。推送 91e8c1c→e0f5016→431f9de。**安卓 SFTP 完整=浏览/查看/下载/上传**。
 - **apple 回归确认**：`cd apple/AITerminalCore && swift build` + `cd apple/App && swift build` 均 Build complete（无回归）；--metrics-test/--risk-test/--env-detect-test 自测全 true。

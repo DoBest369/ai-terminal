@@ -222,6 +222,21 @@ public enum AppScreenshots {
         return "内置模板数=\(builtins.count)；ubuntu 步骤=\(ubuntu.steps.count) 风险=\(ubuntu.risk.label)；预览格式正确=\(ok)"
     }
 
+    /// 命令历史自测（N-History）：去重/置顶/限长
+    public static func historyTest() -> String {
+        var h: [String] = []
+        h = CommandHistory.updated(h, adding: "ls")
+        h = CommandHistory.updated(h, adding: "df -h")
+        h = CommandHistory.updated(h, adding: "ls")          // 重复→去重置顶
+        h = CommandHistory.updated(h, adding: "  ")          // 空→忽略
+        let dedupOk = h == ["ls", "df -h"]
+        // 限长
+        var big: [String] = []
+        for i in 0..<60 { big = CommandHistory.updated(big, adding: "cmd\(i)", limit: 50) }
+        let capOk = big.count == 50 && big.first == "cmd59" && big.last == "cmd10"
+        return "去重置顶=\(dedupOk)；限长=\(capOk)"
+    }
+
     /// 服务器状态面板解析自测（Z6）：验证 RemoteSystemMonitor.parse 解析 disk/服务/健康摘要
     public static func metricsTest() -> String {
         let fake = """

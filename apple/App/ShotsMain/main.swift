@@ -24,6 +24,8 @@ MainActor.assumeIsolated {
         print(AppScreenshots.templateTest())
     } else if firstArg == "--metrics-test" {
         print(AppScreenshots.metricsTest())
+    } else if firstArg == "--history-test" {
+        print(AppScreenshots.historyTest())
     } else if firstArg == "--ai-persist-test" {
         print(AppScreenshots.aiPersistTest())
     } else if firstArg == "--ai-conv-test" {

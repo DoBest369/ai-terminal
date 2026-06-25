@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         activeTheme = ThemeScheme.byId(SettingsStore.loadTheme(this))  // A-Themes：启动应用已存主题
+        KnownHosts.init(this)  // A-TOFU：初始化 known_hosts 指纹存储
         setContent { TermindTheme { TermindApp() } }
     }
 }

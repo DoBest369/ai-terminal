@@ -9,7 +9,6 @@ import kotlinx.coroutines.withTimeout
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.connection.channel.direct.Session
 import net.schmizz.sshj.sftp.FileMode
-import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import java.io.OutputStream
 import java.util.concurrent.TimeUnit
 
@@ -46,7 +45,7 @@ object SshClient {
             withTimeout(timeoutMs) {
                 val ssh = SSHClient()
                 // TODO(TOFU)：MVP 先跳过 host key 校验，后续实现首次信任 + known_hosts（对齐 apple R20）
-                ssh.addHostKeyVerifier(PromiscuousVerifier())
+                ssh.addHostKeyVerifier(TofuVerifier())  
                 ssh.connectTimeout = 10_000
                 ssh.timeout = 10_000
                 ssh.connect(host, port)
@@ -82,7 +81,7 @@ object SshClient {
         onOutput: (String) -> Unit
     ): SshShellSession = withContext(Dispatchers.IO) {
         val ssh = SSHClient()
-        ssh.addHostKeyVerifier(PromiscuousVerifier())  // MVP，TODO TOFU
+        ssh.addHostKeyVerifier(TofuVerifier())  // MVP，TODO TOFU
         ssh.connectTimeout = 10_000
         ssh.connect(host, port)
         authenticate(ssh, user, password, privateKey)
@@ -124,7 +123,7 @@ object SshClient {
         runCatching {
             withTimeout(15_000) {
                 val ssh = SSHClient()
-                ssh.addHostKeyVerifier(PromiscuousVerifier())  // MVP，TODO TOFU
+                ssh.addHostKeyVerifier(TofuVerifier())  // MVP，TODO TOFU
                 ssh.connectTimeout = 10_000
                 ssh.connect(host, port)
                 try {
@@ -152,7 +151,7 @@ object SshClient {
         runCatching {
             withTimeout(60_000) {
                 val ssh = SSHClient()
-                ssh.addHostKeyVerifier(PromiscuousVerifier())
+                ssh.addHostKeyVerifier(TofuVerifier())  
                 ssh.connectTimeout = 10_000
                 ssh.connect(host, port)
                 try {
@@ -173,7 +172,7 @@ object SshClient {
         runCatching {
             withTimeout(60_000) {
                 val ssh = SSHClient()
-                ssh.addHostKeyVerifier(PromiscuousVerifier())
+                ssh.addHostKeyVerifier(TofuVerifier())  
                 ssh.connectTimeout = 10_000
                 ssh.connect(host, port)
                 try {

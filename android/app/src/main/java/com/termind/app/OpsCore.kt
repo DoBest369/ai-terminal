@@ -70,6 +70,26 @@ data class ServerStatus(
     val mem: String = "—",
     val disk: String = "—"
 ) {
+    /** 从格式化字符串里抽出百分比数值（如 "47%" / "36G/80G (90%)"），无则 null */
+    private fun pct(s: String): Int? = Regex("(\\d+)%").find(s)?.groupValues?.get(1)?.toIntOrNull()
+
+    val cpuPercent: Int? get() = pct(cpu)
+    val diskPercent: Int? get() = pct(disk)
+
+    /** 有告警：CPU 或 磁盘 >85%（A-HealthAI，对齐 apple hasWarning） */
+    val hasWarning: Boolean get() = (cpuPercent ?: 0) > 85 || (diskPercent ?: 0) > 85
+
+    /** 健康摘要（喂给 AI，对齐 apple SystemInfo.healthSummary） */
+    val healthSummary: String
+        get() {
+            val parts = mutableListOf<String>()
+            if (cpu != "—") parts.add("CPU $cpu")
+            if (mem != "—") parts.add("内存 $mem")
+            if (disk != "—") parts.add("磁盘 $disk")
+            if (hasWarning) parts.add("⚠️ 资源偏高")
+            return if (parts.isEmpty()) "" else "服务器状态：" + parts.joinToString(" · ")
+        }
+
     companion object {
         /** 解析 `top -bn1|grep %Cpu` + `free -m` + `df -h /` 的合并输出（以 --- 分段或全文扫描） */
         fun parse(raw: String): ServerStatus {

@@ -382,6 +382,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var pendingTemplate by remember { mutableStateOf<SetupTemplate?>(null) }  // A-Tpl-Exec 待确认模板
     val opTimeline = remember { mutableStateListOf<OpTimelineEntry>() }  // A-Rollback 操作时间线
     var showTimeline by remember { mutableStateOf(false) }
+    var showHealthAI by remember { mutableStateOf(false) }  // A-HealthAI 状态↔AI 联动
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -551,6 +552,11 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         }
     }
 
+    // A-HealthAI：状态↔AI 联动 sheet（流式分析当前服务器状态）
+    if (showHealthAI) {
+        HealthAISheet(status, onClose = { showHealthAI = false })
+    }
+
     // 离开工作区时关闭会话，避免泄漏
     DisposableEffect(Unit) { onDispose { shellSession?.close() } }
 
@@ -638,9 +644,14 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
             if (state == ConnState.CONNECTED) {
                 Surface(color = SurfaceLight.copy(alpha = 0.5f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
                     Row(Modifier.padding(14.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        StatCell("CPU", status.cpu, Success)
+                        StatCell("CPU", status.cpu, if ((status.cpuPercent ?: 0) > 85) Danger else Success)
                         StatCell("内存", status.mem, Warning)
-                        StatCell("磁盘", status.disk, Success)
+                        StatCell("磁盘", status.disk, if ((status.diskPercent ?: 0) > 85) Danger else Success)
+                        // A-HealthAI：问 AI（有告警高亮）
+                        IconButton(onClick = { if (status.healthSummary.isNotEmpty()) showHealthAI = true }) {
+                            Icon(if (status.hasWarning) Icons.Filled.Warning else Icons.Filled.AutoAwesome,
+                                "问 AI", tint = if (status.hasWarning) Danger else Accent, modifier = Modifier.size(18.dp))
+                        }
                         IconButton(onClick = { refreshStatus() }, enabled = !refreshing) {
                             if (refreshing) CircularProgressIndicator(Modifier.size(16.dp), color = Accent, strokeWidth = 2.dp)
                             else Icon(Icons.Filled.Refresh, "刷新状态", tint = Accent, modifier = Modifier.size(18.dp))
@@ -707,6 +718,43 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                         else Text("连接", color = Color.White)
                     }
                 }
+            }
+        }
+    }
+}
+
+/** A-HealthAI：状态↔AI 联动——把当前状态摘要发给 AI 流式分析（对齐 apple Z6b） */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HealthAISheet(status: ServerStatus, onClose: () -> Unit) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var content by remember { mutableStateOf("") }
+    var done by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!SettingsStore.isConfigured(ctx)) { content = "请先在设置中配置 API Key。"; done = true; return@LaunchedEffect }
+        val msg = "${status.healthSummary}\n请分析有无异常并给排查/优化建议。"
+        AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
+            listOf("user" to msg), AiClient.HEALTH_PROMPT) { delta -> content += delta }
+            .onFailure { content = "⚠️ ${it.message}" }
+        done = true
+    }
+
+    ModalBottomSheet(onDismissRequest = onClose, containerColor = Bg) {
+        Column(Modifier.fillMaxWidth().padding(16.dp).heightIn(min = 240.dp, max = 540.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(if (status.hasWarning) Icons.Filled.Warning else Icons.Filled.AutoAwesome,
+                    null, tint = if (status.hasWarning) Danger else Accent)
+                Spacer(Modifier.width(8.dp))
+                Text("AI 健康分析", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                if (!done) CircularProgressIndicator(Modifier.size(18.dp), color = Accent, strokeWidth = 2.dp)
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(status.healthSummary, color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+            Spacer(Modifier.height(10.dp))
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                Text(content.ifEmpty { "分析中…" }, color = TextPrimary, fontSize = 13.sp)
             }
         }
     }

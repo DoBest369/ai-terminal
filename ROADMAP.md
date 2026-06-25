@@ -2,13 +2,24 @@
 
 目标：做一个 **全平台覆盖、好用、好看** 的智能终端（**Termind** = Terminal + Mind）。
 
-## 🎨 阶段 X — 设计大改版（iOS 26 液态玻璃风 + 持续优化）· 进行中
+## 🏗️ 阶段 Y — 统一前端 · 多端封装（架构决策）· 进行中
+
+**决策（用户授权自行定夺「重构前端/换框架/多端 mac·iOS·win·linux·安卓」）**：
+- 工具链现状：本机有 Android SDK + Java 17 + Node，**无 Flutter/Rust、仅 CLT 无完整 Xcode**。
+- **不换 Flutter**（需装 SDK + 从零重写上百轮，iOS/mac 仍卡 Xcode）。
+- **采用「一套 React Web UI（已 iOS26 玻璃化）→ 多端封装」**：桌面 Electron（win/linux/mac，working）+ 移动 Capacitor（**安卓本机 SDK 齐全可真打 APK**；iOS 待 Xcode）。一套代码 5 端统一 UI，复用现有 SSH（桌面 node-pty / 移动 relay）。原生 SwiftUI（apple/）保留为 Apple 高端选项。
+- [ ] **Y1** mobile Capacitor 接安卓：mobile 装依赖 + 配置 Termind + `cap add android`（用本机 Android SDK）+ gradle 构建验证 APK 能出
+- [ ] **Y2** 统一 UI：把 React 前端抽成平台无关（SSH/AI/系统 经适配器：Electron IPC / 移动 relay·Capacitor 插件），移动端也加载同一套玻璃 UI（替换 mobile/www 旧壳）
+- [ ] **Y3** 安卓端 SSH：经 relay（已实现）或 Capacitor 原生 SSH 插件，移动端跑通连接
+- [ ] **Y4** iOS（Capacitor，待完整 Xcode）+ 全端统一玻璃 UI 打磨 + 性能优化
+
+## 🎨 阶段 X — 设计大改版（iOS 26 液态玻璃风 + 持续优化）· Electron 端已完成
 
 用户方向：界面颜色/设计迭代优化，**参考 iOS 26 最新 Liquid Glass（液态玻璃）设计风格**；功能自动扩展；性能优化。每轮择一推进，编译 + 截图验证。
 - [x] **X0** 品牌重塑：命名 **Termind** + 全新图标（squircle+珊瑚红渐变+`>_`+AI 火花），Electron productName/icon/dock/侧栏接入，已提交推送公开仓库
 - [x] **X1** Electron 液态玻璃 UI（侧栏）✅（main.js vibrancy:'under-window'+visualEffectState+mac 透明 bg；app.css body 透明、侧栏 color-mix 半透明+backdrop-filter blur34 saturate185+高光描边；截图验证磨砂玻璃透出桌面、功能完好；已推送 0bf3d13）
 - [x] **X1b** 液态玻璃扩展 ✅（终端/SSH 头部、AI 面板、设置弹窗、连接抽屉、右键菜单 统一 color-mix 半透明+backdrop-filter；终端正文保持不透明保可读；index.html title 改 Termind[AXRaise 确认窗口标题]；截图验证功能完好；推送 a9c728b）
-- [ ] **X1c** 细节玻璃打磨：连接行/AI 气泡/输入框/按钮 hover 微光 + 圆角统一 + 滚动条美化（可选，后续）
+- [x] **X1c** 玻璃细节打磨 ✅（nav-item hover 微光+active 发光阴影；AI 气泡玻璃化+圆角 16+投影；滚动条细窄半透明 color-mix；AI 面板 40→55% 改善可读性；切 AI 面板截图验证透出桌面呈玻璃质感、可读 OK；推送 c63fde0）
 - [ ] **X2** 原生 SwiftUI 液态玻璃：Theme 引入 .ultraThinMaterial / 半透明分层 / 精修 5 套主题
 - [ ] **X3** 配色系统升级：更有层次的色板（深度/高光/玻璃叠加），全端一致
 - [ ] **X4+** 功能扩展（自行规划，符合智能终端定位）+ 性能优化（启动/渲染/内存）

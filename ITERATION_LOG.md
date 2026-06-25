@@ -6,6 +6,22 @@
 
 ---
 
+## 架构决策 · 统一前端多端（阶段 Y 启动）
+- **背景**：用户授权自行决策「全面重构前端 UI / 甚至换语言换框架 / 覆盖 mac·iOS·win·linux·安卓」。
+- **工具链勘察**：Flutter/Dart 未装、Rust 未装、仅 CLT 无完整 Xcode；**但 Android SDK 完整（platform-tools/ndk/emulator/cmdline-tools）+ Java 17 在** → Capacitor 打安卓 APK 可行。
+- **决策**：不换 Flutter（装 SDK+从零重写代价大、iOS/mac 仍卡 Xcode）；采用「**一套 React Web UI（已 iOS26 玻璃化）→ Electron 桌面 + Capacitor 移动**」统一多端，复用现有 SSH（桌面 node-pty / 移动 relay）。原生 SwiftUI 保留。最快用现有工具链达成「一套好看 UI 全平台」。
+- **本轮动作**：mobile/capacitor.config.json 改 appId com.termind.app + appName Termind；后台启动 `mobile npm install` 装 Capacitor 依赖（为 cap add android 铺路）。ROADMAP 立阶段 Y（Y1 安卓封装 / Y2 统一 UI / Y3 移动 SSH / Y4 iOS+打磨）。
+- **验证**：Android SDK + Java 17 就绪确认；依赖安装中。
+
+---
+
+## X1c · 液态玻璃细节打磨
+- **内容**：app.css —— `.nav-item` 加 transition + hover `color-mix 9%` 微光高亮 + `translateX(2px)`、active 加 `box-shadow` accent 发光；`.message-content` 圆角 12→16 + 投影；`.assistant-message` 玻璃化（72% 半透明 + blur20 + 描边）；`::-webkit-scrollbar` 美化（10px、track 透明、thumb `color-mix text 18%` + padding-box 描边内缩、hover 32%）；`.ai-panel` 40%→55% 提升文字可读性。验证用临时切 useState('ai') 截图后回退 'local'。
+- **改动**：`src/renderer/styles/app.css`、`src/renderer/App.jsx`（临时切 tab 截图后已回退）。
+- **验证**：`npm run build` ✓ + `node --check` ✓；AI 面板截图——面板半透明透出桌面呈 iOS 26 玻璃、「AI Agent」active 发光、文字可读。推送 c63fde0。
+
+---
+
 ## X1b · 液态玻璃扩展全面板 + 窗口标题
 - **内容**：app.css 给 `.terminal-header`/`.ssh-header`（blur30 sat180）、`.ai-panel`（blur28 sat170，40% 不透明更通透）、`.modal`/`.drawer`（blur40 sat190 + 强阴影+高光，浮层玻璃感最强）、`.context-menu`（blur34 + 圆角12+阴影）统一加 `color-mix(in srgb, var(--surface) N%, transparent)` 半透明 + `backdrop-filter`，描边用 `color-mix(text-primary 9~12%)`。`.terminal`/xterm 正文不动（保持不透明可读）。index.html `<title>` 改 Termind。
 - **改动**：`src/renderer/styles/app.css`、`src/renderer/index.html`。

@@ -26,13 +26,19 @@ data class ServerConn(
     val colorTag: ColorTag = ColorTag.NONE,
     val startupCommand: String = "",
     val lastUsed: Long = 0L,
+    // A-Jump 跳板机（ProxyJump）：先连 bastion 再经 direct-tcpip 连目标。密码不持久化，运行时输入。
+    val jumpHost: String = "",
+    val jumpPort: Int = 22,
+    val jumpUser: String = "",
     val online: Boolean = false
 ) {
+    val hasJump: Boolean get() = jumpHost.isNotBlank()
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id); put("name", name); put("host", host); put("user", user)
         put("port", port); put("group", group); put("note", note)
         put("authType", authType.name); put("colorTag", colorTag.name)
         put("startupCommand", startupCommand); put("lastUsed", lastUsed)
+        put("jumpHost", jumpHost); put("jumpPort", jumpPort); put("jumpUser", jumpUser)
     }
 }
 
@@ -56,7 +62,9 @@ object ConnectionStore {
                     authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD),
                     colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE),
                     startupCommand = o.optString("startupCommand"),
-                    lastUsed = o.optLong("lastUsed", 0L)
+                    lastUsed = o.optLong("lastUsed", 0L),
+                    jumpHost = o.optString("jumpHost"), jumpPort = o.optInt("jumpPort", 22),
+                    jumpUser = o.optString("jumpUser")
                 )
             }
         }.getOrElse { seedDefaults() }
@@ -87,7 +95,9 @@ object ConnectionStore {
                     authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD),
                     colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE),
                     startupCommand = o.optString("startupCommand"),
-                    lastUsed = o.optLong("lastUsed", 0L)
+                    lastUsed = o.optLong("lastUsed", 0L),
+                    jumpHost = o.optString("jumpHost"), jumpPort = o.optInt("jumpPort", 22),
+                    jumpUser = o.optString("jumpUser")
                 )
             }
         }.getOrElse { emptyList() }

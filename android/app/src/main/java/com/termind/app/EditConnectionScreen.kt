@@ -35,6 +35,10 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
     var authType by remember { mutableStateOf(existing?.authType ?: AuthType.PASSWORD) }
     var colorTag by remember { mutableStateOf(existing?.colorTag ?: ColorTag.NONE) }
     var startup by remember { mutableStateOf(existing?.startupCommand ?: "") }
+    // A-Jump 跳板机
+    var jumpHost by remember { mutableStateOf(existing?.jumpHost ?: "") }
+    var jumpUser by remember { mutableStateOf(existing?.jumpUser ?: "") }
+    var jumpPort by remember { mutableStateOf((existing?.jumpPort ?: 22).toString()) }
     // A-TestConn 测试连接
     val scope = rememberCoroutineScope()
     var testing by remember { mutableStateOf(false) }
@@ -63,7 +67,8 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
                                 host = host.trim(), user = user.trim(),
                                 port = port.toIntOrNull() ?: 22,
                                 group = group.trim(), note = note.trim(),
-                                authType = authType, colorTag = colorTag, startupCommand = startup.trim()
+                                authType = authType, colorTag = colorTag, startupCommand = startup.trim(),
+                                jumpHost = jumpHost.trim(), jumpPort = jumpPort.toIntOrNull() ?: 22, jumpUser = jumpUser.trim()
                             )
                         )
                     }, enabled = canSave) {
@@ -105,6 +110,13 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
             OutlinedTextField(group, { group = it }, label = { Text("分组（可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(note, { note = it }, label = { Text("备注（可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(startup, { startup = it }, label = { Text("启动命令（连上自动执行，可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
+            // A-Jump：跳板机（ProxyJump，可选；填了主机即启用，密码连接时输入）
+            Text("跳板机 / 堡垒机（可选，经其转连目标）", color = TextSecondary, fontSize = 12.sp)
+            OutlinedTextField(jumpHost, { jumpHost = it }, label = { Text("跳板机主机") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(jumpUser, { jumpUser = it }, label = { Text("跳板用户名") }, singleLine = true, colors = fieldColors, modifier = Modifier.weight(2f))
+                OutlinedTextField(jumpPort, { jumpPort = it.filter { c -> c.isDigit() } }, label = { Text("跳板端口") }, singleLine = true, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number), colors = fieldColors, modifier = Modifier.weight(1f))
+            }
             // A-KeyAuth：认证方式
             Text("认证方式", color = TextSecondary, fontSize = 12.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

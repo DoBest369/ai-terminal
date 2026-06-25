@@ -12,8 +12,40 @@ import net.schmizz.sshj.sftp.FileMode
 import java.io.OutputStream
 import java.util.concurrent.TimeUnit
 
+/** 跳板机配置（A-Jump）：经 bastion 连目标。密码运行时输入，不持久化。 */
+data class JumpConfig(val host: String, val port: Int, val user: String, val password: String)
+
 /** 安卓真实 SSH（sshj，纯 Java，适合 Android）。A1：先做 exec 命令+输出，交互式 PTY 留 A1b。 */
 object SshClient {
+
+    /**
+     * 建立到目标的已连接+已认证 SSHClient（A-Jump：jump 非空时经 bastion 用 sshj connectVia）。
+     * 返回 (target, bastion?)；bastion 需与 target 一起关闭。
+     */
+    private fun connectClient(
+        host: String, port: Int, user: String, password: String, privateKey: String?, jump: JumpConfig?
+    ): Pair<SSHClient, SSHClient?> {
+        if (jump != null && jump.host.isNotBlank()) {
+            // 先连跳板机（密码认证），再经 direct-tcpip 通道连目标
+            val bastion = SSHClient()
+            bastion.addHostKeyVerifier(TofuVerifier())
+            bastion.connectTimeout = 10_000
+            bastion.connect(jump.host, jump.port)
+            authenticate(bastion, jump.user, jump.password, null)
+            val dc = bastion.newDirectConnection(host, port)
+            val target = SSHClient()
+            target.addHostKeyVerifier(TofuVerifier())
+            target.connectVia(dc)
+            authenticate(target, user, password, privateKey)
+            return target to bastion
+        }
+        val ssh = SSHClient()
+        ssh.addHostKeyVerifier(TofuVerifier())
+        ssh.connectTimeout = 10_000
+        ssh.connect(host, port)
+        authenticate(ssh, user, password, privateKey)
+        return ssh to null
+    }
 
     /**
      * 认证（A-KeyAuth）：privateKey 非空走公钥认证（PEM 字符串），否则密码认证。
@@ -39,18 +71,14 @@ object SshClient {
         password: String,
         command: String,
         timeoutMs: Long = 15_000,
-        privateKey: String? = null
+        privateKey: String? = null,
+        jump: JumpConfig? = null
     ): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
             withTimeout(timeoutMs) {
-                val ssh = SSHClient()
-                // TODO(TOFU)：MVP 先跳过 host key 校验，后续实现首次信任 + known_hosts（对齐 apple R20）
-                ssh.addHostKeyVerifier(TofuVerifier())  
-                ssh.connectTimeout = 10_000
+                val (ssh, bastion) = connectClient(host, port, user, password, privateKey, jump)
                 ssh.timeout = 10_000
-                ssh.connect(host, port)
                 try {
-                    authenticate(ssh, user, password, privateKey)
                     ssh.startSession().use { session ->
                         val cmd = session.exec(command)
                         val out = cmd.inputStream.bufferedReader().readText()
@@ -65,6 +93,7 @@ object SshClient {
                     }
                 } finally {
                     runCatching { ssh.disconnect() }
+                    runCatching { bastion?.disconnect() }
                 }
             }
         }
@@ -78,14 +107,11 @@ object SshClient {
         host: String, port: Int, user: String, password: String,
         scope: CoroutineScope,
         privateKey: String? = null,
+        jump: JumpConfig? = null,
         onOutput: (String) -> Unit
     ): SshShellSession = withContext(Dispatchers.IO) {
-        val ssh = SSHClient()
-        ssh.addHostKeyVerifier(TofuVerifier())  // MVP，TODO TOFU
-        ssh.connectTimeout = 10_000
-        ssh.connect(host, port)
+        val (ssh, bastion) = connectClient(host, port, user, password, privateKey, jump)
         ssh.connection.keepAlive.keepAliveInterval = 30   // A-KeepAlive：30s 心跳防 NAT/服务器超时断连
-        authenticate(ssh, user, password, privateKey)
         val session = ssh.startSession()
         session.allocateDefaultPTY()
         val shell = session.startShell()
@@ -106,15 +132,15 @@ object SshClient {
                 }
             } catch (_: Exception) { /* 会话关闭/断开，正常退出 */ }
         }
-        SshShellSession(ssh, session, out)
+        SshShellSession(ssh, session, out, bastion)
     }
 
     /** 采集服务器状态（A-Status）：一次性跑 top/free/df 取回原始输出，由 ServerStatus.parse 解析。 */
     suspend fun fetchStatus(
-        host: String, port: Int, user: String, password: String, privateKey: String? = null
+        host: String, port: Int, user: String, password: String, privateKey: String? = null, jump: JumpConfig? = null
     ): Result<ServerStatus> {
         val cmd = "top -bn1 2>/dev/null | grep -i '%Cpu'; echo '---'; free -m 2>/dev/null; echo '---'; df -h / 2>/dev/null"
-        return connectAndExec(host, port, user, password, cmd, privateKey = privateKey).map { ServerStatus.parse(it) }
+        return connectAndExec(host, port, user, password, cmd, privateKey = privateKey, jump = jump).map { ServerStatus.parse(it) }
     }
 
     /** 列远程目录（A-SFTP）：sshj SFTPClient ls，返回文件列表（文件夹优先、按名排序）。 */
@@ -260,9 +286,9 @@ object SshClient {
 
     /** 探测服务器环境（A-Env）：跑 EnvDetector.detectCommand → ServerProfile。 */
     suspend fun fetchEnv(
-        host: String, port: Int, user: String, password: String, privateKey: String? = null
+        host: String, port: Int, user: String, password: String, privateKey: String? = null, jump: JumpConfig? = null
     ): Result<ServerProfile> =
-        connectAndExec(host, port, user, password, EnvDetector.detectCommand, privateKey = privateKey).map { EnvDetector.parse(it) }
+        connectAndExec(host, port, user, password, EnvDetector.detectCommand, privateKey = privateKey, jump = jump).map { EnvDetector.parse(it) }
 
     /** 去除常见 ANSI 转义序列（颜色/光标控制），MVP 简化处理 */
     fun stripAnsi(s: String): String =
@@ -301,7 +327,8 @@ class PortForwardHandle(
 class SshShellSession(
     private val ssh: SSHClient,
     private val session: Session,
-    private val out: OutputStream
+    private val out: OutputStream,
+    private val bastion: SSHClient? = null   // A-Jump 跳板机连接，需一并关闭
 ) {
     fun write(text: String) {
         runCatching {
@@ -312,5 +339,6 @@ class SshShellSession(
     fun close() {
         runCatching { session.close() }
         runCatching { ssh.disconnect() }
+        runCatching { bastion?.disconnect() }
     }
 }

@@ -714,7 +714,9 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     val scope = rememberCoroutineScope()
     var password by remember { mutableStateOf("") }       // 密码认证
     var privateKey by remember { mutableStateOf("") }      // A-KeyAuth 私钥（PEM，临时输入不持久化）
+    var jumpPassword by remember { mutableStateOf("") }    // A-Jump 跳板机密码（临时输入不持久化）
     fun keyArg(): String? = if (conn.authType == AuthType.KEY) privateKey.takeIf { it.isNotBlank() } else null
+    fun jumpCfg(): JumpConfig? = if (conn.hasJump) JumpConfig(conn.jumpHost, conn.jumpPort, conn.jumpUser, jumpPassword) else null
     var command by remember { mutableStateOf("") }
     var output by remember { mutableStateOf("提示：输入密码后点「连接」建立交互式 SSH 会话。\n") }
     var state by remember { mutableStateOf(ConnState.DISCONNECTED) }
@@ -741,7 +743,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         if ((password.isBlank() && keyArg() == null) || refreshing) return
         refreshing = true
         scope.launch {
-            SshClient.fetchStatus(conn.host, conn.port, conn.user, password, keyArg())
+            SshClient.fetchStatus(conn.host, conn.port, conn.user, password, keyArg(), jumpCfg())
                 .onSuccess { status = it }
             refreshing = false
         }
@@ -755,7 +757,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         output += "正在连接 ${conn.user}@${conn.host}:${conn.port} …\n"
         scope.launch {
             runCatching {
-                SshClient.openShell(conn.host, conn.port, conn.user, password, scope, keyArg()) { chunk ->
+                SshClient.openShell(conn.host, conn.port, conn.user, password, scope, keyArg(), jumpCfg()) { chunk ->
                     output += Redactor.redact(chunk)   // A3：输出脱敏
                 }
             }.onSuccess {
@@ -765,7 +767,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 refreshStatus()   // 连接成功后采集状态
                 // A-Env：探测环境画像 → 上报给 AI
                 scope.launch {
-                    SshClient.fetchEnv(conn.host, conn.port, conn.user, password, keyArg()).onSuccess { p ->
+                    SshClient.fetchEnv(conn.host, conn.port, conn.user, password, keyArg(), jumpCfg()).onSuccess { p ->
                         onProfile(p)
                         if (p.aiSummary.isNotEmpty()) output += "🔎 ${p.aiSummary}\n"
                     }
@@ -817,7 +819,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         scope.launch {
             // 一次性跑所有命令（用分隔符串起），按分隔符拆回各命令输出
             val joined = wf.joinedCommand(DiagnosticWorkflow.SEP)
-            val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, joined, timeoutMs = 30_000, privateKey = keyArg())
+            val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, joined, timeoutMs = 30_000, privateKey = keyArg(), jump = jumpCfg())
             r.onSuccess { raw ->
                 val outs = raw.split(DiagnosticWorkflow.SEP)
                 output += Redactor.redact(raw.replace(DiagnosticWorkflow.SEP, "──────")) + "\n"
@@ -844,7 +846,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 if (cmds.isEmpty()) { output += "\n▶ ${i + 1}. ${step.title}（跳过：仅注释）\n"; continue }
                 output += "\n▶ ${i + 1}. ${step.title}\n"
                 // sudo/交互 MVP 直接跑（TODO：sudo 密码/交互处理）
-                val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, cmds.joinToString(" && "), timeoutMs = 60_000, privateKey = keyArg())
+                val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, cmds.joinToString(" && "), timeoutMs = 60_000, privateKey = keyArg(), jump = jumpCfg())
                 output += Redactor.redact(r.getOrElse { "⚠️ ${it.message}" }).trim().ifBlank { "(完成)" } + "\n"
             }
             output += "\n✅ 模板「${tpl.name}」执行完毕\n"
@@ -1095,6 +1097,15 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                         }
                     }
                 }
+            }
+            // A-Jump：跳板机密码（未连接 + 配了跳板机时显示，临时输入不持久化）
+            if (state != ConnState.CONNECTED && conn.hasJump) {
+                OutlinedTextField(
+                    jumpPassword, { jumpPassword = it },
+                    label = { Text("跳板机密码（${conn.jumpUser}@${conn.jumpHost}:${conn.jumpPort}）") }, singleLine = true,
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    colors = termColors, modifier = Modifier.fillMaxWidth()
+                )
             }
             // 登录凭据（仅未连接时显示；A-KeyAuth：按 authType 显密码或私钥框）
             if (state != ConnState.CONNECTED) {

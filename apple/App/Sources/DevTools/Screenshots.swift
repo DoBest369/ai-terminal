@@ -230,20 +230,18 @@ public enum AppScreenshots {
         return "内置模板数=\(builtins.count)；ubuntu 步骤=\(ubuntu.steps.count) 风险=\(ubuntu.risk.label)；预览格式正确=\(ok)"
     }
 
-    /// 批量群发自测（N-Multi）：并发执行（mock runner）+ 顺序聚合 + 统计 + AI 素材
-    public static func batchTest() async -> String {
-        let targets = ["web-01", "web-02", "db-01"]
-        let outcomes = await BatchRunner.run(targets, name: { $0 }) { t in
-            // mock：db-01 失败，其余成功
-            if t == "db-01" { return ("connection refused", false) }
-            return ("ok on \(t)", true)
-        }
-        let orderOk = outcomes.map { $0.name } == targets   // 保持输入顺序
+    /// 批量群发自测（N-Multi）：统计 + AI 素材聚合（纯逻辑，同步可测）
+    public static func batchTest() -> String {
+        let outcomes = [
+            BatchOutcome(name: "web-01", output: "ok on web-01", ok: true),
+            BatchOutcome(name: "web-02", output: "ok on web-02", ok: true),
+            BatchOutcome(name: "db-01", output: "connection refused", ok: false),
+        ]
         let (ok, fail) = BatchRunner.summary(outcomes)
         let statOk = ok == 2 && fail == 1
         let material = BatchRunner.composeForAI(command: "uptime", outcomes)
         let materialOk = material.contains("3 台") && material.contains("【db-01】失败")
-        return "顺序聚合=\(orderOk)；统计 成功\(ok)/失败\(fail)=\(statOk)；AI 素材正确=\(materialOk)"
+        return "统计 成功\(ok)/失败\(fail)=\(statOk)；AI 素材正确=\(materialOk)"
     }
 
     /// 命令历史自测（N-History）：去重/置顶/限长

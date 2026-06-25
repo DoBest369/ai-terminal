@@ -38,11 +38,7 @@ MainActor.assumeIsolated {
         sem.wait()
         print(out)
     } else if firstArg == "--batch-test" {
-        let sem = DispatchSemaphore(value: 0)
-        nonisolated(unsafe) var out = ""
-        Task.detached { out = await AppScreenshots.batchTest(); sem.signal() }
-        sem.wait()
-        print(out)
+        print(AppScreenshots.batchTest())
     } else {
         AppScreenshots.renderAll(to: firstArg)
     }

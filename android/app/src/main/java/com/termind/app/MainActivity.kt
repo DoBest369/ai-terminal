@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -535,6 +536,19 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     output, color = Success, fontSize = 12.sp, fontFamily = FontFamily.Monospace,
                     modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
                 )
+            }
+            // A-Snippets：快捷命令横滑 Chip（已连接时显示，点击填入命令框，带风险色）
+            if (state == ConnState.CONNECTED) {
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    CommandSnippet.defaults.forEach { sn ->
+                        AssistChip(
+                            onClick = { command = sn.command },
+                            label = { Text(sn.title, fontSize = 11.sp) },
+                            leadingIcon = { Icon(Icons.Filled.Circle, null, tint = sn.risk.color, modifier = Modifier.size(8.dp)) },
+                            colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
+                        )
+                    }
+                }
             }
             // A3：命令实时风险徽章
             if (command.trim().isNotEmpty()) {

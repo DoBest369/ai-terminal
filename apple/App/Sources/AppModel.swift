@@ -162,6 +162,63 @@ final class AppModel: ObservableObject {
         }
     }
 
+    // N-Cron：批量健康巡检结果（对多连接并发采集系统状态，异常置顶，对齐 android InspectScreen）
+    struct InspectionResult: Identifiable, Sendable {
+        let id = UUID()
+        let name: String
+        let info: SystemInfo?
+        let error: String?
+        var hasWarning: Bool { info?.hasWarning ?? true }   // 采集失败也视为需关注
+    }
+    @Published var inspectionResults: [InspectionResult] = []
+    @Published var inspectionRunning: Bool = false
+
+    /// 对选中的多个连接并发巡检系统健康（CPU/内存/磁盘），异常置顶（N-Cron）。
+    func runHealthInspection(_ targets: [Connection]) {
+        guard !targets.isEmpty, !inspectionRunning else { return }
+        inspectionRunning = true
+        inspectionResults = []
+        Task { @MainActor in
+            let results: [InspectionResult] = await withTaskGroup(of: InspectionResult.self) { group in
+                for conn in targets {
+                    group.addTask {
+                        let nm = conn.name.isEmpty ? conn.host : conn.name
+                        let session = SSHTerminalSession(connection: conn)
+                        do {
+                            try await session.connect()
+                            let (info, _) = await RemoteSystemMonitor.fetch(using: session, previousCPU: nil)
+                            await session.close()
+                            return InspectionResult(name: nm, info: info, error: nil)
+                        } catch {
+                            await session.close()
+                            return InspectionResult(name: nm, info: nil, error: error.localizedDescription)
+                        }
+                    }
+                }
+                var acc: [InspectionResult] = []
+                for await r in group { acc.append(r) }
+                return acc
+            }
+            // 异常置顶，其余按名称
+            inspectionResults = results.sorted { ($0.hasWarning ? 0 : 1, $0.name) < ($1.hasWarning ? 0 : 1, $1.name) }
+            inspectionRunning = false
+        }
+    }
+
+    /// 让 AI 总结巡检结果（N-Cron-AI）。
+    func summarizeInspection() {
+        guard aiConfig.isConfigured, !inspectionResults.isEmpty else {
+            toast = inspectionResults.isEmpty ? "请先巡检" : "请先配置 API Key"
+            return
+        }
+        let material = inspectionResults.map { r -> String in
+            if let info = r.info { return "【\(r.name)】\(info.healthSummary)" }
+            return "【\(r.name)】采集失败：\(r.error ?? "未知")"
+        }.joined(separator: "\n")
+        aiMessages.append(ChatMessage(role: .user, content: "以下是一批服务器的健康巡检结果：\n\(material)"))
+        runAICompletion(systemPrompt: "你是运维助手。这是一批服务器的健康巡检，请：① 总览(正常/告警台数) ② 需优先处理的机器及原因 ③ 共性风险 ④ 处理建议。精炼中文。")
+    }
+
     /// 让 AI 汇总群发结果（N-Multi-AI）。
     func summarizeBatch(command: String) {
         guard aiConfig.isConfigured, !batchResults.isEmpty else {

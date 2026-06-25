@@ -6,6 +6,13 @@
 
 ---
 
+## Z5 · 操作回滚（可恢复操作链路）
+- **内容**：Core 新增 `OpRollback.swift`——`criticalPrefixes`（/etc/nginx/* /etc/ssh/sshd_config /etc/mysql/* /etc/fstab /etc/crontab /etc/sudoers…）+ `isCriticalConfig` + `criticalTargets(in:)`（启发式：命令含 vim/sed -i/tee/cp/重定向 等写意图 + 命中关键路径才返回，只读如 cat 不命中）+ `backupCommand(for:stamp:)`=`cp <path> <path>.bak-<stamp>` + `sshAutoRollbackCommand(minutes:stamp:)`（改 sshd 备份 + `at now + N minutes` 自动还原重启，防改错锁门外）。`OpTimelineEntry`（time/action/command/rollbackable/backupPath + `rollbackCommand` 从 .bak-stamp 反推还原）。AppModel 加 `@Published opTimeline` + `injectWithBackup`（runSnippet 注入命令前，若 criticalTargets 非空则先注入各 cp 备份 + 记时间线 + toast 提示）+ `rollback(_:)`（注入还原命令）+ backupStamp()。
+- **改动**：新增 `apple/AITerminalCore/.../OpRollback.swift`；改 `AppModel.swift`、`DevTools/Screenshots.swift`(rollbackTest)+`ShotsMain/main.swift`(--rollback-test)。
+- **验证**：双端 swift build 通过；`--rollback-test`→「关键配置识别+备份+回滚+sshd自动回滚 全部正确=true」；Z3/Z4 回归正常。推送 41625d3。Z5b：AI [EXECUTE] 路径接 injectWithBackup + 时间线 UI 留后续。
+
+---
+
 ## Z4 · 场景化排障工作流（智能运维差异化第四项）
 - **内容**：Core 新增 `DiagnosticWorkflow.swift`——结构（id/name/icon/description/commands/summaryPrompt + composeForAI[把工作流名+各命令及输出拼成 AI 分析素材，缺输出占位「(未获取到输出)」]）+ `builtins` 5 个内置工作流：网站打不开排查（nginx status/ss/curl/df/nginx -t/journalctl）、磁盘清理分析、SSL 证书检查、Nginx 状态、Docker 容器排查，每个带专门 summaryPrompt。AppModel 加 `runDiagnostic(_:)`（把命令序列注入活动会话终端执行）+ `analyzeDiagnostic(_:outputs:)`（composeForAI→runAICompletion(summaryPrompt)，待 exec 捕获接入）。AIAgentView 头部加「排障」Menu（stethoscope）列出 builtins。
 - **改动**：新增 `apple/AITerminalCore/.../DiagnosticWorkflow.swift`；改 `AppModel.swift`、`Views/AIAgentView.swift`、`DevTools/Screenshots.swift`(diagTest)+`ShotsMain/main.swift`(--diag-test)。

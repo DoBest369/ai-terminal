@@ -555,6 +555,8 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var showForward by remember { mutableStateOf(false) }   // A-Forward 端口转发对话框
     var forwardHandle by remember { mutableStateOf<PortForwardHandle?>(null) }
     var forwardLabel by remember { mutableStateOf<String?>(null) }
+    var showHistory by remember { mutableStateOf(false) }   // N-History 命令历史
+    val cmdHistory = remember { mutableStateListOf<String>().apply { addAll(CommandHistory.load(ctx)) } }
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -601,6 +603,8 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     // 发送命令到交互 shell（A-Rollback：改关键配置前自动备份+记时间线）
     fun send(cmd: String) {
         val s = shellSession ?: return
+        // N-History：记录命令历史
+        if (cmd.trim().isNotEmpty()) { cmdHistory.clear(); cmdHistory.addAll(CommandHistory.add(ctx, cmd)) }
         val targets = OpRollback.criticalTargets(cmd)
         if (targets.isNotEmpty()) {
             val stamp = backupStamp()
@@ -746,6 +750,38 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 }
             }
         )
+    }
+
+    // N-History：命令历史 sheet
+    if (showHistory) {
+        ModalBottomSheet(onDismissRequest = { showHistory = false }, containerColor = Bg) {
+            Column(Modifier.fillMaxWidth().padding(16.dp).heightIn(min = 200.dp, max = 520.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.History, null, tint = Accent)
+                    Spacer(Modifier.width(8.dp))
+                    Text("命令历史", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { CommandHistory.clear(ctx); cmdHistory.clear(); showHistory = false }) { Text("清空", color = Danger, fontSize = 12.sp) }
+                }
+                Spacer(Modifier.height(8.dp))
+                LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    items(cmdHistory.size) { i ->
+                        val h = cmdHistory[i]
+                        val risk = CommandRisk.riskLevel(h)
+                        Row(
+                            Modifier.fillMaxWidth().clickable { command = h; showHistory = false }.padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Circle, null, tint = risk.color, modifier = Modifier.size(8.dp))
+                            Spacer(Modifier.width(10.dp))
+                            Text(h, color = TextPrimary, fontSize = 13.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.weight(1f), maxLines = 1)
+                            IconButton(onClick = { cmdHistory.clear(); cmdHistory.addAll(CommandHistory.remove(ctx, h)) }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Filled.Close, "删除", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // 离开工作区时关闭会话/转发，避免泄漏
@@ -903,6 +939,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
             // 命令输入 + 执行（已连接才可输命令；未连接显示「连接」）
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (state == ConnState.CONNECTED) {
+                    // N-History：调出历史
+                    IconButton(onClick = { showHistory = true }, enabled = cmdHistory.isNotEmpty()) {
+                        Icon(Icons.Filled.History, "命令历史", tint = if (cmdHistory.isEmpty()) TextSecondary.copy(alpha = 0.4f) else Accent)
+                    }
                     OutlinedTextField(
                         command, { command = it }, label = { Text("命令") }, singleLine = true,
                         colors = termColors, modifier = Modifier.weight(1f)

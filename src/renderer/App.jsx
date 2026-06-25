@@ -1338,7 +1338,7 @@ function App() {
       <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="logo">
           <Zap className="logo-icon" size={20} />
-          {!sidebarCollapsed && 'AI Terminal'}
+          {!sidebarCollapsed && 'Termind'}
         </div>
         <button className="sidebar-toggle" onClick={toggleSidebar} title={sidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}>
           {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}

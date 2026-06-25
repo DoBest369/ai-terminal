@@ -4,6 +4,13 @@ const os = require('os');
 const fs = require('fs');
 const crypto = require('crypto');
 
+// 品牌：应用名 Termind（智能终端）。dev 模式下 Electron 默认显示 "Electron"，显式覆盖。
+app.setName('Termind');
+// dev 模式设置 Dock 图标（打包版由 .icns 提供）
+if (process.platform === 'darwin' && app.dock) {
+  try { app.dock.setIcon(path.join(__dirname, '../../build/icon.png')); } catch {}
+}
+
 let mainWindow;
 let ptyProcess = null;
 
@@ -45,6 +52,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
+    title: 'Termind',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

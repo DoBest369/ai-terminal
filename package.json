@@ -1,7 +1,8 @@
 {
   "name": "ai-terminal",
+  "productName": "Termind",
   "version": "1.0.0",
-  "description": "SSH终端与AI Agent图形工具",
+  "description": "Termind — 会思考的智能终端（AI + SSH 终端工具）",
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
@@ -16,22 +17,25 @@
   "author": "",
   "license": "MIT",
   "build": {
-    "appId": "com.aiterminal.app",
-    "productName": "AI Terminal",
+    "appId": "com.termind.app",
+    "productName": "Termind",
     "files": [
       "src/**/*",
       "package.json"
     ],
     "mac": {
       "target": "dir",
-      "category": "public.app-category.developer-tools"
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.icns"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "build/icon.png"
     },
     "linux": {
       "target": "AppImage",
-      "category": "Utility"
+      "category": "Utility",
+      "icon": "build/icon.png"
     }
   },
   "devDependencies": {

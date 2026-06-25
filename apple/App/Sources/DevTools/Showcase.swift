@@ -666,15 +666,37 @@ struct QRShowcase: View {
 struct AppIconView: View {
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color(hex: "#ff5b78"), Color(hex: "#e94560"), Color(hex: "#a01530")],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            )
+            // macOS 风格 squircle（留白），珊瑚红品牌渐变 + 顶部高光
+            RoundedRectangle(cornerRadius: 232, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [Color(hex: "#ff6f8d"), Color(hex: "#e94560"), Color(hex: "#8f1330")],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 232, style: .continuous)
+                        .fill(LinearGradient(colors: [.white.opacity(0.20), .clear],
+                                             startPoint: .top, endPoint: .center))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 232, style: .continuous)
+                        .strokeBorder(.white.opacity(0.12), lineWidth: 3)
+                )
+                .frame(width: 836, height: 836)
+                .shadow(color: .black.opacity(0.28), radius: 34, x: 0, y: 18)
+            // 终端提示符
             Text(">_")
-                .font(.system(size: 440, weight: .bold, design: .monospaced))
+                .font(.system(size: 372, weight: .bold, design: .monospaced))
                 .foregroundStyle(.white)
-                .shadow(color: .black.opacity(0.25), radius: 18, x: 0, y: 10)
-                .offset(x: -8, y: 0)
+                .shadow(color: .black.opacity(0.22), radius: 14, x: 0, y: 8)
+                .offset(x: -14, y: 24)
+            // AI 火花（右上角，呼应全 App 的 sparkles 标识）
+            Image(systemName: "sparkles")
+                .font(.system(size: 196, weight: .semibold))
+                .foregroundStyle(.white)
+                .shadow(color: .black.opacity(0.20), radius: 12, x: 0, y: 6)
+                .offset(x: 250, y: -232)
         }
         .frame(width: 1024, height: 1024)
     }

@@ -30,6 +30,9 @@ struct ContentView: View {
                 PortForwardView(session: session)
             }
         }
+        .sheet(isPresented: $model.showInspect) {
+            InspectView()
+        }
         .sheet(item: $model.qrConnection) { conn in
             ConnectionQRView(connection: conn)
         }
@@ -146,6 +149,12 @@ struct ContentView: View {
                 model.showSnippets = true
             } label: {
                 Label("快捷命令", systemImage: "chevron.left.forwardslash.chevron.right")
+            }
+            Button {
+                model.inspectionResults = []
+                model.showInspect = true
+            } label: {
+                Label("批量巡检", systemImage: "stethoscope")
             }
             Button {
                 withAnimation { showAIPanel.toggle() }

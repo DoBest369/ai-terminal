@@ -35,6 +35,12 @@ public enum AppScreenshots {
         ]
         render(BatchShowcase(connections: Array(model.connections.prefix(3)), outcomes: batchOutcomes)
             .frame(width: 440, height: 540), dir, "22-batch")
+        // N-Cron 批量巡检
+        render(InspectShowcase(rows: [
+            ("数据库主机", 92, 88, 71, true, nil),
+            ("生产 Web 01", 23, 61, 45, false, nil),
+            ("开发机", 0, 0, 0, true, "连接超时")
+        ]).frame(width: 440, height: 460), dir, "23-inspect")
         render(AIPanelShowcase(messages: model.aiMessages)
             .frame(width: 380, height: 520), dir, "03-ai-panel")
         render(AIPanelShowcase(messages: Array(model.aiMessages.prefix(1)), processing: true)

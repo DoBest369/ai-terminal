@@ -632,6 +632,55 @@ struct BatchShowcase: View {
     }
 }
 
+// MARK: 批量健康巡检（N-Cron）
+
+struct InspectShowcase: View {
+    // (name, cpu, mem, disk, warn, error?)
+    let rows: [(String, Int, Int, Int, Bool, String?)]
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "stethoscope").foregroundStyle(Theme.accent)
+                Text("批量巡检 · \(rows.count) 台").font(.headline).foregroundStyle(Theme.textPrimary)
+                Spacer()
+            }
+            Text("巡检结果（告警置顶）").font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
+            ForEach(Array(rows.enumerated()), id: \.offset) { _, r in
+                HStack(spacing: 10) {
+                    Image(systemName: r.4 ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
+                        .foregroundStyle(r.4 ? Theme.danger : Theme.success)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(r.0).font(.system(size: 13, weight: .medium)).foregroundStyle(Theme.textPrimary)
+                        if let err = r.5 {
+                            Text("采集失败：\(err)").font(.system(size: 11)).foregroundStyle(Theme.danger)
+                        } else {
+                            HStack(spacing: 12) {
+                                metric("CPU", r.1)
+                                metric("内存", r.2)
+                                metric("磁盘", r.3)
+                            }
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(10).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles").foregroundStyle(Theme.accent)
+                Text("让 AI 总结这批巡检").font(.system(size: 13)).foregroundStyle(Theme.accent)
+            }
+            .padding(10).frame(maxWidth: .infinity).overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.accent.opacity(0.4)))
+        }
+        .padding(16).background(Theme.background)
+    }
+    private func metric(_ label: String, _ v: Int) -> some View {
+        HStack(spacing: 3) {
+            Text(label).font(.system(size: 10)).foregroundStyle(Theme.textSecondary)
+            Text("\(v)%").font(.system(size: 12, weight: .medium)).foregroundStyle(v > 85 ? Theme.danger : Theme.textPrimary)
+        }
+    }
+}
+
 // MARK: 快捷命令片段
 
 struct SnippetsShowcase: View {

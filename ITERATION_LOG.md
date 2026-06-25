@@ -6,6 +6,16 @@
 
 ---
 
+## A-SftpEdit + 质量收口 · SFTP 文件管理趋完整
+- **A-SftpEdit**（SFTP 增删）：`SshClient.makeDir`(SFTPClient.mkdir) + `deletePath`(文件 rm/目录 rmdir，javap 确认 sshj 0.38 API)。`SftpBrowser` 顶栏「新建文件夹」按钮(CreateNewFolder)→对话框输名→mkdir+刷新；每文件/目录行「删除」图标(DeleteOutline)→二次确认对话框→rm/rmdir+刷新。删除高危故确认。构建 21s，推送 03dac29。
+- **质量收口**：apple `AITerminalCore`+`App` swift build 均 Build complete；--history/--batch/--risk/--metrics/--env-detect 五自测全 true，无回归。
+- **SFTP 文件管理现已完整**：浏览 · 查看内容 · 下载 · 上传 · 新建文件夹 · 删除。
+- **改动**：`SshClient.kt`(makeDir/deletePath)、`MainActivity.kt`(SftpBrowser 增删 UI)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL；apple swift build + 5 自测全过。
+- **意义**：安卓 SFTP 从只读浏览/传输 → 完整文件管理(增删)，运维改目录结构无需开终端敲命令。
+
+---
+
 ## A-MsgCopy + A-KeepAlive · 安卓 AI 消息复制 + 终端心跳
 - **A-MsgCopy**（消息长按复制）：`ChatBubble` 的 Surface 加 `@OptIn(ExperimentalFoundationApi) combinedClickable(onClick={}, onLongClick={ clipboard.setText(content)+Toast「已复制整条消息」})`。整条对话内容(不止代码块)长按复制。构建 20s，推送 d5dfa50。
 - **A-KeepAlive**（终端心跳）：`SshClient.openShell` connect 后 `ssh.connection.keepAlive.keepAliveInterval = 30`。javap 反编译确认 sshj 0.38 API：`Connection.getKeepAlive(): net.schmizz.keepalive.KeepAlive`，`KeepAlive.setKeepAliveInterval(int)`。30s 心跳防 NAT/服务器空闲超时断连。构建 11s，推送 abe0f01。

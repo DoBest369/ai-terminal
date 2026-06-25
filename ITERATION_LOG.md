@@ -6,6 +6,14 @@
 
 ---
 
+## apple AI 提示词库对齐（双端 AI 提示词库都有）
+- **内容**：`AIAgentView.emptyHint` 空对话示例提问从 3 条扩为 `promptGroups` 5 类(排障/部署/安全/性能/日志)×3 条；加水平滚动分类胶囊(promptGroupIdx 切换，选中蓝底)+当前类 3 条提问点击 send。对齐 android A-Prompts。`Showcase.AIPanelShowcase` 空态同步分类胶囊+排障示例。
+- **改动**：`AIAgentView.swift`(promptGroups+emptyHint+promptGroupIdx)、`Showcase.swift`(空态胶囊)、`apple/screenshots/20-ai-empty.png`。
+- **验证**：Core+App swift build Build complete；swift run Shots 渲染 20-ai-empty 核对——5 分类胶囊(排障高亮)+排障类 3 条提问清晰。推送 a6b4e54。
+- **意义**：apple AI 提示词库 PARITY 🟡→✅(双端对齐)；新手运维提问门槛降低。剩余🟡仅 2 项 android 独有小便捷(SFTP 路径跳转、消息长按复制)。
+
+---
+
 ## apple SFTP 增删改对齐（双端 SFTP 文件管理都完整）
 - **Citadel API 调研**：`.build/checkouts/Citadel/.../SFTPClient.swift` 确认支持 `createDirectory(atPath:)`/`remove(at:)`/`rmdir(at:)`/`rename(at:to:)`（全 async）。
 - **实现**：`SSHTerminalSession`(actor) 加 `sftpMakeDirectory(_)`/`sftpRemove(_, isDirectory:)`(目录 rmdir/文件 remove)/`sftpRename(_, to:)`，含 SSHFriendlyError.translate。`TerminalSessionVM` 包装三方法。`FileBrowserView`：工具栏「新建文件夹」按钮(folder.badge.plus)+`.alert` 输名；行 `.contextMenu` 重命名(pencil)/删除(trash)+确认 alert；catch 用 `catch let e { self.error = ... }` 避免遮蔽。`Showcase.SFTPShowcase` 加新建文件夹图标，渲染 09-sftp。

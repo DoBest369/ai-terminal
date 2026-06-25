@@ -234,6 +234,21 @@ final class TerminalSessionVM: ObservableObject, Identifiable {
         try await sshSession.sftpUpload(data, to: path)
     }
 
+    func sftpMakeDirectory(_ path: String) async throws {
+        guard let sshSession else { throw SSHFriendlyError("未连接") }
+        try await sshSession.sftpMakeDirectory(path)
+    }
+
+    func sftpRemove(_ path: String, isDirectory: Bool) async throws {
+        guard let sshSession else { throw SSHFriendlyError("未连接") }
+        try await sshSession.sftpRemove(path, isDirectory: isDirectory)
+    }
+
+    func sftpRename(_ oldPath: String, to newPath: String) async throws {
+        guard let sshSession else { throw SSHFriendlyError("未连接") }
+        try await sshSession.sftpRename(oldPath, to: newPath)
+    }
+
     // MARK: - 端口转发
 
     @Published var portForwards: [PortForward] = []

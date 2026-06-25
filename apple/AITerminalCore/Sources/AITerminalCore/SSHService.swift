@@ -363,6 +363,29 @@ public actor SSHTerminalSession {
         }
     }
 
+    /// 新建远程目录（SFTP-Edit，对齐 android A-SftpEdit）。
+    public func sftpMakeDirectory(_ path: String) async throws {
+        let sftp = try await ensureSFTP()
+        do { try await sftp.createDirectory(atPath: path) }
+        catch { throw SSHFriendlyError.translate(error) }
+    }
+
+    /// 删除远程文件或目录（目录用 rmdir，文件用 remove）。
+    public func sftpRemove(_ path: String, isDirectory: Bool) async throws {
+        let sftp = try await ensureSFTP()
+        do {
+            if isDirectory { try await sftp.rmdir(at: path) }
+            else { try await sftp.remove(at: path) }
+        } catch { throw SSHFriendlyError.translate(error) }
+    }
+
+    /// 重命名/移动远程文件或目录（对齐 android A-SftpRename）。
+    public func sftpRename(_ oldPath: String, to newPath: String) async throws {
+        let sftp = try await ensureSFTP()
+        do { try await sftp.rename(at: oldPath, to: newPath) }
+        catch { throw SSHFriendlyError.translate(error) }
+    }
+
     // MARK: - 认证方式构建
 
     static func makeAuthMethod(for connection: Connection) throws -> SSHAuthenticationMethod {

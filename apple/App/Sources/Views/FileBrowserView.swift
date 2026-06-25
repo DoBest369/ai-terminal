@@ -32,6 +32,12 @@ struct FileBrowserView: View {
     @State private var showExporter = false
     @State private var showImporter = false
     @State private var dropTargeted = false
+    // SFTP 增删改（对齐 android）
+    @State private var showMkdir = false
+    @State private var mkdirName = ""
+    @State private var renameTarget: SFTPEntry?
+    @State private var renameText = ""
+    @State private var deleteTarget: SFTPEntry?
 
     var body: some View {
         NavigationStack {
@@ -67,11 +73,34 @@ struct FileBrowserView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
+                        mkdirName = ""; showMkdir = true
+                    } label: {
+                        Label("新建文件夹", systemImage: "folder.badge.plus")
+                    }
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
                         showImporter = true
                     } label: {
                         Label("上传", systemImage: "square.and.arrow.up")
                     }
                 }
+            }
+            .alert("新建文件夹", isPresented: $showMkdir) {
+                TextField("文件夹名", text: $mkdirName)
+                Button("取消", role: .cancel) {}
+                Button("创建") { Task { await makeDirectory(mkdirName) } }
+            }
+            .alert("重命名", isPresented: Binding(get: { renameTarget != nil }, set: { if !$0 { renameTarget = nil } })) {
+                TextField("新名称", text: $renameText)
+                Button("取消", role: .cancel) { renameTarget = nil }
+                Button("确定") { if let t = renameTarget { Task { await rename(t, to: renameText) } } }
+            }
+            .alert("删除 \(deleteTarget?.name ?? "")？", isPresented: Binding(get: { deleteTarget != nil }, set: { if !$0 { deleteTarget = nil } })) {
+                Button("取消", role: .cancel) { deleteTarget = nil }
+                Button("删除", role: .destructive) { if let t = deleteTarget { Task { await remove(t) } } }
+            } message: {
+                Text(deleteTarget?.isDirectory == true ? "仅空文件夹可删除，此操作不可撤销。" : "此操作不可撤销。")
             }
             .task { await loadInitial() }
             .fileExporter(isPresented: $showExporter, document: exportDoc, contentType: .data, defaultFilename: exportName) { _ in }
@@ -160,9 +189,36 @@ struct FileBrowserView: View {
             }
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            Button { renameText = entry.name; renameTarget = entry } label: { Label("重命名", systemImage: "pencil") }
+            Button(role: .destructive) { deleteTarget = entry } label: { Label("删除", systemImage: "trash") }
+        }
     }
 
     // MARK: - 操作
+
+    private func makeDirectory(_ name: String) async {
+        let n = name.trimmingCharacters(in: .whitespaces); guard !n.isEmpty else { return }
+        let target = (path == "/" ? "/" : path + "/") + n
+        busy = "新建中…"; defer { busy = nil }
+        do { try await session.sftpMakeDirectory(target); await load(path) }
+        catch let e { self.error = (e as? SSHFriendlyError)?.message ?? "\(e)" }
+    }
+
+    private func remove(_ entry: SFTPEntry) async {
+        busy = "删除中…"; defer { busy = nil }
+        do { try await session.sftpRemove(entry.path, isDirectory: entry.isDirectory); deleteTarget = nil; await load(path) }
+        catch let e { self.error = (e as? SSHFriendlyError)?.message ?? "\(e)" }
+    }
+
+    private func rename(_ entry: SFTPEntry, to newName: String) async {
+        let n = newName.trimmingCharacters(in: .whitespaces); guard !n.isEmpty, n != entry.name else { renameTarget = nil; return }
+        let dir = (entry.path as NSString).deletingLastPathComponent
+        let target = (dir.isEmpty ? "" : dir) + "/" + n
+        busy = "重命名中…"; defer { busy = nil }
+        do { try await session.sftpRename(entry.path, to: target); renameTarget = nil; await load(path) }
+        catch let e { self.error = (e as? SSHFriendlyError)?.message ?? "\(e)" }
+    }
 
     private func loadInitial() async {
         let home = await session.sftpHome()

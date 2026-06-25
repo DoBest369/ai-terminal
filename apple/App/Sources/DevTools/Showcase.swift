@@ -931,6 +931,7 @@ struct SFTPShowcase: View {
                 Spacer()
                 Text("SFTP 文件").font(.headline).foregroundStyle(Theme.textPrimary)
                 Spacer()
+                Image(systemName: "folder.badge.plus").foregroundStyle(Theme.accent)
                 Image(systemName: "square.and.arrow.up").foregroundStyle(Theme.accent)
             }
             .padding(14)

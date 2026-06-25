@@ -23,7 +23,8 @@
 - [x] **A1** 安卓真实 SSH（sshj exec）✅（sshj 0.38.0+slf4j-nop+coroutines 依赖，packaging 排 META-INF 冲突；SshClient.connectAndExec[SSHClient+PromiscuousVerifier MVP+authPassword+exec stdout/stderr/退出码，IO+超时+Result]；ServerWorkspace 密码框+命令框+执行+滚动输出；构建 7m 出 APK 25.9MB[含 sshj/BC]，无打包冲突；推送 479ef31。实连需真服务器；A1b PTY 交互终端待做）
 - [x] **A2-UI** 安卓界面充实 ✅（底部导航 连接/AI 助手/设置 三 tab；AI 助手屏[运维提示卡片+输入占位]；设置屏[配色/AI 服务商/Key/关于]；连接卡片→ServerWorkspace[状态面板 CPU/内存/磁盘+终端区+AI 入口，呼应工作台三层]；增量构建 13s 出 APK 14.8MB；推送 9d3a823）
 - [x] **A2** 连接管理（持久化+增删改）✅（ConnectionStore[SharedPreferences+JSON，零依赖]load/save+seed；EditConnectionScreen 新建/编辑表单[host/user 必填]；MainActivity mutableStateListOf+FAB 新建+卡片⋮菜单 编辑/删除+空状态+persist；增量构建 14s 出 APK 14.8MB；推送 0d69774）
-- [ ] **A3** 把智能运维能力搬到安卓（命令解释/报错分析/风险分级/排障/模板——逻辑可参照 apple Core 用 Kotlin 重写）
+- [x] **A3** 智能运维 Kotlin 化（风险分级+脱敏）✅（OpsCore.kt：CommandRisk 四级[label/color/needsConfirm/riskLevel，照搬 apple 规则与配色]+Redactor.redact[移植 apple]；ServerWorkspace 命令实时风险徽章+高危 AlertDialog 二次确认+SSH 输出脱敏；构建 14s 出 APK 25.9MB；推送 ac8791f）
+- [ ] **A3b** 排障工作流 + 初始化模板 Kotlin 化（移植 apple DiagnosticWorkflow/SetupTemplate）
 - [ ] **A4** 安卓 AI 助手（OkHttp 调 Anthropic/OpenAI）+ 状态面板
 
 ## 🤖 阶段 Z — 智能 SSH 运维能力（MVP 差异化核心）· 最高优先级

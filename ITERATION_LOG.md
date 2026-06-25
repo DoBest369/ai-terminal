@@ -6,6 +6,14 @@
 
 ---
 
+## A3 · 安卓智能运维 Kotlin 化（风险分级 + 脱敏）· 护城河移植
+- **内容**：新建 `OpsCore.kt`——`enum CommandRisk{LOW/MEDIUM/HIGH/CRITICAL}`（level + label[安全/注意/高风险/极高危] + color[Compose Color，与 apple colorHex 一致] + needsConfirm[>=HIGH] + companion riskLevel(cmd) 规则匹配 critical>high>medium>low，patterns 照搬 apple CommandRisk.swift）+ `object Redactor.redact`（Kotlin Regex 移植：sensitiveKeys=值、sk-***、Bearer ***、AKIA***、PRIVATE KEY 块 打码）。`ServerWorkspace` 接入：命令框非空实时风险徽章（色点+「风险：X」+需确认提示）；`submit()` 对 needsConfirm 命令弹 `AlertDialog` 二次确认（按风险着色）再 exec；SSH 输出经 `Redactor.redact` 脱敏再显示。
+- **改动**：新增 `android/.../OpsCore.kt`；改 `MainActivity.kt`(ServerWorkspace)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 14s** → app-debug.apk 25.9MB。推送 ac8791f。安卓端获得与 apple 端一致的安全护城河（风险分级+二次确认+脱敏）。
+- **安卓进度**：A0/A2-UI/A2/A1/**A3** ✅。下一步 A3b 排障+模板 Kotlin 化 / A4 AI 助手真实 API / A1b PTY 终端。
+
+---
+
 ## A1 · 安卓真实 SSH 连接（sshj exec）· 核心能力
 - **内容**：app/build.gradle.kts 加 `com.hierynomus:sshj:0.38.0` + `org.slf4j:slf4j-nop:2.0.9` + `kotlinx-coroutines-android`；packaging.resources.excludes 加 META-INF 签名/冲突排除（*.SF/*.DSA/*.RSA/BC*KE.RSA/INDEX.LIST/DEPENDENCIES，避免 sshj+BouncyCastle 打包冲突）。`SshClient.kt`：`suspend connectAndExec(host,port,user,password,command,timeoutMs)` —— sshj SSHClient + `PromiscuousVerifier`(MVP，TODO TOFU 对齐 apple R20) + connect + authPassword + startSession().exec 读 stdout/stderr/exitStatus，Dispatchers.IO + withTimeout，Result 封装。`ServerWorkspace` 接入：密码框(PasswordVisualTransformation)+命令框+执行 FilledIconButton(rememberCoroutineScope.launch 调 connectAndExec，running 显 CircularProgressIndicator)+滚动终端输出区；状态面板改占位（A4 真采集）。
 - **改动**：`android/app/build.gradle.kts`；新增 `SshClient.kt`；改 `MainActivity.kt`(ServerWorkspace + imports)。

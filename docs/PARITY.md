@@ -37,6 +37,8 @@
 | 多对话（新建/切换/删除/持久化） | ✅ | ✅ | 双端持久化 |
 | 对话导出 Markdown | ✅ | ✅ | android 分享 Intent |
 | 对话内搜索 | ✅ | ✅ | |
+| 停止生成 | ✅ | ✅ | 流式可中断 |
+| AI 代码块渲染 + 复制 | 🟡 | ✅ | android |
 
 ## 智能运维护城河（阶段 Z）
 
@@ -69,7 +71,7 @@
 | 能力 | apple | android | 说明 |
 |------|:---:|:---:|------|
 | 凭据安全存储 | ✅ | ✅ | apple Keychain / android EncryptedSharedPreferences |
-| 快捷命令片段（风险着色） | ✅ | ✅ | |
+| 快捷命令片段（风险着色 + 自定义增删） | ✅ | ✅ | |
 | 命令历史（去重/置顶/限长/调出） | ✅ | ✅ | N-History 双端 UI 接入 |
 | 批量群发命令（多服务器同命令） | 🟡 | ✅ | apple Core BatchRunner 框架 + BatchShowcase 界面渲染；真实 SSH 接入 TODO |
 | 群发结果 AI 汇总 | 🟡 | ✅ | apple composeForAI 框架 + UI 入口；android 完整 |

@@ -6,6 +6,17 @@
 
 ---
 
+## A-Stop + A-SnippetCRUD + 质量收口 · 安卓 AI/快捷命令打磨
+- **A-Stop**（AI 停止生成）：AIAssistantScreen send 流式任务存 `sendJob`(scope.launch 返回 Job)；`stop()` `sendJob.cancel()`+保留已生成内容+追加「[已停止]」+persist。输入栏发送按钮 sending 时变 Danger 红停止按钮(Stop 图标)。协程取消在 chatStream onDelta 的 withContext(Main) 挂起点生效。构建 19s，推送 1aa07f3。
+- **A-SnippetCRUD**（快捷命令自定义）：`SnippetStore`(SharedPreferences 存用户快捷命令 JSON load/save/add/remove)；ServerWorkspace 快捷命令 Chip 行 = `defaults + customSnippets`，自定义项带 X 删除，末尾「+新建」Chip→AlertDialog 输入名称/命令保存。修首构建 termColors 前向引用(对话框用局部 dlgColors)。构建 20s，推送 2c48299→88b814a。
+- **质量收口**：apple `AITerminalCore`+`App` swift build 均 Build complete；--history/--batch/--risk/--metrics/--env-detect 五自测全 true，无回归。
+- **安卓体验打磨快照（近期）**：终端=ANSI 彩色+控制键栏(Tab/Ctrl/方向键)+字号调节；AI=流式+停止+多对话(持久化/搜索/导出)+代码块渲染+复制+命令解释/报错/健康分析；连接=分组+颜色标签+搜索+导出导入+可达性探测+密码/私钥(文件导入); SFTP=浏览/查看/下载/上传；运维=智能运维 Z1-Z8+批量群发/巡检/AI汇总+主动巡检+命令历史+操作回滚+风险脱敏+初始化模板。
+- **改动**：`MainActivity.kt`/`Snippets.kt`、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL；apple swift build + 5 自测全过。
+- **意义**：安卓 AI/快捷命令体验完善，双端能力高度对齐且质量稳健。
+
+---
+
 ## A-FontSize + A-Tags + A-Filter + 质量收口（安卓连接/终端体验打磨）
 - **A-FontSize**（终端字号）：SettingsStore termFont(8-22sp 持久化)；终端输出区右上 +/- 按钮调字号，Text fontSize 跟随。运维看长日志可调大小。构建 20s，推送 506d155。
 - **A-Tags**（连接颜色标签）：`ServerConn.colorTag`(ColorTag 枚举 NONE/RED/ORANGE/GREEN/BLUE/PURPLE)+JSON 持久化(含导入)；EditConnectionScreen 6 色圆点选择(选中边框/勾)；ServerCard 左侧色条。生产红/测试黄/开发绿一眼区分环境。构建 22s，推送 2eee143。

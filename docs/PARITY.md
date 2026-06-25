@@ -21,6 +21,7 @@
 | 本地端口转发 | ✅ | ✅ | android sshj LocalPortForwarder |
 | 跳板机（多跳串联） | ✅ | ⬜ | apple 独有 |
 | 交互式 PTY 终端 | ✅ | ✅ | |
+| 终端会话 keepalive 心跳 | ✅ | ✅ | android sshj 30s 防超时断连 |
 | 终端 ANSI 颜色渲染 | ✅ | ✅ | android AnsiParser→AnnotatedString |
 | TOFU 主机密钥校验 | ✅ | ✅ | android KnownHosts 指纹首次信任+比对（防 MITM） |
 | SFTP 浏览 | ✅ | ✅ | |
@@ -44,6 +45,7 @@
 | 停止生成 | ✅ | ✅ | 流式可中断 |
 | 重新生成上一条 | ✅ | ✅ | |
 | AI 代码块渲染 + 复制 | 🟡 | ✅ | android |
+| AI 消息长按复制整条 | 🟡 | ✅ | android |
 
 ## 智能运维护城河（阶段 Z）
 

@@ -6,6 +6,15 @@
 
 ---
 
+## A-MsgCopy + A-KeepAlive · 安卓 AI 消息复制 + 终端心跳
+- **A-MsgCopy**（消息长按复制）：`ChatBubble` 的 Surface 加 `@OptIn(ExperimentalFoundationApi) combinedClickable(onClick={}, onLongClick={ clipboard.setText(content)+Toast「已复制整条消息」})`。整条对话内容(不止代码块)长按复制。构建 20s，推送 d5dfa50。
+- **A-KeepAlive**（终端心跳）：`SshClient.openShell` connect 后 `ssh.connection.keepAlive.keepAliveInterval = 30`。javap 反编译确认 sshj 0.38 API：`Connection.getKeepAlive(): net.schmizz.keepalive.KeepAlive`，`KeepAlive.setKeepAliveInterval(int)`。30s 心跳防 NAT/服务器空闲超时断连。构建 11s，推送 abe0f01。
+- **改动**：`MainActivity.kt`(ChatBubble combinedClickable)、`SshClient.kt`(keepAlive)。
+- **验证**：android BUILD SUCCESSFUL。真实心跳/复制需设备实测。
+- **意义**：终端长会话稳定(心跳防断)，AI 消息复制顺手。安卓 SSH 终端可靠性+体验进一步贴近专业工具。
+
+---
+
 ## A-Regen + A-TestConn + 质量收口 · 安卓 AI/连接打磨
 - **A-Regen**（AI 重新生成）：AIAssistantScreen send 记录 `lastSent: Pair<text,basePrompt>`；`regenerate()` 移除末条 assistant+对应 user 后用 lastSent 重发；末条是 assistant 且非 sending 时显「🔄 重新生成」AssistChip。构建 20s，推送 dbb1f98。
 - **A-TestConn**（连接测试）：EditConnectionScreen host/port 下加「测试连接」OutlinedButton(host 非空可点)→协程 `Reachability.probe(host,port)`→显示「✅可达/❌不可达」+加载圈。建连接前验证地址端口通不通。构建 13s，推送 45e77b4。

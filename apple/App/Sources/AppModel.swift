@@ -317,14 +317,54 @@ final class AppModel: ObservableObject {
         store.saveSnippets(snippets)
     }
 
-    /// 把片段命令注入当前活动会话的终端提示符（不自动回车，便于复核高危命令）
+    /// 操作时间线（Z5）：记录改关键配置等关键操作，便于复盘/回滚
+    @Published var opTimeline: [OpTimelineEntry] = []
+
+    /// 当前时间戳（备份文件名用），格式 yyyyMMdd-HHmmss
+    private func backupStamp() -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyyMMdd-HHmmss"
+        return f.string(from: Date())
+    }
+
+    /// 把片段命令注入当前活动会话的终端提示符（不自动回车，便于复核高危命令）。
+    /// Z5：若命令会改关键配置，先注入备份命令并记录时间线。
     @discardableResult
     func runSnippet(_ snippet: CommandSnippet) -> Bool {
         guard let session = activeSession, let inject = session.injectCommand else {
             toast = "请先打开一个终端会话"
             return false
         }
-        inject(snippet.command)
+        injectWithBackup(snippet.command, action: "快捷命令：\(snippet.title)", inject: inject)
+        return true
+    }
+
+    /// 注入命令前，若会改关键配置则先注入 `cp 备份` 命令并记入时间线（Z5 可回滚）。
+    private func injectWithBackup(_ command: String, action: String, inject: (String) -> Void) {
+        let stamp = backupStamp()
+        let backups = OpRollback.backupCommands(forCommand: command, stamp: stamp)
+        if !backups.isEmpty {
+            for b in backups { inject(b) }
+            // 记录每个被备份的关键配置到时间线
+            for target in OpRollback.criticalTargets(in: command) {
+                opTimeline.append(OpTimelineEntry(
+                    time: Date(), action: action, command: command,
+                    rollbackable: true, backupPath: "\(target).bak-\(stamp)"))
+            }
+            toast = "⚠️ 检测到改动关键配置，已先注入备份命令（可在时间线回滚）"
+        }
+        inject(command)
+    }
+
+    /// 回滚一条时间线操作（注入还原命令到终端）。
+    @discardableResult
+    func rollback(_ entry: OpTimelineEntry) -> Bool {
+        guard let cmd = entry.rollbackCommand else { toast = "该操作不可回滚"; return false }
+        guard let session = activeSession, let inject = session.injectCommand else {
+            toast = "请先打开一个终端会话"; return false
+        }
+        inject(cmd)
+        toast = "已注入回滚命令：还原 \(entry.backupPath ?? "")"
         return true
     }
 

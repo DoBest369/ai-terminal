@@ -194,6 +194,25 @@ public enum AppScreenshots {
         return String(decoding: model.exportAIConversationMarkdown(), as: UTF8.self)
     }
 
+    /// 操作回滚自测（Z5）：验证关键配置识别 + 备份命令 + 回滚命令 + sshd 自动回滚
+    public static func rollbackTest() -> String {
+        let critical = OpRollback.isCriticalConfig("/etc/nginx/nginx.conf")
+        let notCritical = OpRollback.isCriticalConfig("/home/user/app.js")
+        let targets = OpRollback.criticalTargets(in: "vim /etc/nginx/nginx.conf")
+        let safeTargets = OpRollback.criticalTargets(in: "cat /etc/nginx/nginx.conf")  // 只读不该命中
+        let backup = OpRollback.backupCommand(for: "/etc/ssh/sshd_config", stamp: "20260625-200000")
+        let entry = OpTimelineEntry(time: Date(), action: "改 nginx", command: "vim /etc/nginx/nginx.conf",
+                                    rollbackable: true, backupPath: "/etc/nginx/nginx.conf.bak-20260625-200000")
+        let rb = entry.rollbackCommand
+        let ssh = OpRollback.sshAutoRollbackCommand(minutes: 5, stamp: "20260625-200000")
+        let ok = critical && !notCritical
+            && targets == ["/etc/nginx/nginx.conf"] && safeTargets.isEmpty
+            && backup == "cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak-20260625-200000"
+            && rb == "cp /etc/nginx/nginx.conf.bak-20260625-200000 /etc/nginx/nginx.conf"
+            && ssh.contains("at now + 5 minutes") && ssh.contains("systemctl restart sshd")
+        return "关键配置识别+备份+回滚+sshd自动回滚 全部正确=\(ok)"
+    }
+
     /// 排障工作流自测（Z4）：验证内置工作流 + composeForAI 拼装格式
     public static func diagTest() -> String {
         let builtins = DiagnosticWorkflow.builtins

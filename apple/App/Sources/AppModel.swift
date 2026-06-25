@@ -133,6 +133,46 @@ final class AppModel: ObservableObject {
     // N-History：命令历史（注入命令时记录，可调出重用）
     @Published var commandHistory: [String] = CommandHistory.load()
 
+    // N-Multi：批量群发结果（对多连接并发执行同一命令，对齐 android）
+    @Published var batchResults: [BatchOutcome] = []
+    @Published var batchRunning: Bool = false
+
+    /// 对选中的多个连接并发执行同一命令，聚合结果（N-Multi）。
+    /// 各连接用自身 Connection 的凭据（savePassword/私钥）建临时会话；TODO: 未存密码的连接需运行时输入。
+    func runBatch(_ targets: [Connection], command: String) {
+        let cmd = command.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cmd.isEmpty, !targets.isEmpty, !batchRunning else { return }
+        batchRunning = true
+        batchResults = []
+        Task { @MainActor in
+            let outcomes = await BatchRunner.run(targets, name: { $0.name.isEmpty ? $0.host : $0.name }) { conn in
+                let session = SSHTerminalSession(connection: conn)
+                do {
+                    try await session.connect()
+                    let out = await session.runCommand(cmd)
+                    await session.close()
+                    return (output: Redactor.redact(out), ok: true)
+                } catch {
+                    await session.close()
+                    return (output: "⚠️ \(error.localizedDescription)", ok: false)
+                }
+            }
+            batchResults = outcomes
+            batchRunning = false
+        }
+    }
+
+    /// 让 AI 汇总群发结果（N-Multi-AI）。
+    func summarizeBatch(command: String) {
+        guard aiConfig.isConfigured, !batchResults.isEmpty else {
+            toast = batchResults.isEmpty ? "请先群发执行" : "请先配置 API Key"
+            return
+        }
+        let material = BatchRunner.composeForAI(command: command, batchResults)
+        aiMessages.append(ChatMessage(role: .user, content: material))
+        runAICompletion(systemPrompt: "你是运维助手。这是一批服务器执行同一命令的结果，请：① 总览(成功/失败台数) ② 失败机器及原因 ③ 共性问题 ④ 后续建议。精炼中文。")
+    }
+
     /// 记录一条注入的命令到历史
     func recordCommand(_ cmd: String) {
         commandHistory = CommandHistory.add(cmd)

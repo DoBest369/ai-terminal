@@ -6,6 +6,14 @@
 
 ---
 
+## N-Multi + N-Multi-AI + N-History UI · 批量群发 + 群发AI汇总 + apple历史接入
+- **N-Multi（android 批量群发）**：`BatchScreen.kt`——选多连接(checkbox 列表)+统一密码+命令(CommandRisk 徽章)→`map{async}+awaitAll` 并发 `connectAndExec`→各连接结果卡片(Sync/CheckCircle/Error 图标+输出脱敏)；高危群发 AlertDialog 二次确认(影响面大)。`TermindApp` showBatch 覆盖；`ServerListScreen` 顶栏「批量群发」入口。构建 22s，推送 d5f301f。
+- **N-Multi-AI（android 群发AI汇总）**：BatchScreen 全部完成(allDone)显「AI 汇总这批结果」→拼各连接名+成功失败+输出→`AiClient.chatStream`(运维助手:总览/失败原因/共性/建议)流式 AlertDialog 显示。构建 15s，推送 4845975。
+- **N-History apple UI 接入**：`AppModel` 加 `commandHistory @Published`(CommandHistory.load)+`recordCommand`；`injectWithBackup`(快捷命令路径)+AI [EXECUTE] 执行路径 均 recordCommand 记录历史；`SnippetsView` 顶部「命令历史」Section(最近 10 条，风险色点，点击 inject 注入重用)。双端 swift build 通过。推送 139a28f。
+- **意义**：阶段 N 双端创新强化——批量群发(运维工作台核心差异化，单连接工具做不到)+群发AI汇总(AI+真实环境护城河延伸到一批机器)+命令历史双端 UI 齐。
+
+---
+
 ## N-History · 命令历史（阶段 N 双端创新首作）
 - **android**：`CommandHistory.kt`(SharedPreferences 存命令，add 去重+置顶+限50，load/remove/clear)；`ServerWorkspace` send 时记历史(cmdHistory state)；命令框旁「历史」IconButton(有记录高亮)→ModalBottomSheet 列历史(CommandRisk 色点+等宽，点击填命令框，单条 X 删/「清空」)。构建 19s，推送 9c8a6aa。
 - **apple**：Core `CommandHistory.swift`——`updated(list, adding:, limit:)` 纯逻辑(去重 filter+置顶 insert 0+prefix 限长) + `load/add/remove/clear`(UserDefaults)。`--history-test` 自测：去重置顶=true；限长=true(60 条加入后剩 50，first=cmd59 last=cmd10)。**swift package clean 后全量编译通过**(新 Core 文件 SPM 路径依赖缓存)。推送 04d9623。

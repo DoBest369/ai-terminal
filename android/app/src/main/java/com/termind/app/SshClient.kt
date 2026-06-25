@@ -193,6 +193,34 @@ object SshClient {
         return connectAndExec(host, port, user, password, "head -c $maxBytes '$safe'", privateKey = privateKey)
     }
 
+    /**
+     * 本地端口转发（A-Forward）：本机 localPort → 经 SSH → remoteHost:remotePort。
+     * 在传入 scope 的 IO 协程里 listen()（阻塞），返回可关闭句柄。
+     */
+    suspend fun openForward(
+        host: String, port: Int, user: String, password: String,
+        localPort: Int, remoteHost: String, remotePort: Int,
+        scope: CoroutineScope, privateKey: String? = null
+    ): PortForwardHandle = withContext(Dispatchers.IO) {
+        val ssh = SSHClient()
+        ssh.addHostKeyVerifier(TofuVerifier())
+        ssh.connectTimeout = 10_000
+        ssh.connect(host, port)
+        authenticate(ssh, user, password, privateKey)
+        val ss = java.net.ServerSocket()
+        ss.reuseAddress = true
+        ss.bind(java.net.InetSocketAddress("127.0.0.1", localPort))
+        val params = net.schmizz.sshj.connection.channel.direct.Parameters(
+            "127.0.0.1", localPort, remoteHost, remotePort
+        )
+        val forwarder = ssh.newLocalPortForwarder(params, ss)
+        // listen() 阻塞直到 ServerSocket 关闭
+        val job = scope.launch(Dispatchers.IO) {
+            runCatching { forwarder.listen() }
+        }
+        PortForwardHandle(ssh, ss, job)
+    }
+
     /** 探测服务器环境（A-Env）：跑 EnvDetector.detectCommand → ServerProfile。 */
     suspend fun fetchEnv(
         host: String, port: Int, user: String, password: String, privateKey: String? = null
@@ -217,6 +245,19 @@ data class RemoteFile(val name: String, val isDir: Boolean, val size: Long, val 
             size < 1024 * 1024 * 1024 -> "%.1f MB".format(size / 1024.0 / 1024.0)
             else -> "%.1f GB".format(size / 1024.0 / 1024.0 / 1024.0)
         }
+}
+
+/** 端口转发句柄（A-Forward）：close 关闭 ServerSocket + 断开 SSH。 */
+class PortForwardHandle(
+    private val ssh: SSHClient,
+    private val serverSocket: java.net.ServerSocket,
+    private val job: kotlinx.coroutines.Job
+) {
+    fun close() {
+        runCatching { serverSocket.close() }
+        runCatching { job.cancel() }
+        runCatching { ssh.disconnect() }
+    }
 }
 
 /** 交互式 shell 会话句柄：write 发命令到 PTY，close 断开。 */

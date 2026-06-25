@@ -505,6 +505,9 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     val opTimeline = remember { mutableStateListOf<OpTimelineEntry>() }  // A-Rollback 操作时间线
     var showTimeline by remember { mutableStateOf(false) }
     var showHealthAI by remember { mutableStateOf(false) }  // A-HealthAI 状态↔AI 联动
+    var showForward by remember { mutableStateOf(false) }   // A-Forward 端口转发对话框
+    var forwardHandle by remember { mutableStateOf<PortForwardHandle?>(null) }
+    var forwardLabel by remember { mutableStateOf<String?>(null) }
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -679,8 +682,27 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         HealthAISheet(status, onClose = { showHealthAI = false })
     }
 
-    // 离开工作区时关闭会话，避免泄漏
-    DisposableEffect(Unit) { onDispose { shellSession?.close() } }
+    // A-Forward：端口转发对话框
+    if (showForward) {
+        PortForwardDialog(
+            existing = forwardLabel,
+            onClose = { showForward = false },
+            onStop = { forwardHandle?.close(); forwardHandle = null; forwardLabel = null; showForward = false },
+            onStart = { lp, rh, rp ->
+                if (password.isBlank() && keyArg() == null) { output += "⚠️ 请先输入登录凭据\n"; showForward = false; return@PortForwardDialog }
+                scope.launch {
+                    runCatching {
+                        SshClient.openForward(conn.host, conn.port, conn.user, password, lp, rh, rp, scope, keyArg())
+                    }.onSuccess { forwardHandle = it; forwardLabel = "127.0.0.1:$lp → $rh:$rp"; output += "🔀 端口转发已建立：$forwardLabel\n" }
+                        .onFailure { output += "⚠️ 端口转发失败：${it.message}\n" }
+                    showForward = false
+                }
+            }
+        )
+    }
+
+    // 离开工作区时关闭会话/转发，避免泄漏
+    DisposableEffect(Unit) { onDispose { shellSession?.close(); forwardHandle?.close() } }
 
     // 高危二次确认弹窗
     pendingConfirm?.let { cmd ->
@@ -709,6 +731,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 title = { Column { Text(conn.name, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold); Text("${conn.user}@${conn.host}:${conn.port}", color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace) } },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, null, tint = TextPrimary) } },
                 actions = {
+                    // A-Forward：端口转发（有活动转发则高亮）
+                    IconButton(onClick = { showForward = true }) {
+                        Icon(Icons.Filled.SwapHoriz, "端口转发", tint = if (forwardHandle != null) Accent else TextSecondary)
+                    }
                     // A-Rollback：操作时间线（有记录才高亮）
                     IconButton(onClick = { showTimeline = true }) {
                         Icon(Icons.Filled.History, "时间线", tint = if (opTimeline.isEmpty()) TextSecondary.copy(alpha = 0.5f) else Accent)
@@ -852,6 +878,45 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
             }
         }
     }
+}
+
+/** A-Forward：本地端口转发对话框（已有活动转发则可停止，否则输入参数建立） */
+@Composable
+fun PortForwardDialog(existing: String?, onClose: () -> Unit, onStop: () -> Unit, onStart: (Int, String, Int) -> Unit) {
+    var localPort by remember { mutableStateOf("8080") }
+    var remoteHost by remember { mutableStateOf("127.0.0.1") }
+    var remotePort by remember { mutableStateOf("80") }
+    val colors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight,
+        focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent,
+        focusedLabelColor = Accent, unfocusedLabelColor = TextSecondary
+    )
+    AlertDialog(
+        onDismissRequest = onClose,
+        icon = { Icon(Icons.Filled.SwapHoriz, null, tint = Accent) },
+        title = { Text("本地端口转发", color = TextPrimary) },
+        text = {
+            if (existing != null) {
+                Text("当前转发：\n$existing\n\n本机访问 127.0.0.1 即经 SSH 转发到远端。", color = TextSecondary, fontSize = 13.sp)
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(localPort, { localPort = it.filter { c -> c.isDigit() } }, label = { Text("本地端口") }, singleLine = true, colors = colors)
+                    OutlinedTextField(remoteHost, { remoteHost = it }, label = { Text("远程主机（从服务器视角）") }, singleLine = true, colors = colors)
+                    OutlinedTextField(remotePort, { remotePort = it.filter { c -> c.isDigit() } }, label = { Text("远程端口") }, singleLine = true, colors = colors)
+                    Text("例：本地 8080 → 服务器上的 127.0.0.1:80", color = TextSecondary, fontSize = 11.sp)
+                }
+            }
+        },
+        confirmButton = {
+            if (existing != null) TextButton(onClick = onStop) { Text("停止转发", color = Danger) }
+            else TextButton(onClick = {
+                val lp = localPort.toIntOrNull(); val rp = remotePort.toIntOrNull()
+                if (lp != null && rp != null && remoteHost.isNotBlank()) onStart(lp, remoteHost.trim(), rp)
+            }) { Text("建立", color = Accent) }
+        },
+        dismissButton = { TextButton(onClick = onClose) { Text("取消", color = TextSecondary) } },
+        containerColor = Surface
+    )
 }
 
 /** A-HealthAI：状态↔AI 联动——把当前状态摘要发给 AI 流式分析（对齐 apple Z6b） */

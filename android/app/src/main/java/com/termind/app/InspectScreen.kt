@@ -29,10 +29,32 @@ data class InspectItem(val conn: ServerConn, val running: Boolean, val status: S
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     var password by remember { mutableStateOf("") }
     var running by remember { mutableStateOf(false) }
     val items = remember { mutableStateListOf<InspectItem>() }
+    var aiSummary by remember { mutableStateOf<String?>(null) }   // N-Cron-AI 巡检总结
+
+    // N-Cron-AI：把巡检结果拼给 AI 总结
+    fun summarize() {
+        if (!SettingsStore.isConfigured(ctx)) { aiSummary = "请先在「设置」配置 API Key。"; return }
+        aiSummary = ""
+        val material = buildString {
+            append("对 ${items.size} 台服务器做了健康巡检，各自状态：\n")
+            items.forEach { i ->
+                append("\n【${i.conn.name}】")
+                if (i.error != null) append("巡检失败：${i.error}")
+                else i.status?.let { append("CPU ${it.cpu} 内存 ${it.mem} 磁盘 ${it.disk}${if (it.hasWarning) " ⚠️资源偏高" else ""}") }
+            }
+        }
+        scope.launch {
+            AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
+                listOf("user" to material),
+                "你是运维助手。这是一批服务器的健康巡检结果，请：① 总览(健康/需关注台数) ② 哪些机器资源紧张或异常及风险 ③ 优先处理建议。精炼中文。"
+            ) { delta -> aiSummary = (aiSummary ?: "") + delta }.onFailure { aiSummary = "⚠️ ${it.message}" }
+        }
+    }
 
     fun inspect() {
         if (password.isBlank() || running || conns.isEmpty()) return
@@ -58,6 +80,18 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
     val sorted = items.sortedByDescending { (it.status?.hasWarning == true) || it.error != null }
     val warnCount = items.count { (it.status?.hasWarning == true) || it.error != null }
     val done = items.isNotEmpty() && items.none { it.running }
+
+    // N-Cron-AI 总结弹窗
+    aiSummary?.let { sum ->
+        AlertDialog(
+            onDismissRequest = { aiSummary = null },
+            icon = { Icon(Icons.Filled.AutoAwesome, null, tint = Accent) },
+            title = { Text("AI 巡检总结", color = TextPrimary) },
+            text = { Column(Modifier.heightIn(max = 420.dp).verticalScroll(androidx.compose.foundation.rememberScrollState())) { Text(sum.ifEmpty { "分析中…" }, color = TextPrimary, fontSize = 13.sp) } },
+            confirmButton = { TextButton(onClick = { aiSummary = null }) { Text("关闭", color = Accent) } },
+            containerColor = Surface
+        )
+    }
 
     val fieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight,
@@ -91,6 +125,11 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
                         Spacer(Modifier.width(8.dp))
                         Text(if (warnCount > 0) "$warnCount 台需关注" else "全部正常",
                             color = if (warnCount > 0) Danger else Success, fontWeight = FontWeight.Medium)
+                        Spacer(Modifier.weight(1f))
+                        TextButton(onClick = { summarize() }) {
+                            Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp)); Text("AI 总结", color = Accent, fontSize = 12.sp)
+                        }
                     }
                 }
             }

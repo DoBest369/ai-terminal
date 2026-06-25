@@ -32,6 +32,7 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
     var note by remember { mutableStateOf(existing?.note ?: "") }
     var authType by remember { mutableStateOf(existing?.authType ?: AuthType.PASSWORD) }
     var colorTag by remember { mutableStateOf(existing?.colorTag ?: ColorTag.NONE) }
+    var startup by remember { mutableStateOf(existing?.startupCommand ?: "") }
 
     val canSave = host.trim().isNotEmpty() && user.trim().isNotEmpty()
 
@@ -56,7 +57,7 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
                                 host = host.trim(), user = user.trim(),
                                 port = port.toIntOrNull() ?: 22,
                                 group = group.trim(), note = note.trim(),
-                                authType = authType, colorTag = colorTag
+                                authType = authType, colorTag = colorTag, startupCommand = startup.trim()
                             )
                         )
                     }, enabled = canSave) {
@@ -79,6 +80,7 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
             }
             OutlinedTextField(group, { group = it }, label = { Text("分组（可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(note, { note = it }, label = { Text("备注（可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(startup, { startup = it }, label = { Text("启动命令（连上自动执行，可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
             // A-KeyAuth：认证方式
             Text("认证方式", color = TextSecondary, fontSize = 12.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

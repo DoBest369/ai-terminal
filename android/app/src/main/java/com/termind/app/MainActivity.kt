@@ -710,6 +710,8 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 }
             }.onSuccess {
                 shellSession = it; state = ConnState.CONNECTED
+                // A-Startup：连接成功后自动执行启动命令
+                if (conn.startupCommand.isNotBlank()) it.write(conn.startupCommand + "\n")
                 refreshStatus()   // 连接成功后采集状态
                 // A-Env：探测环境画像 → 上报给 AI
                 scope.launch {

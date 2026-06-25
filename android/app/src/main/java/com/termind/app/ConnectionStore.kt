@@ -24,12 +24,14 @@ data class ServerConn(
     val note: String = "",
     val authType: AuthType = AuthType.PASSWORD,
     val colorTag: ColorTag = ColorTag.NONE,
+    val startupCommand: String = "",
     val online: Boolean = false
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id); put("name", name); put("host", host); put("user", user)
         put("port", port); put("group", group); put("note", note)
         put("authType", authType.name); put("colorTag", colorTag.name)
+        put("startupCommand", startupCommand)
     }
 }
 
@@ -51,7 +53,8 @@ object ConnectionStore {
                     user = o.optString("user"), port = o.optInt("port", 22),
                     group = o.optString("group"), note = o.optString("note"),
                     authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD),
-                    colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE)
+                    colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE),
+                    startupCommand = o.optString("startupCommand")
                 )
             }
         }.getOrElse { seedDefaults() }
@@ -80,7 +83,8 @@ object ConnectionStore {
                     name = o.optString("name"), host = o.optString("host"), user = o.optString("user"),
                     port = o.optInt("port", 22), group = o.optString("group"), note = o.optString("note"),
                     authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD),
-                    colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE)
+                    colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE),
+                    startupCommand = o.optString("startupCommand")
                 )
             }
         }.getOrElse { emptyList() }

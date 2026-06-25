@@ -6,6 +6,14 @@
 
 ---
 
+## A-Status · 安卓状态面板真实采集
+- **内容**：`SshClient.fetchStatus(host,port,user,password)`——一次性跑 `top -bn1|grep %Cpu; echo ---; free -m; echo ---; df -h /`，connectAndExec 取回 → `ServerStatus.parse`。`OpsCore.ServerStatus(cpu/mem/disk + parse)`：正则解析 CPU(`([0-9.]+) id`→100-idle)、内存(`^Mem: total used`→used/total GB)、磁盘(`df / 行`→used/total(占用%))，解析失败保留「—」。`ServerWorkspace` 加 status/refreshing state + `refreshStatus()`(协程 fetchStatus)，连接成功后自动采集；状态面板(仅已连显示)显真实 CPU/内存/磁盘 + 刷新 IconButton(转圈)。
+- **改动**：`android/.../SshClient.kt`(fetchStatus)、`OpsCore.kt`(ServerStatus)、`MainActivity.kt`(ServerWorkspace 状态面板)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 16s** → app-debug.apk 30.8MB。推送 8f42c33。真实采集需真服务器。
+- **安卓进度**：A0/A2-UI/A2/A1/A3/A4/A3b/A1b/**A-Status** ✅。剩 A-Env 环境感知 Kotlin 化 + AI 接环境 / 流式 AI。
+
+---
+
 ## A1b · 安卓交互式 PTY 终端（持久 shell 会话）
 - **内容**：`SshClient.openShell(host,port,user,password,scope,onOutput)`——sshj connect+authPassword+startSession+`allocateDefaultPTY()`+`startShell()`，拿 shell.outputStream(写)；协程在 IO 持续 read shell.inputStream→`stripAnsi` 去 ANSI→`withContext(Main) onOutput(chunk)`；返回 `SshShellSession(ssh,session,out)`(write[发命令到 PTY]/close[关 session+断开])。`stripAnsi` 工具去常见转义序列。`ServerWorkspace` 重构为交互式：`enum ConnState{DISCONNECTED/CONNECTING/CONNECTED/ERROR}` + 连接状态条(色点+文案+断开按钮) + `connect()`(建 shell，输出回调脱敏累积) + `disconnect()` + `send(cmd)`(已连写 cmd+\n 到 shell，不再每条重连) + `submit()`(未连先连/已连高危确认后发) + `DisposableEffect onDispose 关闭会话防泄漏`；密码框仅未连显示，命令框仅已连显示否则显「连接」按钮。风险徽章+高危确认+脱敏保留。
 - **改动**：`android/.../SshClient.kt`(openShell+SshShellSession+stripAnsi)；`MainActivity.kt`(ServerWorkspace 交互式重构)。

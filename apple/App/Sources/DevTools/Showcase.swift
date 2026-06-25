@@ -227,6 +227,77 @@ struct StatusBarShowcase: View {
     }
 }
 
+// MARK: 服务器状态面板（Z6）
+
+/// 富状态面板：健康摘要条 + CPU/内存/磁盘进度条 + 关键服务状态。
+struct ServerStatusShowcase: View {
+    let info: SystemInfo
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 顶部健康摘要条（有告警整条警示色）
+            HStack(spacing: 8) {
+                Image(systemName: info.hasWarning ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
+                    .foregroundStyle(info.hasWarning ? Theme.danger : Theme.success)
+                Text(info.hasWarning ? "发现异常" : "运行正常")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(info.hasWarning ? Theme.danger : Theme.success)
+                Spacer()
+                Text(info.hostname).font(.system(size: 12, design: .monospaced)).foregroundStyle(Theme.textSecondary)
+            }
+            .padding(10)
+            .background((info.hasWarning ? Theme.danger : Theme.success).opacity(0.12))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+
+            // 三大资源进度条
+            bar("cpu", "CPU", info.cpuSeen ? "\(Int(info.cpuUsage))%" : "—", info.cpuUsage, info.cpuUsage > 85)
+            bar("memorychip", "内存", String(format: "%@ / %@", formatBytes(info.memUsed), formatBytes(info.memTotal)), info.memPercent, info.memPercent > 85)
+            bar("internaldrive", "磁盘", String(format: "%@ / %@", formatBytes(info.diskUsed), formatBytes(info.diskTotal)), info.diskPercent, info.diskPercent > 85)
+
+            // 关键服务
+            Text("关键服务").font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
+            HStack(spacing: 14) {
+                ForEach(info.services.keys.sorted(), id: \.self) { svc in
+                    HStack(spacing: 5) {
+                        Circle().fill(info.services[svc] == true ? Theme.success : Theme.danger).frame(width: 8, height: 8)
+                        Text(svc).font(.system(size: 12)).foregroundStyle(Theme.textPrimary)
+                    }
+                }
+            }
+            // 负载 + 运行时长
+            HStack(spacing: 18) {
+                detailInline("负载", info.loadavg.map { String(format: "%.2f", $0) }.joined(separator: " / "))
+                detailInline("运行", info.uptime)
+            }
+        }
+        .padding(16)
+        .background(Theme.surface)
+    }
+    private func bar(_ icon: String, _ label: String, _ value: String, _ pct: Double, _ warn: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Image(systemName: icon).font(.system(size: 11)).foregroundStyle(warn ? Theme.danger : Theme.accent)
+                Text(label).font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Text(value).font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.textSecondary)
+                Text("\(Int(pct))%").font(.system(size: 11, weight: .semibold)).foregroundStyle(warn ? Theme.danger : Theme.textPrimary)
+            }
+            Capsule().fill(Theme.surfaceLight).frame(height: 6)
+                .overlay(alignment: .leading) {
+                    GeometryReader { geo in
+                        Capsule().fill(warn ? Theme.danger : Theme.accent)
+                            .frame(width: geo.size.width * min(pct, 100) / 100)
+                    }
+                }
+        }
+    }
+    private func detailInline(_ label: String, _ value: String) -> some View {
+        HStack(spacing: 5) {
+            Text(label).font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
+            Text(value).font(.system(size: 12, weight: .medium, design: .monospaced)).foregroundStyle(Theme.textPrimary)
+        }
+    }
+}
+
 // MARK: AI 面板
 
 struct AIPanelShowcase: View {

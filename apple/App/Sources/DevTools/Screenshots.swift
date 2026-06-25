@@ -20,6 +20,13 @@ public enum AppScreenshots {
             .frame(width: 280, height: 460), dir, "01-sidebar")
         render(StatusBarShowcase(info: info, expanded: true)
             .frame(width: 820, height: 130), dir, "02-statusbar")
+        // Z6 富状态面板（含磁盘/服务/健康摘要告警）
+        var richInfo = info
+        richInfo.diskTotal = 85_899_345_920; richInfo.diskUsed = 78_000_000_000  // ~91% 触发告警
+        richInfo.services = ["nginx": true, "docker": true, "mysql": false, "redis": true, "sshd": true]
+        richInfo.cpuSeen = true
+        render(ServerStatusShowcase(info: richInfo)
+            .frame(width: 420, height: 360), dir, "21-server-status")
         render(AIPanelShowcase(messages: model.aiMessages)
             .frame(width: 380, height: 520), dir, "03-ai-panel")
         render(AIPanelShowcase(messages: Array(model.aiMessages.prefix(1)), processing: true)

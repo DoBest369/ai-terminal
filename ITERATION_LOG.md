@@ -6,6 +6,16 @@
 
 ---
 
+## A-SftpRename + A-Prompts + 质量收口 · SFTP 重命名 + AI 提示词库
+- **A-SftpRename**（SFTP 重命名）：`SshClient.renamePath`(sshj `SFTPClient.rename(old,new)`，javap 确认；支持 jump)；`SftpBrowser` 每行重命名图标(DriveFileRenameOutline)→对话框预填当前名输新名→同目录 rename+刷新。**SFTP 文件管理现完整**：浏览/查看/下载/上传/新建/删除/重命名/路径跳转。构建 22s，推送 4467ec9。
+- **A-Prompts**（AI 提示词库）：`AIAssistantScreen` 空对话提示词从 4 条扩为 5 类(排障/部署/安全/性能/日志)×3 条 promptGroups；分类 FilterChip 切换(promptGroupIdx)+点击直接 send；空态加 verticalScroll。降低用户运维提问门槛。构建 21s，推送 af89171。
+- **质量收口**：apple `AITerminalCore`+`App` swift build Build complete；五自测全 true 无回归；android 零 deprecated。
+- **改动**：`SshClient.kt`(renamePath)、`MainActivity.kt`(重命名 UI+提示词库)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 5 自测全过。
+- **意义**：SFTP 文件管理闭环完整；AI 助手提示词库覆盖常见运维场景，新手友好。双端成熟产品持续打磨。
+
+---
+
 ## A-SftpPath + A-TermSearch + 质量收口 · SFTP 路径跳转 + 终端搜索
 - **A-SftpPath**（SFTP 路径跳转）：SftpBrowser 路径栏 Row 可点(带 Edit 图标)→AlertDialog 输入框(预填当前 path)→`load(输入路径)`。直达 /etc、/var/log 等深目录，无需逐级点。构建 21s，推送 b7e381b。
 - **A-TermSearch**（终端搜索）：ServerWorkspace 终端区搜索按钮 toggle 搜索框；输词→渲染 `highlightMatches(stripAnsi(output), query)`(buildAnnotatedString，匹配子串黄底黑字)替代 ANSI 彩色+显匹配处数(split count)。长日志关键词定位。构建 21s，推送 0081c80。

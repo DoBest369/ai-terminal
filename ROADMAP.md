@@ -75,6 +75,8 @@
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-SnippetCRUD** 快捷命令自定义增删 ✅（SnippetStore SharedPreferences 持久化；ServerWorkspace 快捷命令 Chip 默认+自定义+「+新建」对话框+删除；修 termColors 前向引用；构建 20s；推送 2c48299→88b814a）
+- [x] **A-Prompts** AI 运维提示词库 ✅（空对话提示词扩为 5 类[排障/部署/安全/性能/日志]×3；FilterChip 分类切换+点击 send；构建 21s 无 warning；推送 af89171）
+- [x] **A-SftpRename** SFTP 文件重命名 ✅（SshClient.renamePath[sshj rename，支持 jump]；SftpBrowser 每行重命名图标+对话框；SFTP 文件管理完整[浏览/查看/下载/上传/新建/删除/重命名/路径跳转]；构建 22s 无 warning；推送 4467ec9）
 - [x] **A-TermSearch** 终端输出搜索高亮 ✅（终端区搜索 toggle→关键词高亮[黄底黑字 buildAnnotatedString]+匹配计数；长日志定位；构建 21s 无 warning；推送 0081c80）
 - [x] **A-SftpPath** SFTP 路径直接输入跳转 ✅（路径栏可点+Edit 图标→对话框输路径→load；直达 /etc 等深目录；构建 21s 无 warning；推送 b7e381b）
 - [x] **A-Model** AI 模型选择 ✅（SettingsScreen「AI 模型」行→对话框选 Opus 4.8/Sonnet 4.6/Haiku 4.5+持久化；AiClient 已用 loadModel；构建 21s 无 warning；推送 0fc8ee9）

@@ -28,6 +28,7 @@
 | SFTP 查看文件内容 | ✅ | ✅ | |
 | SFTP 下载 / 上传 | ✅ | ✅ | android sftp.get/put + 文件选择器 |
 | SFTP 新建文件夹 / 删除 | 🟡 | ✅ | android sftp.mkdir/rm/rmdir + 二次确认 |
+| SFTP 文件重命名 | 🟡 | ✅ | android sftp.rename |
 | SFTP 路径直接跳转 | 🟡 | ✅ | android 输路径直达深目录 |
 | 终端输出搜索高亮 | 🟡 | ✅ | android 关键词高亮+匹配计数 |
 | 终端控制键栏（Tab/Ctrl/方向键） | 🟡 | ✅ | android（移动端刚需）；apple 物理键盘 |
@@ -48,6 +49,7 @@
 | 停止生成 | ✅ | ✅ | 流式可中断 |
 | 重新生成上一条 | ✅ | ✅ | |
 | AI 模型选择 | ✅ | ✅ | Opus 4.8 / Sonnet 4.6 / Haiku 4.5 |
+| AI 运维提示词库 | 🟡 | ✅ | android 5 类(排障/部署/安全/性能/日志) |
 | AI 代码块渲染 + 复制 | 🟡 | ✅ | android |
 | AI 消息长按复制整条 | 🟡 | ✅ | android |
 

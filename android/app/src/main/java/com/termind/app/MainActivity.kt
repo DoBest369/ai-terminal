@@ -2,8 +2,10 @@ package com.termind.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -843,6 +845,28 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
         }
     }
 
+    // A-Upload：选本地文件→复制到临时文件→上传到当前目录
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        loading = true
+        scope.launch {
+            runCatching {
+                // 查文件名
+                val name = ctx.contentResolver.query(uri, null, null, null, null)?.use { c ->
+                    val idx = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                    if (c.moveToFirst() && idx >= 0) c.getString(idx) else null
+                } ?: ("upload-" + uri.lastPathSegment?.substringAfterLast('/'))
+                val tmp = java.io.File(ctx.cacheDir, name)
+                ctx.contentResolver.openInputStream(uri)!!.use { input -> tmp.outputStream().use { input.copyTo(it) } }
+                val remote = (if (path == "." || path == "/") path else path.trimEnd('/')) + "/" + name
+                SshClient.uploadFile(conn.host, conn.port, conn.user, password, tmp.absolutePath, remote, privateKey).getOrThrow()
+                name
+            }.onSuccess { toast = "已上传 $it"; load(path) }
+                .onFailure { error = it.message }
+            loading = false
+        }
+    }
+
     fun load(p: String) {
         loading = true; error = null
         scope.launch {
@@ -886,6 +910,9 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
                 Spacer(Modifier.width(8.dp))
                 Text("文件浏览", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                 if (loading) CircularProgressIndicator(Modifier.size(18.dp), color = Accent, strokeWidth = 2.dp)
+                IconButton(onClick = { picker.launch("*/*") }, enabled = !loading) {
+                    Icon(Icons.Filled.Upload, "上传文件", tint = Accent, modifier = Modifier.size(18.dp))
+                }
             }
             Spacer(Modifier.height(6.dp))
             Text(path, color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace, maxLines = 1)

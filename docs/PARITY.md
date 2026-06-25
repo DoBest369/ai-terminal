@@ -32,7 +32,7 @@
 | SFTP 路径直接跳转 | 🟡 | ✅ | android 输路径直达深目录 |
 | 终端输出搜索高亮 | 🟡 | ✅ | android 关键词高亮+匹配计数 |
 | 终端控制键栏（Tab/Ctrl/方向键） | 🟡 | ✅ | android（移动端刚需）；apple 物理键盘 |
-| AI 代码块渲染 + 一键复制 | 🟡 | ✅ | android ChatBubble 代码块框+复制 |
+| AI 代码块渲染 | ✅ | ✅ | 双端按 ``` 拆等宽深色框（apple MessageBubble + 渲染验证） |
 
 ## AI 助手
 
@@ -50,7 +50,7 @@
 | 重新生成上一条 | ✅ | ✅ | |
 | AI 模型选择 | ✅ | ✅ | Opus 4.8 / Sonnet 4.6 / Haiku 4.5 |
 | AI 运维提示词库 | 🟡 | ✅ | android 5 类(排障/部署/安全/性能/日志) |
-| AI 代码块渲染 + 复制 | 🟡 | ✅ | android |
+| AI 代码块渲染 | ✅ | ✅ | 双端等宽深色框；复制 android(代码块点击)/apple(气泡右键) |
 | AI 消息长按复制整条 | 🟡 | ✅ | android |
 
 ## 智能运维护城河（阶段 Z）

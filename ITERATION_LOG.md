@@ -6,6 +6,14 @@
 
 ---
 
+## apple AI 代码块渲染对齐（轮换 apple 端打磨）
+- **内容**：`AIAgentView.MessageBubble` 抽出 `bubbleContent` @ViewBuilder——助手消息含 ``` 时 `displayText.components(separatedBy: "```")` 拆分，奇数段为代码块用 `.font(.system(size:12, design:.monospaced))` 等宽 + `Color.black.opacity(0.35)` 深色背景框渲染，`stripLangLine` 去掉首行语言标识(如 bash)；偶数段普通文本。对齐 android A-Md。`Showcase.AIPanelShowcase.bubble` 同步 `bubbleBody`(代码块深色框)；`Screenshots.swift` 样例消息改为含 Nginx 日志代码块。
+- **改动**：`apple/App/Sources/Views/AIAgentView.swift`(bubbleContent+stripLangLine)、`DevTools/Showcase.swift`(bubbleBody)、`DevTools/Screenshots.swift`(代码块样例)、`apple/screenshots/03-ai-panel.png`。
+- **验证**：Core+App swift build Build complete；`swift run Shots` 渲染 03-ai-panel 核对——AI 气泡 `tail -n 50 /var/log/nginx/error.log` 命令绿字等宽深色框清晰。推送 c60e6a0。
+- **意义**：apple AI 代码块渲染 PARITY 🟡→✅(双端对齐)；运维命令在 AI 回复里更醒目易读易复制(apple 气泡右键复制)。平衡双端打磨。
+
+---
+
 ## A-FormValid + A-About + 质量收口 · 连接校验 + 关于完善
 - **A-FormValid**（表单校验）：EditConnectionScreen 加 `portOk`(端口空或 1-65535)、`jumpPortOk`、`jumpOk`(填跳板主机则需跳板用户)；端口/跳板端口字段 `isError` 红框，校验失败显红字提示；`canSave` = host/user 非空 + 三项校验，保存按钮联动禁用。防误输。构建 12s，推送 c2f2d6a。
 - **A-About**（关于完善）：SettingsScreen 加「开源仓库」`SettingRow`(Code 图标，显 github.com/DoBest369/ai-terminal·MIT)→点击 `Intent.ACTION_VIEW` 浏览器打开仓库。构建 21s，推送 7fce75b。

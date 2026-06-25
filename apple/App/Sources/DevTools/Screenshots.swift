@@ -194,6 +194,30 @@ public enum AppScreenshots {
         return String(decoding: model.exportAIConversationMarkdown(), as: UTF8.self)
     }
 
+    /// 环境感知解析自测（Z3）：用假的探测输出验证 parse → ServerProfile
+    public static func envDetectTest() -> String {
+        let fake = """
+        HOST:web-01
+        UNAME:Linux 5.15.0-89-generic x86_64
+        USER:deploy 1000
+        OSREL:NAME="Ubuntu"
+        OSREL:PRETTY_NAME="Ubuntu 22.04.3 LTS"
+        OSREL:VERSION_ID="22.04"
+        PM:apt
+        SVC:nginx:1
+        SVC:docker:1
+        SVC:node:0
+        SVC:mysql:1
+        SVC:redis:0
+        """
+        let p = EnvDetector.parse(fake)
+        let ok = p.hostname == "web-01" && p.os == "Linux" && p.arch == "x86_64"
+            && p.distro == "Ubuntu 22.04.3 LTS" && p.currentUser == "deploy" && !p.isRoot
+            && p.packageManager == "apt"
+            && p.services["nginx"] == true && p.services["node"] == false
+        return "解析正确=\(ok)；摘要=「\(p.aiSummary)」"
+    }
+
     /// 导出全部会话 Markdown 自测（2 会话各有消息）
     public static func aiMarkdownAllTest() -> String {
         let model = AppModel()

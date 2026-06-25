@@ -49,6 +49,8 @@ final class AppModel: ObservableObject {
     // AI
     @Published var aiConfig: AIConfig
     @Published var aiProcessing = false
+    /// Z3 环境感知：当前活动服务器的环境画像（探测得到后注入 AI 上下文）
+    @Published var serverProfile: ServerProfile?
 
     // 多对话：会话列表 + 当前激活会话
     @Published var conversations: [AIConversation] = []
@@ -548,7 +550,12 @@ final class AppModel: ObservableObject {
         let service = AIService(config: aiConfig)
         // 多轮上下文：只取最近 N 条，避免无限增长
         let recent = Array(aiMessages.suffix(Self.contextWindow))
-        let conversation: [ChatMessage] = [ChatMessage(role: .system, content: systemPrompt ?? agentSystemPrompt)] + recent
+        // Z3：若已探测到服务器环境，把摘要并入系统提示，让 AI 基于真实环境回答
+        var sys = systemPrompt ?? agentSystemPrompt
+        if let summary = serverProfile?.aiSummary, !summary.isEmpty {
+            sys += "\n\n\(summary)\n请结合以上真实服务器环境给出针对性、可直接执行的回答。"
+        }
+        let conversation: [ChatMessage] = [ChatMessage(role: .system, content: sys)] + recent
 
         // 流式输出：先放一条空的 assistant 占位，按 token 追加
         let assistant = ChatMessage(role: .assistant, content: "")

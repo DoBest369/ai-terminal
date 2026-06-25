@@ -12,6 +12,8 @@ MainActor.assumeIsolated {
         print(AppScreenshots.aiMarkdownTest())
     } else if firstArg == "--ai-md-all-test" {
         print(AppScreenshots.aiMarkdownAllTest())
+    } else if firstArg == "--env-detect-test" {
+        print(AppScreenshots.envDetectTest())
     } else if firstArg == "--ai-persist-test" {
         print(AppScreenshots.aiPersistTest())
     } else if firstArg == "--ai-conv-test" {

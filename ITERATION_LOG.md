@@ -6,6 +6,16 @@
 
 ---
 
+## A-SftpPath + A-TermSearch + 质量收口 · SFTP 路径跳转 + 终端搜索
+- **A-SftpPath**（SFTP 路径跳转）：SftpBrowser 路径栏 Row 可点(带 Edit 图标)→AlertDialog 输入框(预填当前 path)→`load(输入路径)`。直达 /etc、/var/log 等深目录，无需逐级点。构建 21s，推送 b7e381b。
+- **A-TermSearch**（终端搜索）：ServerWorkspace 终端区搜索按钮 toggle 搜索框；输词→渲染 `highlightMatches(stripAnsi(output), query)`(buildAnnotatedString，匹配子串黄底黑字)替代 ANSI 彩色+显匹配处数(split count)。长日志关键词定位。构建 21s，推送 0081c80。
+- **质量收口**：apple `AITerminalCore`+`App` swift build Build complete；五自测全 true 无回归；android 零 deprecated。
+- **改动**：`MainActivity.kt`(SftpBrowser 路径跳转 + 终端搜索 + highlightMatches 助手)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 5 自测全过。
+- **意义**：SFTP 浏览(深目录直达)+终端(长日志搜索)效率提升，运维查日志/找文件更顺手。双端成熟产品持续打磨。
+
+---
+
 ## A-Model + 全量零 deprecated + 质量收口 · AI 模型选择 + 代码质量
 - **A-Model**（AI 模型选择）：`SettingsScreen` 加「AI 模型」`SettingRow`(Memory 图标，显当前模型简称)→`AlertDialog` 列 claude-opus-4-8(Opus 4.8 最强)/claude-sonnet-4-6(Sonnet 4.6 均衡)/claude-haiku-4-5-20251001(Haiku 4.5 快速)单选(选中 Check)→`SettingsStore.saveModel` 持久化。`AiClient.chat/chatStream` 已用 `loadModel`，无需改。构建 21s 无 warning，推送 0fc8ee9。
 - **全量零 deprecated**：clean assembleDebug 全量编译暴露 5 处 deprecated 图标(MainActivity AltRoute/Sort/ArrowBack、BatchScreen/InspectScreen/EditConnectionScreen ArrowBack)→全改 `Icons.AutoMirrored.Filled.*`+导入；clean 复验 deprecated 计数=0。

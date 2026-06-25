@@ -49,8 +49,19 @@
 - AI：停止生成 · 命令解释/报错分析/健康分析快捷入口。
 - 快捷命令自定义增删。质量：android 零 deprecated warning，apple 多项自测回归确认。
 
+## 阶段 6 — 双端深度对齐 + 文档准确性
+
+连续多轮 apple↔android 互补，把两端能力拉到实质完全对齐：
+
+- **android 补强**：完整 SFTP 文件管理（新建/删除/重命名/路径跳转）· 跳板机 ProxyJump（sshj connectVia，覆盖全 SSH 操作）· 终端会话 keepalive · 终端输出搜索高亮 · AI（停止/重新生成/模型选择/代码块渲染/消息复制/运维提示词库）· 连接管理（颜色标签/搜索/排序/启动命令/测试连接/表单校验）· 设置（模型选择/开源仓库链接）· 全量零 deprecated warning。
+- **apple 补齐 android 独有项**：AI 代码块渲染（``` 等宽深色框）· AI 运维提示词库（5 类分类）· SFTP 增删改 + 路径跳转（Citadel createDirectory/rmdir/remove/rename）· 批量健康巡检逻辑（runHealthInspection/summarizeInspection，UI 待接）。
+- **文档准确性维护**：多轮源码核查纠正 PARITY 文档滞后——apple 实为 ✅ 的：终端控制键栏（18 键）· 终端搜索（SwiftTerm 内置）· 连接测试 · 批量群发（runBatch 真接 SSHTerminalSession）。
+- **结果**：PARITY 配对能力 🟡 清零，双端 SSH/终端/SFTP/AI/智能运维 Z1–Z8/批量群发/安全全 ✅✅。
+
 ## 当前状态
 
-- **双端原生可构建**：apple（Swift，swift build + 自测齐全）+ android（Kotlin，APK ~26MB）。
-- **核心智能运维护城河 Z1–Z8 与 SSH/SFTP/AI/安全主线双端完全对齐**；阶段 N 批量运维以 android 为完整实现、apple 框架就绪。
+- **双端原生可构建**：apple（Swift，swift build + 自测齐全 + 截图渲染验证）+ android（Kotlin，gradle 出 APK，零 deprecated warning）。
+- **双端实质完全对齐**：核心智能运维护城河 Z1–Z8 + SSH/终端（含控制键栏/搜索）/SFTP（完整文件管理）/AI（含代码块/提示词库）/安全/跳板机/批量群发 全 ✅✅。
+- 仅余单端独有：android 巡检 UI/定时后台巡检（apple 巡检逻辑已接、UI 待接）、apple 分屏/会话录制（移动端意义有限）。
 - linux（Rust+egui）🟡 骨架（未本机编译验证）；windows（C#/.NET）⬜ 待建。
+- 边界：本机无完整 Xcode → apple 未出 iOS/macOS 包、未真机实测；android 真实连接/AI 需真机 + 服务器 + API Key。

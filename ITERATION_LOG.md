@@ -6,6 +6,18 @@
 
 ---
 
+## A-Jump 跳板机 ProxyJump（android 最后核心缺口对齐 apple）
+- **sshj API 调研**（javap）：`SocketClient.connectVia(DirectConnection)` 原生支持 ProxyJump！流程：连 bastion SSHClient + 认证 → `bastion.newDirectConnection(targetHost, targetPort): DirectConnection` → 目标 `target.connectVia(dc)` + 认证。无需手搭本地转发。
+- **实现**：`JumpConfig(host,port,user,password)` 数据类。`SshClient.connectClient(...)` 私有助手：jump 非空时经 bastion connectVia 建目标，返回 `Pair<target, bastion?>`；否则直连。`connectAndExec/openShell/fetchStatus/fetchEnv` 加 `jump: JumpConfig?` 参数走助手；`connectAndExec` finally 关 ssh+bastion；`SshShellSession` 持 bastion 字段，close 一并 disconnect。
+- **持久化/UI**：`ServerConn` 加 `jumpHost/jumpPort/jumpUser`(JSON 持久化)+`hasJump`；跳板密码不持久化。`EditConnectionScreen` 加跳板机主机/用户/端口字段。`ServerWorkspace` 加 `jumpPassword` 运行时字段(未连+hasJump 时显)+`jumpCfg()` 构造 JumpConfig 传入 openShell/fetchStatus/fetchEnv/runDiagnostic/runSetupTemplate。
+- **改动**：`ConnectionStore.kt`(jump 字段)、`SshClient.kt`(JumpConfig+connectClient+jump 参数+SshShellSession bastion)、`EditConnectionScreen.kt`(跳板字段)、`MainActivity.kt`(jumpPassword+jumpCfg+各调用)。
+- **验证**：android BUILD SUCCESSFUL 24s；apple swift build + 5 自测无回归。推送 b457378。**未真机实测**(需真跳板环境)。SFTP/端口转发经跳板暂未接(TODO，多数跳板用于终端/状态/排障已覆盖)。
+- **意义**：android 补齐**最后一个核心缺口**(跳板机多跳)，与 apple 实质全对齐，仅余分屏/录制(移动端意义有限)。企业堡垒机场景双端可用。
+
+---
+
+---
+
 ## A-SftpEdit + 质量收口 · SFTP 文件管理趋完整
 - **A-SftpEdit**（SFTP 增删）：`SshClient.makeDir`(SFTPClient.mkdir) + `deletePath`(文件 rm/目录 rmdir，javap 确认 sshj 0.38 API)。`SftpBrowser` 顶栏「新建文件夹」按钮(CreateNewFolder)→对话框输名→mkdir+刷新；每文件/目录行「删除」图标(DeleteOutline)→二次确认对话框→rm/rmdir+刷新。删除高危故确认。构建 21s，推送 03dac29。
 - **质量收口**：apple `AITerminalCore`+`App` swift build 均 Build complete；--history/--batch/--risk/--metrics/--env-detect 五自测全 true，无回归。

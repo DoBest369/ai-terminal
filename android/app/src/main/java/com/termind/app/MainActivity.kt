@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -558,14 +559,23 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun ChatBubble(role: String, content: String) {
     val isUser = role == "user"
     val clipboard = LocalClipboardManager.current
+    val ctx = LocalContext.current
     Row(Modifier.fillMaxWidth(), horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start) {
         Surface(
             color = if (isUser) Accent.copy(alpha = 0.25f) else SurfaceLight.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth(0.85f)
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth(0.85f).combinedClickable(
+                onClick = {},
+                onLongClick = {
+                    clipboard.setText(androidx.compose.ui.text.AnnotatedString(content))
+                    android.widget.Toast.makeText(ctx, "已复制整条消息", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            )
         ) {
             // A-Md：按 ``` 围栏拆出代码块，单独渲染等宽深色框（便于看/复制运维命令）
             Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

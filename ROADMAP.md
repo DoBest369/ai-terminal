@@ -22,7 +22,7 @@
 
 围绕「理解环境→规划→评估风险→确认→验证→回滚」闭环，建 MVP 差异化能力（已具备 SSH/SFTP/分组/密钥/危险拦截/确认/脚本/状态栏）：
 - [x] **Z1** AI 命令解释 ✅（Core commandExplainPrompt[只讲解不执行：作用/参数/风险/安全等级，高危⚠️]；AppModel.explainCommand[本地 isDangerous 先判+解释 prompt 流式]；AIAgentView 输入栏「解释」按钮[questionmark.circle 警示色，不执行]；runAICompletion 支持 systemPrompt 覆盖；双端 build 通过；推送 1bceb26）
-- [ ] **Z2** AI 报错分析：捕获/粘贴报错 → AI 解释含义+定位原因+给可执行修复（含 502/permission denied/no space 等常见）
+- [x] **Z2** AI 报错分析 ✅（Core errorAnalysisPrompt[含义/原因/修复 EXECUTE/验证，识别 502/permission denied/no space/端口占用/nginx/SSL 等]；AppModel.analyzeError；AIAgentView「分析报错」按钮[exclamationmark.magnifyingglass danger 色]；双端 build 通过；推送 54bacc8）
 - [ ] **Z3** 环境感知：连接后探测 OS/发行版/已装服务(nginx/docker/node…)/项目类型，做成「服务器卡片」喂给 AI
 - [ ] **Z4** 场景化排障工作流：内置「网站打不开/磁盘清理/SSL 检查/Nginx 状态/Docker 日志」一键诊断（跑命令序列→AI 总结）
 - [ ] **Z5** 操作回滚：改关键配置(nginx/sshd/mysql)前自动备份 + 操作时间线 + 一键回滚

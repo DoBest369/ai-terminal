@@ -6,6 +6,13 @@
 
 ---
 
+## Z2 · AI 报错分析（智能运维 MVP 差异化第二项）
+- **内容**：Core 加 `errorAnalysisPrompt`（报错分析模块：含义/最可能原因/可执行修复[可 [EXECUTE] 但先说作用风险、高危 ⚠️]/验证 四段；熟悉 502/Permission denied/Connection refused/No space left/address already in use/nginx 语法/SSL/端口占用/服务未启动 等；信息不足给查看命令）。AppModel 加 `analyzeError(_:)`（仿 explainCommand：校验配置 → 追加「分析这段报错并给修复：```text```」→ runAICompletion(systemPrompt: errorAnalysisPrompt)）。AIAgentView 输入栏在「解释」按钮后加「分析报错」Button（exclamationmark.magnifyingglass，danger 色，canSend 可点）。
+- **改动**：`apple/AITerminalCore/.../AIService.swift`、`apple/App/Sources/AppModel.swift`、`Views/AIAgentView.swift`。
+- **验证**：`cd apple/AITerminalCore && swift build` ✓ + `cd apple/App && swift build` ✓。推送 54bacc8。
+
+---
+
 ## Z1 · AI 命令解释（智能运维 MVP 差异化第一项）
 - **内容**：Core AIService.swift 加 `commandExplainPrompt`（命令解释模块系统提示：只讲解不执行、不输出 [EXECUTE]，按 作用/关键参数/风险/安全等级 四段，高危用 ⚠️ + 后果）。AppModel 加 `explainCommand(_:)`：trim+配置校验，本地 `AIService.isDangerous(cmd)` 先给规则判定的安全等级提示，追加用户消息「解释这条命令（…）：```cmd```」，调 `runAICompletion(systemPrompt: commandExplainPrompt)`。`runAICompletion` 改为可选 `systemPrompt` 覆盖（默认 agentSystemPrompt）。AIAgentView 输入栏在发送按钮前加「解释」Button（questionmark.circle，warning 色，canSend 时可点）：取当前 input 当命令讲解、清空输入、不执行。
 - **改动**：`apple/AITerminalCore/.../AIService.swift`、`apple/App/Sources/AppModel.swift`、`Views/AIAgentView.swift`。

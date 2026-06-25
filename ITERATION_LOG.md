@@ -6,6 +6,14 @@
 
 ---
 
+## A-Secure · 安卓 API Key 加密存储（对齐 apple Keychain）
+- **内容**：build.gradle.kts 加 `androidx.security:security-crypto:1.1.0-alpha06`。`SettingsStore` 重构：`securePrefs(ctx)` 用 `MasterKey.Builder(AES256_GCM)` + `EncryptedSharedPreferences.create(AES256_SIV/AES256_GCM)`（runCatching 失败回退普通 prefs 保可用）；`loadApiKey` 先读加密，否则读旧普通 prefs 明文→搬进加密+清旧（迁移）；`saveApiKey` 走加密；模型等非敏感留普通 prefs。
+- **改动**：`android/app/build.gradle.kts`、`SettingsStore.kt`。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 1m12s**（拉 security-crypto+Tink，无 Duplicate/冲突；加 Tink 触发 multidex→5×classes.dex，minSdk26 原生支持）→ app-debug.apk（EncryptedSharedPreferences 编译进，import 解析成功即证依赖生效）。推送 9be395f。
+- **意义**：API Key 从明文升级为 AES256 加密存储，安全对齐 apple Keychain，护城河的安全维度补齐。
+
+---
+
 ## Z6 UI · apple 富服务器状态面板（阶段 Z 收官 8/8）
 - **内容**：`DevTools/Showcase.swift` 加 `ServerStatusShowcase`：① 顶部健康摘要条(info.hasWarning→「发现异常」danger 警示色 / 否则「运行正常」success，右侧 hostname) ② CPU/内存/磁盘 进度条(bar：图标+标签+值+百分比+Capsule 进度，>85% 用 Theme.danger) ③ 关键服务 绿(success)/红(danger)点列表 ④ 负载/运行时长。全 Theme.* 配色。`Screenshots.renderAll` 加 richInfo(磁盘 91% + mysql=false 触发告警态)渲染 `21-server-status.png`。
 - **改动**：`apple/App/Sources/DevTools/Showcase.swift`(ServerStatusShowcase)、`Screenshots.swift`(渲染)；新增 `apple/screenshots/21-server-status.png`。

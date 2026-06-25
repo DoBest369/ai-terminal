@@ -6,6 +6,15 @@
 
 ---
 
+## A-Upload + 双端对照文档
+- **A-Upload**：`SshClient.uploadFile`(sftp.put)；`SftpBrowser` 用 `rememberLauncherForActivityResult(GetContent)` 选本地文件→contentResolver 查 DISPLAY_NAME+openInputStream 复制到 cacheDir→uploadFile 到当前远程目录→load 刷新+toast；头部「上传」按钮。**踩坑**：SftpBrowser 局部函数 `load()` 被 download/picker 前向引用→BUILD FAILED，把 load() 前移修复。验证：重建 **BUILD SUCCESSFUL in 18s**。推送 91e8c1c→e0f5016→431f9de。**安卓 SFTP 完整=浏览/查看/下载/上传**。
+- **apple 回归确认**：`cd apple/AITerminalCore && swift build` + `cd apple/App && swift build` 均 Build complete（无回归）；--metrics-test/--risk-test/--env-detect-test 自测全 true。
+- **docs/PARITY.md**（新建）：apple↔android 双端能力对照表（SSH/终端/SFTP/AI/智能运维 Z1-Z8/安全），真实标注 ✅/🟡/⬜。**结论**：核心护城河 Z1-Z8 双端完全对齐；android 仅差 跳板机/端口转发、TOFU、多对话管理、多主题、分屏录制等 apple 增强项；linux🟡骨架 windows⬜。
+- **改动**：新增 `android/.../`(uploadFile+picker)、`docs/PARITY.md`。
+- **验证**：android 构建过；apple swift build 过 + 自测过。
+
+---
+
 ## A-Reach · 安卓连接可达性 TCP 探测（真实在线状态）
 - **内容**：新建 `Reachability.kt`——`suspend probe(host,port,timeoutMs=3000): Boolean`，`Socket().use { connect(InetSocketAddress(host,port), timeout) }`，Dispatchers.IO，纯 TCP 不做 SSH 握手（对齐 apple ReachabilityChecker）。`TermindApp`：`reachMap: SnapshotStateMap<id,Boolean>` + `probing` + `probeAll()`（协程 `async` 并发探测所有连接→逐个 await 写 reachMap）+ `LaunchedEffect(Unit){probeAll()}` 首次自动探测。`ServerListScreen` 顶栏改自绘 Row + 「刷新在线状态」IconButton(probing 时转圈)，传 reachMap/probing/onRefresh。`ServerCard(conn, reachable, probing, …)`：状态点 dotColor = 在线 Success / 离线 Danger / 探测中 Warning / 未知 TextSecondary，替换写死 `conn.online`。
 - **改动**：新增 `android/.../Reachability.kt`；改 `MainActivity.kt`(TermindApp probeAll+ServerListScreen 顶栏刷新+ServerCard dotColor)。

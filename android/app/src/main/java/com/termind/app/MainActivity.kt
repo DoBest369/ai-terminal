@@ -419,7 +419,15 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
     var lastSent by remember { mutableStateOf<Pair<String, String>?>(null) }   // A-Regen 上次(text,basePrompt)
     var searchActive by remember { mutableStateOf(false) }   // A-ConvoSearch
     var search by remember { mutableStateOf("") }
-    val suggestions = listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器")
+    // A-Prompts：分类运维提示词库（覆盖排障/部署/安全/性能/日志）
+    val promptGroups = listOf(
+        "排障" to listOf("帮我查看为什么网站打不开", "分析这段报错并给修复", "服务突然 502，怎么排查？"),
+        "部署" to listOf("一键初始化 Ubuntu Web 服务器", "用 Docker 部署一个 Nginx + 静态站点", "配置 Let's Encrypt 免费 HTTPS 证书"),
+        "安全" to listOf("检查这台服务器有哪些安全风险", "怎么加固 SSH 登录安全？", "查看最近的登录失败记录并判断是否被爆破"),
+        "性能" to listOf("服务器很卡，帮我找出占用资源最高的进程", "磁盘快满了，怎么安全清理？", "分析内存占用是否正常"),
+        "日志" to listOf("解释这条命令：docker system prune -a", "怎么查看 Nginx 最近的错误日志？", "用一条命令统计访问量 Top 10 IP")
+    )
+    var promptGroupIdx by remember { mutableStateOf(0) }
 
     fun send(text: String, basePrompt: String = AiClient.SYSTEM_PROMPT) {
         val t = text.trim(); if (t.isEmpty() || sending) return
@@ -506,9 +514,17 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
             )
         }
         if (messages.isEmpty()) {
-            Column(Modifier.weight(1f).fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(Modifier.weight(1f).fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("让 AI 结合服务器真实环境帮你运维", color = TextSecondary, fontSize = 13.sp)
-                suggestions.forEach { s ->
+                // A-Prompts：分类提示词 — 分类选择行
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    promptGroups.forEachIndexed { i, (cat, _) ->
+                        FilterChip(selected = promptGroupIdx == i, onClick = { promptGroupIdx = i },
+                            label = { Text(cat, fontSize = 12.sp) },
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Accent.copy(alpha = 0.3f), selectedLabelColor = Accent, labelColor = TextSecondary))
+                    }
+                }
+                promptGroups[promptGroupIdx].second.forEach { s ->
                     Card(onClick = { send(s) }, colors = CardDefaults.cardColors(containerColor = SurfaceLight.copy(alpha = 0.45f)), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(18.dp))

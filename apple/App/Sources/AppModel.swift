@@ -512,14 +512,30 @@ final class AppModel: ObservableObject {
         runAICompletion()
     }
 
-    /// 公共流式生成：假定用户消息已在 aiMessages 末尾，追加占位 assistant 并流式填充
-    private func runAICompletion() {
+    /// 解释一条命令（Z1）：不执行，仅讲解作用/参数/风险/安全等级。
+    func explainCommand(_ command: String) {
+        let cmd = command.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cmd.isEmpty, !aiProcessing else { return }
+        guard aiConfig.isConfigured else {
+            toast = "请先在设置中配置 API Key"
+            showSettings = true
+            return
+        }
+        // 本地规则先判一道安全等级（即使没网/AI 也有基础提示）
+        let danger = AIService.isDangerous(cmd) ? "（本地规则判定：⚠️ 高危命令）" : ""
+        aiMessages.append(ChatMessage(role: .user, content: "解释这条命令\(danger)：\n```\n\(cmd)\n```"))
+        runAICompletion(systemPrompt: commandExplainPrompt)
+    }
+
+    /// 公共流式生成：假定用户消息已在 aiMessages 末尾，追加占位 assistant 并流式填充。
+    /// systemPrompt 可覆盖（命令解释等专用模式）。
+    private func runAICompletion(systemPrompt: String? = nil) {
         aiProcessing = true
 
         let service = AIService(config: aiConfig)
         // 多轮上下文：只取最近 N 条，避免无限增长
         let recent = Array(aiMessages.suffix(Self.contextWindow))
-        let conversation: [ChatMessage] = [ChatMessage(role: .system, content: agentSystemPrompt)] + recent
+        let conversation: [ChatMessage] = [ChatMessage(role: .system, content: systemPrompt ?? agentSystemPrompt)] + recent
 
         // 流式输出：先放一条空的 assistant 占位，按 token 追加
         let assistant = ChatMessage(role: .assistant, content: "")

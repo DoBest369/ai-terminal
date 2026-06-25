@@ -317,6 +317,19 @@ struct AIAgentView: View {
                 .buttonStyle(.plain)
                 .help("停止生成")
             } else {
+                // Z1：解释当前输入的命令（不执行，讲解作用/参数/风险/安全等级）
+                Button {
+                    let cmd = input
+                    input = ""
+                    model.explainCommand(cmd)
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: 22))
+                        .foregroundStyle(canSend ? Theme.warning : Theme.textSecondary)
+                }
+                .buttonStyle(.plain)
+                .disabled(!canSend)
+                .help("解释这条命令（不执行）")
                 Button {
                     send()
                 } label: {

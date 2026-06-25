@@ -6,6 +6,14 @@
 
 ---
 
+## A-Convos · 安卓 AI 多对话管理（对齐 apple AIConversation）
+- **内容**：`AIAssistantScreen` 把单一 `messages` 改为 `convos: mutableStateListOf<SnapshotStateList<Pair>>`（对话列表，每个一组消息）+ `curIdx`；`messages = convos[curIdx]`（当前对话，send/渲染逻辑不变）。顶栏改自绘 Surface Row：对话标题（`convoTitle`=首条 user 消息前 16 字 / 「新对话 N」）+ ArrowDropDown → `DropdownMenu`（列各对话点击切换 + HorizontalDivider + 「➕ 新建对话」+ 「🗑 删除当前」[convos.size>1]）；右侧 Add 按钮新建。环境感知「已感知环境」标签保留。
+- **改动**：`MainActivity.kt`(AIAssistantScreen 多对话 state + 顶栏对话切换菜单)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 18s** → app-debug.apk。推送 b9a6ee5。
+- **意义**：安卓 AI 助手支持多对话（新建/切换/删除），对齐 apple。PARITY 多对话 ⬜→✅（搜索/导出/持久化仍 apple 独有，留后续）。android 仅剩 跳板机/端口转发、分屏录制 未与 apple 对齐。
+
+---
+
 ## A-TOFU · 安卓主机密钥 TOFU 校验（安全：防 MITM）
 - **内容**：`KnownHosts.kt`——`object KnownHosts`(init(ctx) 注入 applicationContext 的 SharedPreferences「termind_knownhosts」；`fingerprint(PublicKey)`=SHA-256(key.encoded) Base64.NO_WRAP；`check(host,port,fp): Result{NEW/MATCH/MISMATCH}`——saved==null→存+NEW，==fp→MATCH，否则 MISMATCH；forget()) + `class TofuVerifier: HostKeyVerifier`(override verify(hostname,port,key)：fingerprint→check→NEW/MATCH 返回 true，MISMATCH 返回 false[sshj 抛异常拒绝连接]；override findExistingAlgorithms=emptyList)。`SshClient` 5 处 `PromiscuousVerifier()`→`TofuVerifier()`，删冗余 import。`MainActivity.onCreate` `KnownHosts.init(this)`。
 - **改动**：新增 `android/.../KnownHosts.kt`；改 `SshClient.kt`(5×TofuVerifier+去 import)、`MainActivity.kt`(onCreate init)。

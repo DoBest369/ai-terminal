@@ -290,6 +290,25 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
     fun persistConvos() = ConvoStore.save(ctx, convos.map { it.toList() })
     fun convoTitle(c: List<Pair<String, String>>, i: Int) =
         c.firstOrNull { it.first == "user" }?.second?.take(16) ?: "新对话 ${i + 1}"
+    // A-ConvoExport：当前对话导出 Markdown 并分享
+    fun exportConvo() {
+        if (messages.isEmpty()) return
+        val md = buildString {
+            append("# Termind AI 对话\n\n")
+            messages.forEach { (role, content) ->
+                append(if (role == "user") "## 🧑 用户\n\n" else "## 🤖 AI 助手\n\n")
+                append(content); append("\n\n")
+            }
+        }
+        runCatching {
+            ctx.startActivity(android.content.Intent.createChooser(
+                android.content.Intent(android.content.Intent.ACTION_SEND)
+                    .setType("text/markdown").putExtra(android.content.Intent.EXTRA_TEXT, md)
+                    .putExtra(android.content.Intent.EXTRA_TITLE, "Termind 对话.md"),
+                "导出对话"
+            ))
+        }
+    }
     var input by remember { mutableStateOf("") }
     var sending by remember { mutableStateOf(false) }
     val suggestions = listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器")
@@ -333,6 +352,8 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
                                 onClick = { curIdx = i; convoMenu = false })
                         }
                         HorizontalDivider()
+                        DropdownMenuItem(text = { Text("📤 导出当前(Markdown)", color = TextPrimary) },
+                            onClick = { convoMenu = false; exportConvo() })
                         DropdownMenuItem(text = { Text("➕ 新建对话", color = Accent) },
                             onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; convoMenu = false; persistConvos() })
                         if (convos.size > 1) DropdownMenuItem(text = { Text("🗑 删除当前", color = Danger) },

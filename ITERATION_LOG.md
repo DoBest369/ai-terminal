@@ -6,6 +6,14 @@
 
 ---
 
+## A-Diag · 安卓排障工作流真实执行 + AI 总结
+- **内容**：`DiagnosticWorkflow` 加 `joinedCommand(sep)`(各命令用 `; echo sep;` 串成一条 shell)+`composeForAI(outputs)`(工作流名+各命令及输出拼给 AI，对齐 apple)+`SEP` 常量。`ServerWorkspace.runDiagnostic(wf)`：协程一次性 `connectAndExec`(30s) 跑 joinedCommand→按 SEP 拆回各命令输出→终端显原始(脱敏，分隔符换 ──────)→若配了 API Key 则 `AiClient.chat(summaryPrompt, composeForAI)` 生成「AI 结论」显示，否则提示配 Key。排障 Menu 从「填命令框」改为点击直接 runDiagnostic。
+- **改动**：`android/.../OpsWorkflows.kt`(joinedCommand/composeForAI/SEP)、`MainActivity.kt`(ServerWorkspace runDiagnostic + ctx + 菜单)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 16s** → app-debug.apk 30.8MB。推送 d36e4d8。真实排障需真服务器+API Key。
+- **意义**：安卓排障从「把命令填进框」升级为「真跑命令序列→AI 据输出给排查结论」，对齐 apple Z4 完整闭环。
+
+---
+
 ## A-Env · 安卓环境感知 Kotlin 化 + AI 接环境（对齐 apple Z3 护城河）
 - **内容**：`EnvCore.kt`——`ServerProfile`(hostname/os/distro/kernel/arch/currentUser/isRoot/packageManager/services + installedServices/missingServices/`aiSummary`[一行环境摘要]) + `object EnvDetector`(probedServices[nginx/docker/node…] + `detectCommand`[复合 shell：hostname/uname/id/os-release/包管理器/command -v 各服务，前缀 HOST:/UNAME:/USER:/OSREL:/PM:/SVC:] + `parse(output)`→ServerProfile)，移植 apple ServerProfile.swift。`SshClient.fetchEnv`=connectAndExec(detectCommand).map{parse}。`ServerWorkspace` 连接成功后协程 fetchEnv→`onProfile(p)` 上报 + 终端显「🔎 环境摘要」。`TermindApp` 加 `activeProfile` state，ServerWorkspace onProfile 写入；`AIAssistantScreen(profile)` 发消息时把 `profile.aiSummary` 拼进 systemPrompt（"…请结合以上真实服务器环境给出针对性回答"），顶栏副标题显「已感知环境」。
 - **改动**：新增 `android/.../EnvCore.kt`；改 `SshClient.kt`(fetchEnv)、`MainActivity.kt`(TermindApp activeProfile/ServerWorkspace onProfile+探测/AIAssistantScreen 注入)。

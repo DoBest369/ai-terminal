@@ -32,6 +32,9 @@
 
 > **🎉 安卓端核心能力全齐**：连接管理 · 真实 SSH · 交互式 PTY 终端 · 状态面板真采集 · 风险分级/脱敏 · AI 对话+环境感知 · 排障工作流 · 初始化模板 —— 与 apple 端智能运维护城河高度对齐，从零数轮迭代建成。
 
+#### 安卓打磨
+- [x] **A-Diag** 排障工作流真实执行+AI总结 ✅（DiagnosticWorkflow.joinedCommand/composeForAI；ServerWorkspace.runDiagnostic 一次跑全部命令→拆分→终端显原始(脱敏)→AiClient summaryPrompt 总结「AI 结论」；从填命令框升级；构建 16s 出 APK 30.8MB；推送 d36e4d8）
+
 ## 🤖 阶段 Z — 智能 SSH 运维能力（MVP 差异化核心）· 最高优先级
 
 围绕「理解环境→规划→评估风险→确认→验证→回滚」闭环，建 MVP 差异化能力（已具备 SSH/SFTP/分组/密钥/危险拦截/确认/脚本/状态栏）：

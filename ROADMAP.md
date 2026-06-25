@@ -28,6 +28,7 @@
 - [x] **N-Multi-AI** 群发结果 AI 汇总 ✅（BatchScreen 全部完成后「AI 汇总」按钮→拼各连接结果→AiClient.chatStream 流式总结[总览/失败原因/共性/建议]；群发+AI 洞察=单连接工具做不到；构建 15s；推送 4845975）
 - [x] **N-Multi apple** Core 框架 + UI 渲染 ✅（Core BatchRunner[run/summary/composeForAI]+--batch-test；Showcase BatchShowcase[多选+命令风险+结果卡片+AI 汇总入口]+渲染 22-batch.png 核对；swift build；推送 38b7974→6c6f684。真实 SSH 接入[SSHTerminalSession.runCommand] 留 UI TODO）
 - [x] **N-Cron** 批量健康巡检（手动）✅（InspectScreen 统一密码→并发 fetchStatus 全部连接→各服务器 CPU/内存/磁盘卡片+hasWarning 红/绿/错误，异常置顶+「N 台需关注」汇总；ServerListScreen「健康巡检」入口；构建 31s；推送 8ca6f96。定时调度 WorkManager 留 TODO）
+- [x] **N-Cron-AI** 巡检结果 AI 总结 ✅（InspectScreen 汇总条「AI 总结」→各服务器状态拼素材→AiClient.chatStream[总览/资源紧张机器/优先处理]流式；构建 14s；推送 65fdabe）
 
 ### 🤖 安卓原生 backlog（android/ Kotlin+Compose）
 - [x] **A0** 工程骨架 + APK 跑通 ✅（gradle 8.13[缓存] + AGP 8.7.2 + Kotlin 1.9.24 + Compose 1.5.14；MainActivity 连接列表 UI[Termind 顶栏+按分组 ServerCard]；assembleDebug 出 app-debug.apk 14.7MB；推送）

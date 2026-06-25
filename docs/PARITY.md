@@ -46,6 +46,18 @@
 | Z7 风险分级 + 脱敏 | ✅ | ✅ | CommandRisk 四级 + Redactor 双端 |
 | Z8 初始化模板（真执行） | ✅ | ✅ | 5 内置模板双端 |
 
+## ✨ 阶段 N 创新（运维工作台杀手级能力）
+
+| 能力 | apple | android | 说明 |
+|------|:---:|:---:|------|
+| 命令历史（去重/调出） | ✅ | ✅ | 双端 |
+| 批量群发命令 | 🟡 | ✅ | apple Core 框架+UI 渲染；android 完整实测 |
+| 群发结果 AI 汇总 | 🟡 | ✅ | apple composeForAI；android 完整 |
+| 批量健康巡检 | ⬜ | ✅ | android InspectScreen（并发查全部+异常置顶） |
+| 巡检结果 AI 总结 | ⬜ | ✅ | android |
+
+> 阶段 N 让 Termind 从「逐台 SSH」升级为「**一批机器的批量操作 + AI 智能洞察**」——这是单连接 SSH 工具（Xshell/Termius）做不到的运维工作台核心差异化。android 先行落地，apple 框架就绪待 UI 接入。
+
 ## 安全 / 其它
 
 | 能力 | apple | android | 说明 |

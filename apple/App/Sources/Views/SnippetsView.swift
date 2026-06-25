@@ -59,6 +59,29 @@ struct SnippetsView: View {
                     }
                 }
 
+                // N-History：命令历史（点击注入重用）
+                if !model.commandHistory.isEmpty {
+                    Section("命令历史") {
+                        ForEach(model.commandHistory.prefix(10), id: \.self) { cmd in
+                            Button {
+                                if let inject = model.activeSession?.injectCommand {
+                                    inject(cmd); model.recordCommand(cmd); dismiss()
+                                } else { model.toast = "请先打开一个终端会话" }
+                            } label: {
+                                let risk = CommandRisk.riskLevel(cmd)
+                                HStack(spacing: 10) {
+                                    Circle().fill(Color(hex: risk.colorHex)).frame(width: 8, height: 8)
+                                    Text(cmd).font(.system(size: 12, design: .monospaced))
+                                        .foregroundStyle(Theme.textPrimary).lineLimit(1)
+                                    Spacer()
+                                    Image(systemName: "arrow.down.left.circle").foregroundStyle(Theme.textSecondary)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+
                 Section {
                     if model.snippets.isEmpty {
                         Text("暂无片段")

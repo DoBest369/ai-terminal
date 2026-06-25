@@ -130,6 +130,14 @@ final class AppModel: ObservableObject {
     // 命令片段
     @Published var snippets: [CommandSnippet] = []
 
+    // N-History：命令历史（注入命令时记录，可调出重用）
+    @Published var commandHistory: [String] = CommandHistory.load()
+
+    /// 记录一条注入的命令到历史
+    func recordCommand(_ cmd: String) {
+        commandHistory = CommandHistory.add(cmd)
+    }
+
     // UI 状态
     @Published var showSettings = false
     @Published var showSnippets = false
@@ -354,6 +362,7 @@ final class AppModel: ObservableObject {
             toast = "⚠️ 检测到改动关键配置，已先注入备份命令（可在时间线回滚）"
         }
         inject(command)
+        recordCommand(command)   // N-History
     }
 
     /// 运行一个初始化/部署模板（Z8）：把模板全部命令注入当前会话执行，关键配置自动备份。
@@ -726,6 +735,7 @@ final class AppModel: ObservableObject {
                 continue
             }
             session.injectCommand?(cmd.command + "\n")
+            recordCommand(cmd.command)   // N-History
         }
     }
 

@@ -1289,6 +1289,23 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     if (risk.needsConfirm) Text("· 执行前需确认", color = TextSecondary, fontSize = 11.sp)
                 }
             }
+            // A-Complete：命令历史补全建议（输入时显匹配的历史命令，点击填入）
+            if (state == ConnState.CONNECTED && command.trim().isNotEmpty()) {
+                val q = command.trim()
+                val matches = cmdHistory.filter { it != q && it.contains(q, ignoreCase = true) }.take(4)
+                if (matches.isNotEmpty()) {
+                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        matches.forEach { h ->
+                            AssistChip(
+                                onClick = { command = h },
+                                label = { Text(h, fontSize = 11.sp, fontFamily = FontFamily.Monospace, maxLines = 1) },
+                                leadingIcon = { Icon(Icons.Filled.History, null, tint = TextSecondary, modifier = Modifier.size(12.dp)) },
+                                colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
+                            )
+                        }
+                    }
+                }
+            }
             // 命令输入 + 执行（已连接才可输命令；未连接显示「连接」）
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (state == ConnState.CONNECTED) {

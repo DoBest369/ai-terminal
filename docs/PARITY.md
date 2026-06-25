@@ -27,8 +27,8 @@
 | SFTP 浏览 | ✅ | ✅ | |
 | SFTP 查看文件内容 | ✅ | ✅ | |
 | SFTP 下载 / 上传 | ✅ | ✅ | android sftp.get/put + 文件选择器 |
-| SFTP 新建文件夹 / 删除 | 🟡 | ✅ | android sftp.mkdir/rm/rmdir + 二次确认 |
-| SFTP 文件重命名 | 🟡 | ✅ | android sftp.rename |
+| SFTP 新建文件夹 / 删除 | ✅ | ✅ | 双端（apple Citadel createDirectory/rmdir/remove；android sftp.mkdir/rm/rmdir）+ 二次确认 |
+| SFTP 文件重命名 | ✅ | ✅ | 双端 sftp.rename（apple 右键菜单 / android 行图标） |
 | SFTP 路径直接跳转 | 🟡 | ✅ | android 输路径直达深目录 |
 | 终端输出搜索 | ✅ | ✅ | apple SwiftTerm 内置搜索（高亮+上/下导航+定位）；android 高亮+匹配计数 |
 | 终端控制键栏（Tab/Ctrl/方向键） | ✅ | ✅ | 双端；apple TerminalKeyBar（iOS SSH 会话，18 键含 ^R/^U/管道符）+ macOS 物理键盘 |
@@ -96,7 +96,7 @@
 
 - **核心智能运维护城河（Z1–Z8）双端完全对齐** ✅
 - **SSH/终端（含控制键栏）/SFTP/AI（含代码块渲染）/安全/端口转发/跳板机/批量群发/多主题/多对话 双端齐平**
-- 标 🟡 的均为 **android 独有便捷功能**（SFTP 增删改/路径跳转、AI 提示词库、消息长按复制）——apple 可后续补，非核心缺口
+- 标 🟡 的均为 **android 独有便捷功能**（SFTP 路径跳转、AI 提示词库、消息长按复制）——apple 可后续补，非核心缺口
 - 多处经源码核查纠正了文档滞后：apple 终端控制键栏/终端搜索/连接测试/批量群发 实为 ✅
 - apple 为功能最全的旗舰；**android 已是功能完整、体验接近桌面的第二原生端，核心能力与 apple 高度对齐**
 - **android AI 能力已与 apple 完全对齐**（对话/解释/报错/健康/环境感知/流式/停止/重新生成/多对话/持久化/搜索/导出/代码块/消息复制）

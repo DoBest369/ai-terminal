@@ -6,6 +6,15 @@
 
 ---
 
+## apple SFTP 增删改对齐（双端 SFTP 文件管理都完整）
+- **Citadel API 调研**：`.build/checkouts/Citadel/.../SFTPClient.swift` 确认支持 `createDirectory(atPath:)`/`remove(at:)`/`rmdir(at:)`/`rename(at:to:)`（全 async）。
+- **实现**：`SSHTerminalSession`(actor) 加 `sftpMakeDirectory(_)`/`sftpRemove(_, isDirectory:)`(目录 rmdir/文件 remove)/`sftpRename(_, to:)`，含 SSHFriendlyError.translate。`TerminalSessionVM` 包装三方法。`FileBrowserView`：工具栏「新建文件夹」按钮(folder.badge.plus)+`.alert` 输名；行 `.contextMenu` 重命名(pencil)/删除(trash)+确认 alert；catch 用 `catch let e { self.error = ... }` 避免遮蔽。`Showcase.SFTPShowcase` 加新建文件夹图标，渲染 09-sftp。
+- **改动**：`SSHService.swift`(3 SFTP 方法)、`TerminalSessionVM.swift`(包装)、`FileBrowserView.swift`(UI)、`Showcase.swift`(图标)、`apple/screenshots/09-sftp.png`。
+- **验证**：Core+App swift build Build complete；swift run Shots 渲染 09-sftp。推送 4ad9160。**未真机实测**(需真服务器)。
+- **意义**：apple SFTP 文件管理补齐增删改，**双端 SFTP 都完整**(浏览/查看/下载/上传/新建/删除/重命名)。PARITY SFTP 增删改/重命名 apple 🟡→✅。剩余🟡仅 SFTP 路径跳转/AI 提示词库/消息复制(android 独有小便捷)。
+
+---
+
 ## Doc · PARITY 续校正（apple 终端搜索/连接测试 文档滞后纠正）
 - **发现**：读 `apple/App/Sources/Views/TerminalSearchBar.swift` → apple **已有完整终端搜索**(SwiftTerm 内置搜索，增量/上一个/下一个/匹配定位，`ContentView` 接入 `model.searchActive`)，比 android 高亮计数更强(真搜索导航)。读 `ConnectionEditView.swift` → apple **已有测试连接**(line 14-54 内联测试 UI + `ReachabilityChecker.probe`)。两处 PARITY 原标 apple🟡 系滞后。
 - **校正**：终端输出搜索 apple🟡→✅(渲染 13-search.png 确认高亮 ERROR+已定位+上下导航)；连接编辑测试连通 apple🟡→✅。小结：剩余🟡仅 android 独有便捷功能(SFTP 增删改/路径跳转、AI 提示词库、消息长按复制)。

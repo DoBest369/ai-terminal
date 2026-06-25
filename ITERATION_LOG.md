@@ -6,6 +6,13 @@
 
 ---
 
+## U-Z7 · 快捷命令面板接入四级风险颜色（UI 打磨）
+- **内容**：`SnippetsView.snippetRow` 把二元 `snippet.isDangerous`(红/普通) 升级为 `CommandRisk.riskLevel(command)` 四级：低=`chevron.left.forwardslash.chevron.right` + Theme.accent；中/高/极高=`risk.icon` + `Color(hex: risk.colorHex)`，并在标题旁加风险标签 Capsule 徽章（risk.label：注意/高风险/极高危，背景 riskColor 0.22）。`DevTools/Showcase.swift` 的 snipRow 同步；`Screenshots.swift` SnippetsShowcase 加 3 风险示例片段（vim 配置=中/systemctl restart=高/rm -rf=极高）。
+- **改动**：`apple/App/Sources/Views/SnippetsView.swift`、`DevTools/Showcase.swift`、`DevTools/Screenshots.swift`。
+- **验证**：Core+App swift build 通过；渲染 `08-snippets.png`——安全命令珊瑚 `</>` 无徽章，编辑Nginx=橙「注意」、重启Nginx=深橙「高风险」、清理日志=红「极高危」，四级风险色彩徽章清晰。推送 f40e3ff。
+
+---
+
 ## Z8 · 一键服务器初始化/部署模板（智能运维差异化第七项，阶段 Z 7/8）
 - **内容**：Core 新增 `SetupTemplate.swift`——`SetupStep`(title+commands+risk[复用 CommandRisk max])、`SetupTemplate`(id/name/icon/description/steps + allCommands/risk + `previewText()`[执行前预览：步骤序号+标题+风险标签+各命令 $ + 「⚠️ 预计影响…」，对齐 PRODUCT §16.3]) + `builtins` 5 模板：Ubuntu Web 服务器初始化（10 步：更新系统/基础工具/时区/建 deploy 用户/SSH 密钥/加固 SSH[关 root 密码登录]/Nginx/Docker/UFW/Fail2Ban）、Docker 服务器、Node.js 环境、静态网站部署、LNMP。
 - **改动**：新增 `apple/AITerminalCore/.../SetupTemplate.swift`；改 `DevTools/Screenshots.swift`(templateTest)+`ShotsMain/main.swift`(--template-test)。

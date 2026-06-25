@@ -32,6 +32,11 @@
 
 > **阶段 Z 进度 7/8**：Z1-Z5,Z7,Z8 ✅ 落地原生 Core+逻辑+自测；唯 **Z6 状态面板升级**（需更多 UI/真连）待做。智能运维 MVP 差异化核心基本成形。
 
+### UI 接入打磨
+- [x] **U-Z7** 快捷命令面板接入四级风险颜色 ✅（SnippetsView snippetRow 用 CommandRisk.riskLevel 替二元 isDangerous：图标+colorHex+风险徽章[注意/高风险/极高危]；Showcase+3 风险示例；渲染 08-snippets 验证四级色彩清晰；推送 f40e3ff）
+- [ ] **U-Z8** 工具栏「初始化模板」菜单 + previewText 预览确认后注入
+- [ ] **U-Z4** 排障菜单点击先 confirmationDialog 预览命令再注入
+
 
 
 ## 📦 原生重构 backlog（apple/ macOS·iOS 旗舰，按愿景重设计）

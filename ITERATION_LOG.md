@@ -6,6 +6,17 @@
 
 ---
 
+## A-Keys + A-Md + A-Copy + 质量收口（安卓终端/AI 体验打磨）
+- **A-Keys**（终端控制键栏）：ServerWorkspace 终端区下方横滑键栏 Tab/Esc/Ctrl+C/D/L/Z/A/E+方向键↑↓←→→`shellSession.write` 对应控制字符( 等)/ESC 序列(ESC[A 等)。移动端无 Ctrl/Tab，让 vim/top/交互程序可用。构建 19s，推送 370a550。
+- **A-Md**（AI 代码块渲染）：ChatBubble 按 ``` 围栏拆分，代码块单独渲染等宽深色框(绿字+横滑)，其余文本正常。手写轻量无依赖。构建 19s，推送 dc40f61。
+- **A-Copy**（代码块复制）：代码块右上角复制图标→`clipboard.setText` 复制到剪贴板，AI 运维命令一键复制。构建 19s，推送 199272e。
+- **质量收口**：android `assembleDebug` **零 deprecated warning**(早前 InsertDriveFile→Description 等已清)；apple `AITerminalCore`+`App` swift build 均 Build complete；--history/--batch/--risk/--metrics 四自测全 true，无回归。
+- **改动**：`MainActivity.kt`(控制键栏/ChatBubble 代码块+复制)、`docs/PARITY.md`。
+- **验证**：android 各项 BUILD SUCCESSFUL 无 warning；apple swift build + 4 自测全过。
+- **意义**：安卓终端(彩色+控制键栏)与 AI(代码块渲染+复制)体验进一步贴近桌面/专业工具。双端质量稳健。
+
+---
+
 ## N-CronAuto · 安卓定时后台巡检 + 离线通知（主动运维）
 - **内容**：build.gradle 加 `androidx.work:work-runtime-ktx:2.9.0`；Manifest 加 `POST_NOTIFICATIONS`。`InspectWorker(CoroutineWorker)`：doWork 对 ConnectionStore.load 全部连接并发 `Reachability.probe`→离线集合非空则 `notify`(NotificationChannel「服务器巡检」+ NotificationCompat BigText，POST_NOTIFICATIONS 已授才发)；`enable(minutes=15)`(PeriodicWorkRequestBuilder maxOf(15,...) + enqueueUniquePeriodicWork UPDATE)/`disable`(cancelUniqueWork)/`ensureChannel`。`SettingsScreen`「定时后台巡检」Switch：开→33+ 请求 POST_NOTIFICATIONS 权限(RequestPermission contract)+InspectWorker.enable；关→disable；`SettingsStore.autoInspect` 持久化。
 - **改动**：`android/app/build.gradle.kts`、`AndroidManifest.xml`、新增 `InspectWorker.kt`、`SettingsStore.kt`、`MainActivity.kt`(设置开关)。

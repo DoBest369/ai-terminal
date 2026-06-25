@@ -19,6 +19,8 @@
 | SFTP 浏览 | ✅ | ✅ | |
 | SFTP 查看文件内容 | ✅ | ✅ | |
 | SFTP 下载 / 上传 | ✅ | ✅ | android sftp.get/put + 文件选择器 |
+| 终端控制键栏（Tab/Ctrl/方向键） | 🟡 | ✅ | android（移动端刚需）；apple 物理键盘 |
+| AI 代码块渲染 + 一键复制 | 🟡 | ✅ | android ChatBubble 代码块框+复制 |
 
 ## AI 助手
 

@@ -52,6 +52,7 @@
 |------|:---:|:---:|------|
 | 凭据安全存储 | ✅ | ✅ | apple Keychain / android EncryptedSharedPreferences |
 | 快捷命令片段（风险着色） | ✅ | ✅ | |
+| 命令历史（去重/置顶/限长/调出） | ✅ | ✅ | N-History 双端创新（android UI / apple Core+自测） |
 | 多主题配色 | ✅ | ✅ | 双端 5 套（午夜/One Dark/Dracula/Solarized/Nord） |
 | 分屏 / 会话录制 | ✅ | ⬜ | apple 独有 |
 

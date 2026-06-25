@@ -6,6 +6,14 @@
 
 ---
 
+## N-History · 命令历史（阶段 N 双端创新首作）
+- **android**：`CommandHistory.kt`(SharedPreferences 存命令，add 去重+置顶+限50，load/remove/clear)；`ServerWorkspace` send 时记历史(cmdHistory state)；命令框旁「历史」IconButton(有记录高亮)→ModalBottomSheet 列历史(CommandRisk 色点+等宽，点击填命令框，单条 X 删/「清空」)。构建 19s，推送 9c8a6aa。
+- **apple**：Core `CommandHistory.swift`——`updated(list, adding:, limit:)` 纯逻辑(去重 filter+置顶 insert 0+prefix 限长) + `load/add/remove/clear`(UserDefaults)。`--history-test` 自测：去重置顶=true；限长=true(60 条加入后剩 50，first=cmd59 last=cmd10)。**swift package clean 后全量编译通过**(新 Core 文件 SPM 路径依赖缓存)。推送 04d9623。
+- **改动**：新增 `android/.../CommandHistory.kt`、`apple/AITerminalCore/.../CommandHistory.swift`；改 `MainActivity.kt`(历史 UI)、`Screenshots.swift`(historyTest)+`main.swift`(--history-test)。
+- **意义**：PARITY 收官后转「双端共同创新」——命令历史是运维高频刚需。阶段 N 启动。下一步 N-Multi 批量群发命令(多服务器同命令，运维杀手级)。
+
+---
+
 ## A-ConvoPersist + A-ConvoExport + A-ConvoSearch · 安卓 AI 对话能力补全（与 apple 完全对齐）
 - **A-ConvoPersist**：`ConvoStore.kt`(SharedPreferences 存对话列表 JSON[每对话=消息数组{role,content}]，save/load)；AIAssistantScreen convos 从 ConvoStore.load 初始化(toMutableStateList)，发消息回复完成/新建/删除后 persistConvos()。重启不丢对话。构建 18s，推送 908ca54。
 - **A-ConvoExport**：`exportConvo()` 当前对话拼 Markdown(# 标题 + ## 用户/AI 助手 + content)→`Intent.ACTION_SEND`(text/markdown) 系统分享；对话菜单「📤 导出当前」。构建 18s，推送 1dbd4b7。

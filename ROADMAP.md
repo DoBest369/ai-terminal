@@ -22,6 +22,10 @@
 > apple/ 保留为 macOS/iOS 原生旗舰（按 SSH 运维愿景重设计），不推倒重来——它本就是原生 Swift。
 > 可选后端 `relay/`（Node WebSocket→SSH）保留供原生移动端可选使用。
 
+### ✨ 阶段 N — 双端产品创新（PARITY 收官后，加运维工作台杀手级能力）
+- [x] **N-History** 命令历史 + 调出重用 ✅（android CommandHistory.kt[SharedPreferences 去重/置顶/限50]+ServerWorkspace 历史按钮+sheet[风险色点/点击填命令/删/清空]；apple Core CommandHistory[updated 纯逻辑+UserDefaults]+--history-test 自测过；双端落地；推送 9c8a6aa→04d9623）
+- [ ] **N-Multi** 批量群发命令（多服务器同命令，运维杀手级）/ **N-Cron** 定时巡检提醒
+
 ### 🤖 安卓原生 backlog（android/ Kotlin+Compose）
 - [x] **A0** 工程骨架 + APK 跑通 ✅（gradle 8.13[缓存] + AGP 8.7.2 + Kotlin 1.9.24 + Compose 1.5.14；MainActivity 连接列表 UI[Termind 顶栏+按分组 ServerCard]；assembleDebug 出 app-debug.apk 14.7MB；推送）
 - [x] **A1** 安卓真实 SSH（sshj exec）✅（sshj 0.38.0+slf4j-nop+coroutines 依赖，packaging 排 META-INF 冲突；SshClient.connectAndExec[SSHClient+PromiscuousVerifier MVP+authPassword+exec stdout/stderr/退出码，IO+超时+Result]；ServerWorkspace 密码框+命令框+执行+滚动输出；构建 7m 出 APK 25.9MB[含 sshj/BC]，无打包冲突；推送 479ef31。实连需真服务器；A1b PTY 交互终端待做）

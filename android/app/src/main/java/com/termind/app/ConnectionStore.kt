@@ -25,13 +25,14 @@ data class ServerConn(
     val authType: AuthType = AuthType.PASSWORD,
     val colorTag: ColorTag = ColorTag.NONE,
     val startupCommand: String = "",
+    val lastUsed: Long = 0L,
     val online: Boolean = false
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id); put("name", name); put("host", host); put("user", user)
         put("port", port); put("group", group); put("note", note)
         put("authType", authType.name); put("colorTag", colorTag.name)
-        put("startupCommand", startupCommand)
+        put("startupCommand", startupCommand); put("lastUsed", lastUsed)
     }
 }
 
@@ -54,7 +55,8 @@ object ConnectionStore {
                     group = o.optString("group"), note = o.optString("note"),
                     authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD),
                     colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE),
-                    startupCommand = o.optString("startupCommand")
+                    startupCommand = o.optString("startupCommand"),
+                    lastUsed = o.optLong("lastUsed", 0L)
                 )
             }
         }.getOrElse { seedDefaults() }
@@ -84,7 +86,8 @@ object ConnectionStore {
                     port = o.optInt("port", 22), group = o.optString("group"), note = o.optString("note"),
                     authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD),
                     colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE),
-                    startupCommand = o.optString("startupCommand")
+                    startupCommand = o.optString("startupCommand"),
+                    lastUsed = o.optLong("lastUsed", 0L)
                 )
             }
         }.getOrElse { emptyList() }

@@ -185,7 +185,10 @@ fun TermindApp() {
                         imported.filter { "${it.user}@${it.host}:${it.port}" !in existing }.forEach { conns.add(it) }
                         persist()
                     },
-                    onOpen = { detail = it },
+                    onOpen = { c ->
+                        val i = conns.indexOfFirst { it.id == c.id }; if (i >= 0) { conns[i] = conns[i].copy(lastUsed = System.currentTimeMillis()); persist() }
+                        detail = c
+                    },
                     onEdit = { editing = it; showEditor = true },
                     onDelete = { conns.remove(it); persist() }
                 )
@@ -240,6 +243,8 @@ fun ServerListScreen(
     var overflow by remember { mutableStateOf(false) }
     var searchActive by remember { mutableStateOf(false) }   // A-Filter
     var search by remember { mutableStateOf("") }
+    var sortMenu by remember { mutableStateOf(false) }       // A-Sort
+    var sortMode by remember { mutableStateOf(0) }           // 0=名称 1=最近 2=在线
     Column {
         // 顶栏 + 刷新状态
         Surface(color = Surface) {
@@ -250,6 +255,16 @@ fun ServerListScreen(
                 Spacer(Modifier.width(8.dp))
                 Text("智能 SSH 运维", fontSize = 12.sp, color = TextSecondary)
                 Spacer(Modifier.weight(1f))
+                Box {
+                    IconButton(onClick = { sortMenu = true }, enabled = conns.isNotEmpty()) {
+                        Icon(Icons.Filled.Sort, "排序", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                    }
+                    DropdownMenu(expanded = sortMenu, onDismissRequest = { sortMenu = false }) {
+                        listOf("名称", "最近使用", "在线优先").forEachIndexed { i, label ->
+                            DropdownMenuItem(text = { Text(label, color = if (sortMode == i) Accent else TextPrimary) }, onClick = { sortMode = i; sortMenu = false })
+                        }
+                    }
+                }
                 IconButton(onClick = { searchActive = !searchActive; if (!searchActive) search = "" }, enabled = conns.isNotEmpty()) {
                     Icon(Icons.Filled.Search, "搜索连接", tint = if (searchActive) Accent else TextSecondary, modifier = Modifier.size(18.dp))
                 }
@@ -290,8 +305,14 @@ fun ServerListScreen(
             return
         }
         val q = search.trim()
-        val shown = if (q.isEmpty()) conns else conns.filter {
+        val filtered = if (q.isEmpty()) conns.toList() else conns.filter {
             it.name.contains(q, true) || it.host.contains(q, true) || it.user.contains(q, true) || it.group.contains(q, true)
+        }
+        // A-Sort：名称/最近使用/在线优先
+        val shown = when (sortMode) {
+            1 -> filtered.sortedByDescending { it.lastUsed }
+            2 -> filtered.sortedByDescending { reachMap[it.id] == true }
+            else -> filtered.sortedBy { it.name.lowercase() }
         }
         val grouped = shown.groupBy { it.group }
         LazyColumn(

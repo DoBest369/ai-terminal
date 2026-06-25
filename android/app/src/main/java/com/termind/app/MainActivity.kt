@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -60,12 +61,31 @@ enum class Tab(val label: String, val icon: ImageVector) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermindApp() {
+    val ctx = LocalContext.current
     var tab by remember { mutableStateOf(Tab.Servers) }
     var detail by remember { mutableStateOf<ServerConn?>(null) }
+    // 连接列表：从 store 加载，增删改后持久化
+    val conns = remember { mutableStateListOf<ServerConn>().apply { addAll(ConnectionStore.load(ctx)) } }
+    var editing by remember { mutableStateOf<ServerConn?>(null) }   // 当前编辑中的连接
+    var showEditor by remember { mutableStateOf(false) }
+    fun persist() = ConnectionStore.save(ctx, conns)
 
     // 连接详情「工作区」覆盖在最上层
     detail?.let { conn ->
         ServerWorkspace(conn, onBack = { detail = null })
+        return
+    }
+    // 新建/编辑表单覆盖
+    if (showEditor) {
+        EditConnectionScreen(
+            existing = editing,
+            onCancel = { showEditor = false; editing = null },
+            onSave = { saved ->
+                val idx = conns.indexOfFirst { it.id == saved.id }
+                if (idx >= 0) conns[idx] = saved else conns.add(saved)
+                persist(); showEditor = false; editing = null
+            }
+        )
         return
     }
 
@@ -87,11 +107,23 @@ fun TermindApp() {
                     )
                 }
             }
+        },
+        floatingActionButton = {
+            if (tab == Tab.Servers) {
+                FloatingActionButton(onClick = { editing = null; showEditor = true }, containerColor = Accent) {
+                    Icon(Icons.Filled.Add, "新建连接", tint = Color.White)
+                }
+            }
         }
     ) { padding ->
         Box(Modifier.padding(padding)) {
             when (tab) {
-                Tab.Servers -> ServerListScreen(demoConns) { detail = it }
+                Tab.Servers -> ServerListScreen(
+                    conns = conns,
+                    onOpen = { detail = it },
+                    onEdit = { editing = it; showEditor = true },
+                    onDelete = { conns.remove(it); persist() }
+                )
                 Tab.AI -> AIAssistantScreen()
                 Tab.Settings -> SettingsScreen()
             }
@@ -119,17 +151,30 @@ private fun TopBar(title: String, subtitle: String? = null) {
 }
 
 @Composable
-fun ServerListScreen(conns: List<ServerConn>, onOpen: (ServerConn) -> Unit) {
+fun ServerListScreen(
+    conns: List<ServerConn>,
+    onOpen: (ServerConn) -> Unit,
+    onEdit: (ServerConn) -> Unit,
+    onDelete: (ServerConn) -> Unit
+) {
     Column {
         TopBar("Termind", "智能 SSH 运维")
+        if (conns.isEmpty()) {
+            Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                Icon(Icons.Filled.Dns, null, tint = TextSecondary, modifier = Modifier.size(48.dp))
+                Spacer(Modifier.height(12.dp))
+                Text("还没有连接，点右下角 + 新建", color = TextSecondary, fontSize = 14.sp)
+            }
+            return
+        }
         val grouped = conns.groupBy { it.group }
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             grouped.forEach { (group, list) ->
-                item { Text(group, fontSize = 12.sp, color = TextSecondary, modifier = Modifier.padding(top = 14.dp, bottom = 2.dp)) }
-                items(list) { conn -> ServerCard(conn) { onOpen(conn) } }
+                if (group.isNotEmpty()) item { Text(group, fontSize = 12.sp, color = TextSecondary, modifier = Modifier.padding(top = 14.dp, bottom = 2.dp)) }
+                items(list, key = { it.id }) { conn -> ServerCard(conn, onClick = { onOpen(conn) }, onEdit = { onEdit(conn) }, onDelete = { onDelete(conn) }) }
             }
         }
     }
@@ -137,7 +182,8 @@ fun ServerListScreen(conns: List<ServerConn>, onOpen: (ServerConn) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServerCard(conn: ServerConn, onClick: () -> Unit) {
+fun ServerCard(conn: ServerConn, onClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
+    var menu by remember { mutableStateOf(false) }
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(containerColor = SurfaceLight.copy(alpha = 0.5f)),
@@ -152,7 +198,13 @@ fun ServerCard(conn: ServerConn, onClick: () -> Unit) {
                 Text("${conn.user}@${conn.host}:${conn.port}", color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
                 if (conn.note.isNotEmpty()) Text("📝 ${conn.note}", color = TextSecondary.copy(alpha = 0.85f), fontSize = 11.sp)
             }
-            Icon(Icons.Filled.ChevronRight, null, tint = TextSecondary)
+            Box {
+                IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "更多", tint = TextSecondary) }
+                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    DropdownMenuItem(text = { Text("编辑") }, onClick = { menu = false; onEdit() })
+                    DropdownMenuItem(text = { Text("删除") }, onClick = { menu = false; onDelete() })
+                }
+            }
         }
     }
 }
@@ -255,12 +307,4 @@ private fun RowScope.StatCell(label: String, value: String, color: Color) {
     }
 }
 
-// ===== 占位数据 =====
-data class ServerConn(val name: String, val host: String, val user: String, val port: Int, val group: String, val online: Boolean, val note: String = "")
-
-val demoConns = listOf(
-    ServerConn("生产 Web 01", "web01.example.com", "deploy", 22, "生产环境", true, "官网 + API"),
-    ServerConn("数据库主机", "db.internal.net", "admin", 22, "生产环境", true, "MySQL 主库"),
-    ServerConn("开发机", "dev.example.com", "deploy", 2222, "开发环境", false),
-    ServerConn("香港节点", "hk.example.com", "root", 22, "海外", false, "SSL 7 天后过期")
-)
+// ServerConn + 持久化在 ConnectionStore.kt

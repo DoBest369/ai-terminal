@@ -59,7 +59,10 @@ function createWindow() {
     },
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 12, y: 12 },
-    backgroundColor: '#1a1a2e',
+    // iOS 26 液态玻璃：macOS 窗口级毛玻璃材质（renderer 半透明背景透出）
+    vibrancy: 'under-window',
+    visualEffectState: 'active',
+    backgroundColor: process.platform === 'darwin' ? '#00000000' : '#1a1a2e',
   });
 
   mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));

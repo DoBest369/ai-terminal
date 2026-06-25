@@ -6,6 +6,14 @@
 
 ---
 
+## 里程碑 · PC 端编译打包测试 + 品牌重塑 Termind + 公开仓库
+- **PC 端（Electron）真机跑通**：补下 Electron 27.3.11 二进制（首次 npm install 跳过）；electron-rebuild CLI 在 Node v25 因 yargs ESM 崩 → 改用 @electron/rebuild 库 API 为 Electron ABI 119 重编 node-pty（验证运行时可加载）；`electron .` 启动 → 截图确认窗口渲染、**本地终端实时显示真实系统信息**（主机/CPU/内存）→ 全链路打通；`electron-builder --dir` 出 .app。
+- **品牌重塑 X0**：命名 **Termind**（Terminal+Mind，会思考的智能终端）；重设计图标（AppIconView：macOS squircle + 珊瑚红渐变 + 顶部高光 + `>_` + 右上 AI 火花 sparkles），swift run Shots 重渲染 icon-1024.png → iconutil 生成 build/icon.icns；package.json 顶层 productName + build.appId/icon（mac/win/linux）；main.js app.setName('Termind')+dock 图标+窗口 title；renderer 侧栏 logo 改 Termind。截图验证侧栏显示「⚡ Termind」。
+- **公开仓库**：安全扫描无真实密钥（仅 mock 占位）；gh 创建公开仓库 github.com/DoBest369/ai-terminal，origin 替换，提交全部 102 文件 + 品牌改动并推送 main（56fa6f1 → 5dda686）。
+- **新方向（阶段 X）**：用户要求 iOS 26 液态玻璃风 UI 改版 + 功能自动扩展 + 性能优化，转入持续自动迭代。
+
+---
+
 ## C-20 · 巩固轮 20（诚实判定无高价值新项 + 全面体检）
 - **挑项判断**：探查最可能的 UX 缺口「侧边栏搜索无匹配是否有提示」——发现 SidebarView line 94-97 已有 `else if filtered.isEmpty { Text("无匹配「\(search)」的连接") }`，已处理完善，不重复造。成熟期诚实判定本轮无高价值新功能项，转做扎实巩固。
 - **全量构建**：`apple/App swift build`（含 Core）✓、`node --check src/main/main.js`（仓库根）✓、`npm run build` compiled successfully ✓。

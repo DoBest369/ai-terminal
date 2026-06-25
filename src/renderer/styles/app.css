@@ -40,7 +40,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
+  /* 液态玻璃：mac 透出窗口 vibrancy；win/linux 由窗口 backgroundColor 兜底 */
+  background: transparent;
   color: var(--text-primary);
   overflow: hidden;
 }
@@ -59,15 +60,18 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  background: var(--surface);
+  background: transparent;
   z-index: 1000;
 }
 
-/* 侧边栏 */
+/* 侧边栏 —— 液态玻璃面板（主题感知半透明 + 毛玻璃 + 顶部高光） */
 .sidebar {
   width: 280px;
-  background: var(--surface);
-  border-right: 1px solid var(--surface-light);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  -webkit-backdrop-filter: blur(34px) saturate(185%);
+  backdrop-filter: blur(34px) saturate(185%);
+  border-right: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
   -webkit-app-region: drag;

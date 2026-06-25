@@ -6,6 +6,13 @@
 
 ---
 
+## Z3 · 环境感知（智能运维护城河核心）
+- **内容**：Core 新增 `ServerProfile.swift`——`ServerProfile`（hostname/os/distro/kernel/arch/currentUser/isRoot/packageManager/services[服务→是否装]/detectedAt + installedServices/missingServices/aiSummary 摘要）；`EnvDetector`（probedServices[nginx/docker/node/…] + `detectCommand` 复合 shell 探测命令[hostname/uname/id/os-release/包管理器/command -v 各服务，用 HOST:/UNAME:/USER:/OSREL:/PM:/SVC: 前缀分段] + `parse(_:)` 把输出解析成 ServerProfile）。AppModel 加 `@Published serverProfile`，`runAICompletion` 把 `serverProfile?.aiSummary` 并入系统提示（让 命令解释/报错分析/对话 都基于真实环境）。
+- **改动**：新增 `apple/AITerminalCore/.../ServerProfile.swift`；改 `apple/App/Sources/AppModel.swift`、`DevTools/Screenshots.swift`(envDetectTest)+`ShotsMain/main.swift`(--env-detect-test)。
+- **验证**：`swift package clean`（SPM 路径依赖缓存未刷新新文件，clean 后修复）+ 全量 swift build 通过；`--env-detect-test`→「解析正确=true；摘要=当前服务器环境：系统 Ubuntu 22.04.3 LTS (x86_64) · 用户 deploy · 包管理器 apt · 已装 docker,mysql,nginx · 未装 node,redis」。推送 511fa9d。真实远端探测待会话接入（需真连服务器）。
+
+---
+
 ## Z2 · AI 报错分析（智能运维 MVP 差异化第二项）
 - **内容**：Core 加 `errorAnalysisPrompt`（报错分析模块：含义/最可能原因/可执行修复[可 [EXECUTE] 但先说作用风险、高危 ⚠️]/验证 四段；熟悉 502/Permission denied/Connection refused/No space left/address already in use/nginx 语法/SSL/端口占用/服务未启动 等；信息不足给查看命令）。AppModel 加 `analyzeError(_:)`（仿 explainCommand：校验配置 → 追加「分析这段报错并给修复：```text```」→ runAICompletion(systemPrompt: errorAnalysisPrompt)）。AIAgentView 输入栏在「解释」按钮后加「分析报错」Button（exclamationmark.magnifyingglass，danger 色，canSend 可点）。
 - **改动**：`apple/AITerminalCore/.../AIService.swift`、`apple/App/Sources/AppModel.swift`、`Views/AIAgentView.swift`。

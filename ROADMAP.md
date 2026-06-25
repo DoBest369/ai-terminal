@@ -57,6 +57,8 @@
 - [x] **Z6** 服务器状态面板升级 ✅（Core: SystemInfo 扩展 disk/services/healthSummary/hasWarning/cpuSeen + probe/parse + --metrics-test 自测过；UI: ServerStatusShowcase 健康摘要条+CPU/内存/磁盘进度条+服务绿红点+负载/运行，渲染 21-server-status 验证[发现异常/磁盘90%/mysql停 清晰]；双端 build；推送 b37a0a5→f7a6fd2）
 
 > **🎉🎉🎉 阶段 Z 全部完成（8/8）**：apple 端智能运维 Z1-Z8 Core+UI 全落地，android 端能力全对齐。Termind 智能 SSH 运维护城河双端成形。
+
+- [x] **Z6b** 状态面板↔AI 排障联动 ✅（Core healthAnalysisPrompt；AppModel.diagnoseHealth[systemInfo.healthSummary→AI 健康分析]；StatusBarView 加磁盘进度条+「问 AI」按钮(hasWarning 时「异常·问 AI」danger 高亮)；双端 build；推送 6a7e4eb）——实现产品愿景的「面板发现异常→一键问 AI 怎么办」联动
 - [x] **Z7** 命令风险分级 + 敏感输出脱敏 ✅（Core CommandRisk 四级[low/medium/high/critical]+riskLevel+label/colorHex/needsConfirm/icon；isDangerous 委托 riskLevel.needsConfirm 兼容；Redactor.redact 打码 password/token/sk-/Bearer/AKIA/私钥块；--risk-test 全过；双端 build；推送 78a1ff8。待 UI 用风险颜色标注 + 高危二次确认接入）
 - [x] **Z8** 一键服务器初始化/部署模板 ✅（Core SetupTemplate+SetupStep+5 内置[Ubuntu Web 初始化 10 步/Docker/Node/静态站/LNMP]+previewText 执行前预览[步骤+命令+风险+预计影响]+risk 复用 CommandRisk；--template-test 过；双端 build；推送 eae6105。UI 入口接入待后续）
 

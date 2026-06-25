@@ -6,6 +6,14 @@
 
 ---
 
+## Z6b · apple 状态面板↔AI 排障联动（面板↔AI 闭环）
+- **内容**：Core 加 `healthAnalysisPrompt`（健康分析模块提示：① 总评 ② 异常定位 ③ 处置建议[EXECUTE]/⚠️ ④ 验证；资源 >85% 或关键服务停视为需立即关注）。`AppModel.diagnoseHealth()`：guard 配置/aiProcessing，取 `activeSession?.systemInfo.healthSummary`（空则 toast 提示先连接采集），拼 uptime/CPU 核数为上下文 user 消息 → `runAICompletion(systemPrompt: healthAnalysisPrompt)`。`StatusBarView`：加 `@EnvironmentObject model`；compact bar 加磁盘 metricItem(diskPercent>85% warn) + 「问 AI」Button（远程会话 && healthSummary 非空才显示；hasWarning 时文案「异常·问 AI」+ Theme.danger 高亮，否则「问 AI」+ accent），点击 `model.diagnoseHealth()`。
+- **改动**：`apple/AITerminalCore/.../AIService.swift`(healthAnalysisPrompt)、`apple/App/Sources/AppModel.swift`(diagnoseHealth)、`Views/StatusBarView.swift`(磁盘+问AI按钮+EnvironmentObject)。
+- **验证**：Core+App swift build 通过。数据流打通：SystemInfo.healthSummary → diagnoseHealth → AI 健康分析（真实 AI 回复需 Key+真服务器）。推送 6a7e4eb。
+- **意义**：实现产品愿景「面板↔命令↔AI 联动」——状态面板发现异常，一键让 AI 结合真实指标给排查/优化建议，闭环更完整。
+
+---
+
 ## A-Secure · 安卓 API Key 加密存储（对齐 apple Keychain）
 - **内容**：build.gradle.kts 加 `androidx.security:security-crypto:1.1.0-alpha06`。`SettingsStore` 重构：`securePrefs(ctx)` 用 `MasterKey.Builder(AES256_GCM)` + `EncryptedSharedPreferences.create(AES256_SIV/AES256_GCM)`（runCatching 失败回退普通 prefs 保可用）；`loadApiKey` 先读加密，否则读旧普通 prefs 明文→搬进加密+清旧（迁移）；`saveApiKey` 走加密；模型等非敏感留普通 prefs。
 - **改动**：`android/app/build.gradle.kts`、`SettingsStore.kt`。

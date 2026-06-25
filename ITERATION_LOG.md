@@ -6,6 +6,14 @@
 
 ---
 
+## A-HealthAI · 安卓状态面板↔AI 联动（对齐 apple Z6b，双端一致）
+- **内容**：`ServerStatus`(OpsCore.kt)加 `pct()`(从格式化串如"47%"/"36G/80G (90%)"抽百分比) + `cpuPercent/diskPercent` + `hasWarning`(CPU/磁盘>85%) + `healthSummary`(拼 CPU/内存/磁盘+告警，对齐 apple SystemInfo.healthSummary)。`AiClient.HEALTH_PROMPT`(健康分析:总评/异常定位/处置建议/验证)。`ServerWorkspace` 状态面板：CPU/磁盘 StatCell 颜色 >85% 转 Danger；加「问 AI」IconButton(hasWarning→Warning 图标红高亮)→`showHealthAI`→`HealthAISheet`(ModalBottomSheet：状态摘要置顶 + LaunchedEffect 调 AiClient.chatStream 流式把 AI 健康分析逐字追加显示，未配 Key 提示)。
+- **改动**：`OpsCore.kt`(ServerStatus 扩展)、`AiClient.kt`(HEALTH_PROMPT)、`MainActivity.kt`(状态面板问AI按钮+HealthAISheet)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 17s** → app-debug.apk。推送 15f597d。真实分析需 Key+真服务器。
+- **意义**：双端「状态面板发现异常→一键问 AI」联动一致（apple Z6b + android A-HealthAI），面板↔AI 闭环双端齐。
+
+---
+
 ## Z6b · apple 状态面板↔AI 排障联动（面板↔AI 闭环）
 - **内容**：Core 加 `healthAnalysisPrompt`（健康分析模块提示：① 总评 ② 异常定位 ③ 处置建议[EXECUTE]/⚠️ ④ 验证；资源 >85% 或关键服务停视为需立即关注）。`AppModel.diagnoseHealth()`：guard 配置/aiProcessing，取 `activeSession?.systemInfo.healthSummary`（空则 toast 提示先连接采集），拼 uptime/CPU 核数为上下文 user 消息 → `runAICompletion(systemPrompt: healthAnalysisPrompt)`。`StatusBarView`：加 `@EnvironmentObject model`；compact bar 加磁盘 metricItem(diskPercent>85% warn) + 「问 AI」Button（远程会话 && healthSummary 非空才显示；hasWarning 时文案「异常·问 AI」+ Theme.danger 高亮，否则「问 AI」+ accent），点击 `model.diagnoseHealth()`。
 - **改动**：`apple/AITerminalCore/.../AIService.swift`(healthAnalysisPrompt)、`apple/App/Sources/AppModel.swift`(diagnoseHealth)、`Views/StatusBarView.swift`(磁盘+问AI按钮+EnvironmentObject)。

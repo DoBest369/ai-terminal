@@ -41,6 +41,7 @@
 - [x] **A-Rollback** 操作回滚 Kotlin 化 ✅（RollbackCore.kt OpRollback[criticalPrefixes/isCriticalConfig/criticalTargets/backupCommand/sshAutoRollbackCommand]+OpTimelineEntry[rollbackCommand]，移植 apple；ServerWorkspace.send 改关键配置前自动 cp 备份+记 opTimeline；顶栏「时间线」History 入口→ModalBottomSheet 列操作+可回滚项一键回滚；构建 17s 出 APK 30.8MB；推送 8425732）
 
 - [x] **A-FileView** SFTP 查看文本文件内容 ✅（SshClient.readFile[head -c 200KB 限大小+单引号转义]；SftpBrowser 点文件→openFile 读→AlertDialog 滚动显示(脱敏)；构建 17s 出 APK 30.8MB；推送 f922570）
+- [x] **A-HealthAI** 状态面板↔AI 联动 ✅（ServerStatus.healthSummary/hasWarning/cpuPercent/diskPercent；AiClient.HEALTH_PROMPT；ServerWorkspace 状态面板 CPU/磁盘>85% 红+「问 AI」按钮[告警高亮]→HealthAISheet chatStream 流式分析；对齐 apple Z6b；构建 17s；推送 15f597d）
 - [x] **A-Secure** API Key 加密存储 ✅（security-crypto:1.1.0-alpha06；SettingsStore API Key 走 EncryptedSharedPreferences[MasterKey AES256_GCM]，对齐 apple Keychain；旧明文→加密迁移+失败回退；构建 1m12s 加 Tink 触发 multidex；推送 9be395f）
 - [x] **A-AIActions** AI 快捷入口（命令解释+报错分析）✅（AiClient EXPLAIN_PROMPT/ERROR_PROMPT[对齐 apple commandExplain/errorAnalysis]；AIAssistantScreen.send 加 basePrompt 参数；输入栏上方「解释命令」(灯泡)「分析报错」(虫子)AssistChip 流式发送；文件图标改 Description；构建 17s 出 APK 30.8MB；推送 3b1c33a）
 

@@ -945,12 +945,23 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
             // 登录凭据（仅未连接时显示；A-KeyAuth：按 authType 显密码或私钥框）
             if (state != ConnState.CONNECTED) {
                 if (conn.authType == AuthType.KEY) {
-                    OutlinedTextField(
-                        privateKey, { privateKey = it },
-                        label = { Text("SSH 私钥（PEM，临时输入不保存）") },
-                        colors = termColors, modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp),
-                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Monospace, fontSize = 11.sp)
-                    )
+                    val keyPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+                        if (uri != null) runCatching {
+                            privateKey = ctx.contentResolver.openInputStream(uri)!!.bufferedReader().use { it.readText() }
+                        }
+                    }
+                    Column {
+                        OutlinedTextField(
+                            privateKey, { privateKey = it },
+                            label = { Text("SSH 私钥（PEM，临时输入不保存）") },
+                            colors = termColors, modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp),
+                            textStyle = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Monospace, fontSize = 11.sp)
+                        )
+                        TextButton(onClick = { keyPicker.launch("*/*") }) {
+                            Icon(Icons.Filled.AttachFile, null, tint = Accent, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp)); Text("从文件选择私钥", color = Accent, fontSize = 12.sp)
+                        }
+                    }
                 } else {
                     OutlinedTextField(
                         password, { password = it }, label = { Text("SSH 密码") }, singleLine = true,

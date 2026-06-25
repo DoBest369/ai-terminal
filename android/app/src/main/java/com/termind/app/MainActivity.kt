@@ -779,6 +779,8 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var showHistory by remember { mutableStateOf(false) }   // N-History 命令历史
     val cmdHistory = remember { mutableStateListOf<String>().apply { addAll(CommandHistory.load(ctx)) } }
     var termFont by remember { mutableStateOf(SettingsStore.loadTermFont(ctx)) }   // A-FontSize 终端字号
+    var termSearch by remember { mutableStateOf("") }          // A-TermSearch 终端搜索
+    var termSearchOn by remember { mutableStateOf(false) }
     val customSnippets = remember { mutableStateListOf<CommandSnippet>().apply { addAll(SnippetStore.load(ctx)) } }  // A-SnippetCRUD
     var showNewSnippet by remember { mutableStateOf(false) }
 
@@ -1179,16 +1181,31 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     )
                 }
             }
-            // 终端输出区（A-Ansi 彩色 + A-FontSize 可调字号）
+            // A-TermSearch：终端搜索框（toggle 显示）
+            if (termSearchOn) {
+                val matchCount = if (termSearch.isNotEmpty()) SshClient.stripAnsi(output).split(termSearch, ignoreCase = true).size - 1 else 0
+                OutlinedTextField(
+                    termSearch, { termSearch = it }, placeholder = { Text("搜索终端输出…", color = TextSecondary) }, singleLine = true,
+                    leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSecondary) },
+                    trailingIcon = { if (termSearch.isNotEmpty()) Text("$matchCount 处", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.padding(end = 10.dp)) },
+                    colors = termColors, modifier = Modifier.fillMaxWidth()
+                )
+            }
+            // 终端输出区（A-Ansi 彩色 + A-FontSize 可调字号 + A-TermSearch 搜索高亮）
             Surface(color = Color(0xFF0D0D1A), shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f).fillMaxWidth()) {
                 Box {
+                    // 搜索激活+有词：渲染去 ANSI 的高亮文本；否则正常 ANSI 彩色
+                    val termText = if (termSearchOn && termSearch.isNotEmpty()) highlightMatches(SshClient.stripAnsi(output), termSearch) else AnsiParser.parse(output)
                     Text(
-                        AnsiParser.parse(output), fontSize = termFont.sp, fontFamily = FontFamily.Monospace,
+                        termText, fontSize = termFont.sp, fontFamily = FontFamily.Monospace,
                         modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
                     )
-                    // A-FontSize / A-TermActions：字号 +/- + 复制全部 + 清屏
+                    // A-FontSize / A-TermActions / A-TermSearch：搜索 + 字号 +/- + 复制全部 + 清屏
                     val termClip = LocalClipboardManager.current
                     Row(Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+                        IconButton(onClick = { termSearchOn = !termSearchOn; if (!termSearchOn) termSearch = "" }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Filled.Search, "搜索", tint = if (termSearchOn) Accent else TextSecondary, modifier = Modifier.size(15.dp))
+                        }
                         IconButton(onClick = { termClip.setText(androidx.compose.ui.text.AnnotatedString(SshClient.stripAnsi(output))) }, modifier = Modifier.size(28.dp)) {
                             Icon(Icons.Filled.ContentCopy, "复制全部", tint = TextSecondary, modifier = Modifier.size(15.dp))
                         }
@@ -1559,6 +1576,23 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
             dismissButton = { TextButton(onClick = { pendingDelete = null }) { Text("取消", color = TextSecondary) } },
             containerColor = Surface
         )
+    }
+}
+
+/** A-TermSearch：把文本中匹配 query 的子串高亮（背景色），返回 AnnotatedString。 */
+private fun highlightMatches(text: String, query: String): androidx.compose.ui.text.AnnotatedString {
+    if (query.isEmpty()) return androidx.compose.ui.text.AnnotatedString(text)
+    return androidx.compose.ui.text.buildAnnotatedString {
+        var i = 0
+        while (i < text.length) {
+            val idx = text.indexOf(query, i, ignoreCase = true)
+            if (idx < 0) { append(text.substring(i)); break }
+            append(text.substring(i, idx))
+            pushStyle(androidx.compose.ui.text.SpanStyle(background = Warning, color = Color.Black))
+            append(text.substring(idx, idx + query.length))
+            pop()
+            i = idx + query.length
+        }
     }
 }
 

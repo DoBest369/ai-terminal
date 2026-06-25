@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -71,6 +72,7 @@ enum class Tab(val label: String, val icon: ImageVector) {
 @Composable
 fun TermindApp() {
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
     var tab by remember { mutableStateOf(Tab.Servers) }
     var detail by remember { mutableStateOf<ServerConn?>(null) }
     // 连接列表：从 store 加载，增删改后持久化
@@ -78,7 +80,22 @@ fun TermindApp() {
     var editing by remember { mutableStateOf<ServerConn?>(null) }   // 当前编辑中的连接
     var showEditor by remember { mutableStateOf(false) }
     var activeProfile by remember { mutableStateOf<ServerProfile?>(null) }  // A-Env：当前连接的环境画像，喂给 AI
+    // A-Reach：可达性探测结果 id→可达(true/false)；不在 map=探测中/未探测
+    val reachMap = remember { mutableStateMapOf<String, Boolean>() }
+    var probing by remember { mutableStateOf(false) }
     fun persist() = ConnectionStore.save(ctx, conns)
+
+    // 并发探测所有连接的 TCP 可达性
+    fun probeAll() {
+        if (probing) return
+        probing = true; reachMap.clear()
+        scope.launch {
+            conns.map { c -> async { c.id to Reachability.probe(c.host, c.port) } }
+                .forEach { val (id, ok) = it.await(); reachMap[id] = ok }
+            probing = false
+        }
+    }
+    LaunchedEffect(Unit) { probeAll() }
 
     // 连接详情「工作区」覆盖在最上层
     detail?.let { conn ->
@@ -130,6 +147,9 @@ fun TermindApp() {
             when (tab) {
                 Tab.Servers -> ServerListScreen(
                     conns = conns,
+                    reachMap = reachMap,
+                    probing = probing,
+                    onRefresh = { probeAll() },
                     onOpen = { detail = it },
                     onEdit = { editing = it; showEditor = true },
                     onDelete = { conns.remove(it); persist() }
@@ -163,12 +183,29 @@ private fun TopBar(title: String, subtitle: String? = null) {
 @Composable
 fun ServerListScreen(
     conns: List<ServerConn>,
+    reachMap: Map<String, Boolean>,
+    probing: Boolean,
+    onRefresh: () -> Unit,
     onOpen: (ServerConn) -> Unit,
     onEdit: (ServerConn) -> Unit,
     onDelete: (ServerConn) -> Unit
 ) {
     Column {
-        TopBar("Termind", "智能 SSH 运维")
+        // 顶栏 + 刷新状态
+        Surface(color = Surface) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Bolt, null, tint = Accent)
+                Spacer(Modifier.width(8.dp))
+                Text("Termind", fontWeight = FontWeight.Bold, color = TextPrimary)
+                Spacer(Modifier.width(8.dp))
+                Text("智能 SSH 运维", fontSize = 12.sp, color = TextSecondary)
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = onRefresh, enabled = !probing) {
+                    if (probing) CircularProgressIndicator(Modifier.size(16.dp), color = Accent, strokeWidth = 2.dp)
+                    else Icon(Icons.Filled.Refresh, "刷新在线状态", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                }
+            }
+        }
         if (conns.isEmpty()) {
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Icon(Icons.Filled.Dns, null, tint = TextSecondary, modifier = Modifier.size(48.dp))
@@ -184,7 +221,9 @@ fun ServerListScreen(
         ) {
             grouped.forEach { (group, list) ->
                 if (group.isNotEmpty()) item { Text(group, fontSize = 12.sp, color = TextSecondary, modifier = Modifier.padding(top = 14.dp, bottom = 2.dp)) }
-                items(list, key = { it.id }) { conn -> ServerCard(conn, onClick = { onOpen(conn) }, onEdit = { onEdit(conn) }, onDelete = { onDelete(conn) }) }
+                items(list, key = { it.id }) { conn ->
+                    ServerCard(conn, reachMap[conn.id], probing, onClick = { onOpen(conn) }, onEdit = { onEdit(conn) }, onDelete = { onDelete(conn) })
+                }
             }
         }
     }
@@ -192,8 +231,15 @@ fun ServerListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServerCard(conn: ServerConn, onClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
+fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
     var menu by remember { mutableStateOf(false) }
+    // A-Reach：在线绿 / 离线灰 / 探测中黄
+    val dotColor = when {
+        reachable == true -> Success
+        reachable == false -> Danger
+        probing -> Warning
+        else -> TextSecondary
+    }
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(containerColor = SurfaceLight.copy(alpha = 0.5f)),
@@ -201,7 +247,7 @@ fun ServerCard(conn: ServerConn, onClick: () -> Unit, onEdit: () -> Unit, onDele
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.Circle, null, tint = if (conn.online) Success else TextSecondary, modifier = Modifier.size(10.dp))
+            Icon(Icons.Filled.Circle, null, tint = dotColor, modifier = Modifier.size(10.dp))
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(conn.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp)

@@ -6,6 +6,16 @@
 
 ---
 
+## A-ConvoPersist + A-ConvoExport + A-ConvoSearch · 安卓 AI 对话能力补全（与 apple 完全对齐）
+- **A-ConvoPersist**：`ConvoStore.kt`(SharedPreferences 存对话列表 JSON[每对话=消息数组{role,content}]，save/load)；AIAssistantScreen convos 从 ConvoStore.load 初始化(toMutableStateList)，发消息回复完成/新建/删除后 persistConvos()。重启不丢对话。构建 18s，推送 908ca54。
+- **A-ConvoExport**：`exportConvo()` 当前对话拼 Markdown(# 标题 + ## 用户/AI 助手 + content)→`Intent.ACTION_SEND`(text/markdown) 系统分享；对话菜单「📤 导出当前」。构建 18s，推送 1dbd4b7。
+- **A-ConvoSearch**：顶栏 Search 图标 toggle 搜索框；非空时 messages.filter(content.contains 不区分大小写)→只显匹配气泡+「N 条匹配」。构建 19s，推送 76ed3ab。
+- **改动**：新增 `ConvoStore.kt`；改 `MainActivity.kt`(AIAssistantScreen 持久化/导出/搜索)。
+- **验证**：三次增量 gradle assembleDebug 均 BUILD SUCCESSFUL。
+- **里程碑**：**android AI 能力与 apple 完全对齐**（对话/解释/报错/健康/环境感知/流式/多对话/持久化/搜索/导出）。PARITY 双端仅剩 跳板机多跳、分屏录制(移动端 N/A) 未对齐——核心+增强能力实质全对齐。
+
+---
+
 ## 收尾 · apple 回归确认 + README 双端能力更新
 - **apple 回归**：`cd apple/AITerminalCore && swift build`(Build complete) + `cd apple/App && swift build`(Build complete)；6 项自测全过——metrics 正确 / risk 正确 / env-detect 正确 / diag 工作流数=5 / rollback 全部正确 / template 内置模板数=5。安卓多轮迭代未影响 apple 端。
 - **README 更新**：能力对照表补充 SFTP 下载上传/终端 ANSI 彩色/可达性探测/本地端口转发/凭据安全存储/TOFU/多主题/AI 多对话（均双端 ✅），加指向 docs/PARITY.md 的「核心 Z1-Z8 双端完全对齐」说明；Android 快速开始补充 密码/私钥、彩色终端、SFTP、端口转发、5 主题、API Key 加密。

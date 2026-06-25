@@ -6,6 +6,17 @@
 
 ---
 
+## A-FormValid + A-About + 质量收口 · 连接校验 + 关于完善
+- **A-FormValid**（表单校验）：EditConnectionScreen 加 `portOk`(端口空或 1-65535)、`jumpPortOk`、`jumpOk`(填跳板主机则需跳板用户)；端口/跳板端口字段 `isError` 红框，校验失败显红字提示；`canSave` = host/user 非空 + 三项校验，保存按钮联动禁用。防误输。构建 12s，推送 c2f2d6a。
+- **A-About**（关于完善）：SettingsScreen 加「开源仓库」`SettingRow`(Code 图标，显 github.com/DoBest369/ai-terminal·MIT)→点击 `Intent.ACTION_VIEW` 浏览器打开仓库。构建 21s，推送 7fce75b。
+- **质量收口**：apple `AITerminalCore`+`App` swift build Build complete；五自测全 true 无回归；android 零 deprecated。
+- **近几轮安卓打磨小结**：SFTP 完整(浏览/查看/下载/上传/新建/删除/重命名/路径跳转)、终端(彩色/控制键/字号/复制清屏/搜索)、AI(流式/停止/重生成/模型选择/代码块/消息复制/提示词库)、连接(颜色标签/搜索/排序/启动命令/测试连接/表单校验/跳板机)、设置(主题/API Key/模型/巡检/关于链接)。
+- **改动**：`EditConnectionScreen.kt`(校验)、`MainActivity.kt`(关于链接)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 5 自测全过。
+- **意义**：连接配置防误输、产品信息完善。安卓端体验细节趋于精致，成熟产品持续打磨。
+
+---
+
 ## Doc · README 完善（GitHub 门面刷新）
 - **内容**：平台矩阵 apple「Z1-Z8 全完成」、android「与 apple 全对齐」；智能运维能力表补 SFTP 完整管理(浏览/查看/下载/上传/新建/删除/重命名/路径跳转)、终端体验(ANSI/控制键/字号/复制清屏/搜索)、跳板机 ProxyJump、连接管理增强(颜色标签/搜索/排序/启动命令/导出导入)、AI 助手增强(流式/停止/重生成/模型选择/代码块/提示词库)等双端✅；批量运维段更新「apple AppModel.runBatch 已真接 SSH」；新增「界面预览」区引用 apple/screenshots(01-sidebar/03-ai-panel/09-sftp + 指向 20+ 张)。
 - **改动**：`README.md`。

@@ -75,6 +75,8 @@
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-SnippetCRUD** 快捷命令自定义增删 ✅（SnippetStore SharedPreferences 持久化；ServerWorkspace 快捷命令 Chip 默认+自定义+「+新建」对话框+删除；修 termColors 前向引用；构建 20s；推送 2c48299→88b814a）
+- [x] **A-About** 设置页开源仓库链接 ✅（「开源仓库」行→Intent 打开 github.com/DoBest369/ai-terminal；构建 21s 无 warning；推送 7fce75b）
+- [x] **A-FormValid** 连接编辑表单校验 ✅（端口/跳板端口 1-65535 isError 红字；跳板填主机需补用户名；保存按钮 canSave 联动禁用；构建 12s 无 warning；推送 c2f2d6a）
 - [x] **README 完善** ✅（平台矩阵/能力表刷新双端全对齐 + 界面预览截图 + apple runBatch 真接 SSH；推送 86c343b）
 - [x] **A-Prompts** AI 运维提示词库 ✅（空对话提示词扩为 5 类[排障/部署/安全/性能/日志]×3；FilterChip 分类切换+点击 send；构建 21s 无 warning；推送 af89171）
 - [x] **A-SftpRename** SFTP 文件重命名 ✅（SshClient.renamePath[sshj rename，支持 jump]；SftpBrowser 每行重命名图标+对话框；SFTP 文件管理完整[浏览/查看/下载/上传/新建/删除/重命名/路径跳转]；构建 22s 无 warning；推送 4467ec9）

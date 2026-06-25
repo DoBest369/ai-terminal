@@ -4,6 +4,13 @@
 > **以 SSH 为入口、AI 为助手、服务器管理为核心的智能运维工作台**，对标 Xshell/Termius。
 > 护城河 = AI + 真实服务器状态 + 安全执行 + 可回滚。
 
+## 🏆 里程碑（截至最新迭代）
+
+- **全平台原生双端可构建**：apple（Swift/SwiftUI，swift build + 自测齐全）+ android（Kotlin/Compose，gradle 出 APK ~26MB）；linux🟡(Rust+egui 骨架) windows⬜
+- **智能运维护城河 Z1–Z8 双端完全对齐**：命令解释 · 报错分析 · 环境感知 · 排障工作流 · 操作回滚 · 状态面板 · 风险分级/脱敏 · 初始化模板
+- **SSH/SFTP/AI/安全主线双端齐平**：密码+私钥认证 · 交互式彩色 PTY 终端 · SFTP 浏览/查看/下载/上传 · AI 对话流式+多对话+解释/报错/健康分析 · Keychain/加密存储 · TOFU · 端口转发 · 可达性探测 · 多主题
+- **阶段 N 批量运维创新（运维工作台杀手级，单连接工具做不到）**：命令历史 · 批量群发命令 · 群发结果 AI 汇总 · 批量健康巡检 · 巡检 AI 总结 · **定时后台巡检+通知（主动运维）**
+
 ## 🧱 架构：全平台原生（2026-06-25 决策）
 
 用户决策：**全部使用原生语言**、按愿景重新全面开发。已删除 Electron(src/) + Capacitor(mobile/) 等 Web 方案。
@@ -29,6 +36,7 @@
 - [x] **N-Multi apple** Core 框架 + UI 渲染 ✅（Core BatchRunner[run/summary/composeForAI]+--batch-test；Showcase BatchShowcase[多选+命令风险+结果卡片+AI 汇总入口]+渲染 22-batch.png 核对；swift build；推送 38b7974→6c6f684。真实 SSH 接入[SSHTerminalSession.runCommand] 留 UI TODO）
 - [x] **N-Cron** 批量健康巡检（手动）✅（InspectScreen 统一密码→并发 fetchStatus 全部连接→各服务器 CPU/内存/磁盘卡片+hasWarning 红/绿/错误，异常置顶+「N 台需关注」汇总；ServerListScreen「健康巡检」入口；构建 31s；推送 8ca6f96。定时调度 WorkManager 留 TODO）
 - [x] **N-Cron-AI** 巡检结果 AI 总结 ✅（InspectScreen 汇总条「AI 总结」→各服务器状态拼素材→AiClient.chatStream[总览/资源紧张机器/优先处理]流式；构建 14s；推送 65fdabe）
+- [x] **N-CronAuto** WorkManager 定时后台巡检+离线通知 ✅（work-runtime 依赖+POST_NOTIFICATIONS；InspectWorker CoroutineWorker 周期并发 probe→离线发通知；设置「定时后台巡检」Switch[请求权限+enable/disable]+通知渠道；构建 38s 出 APK 26.0MB；推送 0894ff1。主动运维；密码不持久化故后台仅可达性探测，状态巡检需凭据 TODO）
 
 ### 🤖 安卓原生 backlog（android/ Kotlin+Compose）
 - [x] **A0** 工程骨架 + APK 跑通 ✅（gradle 8.13[缓存] + AGP 8.7.2 + Kotlin 1.9.24 + Compose 1.5.14；MainActivity 连接列表 UI[Termind 顶栏+按分组 ServerCard]；assembleDebug 出 app-debug.apk 14.7MB；推送）

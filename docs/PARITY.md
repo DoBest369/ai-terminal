@@ -55,6 +55,7 @@
 | 群发结果 AI 汇总 | 🟡 | ✅ | apple composeForAI；android 完整 |
 | 批量健康巡检 | ⬜ | ✅ | android InspectScreen（并发查全部+异常置顶） |
 | 巡检结果 AI 总结 | ⬜ | ✅ | android |
+| 定时后台巡检 + 通知 | ⬜ | ✅ | android WorkManager（主动运维，离线推通知） |
 
 > 阶段 N 让 Termind 从「逐台 SSH」升级为「**一批机器的批量操作 + AI 智能洞察**」——这是单连接 SSH 工具（Xshell/Termius）做不到的运维工作台核心差异化。android 先行落地，apple 框架就绪待 UI 接入。
 

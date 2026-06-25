@@ -6,6 +6,14 @@
 
 ---
 
+## N-CronAuto · 安卓定时后台巡检 + 离线通知（主动运维）
+- **内容**：build.gradle 加 `androidx.work:work-runtime-ktx:2.9.0`；Manifest 加 `POST_NOTIFICATIONS`。`InspectWorker(CoroutineWorker)`：doWork 对 ConnectionStore.load 全部连接并发 `Reachability.probe`→离线集合非空则 `notify`(NotificationChannel「服务器巡检」+ NotificationCompat BigText，POST_NOTIFICATIONS 已授才发)；`enable(minutes=15)`(PeriodicWorkRequestBuilder maxOf(15,...) + enqueueUniquePeriodicWork UPDATE)/`disable`(cancelUniqueWork)/`ensureChannel`。`SettingsScreen`「定时后台巡检」Switch：开→33+ 请求 POST_NOTIFICATIONS 权限(RequestPermission contract)+InspectWorker.enable；关→disable；`SettingsStore.autoInspect` 持久化。
+- **改动**：`android/app/build.gradle.kts`、`AndroidManifest.xml`、新增 `InspectWorker.kt`、`SettingsStore.kt`、`MainActivity.kt`(设置开关)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 38s** → app-debug.apk 26.0MB(+work-runtime)。WorkManager+CoroutineWorker+NotificationChannel/Compat+RequestPermission API 全编译通过。推送 0894ff1。真实定时触发需设备运行(WorkManager 最小周期 15 分钟)；密码不持久化故后台仅可达性探测。
+- **意义**：对齐 PRODUCT.md「主动运维」——从手动巡检到后台自动盯在线状态+离线推通知。阶段 N 创新+主动运维使 Termind 成「主动智能运维工作台」。
+
+---
+
 ## N-Cron-AI + A-Portability + A-KeyFile + 质量收口
 - **N-Cron-AI**（巡检 AI 总结）：InspectScreen 汇总条「AI 总结」→各服务器状态拼素材→AiClient.chatStream(运维助手:总览/资源紧张/优先处理)流式 AlertDialog。修 verticalScroll 导入。构建 14s，推送 65fdabe。
 - **A-Portability**（连接导出/导入）：ConnectionStore.exportJson(不含密码)/importJson；ServerListScreen「更多」菜单 导出(分享 Intent)/导入(GetContent 选 JSON→去重 merge)。对齐 apple ConnectionPortability。构建 18s，推送 9b9fd7c。

@@ -6,6 +6,14 @@
 
 ---
 
+## A-FileView · 安卓 SFTP 查看文本文件内容
+- **内容**：`SshClient.readFile(host,port,user,password,path,maxBytes=200_000)`——`head -c <max> '<path>'`(单引号转义防注入)读文本，限大小避免大文件/二进制卡顿。`SftpBrowser` 加 `viewing: Pair<name,content>?` state + `openFile(f)`(协程 readFile→脱敏→viewing)；文件行点击：文件夹 load 进入、文件 openFile；`viewing` 非空弹 AlertDialog 滚动等宽显示内容。顺手修 InsertDriveFile→`Icons.AutoMirrored.Filled.InsertDriveFile`(消 deprecated 警告)。
+- **改动**：`android/.../SshClient.kt`(readFile)、`MainActivity.kt`(SftpBrowser openFile+viewing 弹窗+图标)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 17s** → app-debug.apk 30.8MB。推送 f922570（图标修复随下次构建）。
+- **安卓打磨**：…/A-Rollback/**A-FileView** ✅。安卓端已是体验完整的智能 SSH 运维工具。下一步 AI 快捷入口(命令解释/报错分析)。
+
+---
+
 ## A-Rollback · 安卓操作回滚 Kotlin 化（护城河移植收官）
 - **内容**：`RollbackCore.kt`——`object OpRollback`(criticalPrefixes[nginx/sshd/mysql/fstab/sudoers…]+isCriticalConfig+criticalTargets[写意图关键字+命中关键路径 token 启发式]+backupCommand[cp <p> <p>.bak-<stamp>]+backupCommands+sshAutoRollbackCommand[备份+at N 分钟自动还原重启 sshd 防锁门外])+`OpTimelineEntry`(time/action/command/rollbackable/backupPath + rollbackCommand[从 .bak-stamp 反推还原])，移植 apple OpRollback.swift。`ServerWorkspace`：`opTimeline` mutableStateListOf；`send` 改关键配置前先 write 各 cp 备份命令 + add OpTimelineEntry(rollbackable) + 提示；`rollback(entry)` write 还原命令；顶栏「时间线」History IconButton(有记录高亮 Accent)→ModalBottomSheet 列时间线(时间/动作/命令 + 可回滚项「回滚」按钮)；top-level backupStamp/nowLabel(SimpleDateFormat)。
 - **改动**：新增 `android/.../RollbackCore.kt`；改 `MainActivity.kt`(send 备份+opTimeline+rollback+时间线 sheet+History 入口+时间戳 helper)。

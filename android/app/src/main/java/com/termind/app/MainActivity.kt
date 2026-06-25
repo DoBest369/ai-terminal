@@ -768,7 +768,7 @@ fun SftpBrowser(conn: ServerConn, password: String, onClose: () -> Unit) {
                         Modifier.fillMaxWidth().clickable { if (f.isDir) load(f.path) else openFile(f) }.padding(vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(if (f.isDir) Icons.Filled.Folder else Icons.Filled.InsertDriveFile, null,
+                        Icon(if (f.isDir) Icons.Filled.Folder else Icons.AutoMirrored.Filled.InsertDriveFile, null,
                             tint = if (f.isDir) Accent else TextSecondary, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(12.dp))
                         Text(f.name, color = TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f), maxLines = 1)

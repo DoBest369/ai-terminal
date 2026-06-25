@@ -40,6 +40,8 @@
 - [x] **A-Tpl-Exec** 初始化模板真执行 ✅（ServerWorkspace.runSetupTemplate 按 SetupStep 逐步执行[过滤注释，每步「▶N.步骤名」+connectAndExec 输出脱敏，完成✅+刷新状态]；执行前 AlertDialog 确认[previewText+风险着色]；模板 Menu 改 pendingTemplate 触发；构建 16s 出 APK 30.8MB；推送 d178cca）
 - [x] **A-Rollback** 操作回滚 Kotlin 化 ✅（RollbackCore.kt OpRollback[criticalPrefixes/isCriticalConfig/criticalTargets/backupCommand/sshAutoRollbackCommand]+OpTimelineEntry[rollbackCommand]，移植 apple；ServerWorkspace.send 改关键配置前自动 cp 备份+记 opTimeline；顶栏「时间线」History 入口→ModalBottomSheet 列操作+可回滚项一键回滚；构建 17s 出 APK 30.8MB；推送 8425732）
 
+- [x] **A-FileView** SFTP 查看文本文件内容 ✅（SshClient.readFile[head -c 200KB 限大小+单引号转义]；SftpBrowser 点文件→openFile 读→AlertDialog 滚动显示(脱敏)；修 InsertDriveFile→AutoMirrored；构建 17s 出 APK 30.8MB；推送 f922570）
+
 > **🎉🎉 安卓端与 apple 端智能运维护城河完全对齐**：环境感知 · 排障工作流 · 操作回滚 · 风险分级/脱敏 · 初始化模板 全部双端落地。安卓端从零数轮迭代建成功能完整的智能 SSH 运维工具（连接管理/真实SSH/交互PTY终端/状态采集/SFTP浏览/AI对话流式+环境感知/排障真执行/模板真执行/操作回滚），APK 30.8MB。
 
 ## 🤖 阶段 Z — 智能 SSH 运维能力（MVP 差异化核心）· 最高优先级

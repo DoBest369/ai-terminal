@@ -25,8 +25,8 @@
 
 | 平台 | 原生技术 | 目录 | 状态 |
 |------|---------|------|------|
-| **macOS / iOS / iPadOS** | Swift + SwiftUI（Citadel SSH + SwiftTerm） | [`apple/`](apple/README.md) | ✅ 旗舰，智能运维 Z1–Z8 大部完成 |
-| **Android** | Kotlin + Jetpack Compose（sshj + OkHttp） | [`android/`](android/) | ✅ 能力全齐，可构建 APK（~30 MB） |
+| **macOS / iOS / iPadOS** | Swift + SwiftUI（Citadel SSH + SwiftTerm） | [`apple/`](apple/README.md) | ✅ 旗舰，智能运维 Z1–Z8 全完成 |
+| **Android** | Kotlin + Jetpack Compose（sshj + OkHttp） | [`android/`](android/) | ✅ 与 apple 全对齐，可构建 APK |
 | **Windows** | C# + WinUI 3 / .NET | `windows/` | ⬜ 待起（需 Windows 环境） |
 | **Linux** | Rust + GTK4 / C++ Qt | `linux/` | ⬜ 待起（需 Linux 环境） |
 
@@ -49,14 +49,17 @@
 | **风险分级** | 命令四级风险（安全/注意/高/极高）+ 高危二次确认 | ✅ | ✅ |
 | **敏感脱敏** | 终端输出里的密码/密钥/Token 自动打码 | ✅ | ✅ |
 | **操作回滚** | 改关键配置前自动备份 + 时间线 + 一键还原 | ✅ | ✅ |
-| SFTP 下载 / 上传 | 文件下载到本地 / 选本地文件上传 | ✅ | ✅ |
-| 终端 ANSI 彩色 | 保留颜色高亮渲染 | ✅ | ✅ |
+| SFTP 完整管理 | 浏览/查看/下载/上传/新建/删除/重命名/路径跳转 | ✅ | ✅ |
+| 终端体验 | ANSI 彩色 · 控制键栏 · 字号调节 · 复制/清屏 · 输出搜索高亮 | ✅ | ✅ |
+| **跳板机 ProxyJump** | 经堡垒机连目标，覆盖全 SSH 操作 | ✅ | ✅ |
 | 连接可达性探测 | TCP 探测真实在线状态 | ✅ | ✅ |
 | 本地端口转发 | 本机端口经 SSH 转发到远端 | ✅ | ✅ |
+| 连接管理增强 | 颜色标签 · 搜索 · 排序 · 启动命令 · 导出导入 | ✅ | ✅ |
+| AI 助手增强 | 流式 · 停止 · 重新生成 · 模型选择 · 代码块渲染/复制 · 运维提示词库 | ✅ | ✅ |
 | 凭据安全存储 | Keychain（apple）/ EncryptedSharedPreferences（android） | ✅ | ✅ |
 | TOFU 主机密钥校验 | 首次信任 + 指纹比对防 MITM | ✅ | ✅ |
 | 多主题配色 | 午夜 / One Dark / Dracula / Solarized / Nord | ✅ | ✅ |
-| AI 多对话 | 新建 / 切换 / 删除 | ✅ | ✅ |
+| AI 多对话 | 新建 / 切换 / 删除 / 持久化 / 搜索 / 导出 Markdown | ✅ | ✅ |
 
 > 这套能力让 AI 不再只会给通用教程，而是结合**这台机器的真实环境与状态**给出可执行、可回滚的运维方案。
 > 完整双端能力对照见 [`docs/PARITY.md`](docs/PARITY.md)——**核心智能运维护城河（Z1–Z8）与 SSH/SFTP/AI/安全主线双端完全对齐**。
@@ -68,7 +71,18 @@
 - **批量健康巡检**：并发查全部服务器 CPU/内存/磁盘，异常红色置顶 + AI 总结处理优先级
 - **命令历史**：执行过的命令去重记录、一键调出重用
 
-> 这是从「逐台 SSH」到「**一批机器的批量操作 + AI 智能洞察**」的运维工作台升级（android 完整落地，apple 框架就绪）。
+> 这是从「逐台 SSH」到「**一批机器的批量操作 + AI 智能洞察**」的运维工作台升级。
+> android 完整落地（含定时后台巡检 + 离线通知）；apple `AppModel.runBatch` 已真接 SSH 会话并发执行。
+
+## 界面预览（apple 端离屏渲染）
+
+> 开发机无完整 Xcode，截图为 SwiftUI `ImageRenderer` 离屏渲染的高保真预览（与真实视图共用 `Theme`）。
+
+| 连接侧边栏 | AI 运维助手 | SFTP 文件 |
+|:---:|:---:|:---:|
+| ![侧边栏](apple/screenshots/01-sidebar.png) | ![AI](apple/screenshots/03-ai-panel.png) | ![SFTP](apple/screenshots/09-sftp.png) |
+
+更多预览见 [`apple/screenshots/`](apple/screenshots/)（状态栏 / 终端控制键 / 快捷命令 / 端口转发 / 多主题 等 20+ 张）。
 
 ## 快速开始
 

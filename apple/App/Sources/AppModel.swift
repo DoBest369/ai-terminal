@@ -241,6 +241,7 @@ final class AppModel: ObservableObject {
     @Published var showFileBrowser = false
     @Published var showPortForward = false
     @Published var showInspect = false   // N-Cron 批量巡检面板
+    @Published var showBatch = false     // N-Multi 批量群发面板
     @Published var searchActive = false
     @Published var editingConnection: Connection?
     /// 正在展示二维码分享的连接

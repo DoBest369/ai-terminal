@@ -33,6 +33,9 @@ struct ContentView: View {
         .sheet(isPresented: $model.showInspect) {
             InspectView()
         }
+        .sheet(isPresented: $model.showBatch) {
+            BatchView()
+        }
         .sheet(item: $model.qrConnection) { conn in
             ConnectionQRView(connection: conn)
         }
@@ -155,6 +158,12 @@ struct ContentView: View {
                 model.showInspect = true
             } label: {
                 Label("批量巡检", systemImage: "stethoscope")
+            }
+            Button {
+                model.batchResults = []
+                model.showBatch = true
+            } label: {
+                Label("批量群发", systemImage: "square.stack.3d.up")
             }
             Button {
                 withAnimation { showAIPanel.toggle() }

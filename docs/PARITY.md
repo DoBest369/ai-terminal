@@ -29,7 +29,7 @@
 | SFTP 下载 / 上传 | ✅ | ✅ | android sftp.get/put + 文件选择器 |
 | SFTP 新建文件夹 / 删除 | ✅ | ✅ | 双端（apple Citadel createDirectory/rmdir/remove；android sftp.mkdir/rm/rmdir）+ 二次确认 |
 | SFTP 文件重命名 | ✅ | ✅ | 双端 sftp.rename（apple 右键菜单 / android 行图标） |
-| SFTP 路径直接跳转 | 🟡 | ✅ | android 输路径直达深目录 |
+| SFTP 路径直接跳转 | ✅ | ✅ | 双端输路径直达深目录 |
 | 终端输出搜索 | ✅ | ✅ | apple SwiftTerm 内置搜索（高亮+上/下导航+定位）；android 高亮+匹配计数 |
 | 终端控制键栏（Tab/Ctrl/方向键） | ✅ | ✅ | 双端；apple TerminalKeyBar（iOS SSH 会话，18 键含 ^R/^U/管道符）+ macOS 物理键盘 |
 | AI 代码块渲染 | ✅ | ✅ | 双端按 ``` 拆等宽深色框（apple MessageBubble + 渲染验证） |
@@ -51,7 +51,7 @@
 | AI 模型选择 | ✅ | ✅ | Opus 4.8 / Sonnet 4.6 / Haiku 4.5 |
 | AI 运维提示词库 | ✅ | ✅ | 双端 5 类(排障/部署/安全/性能/日志)分类提示词 |
 | AI 代码块渲染 | ✅ | ✅ | 双端等宽深色框；复制 android(代码块点击)/apple(气泡右键) |
-| AI 消息长按复制整条 | 🟡 | ✅ | android |
+| AI 消息复制整条 | ✅ | ✅ | apple 气泡右键「复制」/ android 长按复制 |
 
 ## 智能运维护城河（阶段 Z）
 
@@ -96,8 +96,11 @@
 
 - **核心智能运维护城河（Z1–Z8）双端完全对齐** ✅
 - **SSH/终端（含控制键栏）/SFTP/AI（含代码块渲染）/安全/端口转发/跳板机/批量群发/多主题/多对话 双端齐平**
-- 标 🟡 的仅剩 **2 项 android 独有小便捷**（SFTP 路径直接跳转、AI 消息长按复制）——apple 可后续补，非核心缺口
-- 多处经源码核查纠正了文档滞后：apple 终端控制键栏/终端搜索/连接测试/批量群发 实为 ✅
+- **已无 🟡 部分项**：所有 SSH/终端/SFTP/AI/智能运维（Z1–Z8）/批量群发/安全能力均 ✅✅ 双端齐平
+- 仍非双端齐平的仅 4 项（均为单端独有，非缺陷）：
+  - **android 独有**：批量健康巡检 / 巡检 AI 总结 / 定时后台巡检（apple 有 BatchRunner 框架，巡检 UI + WorkManager 等价待补）
+  - **apple 独有**：分屏 / 会话录制（移动端意义有限）
+- 多处经源码核查纠正了文档滞后：apple 终端控制键栏/终端搜索/连接测试/批量群发/SFTP 增删改/AI 提示词库 实为 ✅
 - apple 为功能最全的旗舰；**android 已是功能完整、体验接近桌面的第二原生端，核心能力与 apple 高度对齐**
 - **android AI 能力已与 apple 完全对齐**（对话/解释/报错/健康/环境感知/流式/停止/重新生成/多对话/持久化/搜索/导出/代码块/消息复制）
 - android 跳板机 ProxyJump 已**完整覆盖所有 SSH 操作**（终端/状态/环境/排障/模板/SFTP/端口转发）——**仅剩 分屏/会话录制**（移动端意义有限，标 N/A）未对齐

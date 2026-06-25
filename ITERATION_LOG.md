@@ -6,6 +6,15 @@
 
 ---
 
+## apple SFTP 路径跳转 + 消息复制确认（PARITY 🟡 清零）
+- **apple SFTP 路径跳转**（对齐 android A-SftpPath）：`FileBrowserView` 路径栏 `Text(path)` 改为 Button(带 pencil 图标)→`.alert` 输入路径(预填当前 path)→`load(新路径)`。直达 /etc、/var/log 等深目录。
+- **apple AI 消息复制确认**：apple `MessageBubble` 早已有 `.contextMenu` 「复制」(整条 message.content)+「复制纯文本」，等价 android A-MsgCopy 长按复制——PARITY 文档滞后，本轮校正 apple✅。
+- **改动**：`FileBrowserView.swift`(路径跳转 alert)、`docs/PARITY.md`。
+- **验证**：Core+App swift build Build complete。推送 ddea1fe。
+- **里程碑**：**PARITY 🟡(部分项)清零**——所有配对能力双端 ✅✅。仅余单端独有 4 项(android 批量巡检×3 / apple 分屏录制)，均非缺陷。Termind 双端核心+主线+增强能力实质完全对齐。
+
+---
+
 ## apple AI 提示词库对齐（双端 AI 提示词库都有）
 - **内容**：`AIAgentView.emptyHint` 空对话示例提问从 3 条扩为 `promptGroups` 5 类(排障/部署/安全/性能/日志)×3 条；加水平滚动分类胶囊(promptGroupIdx 切换，选中蓝底)+当前类 3 条提问点击 send。对齐 android A-Prompts。`Showcase.AIPanelShowcase` 空态同步分类胶囊+排障示例。
 - **改动**：`AIAgentView.swift`(promptGroups+emptyHint+promptGroupIdx)、`Showcase.swift`(空态胶囊)、`apple/screenshots/20-ai-empty.png`。

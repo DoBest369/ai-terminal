@@ -6,6 +6,15 @@
 
 ---
 
+## apple 连接颜色标签对齐（Core + 导入导出 + 渲染）
+- **内容**：apple/AITerminalCore `Connection.swift` 加 `enum ColorTag{none/red/orange/green/blue/purple}`(rawValue 持久化 + hex 计算属性) + `Connection.colorTag: ColorTag?`(Optional 保证旧 JSON 缺失向后兼容，加 init 参数+赋值)。`ConnectionPortability` Item 加 `colorTag: String?`，export(c.colorTag 非 none 才写 rawValue)/parse(ColorTag(rawValue:))，参与跨端导出。`DevTools/Showcase.swift` `SidebarShowcase.connRow` 加颜色标签色条(`conn.colorTag?.hex` → RoundedRectangle 3×30 色条)；样例连接设 colorTag(生产红/开发绿/数据库蓝)。
+- **改动**：`Connection.swift`(ColorTag+colorTag)、`ConnectionPortability.swift`(导入导出)、`Showcase.swift`(connRow 色条)、`Screenshots.swift`(样例 colorTag)；`apple/screenshots/01-sidebar.png`。
+- **验证**：Core+App swift build 通过；渲染 01-sidebar 核对——开发机绿/数据库蓝/生产红 色条清晰。推送 6b444bb。真实 ConnectionEditView 色选器 UI 接入待后续(本机无 Xcode 不能运行真实视图)。
+- **意义**：连接颜色标签 PARITY apple 🟡→✅(Core+导入导出+渲染对齐 android，仅真实编辑 UI 色选器待接)。
+- **apple Connection 模型**：已相当丰富(name/host/port/auth/密码私钥/group/jumpHost 跳板机/lastUsedAt/startupCommands/fontSizeOverride/note/colorTag)，比 android 更全。
+
+---
+
 ## Doc · CHANGELOG.md 演进历程梳理
 - **内容**：新建 `CHANGELOG.md` 按阶段梳理 Termind 演进里程碑：阶段0 起点(Electron+原生雏形)→阶段1 重定位(智能 SSH 运维工作台+全平台原生决策+删 Electron/Capacitor+定名 Termind)→阶段2 apple 智能运维 Z1-Z8→阶段3 android 从零到双端对齐→阶段4 阶段 N 批量运维创新(群发/巡检/AI汇总/主动巡检)→阶段5 持续体验打磨→当前状态。顶部真实边界声明(本机无 Xcode 未出 iOS 包/未真机实测；android 实测需真机+服务器+Key；Linux/Windows 骨架待建)。README「路线图与历程」区链接 CHANGELOG/ROADMAP/ITERATION_LOG/PARITY。
 - **改动**：新增 `CHANGELOG.md`；改 `README.md`。

@@ -6,6 +6,13 @@
 
 ---
 
+## Z4 · 场景化排障工作流（智能运维差异化第四项）
+- **内容**：Core 新增 `DiagnosticWorkflow.swift`——结构（id/name/icon/description/commands/summaryPrompt + composeForAI[把工作流名+各命令及输出拼成 AI 分析素材，缺输出占位「(未获取到输出)」]）+ `builtins` 5 个内置工作流：网站打不开排查（nginx status/ss/curl/df/nginx -t/journalctl）、磁盘清理分析、SSL 证书检查、Nginx 状态、Docker 容器排查，每个带专门 summaryPrompt。AppModel 加 `runDiagnostic(_:)`（把命令序列注入活动会话终端执行）+ `analyzeDiagnostic(_:outputs:)`（composeForAI→runAICompletion(summaryPrompt)，待 exec 捕获接入）。AIAgentView 头部加「排障」Menu（stethoscope）列出 builtins。
+- **改动**：新增 `apple/AITerminalCore/.../DiagnosticWorkflow.swift`；改 `AppModel.swift`、`Views/AIAgentView.swift`、`DevTools/Screenshots.swift`(diagTest)+`ShotsMain/main.swift`(--diag-test)。
+- **验证**：双端 swift build 通过；`--diag-test`→「内置工作流数=5；composeForAI 格式正确=true」；Z3 回归正常。推送 6054119。真实输出捕获（SSH exec 通道）→自动 AI 总结 留 Z4b。
+
+---
+
 ## Z3 · 环境感知（智能运维护城河核心）
 - **内容**：Core 新增 `ServerProfile.swift`——`ServerProfile`（hostname/os/distro/kernel/arch/currentUser/isRoot/packageManager/services[服务→是否装]/detectedAt + installedServices/missingServices/aiSummary 摘要）；`EnvDetector`（probedServices[nginx/docker/node/…] + `detectCommand` 复合 shell 探测命令[hostname/uname/id/os-release/包管理器/command -v 各服务，用 HOST:/UNAME:/USER:/OSREL:/PM:/SVC: 前缀分段] + `parse(_:)` 把输出解析成 ServerProfile）。AppModel 加 `@Published serverProfile`，`runAICompletion` 把 `serverProfile?.aiSummary` 并入系统提示（让 命令解释/报错分析/对话 都基于真实环境）。
 - **改动**：新增 `apple/AITerminalCore/.../ServerProfile.swift`；改 `apple/App/Sources/AppModel.swift`、`DevTools/Screenshots.swift`(envDetectTest)+`ShotsMain/main.swift`(--env-detect-test)。

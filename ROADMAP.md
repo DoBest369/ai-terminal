@@ -24,7 +24,7 @@
 - [x] **Z1** AI 命令解释 ✅（Core commandExplainPrompt[只讲解不执行：作用/参数/风险/安全等级，高危⚠️]；AppModel.explainCommand[本地 isDangerous 先判+解释 prompt 流式]；AIAgentView 输入栏「解释」按钮[questionmark.circle 警示色，不执行]；runAICompletion 支持 systemPrompt 覆盖；双端 build 通过；推送 1bceb26）
 - [x] **Z2** AI 报错分析 ✅（Core errorAnalysisPrompt[含义/原因/修复 EXECUTE/验证，识别 502/permission denied/no space/端口占用/nginx/SSL 等]；AppModel.analyzeError；AIAgentView「分析报错」按钮[exclamationmark.magnifyingglass danger 色]；双端 build 通过；推送 54bacc8）
 - [x] **Z3** 环境感知（护城河核心）✅（Core ServerProfile[os/distro/arch/user/isRoot/包管理器/services/aiSummary] + EnvDetector[detectCommand 复合探测 + parse 解析]；AppModel.serverProfile 注入 AI 系统提示；--env-detect-test 自测解析正确；swift package clean 后全量编译通过；推送 511fa9d。待会话接入真实探测[需真连服务器]）
-- [ ] **Z4** 场景化排障工作流：内置「网站打不开/磁盘清理/SSL 检查/Nginx 状态/Docker 日志」一键诊断（跑命令序列→AI 总结）
+- [x] **Z4** 场景化排障工作流 ✅（Core DiagnosticWorkflow+5 内置[网站打不开/磁盘清理/SSL/Nginx/Docker]+composeForAI；AppModel.runDiagnostic[注入诊断命令]+analyzeDiagnostic[输出→AI 总结]；AIAgentView「排障」Menu[stethoscope]；--diag-test 自测过；双端 build；推送 6054119。待 Z4b SSH exec 捕获输出后自动 AI 总结）
 - [ ] **Z5** 操作回滚：改关键配置(nginx/sshd/mysql)前自动备份 + 操作时间线 + 一键回滚
 - [ ] **Z6** 服务器状态面板升级：比状态栏更丰富（CPU/内存/磁盘/端口/服务/SSL/异常），面板↔命令↔AI 联动
 - [ ] **Z7** 命令风险分级（低/中/高/极高）+ 高危二次确认 + 敏感输出脱敏

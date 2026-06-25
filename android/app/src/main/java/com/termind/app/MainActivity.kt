@@ -272,6 +272,39 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
     var command by remember { mutableStateOf("") }
     var output by remember { mutableStateOf("提示：输入密码与命令，点「执行」经 SSH 运行。\n（A1 先支持单条命令 exec；交互式终端 A1b）\n") }
     var running by remember { mutableStateOf(false) }
+    var pendingConfirm by remember { mutableStateOf<String?>(null) }  // 高危命令二次确认
+
+    // 真正执行（输出经脱敏）
+    fun exec(cmd: String) {
+        running = true
+        output += "\n$ $cmd\n"
+        scope.launch {
+            val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, cmd)
+            val raw = r.getOrElse { "⚠️ ${it.message ?: "连接失败"}" }
+            output += Redactor.redact(raw) + "\n"   // A3：敏感输出脱敏
+            command = ""; running = false
+        }
+    }
+    // 提交：高/极高风险先弹确认
+    fun submit() {
+        val cmd = command.trim(); if (cmd.isEmpty() || running) return
+        if (CommandRisk.riskLevel(cmd).needsConfirm) pendingConfirm = cmd else exec(cmd)
+    }
+
+    // 高危二次确认弹窗
+    pendingConfirm?.let { cmd ->
+        val risk = CommandRisk.riskLevel(cmd)
+        AlertDialog(
+            onDismissRequest = { pendingConfirm = null },
+            icon = { Icon(Icons.Filled.Warning, null, tint = risk.color) },
+            title = { Text("${risk.label}命令", color = TextPrimary) },
+            text = { Text("即将执行：\n$cmd\n\n该命令为${risk.label}操作，确认执行？", color = TextSecondary) },
+            confirmButton = { TextButton(onClick = { pendingConfirm = null; exec(cmd) }) { Text("确认执行", color = risk.color) } },
+            dismissButton = { TextButton(onClick = { pendingConfirm = null }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+
     val termColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight,
         focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent,
@@ -310,6 +343,15 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
                     modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
                 )
             }
+            // A3：命令实时风险徽章
+            if (command.trim().isNotEmpty()) {
+                val risk = CommandRisk.riskLevel(command.trim())
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.Filled.Circle, null, tint = risk.color, modifier = Modifier.size(9.dp))
+                    Text("风险：${risk.label}", color = risk.color, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    if (risk.needsConfirm) Text("· 执行前需确认", color = TextSecondary, fontSize = 11.sp)
+                }
+            }
             // 命令输入 + 执行
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -317,16 +359,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
                     colors = termColors, modifier = Modifier.weight(1f)
                 )
                 FilledIconButton(
-                    onClick = {
-                        val cmd = command.trim(); if (cmd.isEmpty() || running) return@FilledIconButton
-                        running = true
-                        output += "\n$ $cmd\n"
-                        scope.launch {
-                            val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, cmd)
-                            output += r.getOrElse { "⚠️ ${it.message ?: "连接失败"}" } + "\n"
-                            command = ""; running = false
-                        }
-                    },
+                    onClick = { submit() },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = Accent)
                 ) {
                     if (running) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)

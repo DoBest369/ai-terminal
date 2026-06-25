@@ -384,9 +384,9 @@ public struct AIService: Sendable {
         return regex.stringByReplacingMatches(in: text, range: range, withTemplate: "▶ $1")
     }
 
+    /// 兼容旧接口：高/极高风险即视为「危险」（委托 CommandRisk 四级分级）。
     public static func isDangerous(_ command: String) -> Bool {
-        let lower = command.lowercased()
-        return dangerousPatterns.contains { lower.contains($0) }
+        CommandRisk.riskLevel(command).needsConfirm
     }
 }
 

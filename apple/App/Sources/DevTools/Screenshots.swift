@@ -194,6 +194,29 @@ public enum AppScreenshots {
         return String(decoding: model.exportAIConversationMarkdown(), as: UTF8.self)
     }
 
+    /// 命令风险分级 + 脱敏自测（Z7）
+    public static func riskTest() -> String {
+        func r(_ c: String) -> CommandRisk { CommandRisk.riskLevel(c) }
+        let levels = r("ls -la") == .low
+            && r("cat /etc/hosts") == .low
+            && r("vim app.js") == .medium
+            && r("cp a b") == .medium
+            && r("systemctl restart nginx") == .high
+            && r("ufw allow 80") == .high
+            && r("rm -rf /") == .critical
+            && r("mkfs.ext4 /dev/sdb") == .critical
+            && r("iptables -F") == .critical
+        // isDangerous 兼容（high/critical 才 true）
+        let compat = AIService.isDangerous("rm -rf /") && AIService.isDangerous("systemctl restart nginx")
+            && !AIService.isDangerous("ls -la")
+        // 脱敏
+        let red = Redactor.redact("DB_PASSWORD=supersecret123\nAPI_TOKEN: abcdEFGH1234\nnormal text\nuse sk-ABCDEFGHIJKL1234\nAuthorization: Bearer xyz12345678")
+        let redacted = red.contains("DB_PASSWORD=******") && red.contains("API_TOKEN: ******")
+            && red.contains("normal text") && red.contains("sk-******") && red.contains("Bearer ******")
+            && !red.contains("supersecret123") && !red.contains("abcdEFGH1234")
+        return "风险分级正确=\(levels)；isDangerous 兼容=\(compat)；脱敏正确=\(redacted)"
+    }
+
     /// 操作回滚自测（Z5）：验证关键配置识别 + 备份命令 + 回滚命令 + sshd 自动回滚
     public static func rollbackTest() -> String {
         let critical = OpRollback.isCriticalConfig("/etc/nginx/nginx.conf")

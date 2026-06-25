@@ -18,6 +18,8 @@ MainActor.assumeIsolated {
         print(AppScreenshots.diagTest())
     } else if firstArg == "--rollback-test" {
         print(AppScreenshots.rollbackTest())
+    } else if firstArg == "--risk-test" {
+        print(AppScreenshots.riskTest())
     } else if firstArg == "--ai-persist-test" {
         print(AppScreenshots.aiPersistTest())
     } else if firstArg == "--ai-conv-test" {

@@ -231,6 +231,20 @@ object SshClient {
         }
     }
 
+    /** 重命名/移动远程文件或目录（A-SftpRename）：sshj SFTPClient.rename。 */
+    suspend fun renamePath(
+        host: String, port: Int, user: String, password: String, oldPath: String, newPath: String, privateKey: String? = null, jump: JumpConfig? = null
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            withTimeout(15_000) {
+                val (ssh, bastion) = connectClient(host, port, user, password, privateKey, jump)
+                try {
+                    ssh.newSFTPClient().use { it.rename(oldPath, newPath) }
+                } finally { runCatching { ssh.disconnect() }; runCatching { bastion?.disconnect() } }
+            }
+        }
+    }
+
     /** 读取远程文本文件内容（A-FileView）：head -c 限制大小，避免大文件/二进制卡顿。 */
     suspend fun readFile(
         host: String, port: Int, user: String, password: String, path: String, maxBytes: Int = 200_000, privateKey: String? = null, jump: JumpConfig? = null

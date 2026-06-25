@@ -1388,6 +1388,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
     var toast by remember { mutableStateOf<String?>(null) }                  // A-Upload 下载提示
     var showMkdir by remember { mutableStateOf(false) }                      // A-SftpEdit 新建文件夹
     var pendingDelete by remember { mutableStateOf<RemoteFile?>(null) }      // A-SftpEdit 待删除确认
+    var pendingRename by remember { mutableStateOf<RemoteFile?>(null) }      // A-SftpRename 待重命名
     var showGoto by remember { mutableStateOf(false) }                       // A-SftpPath 路径直跳
 
     fun load(p: String) {
@@ -1417,6 +1418,17 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
         scope.launch {
             SshClient.deletePath(conn.host, conn.port, conn.user, password, f.path, f.isDir, privateKey, jump)
                 .onSuccess { toast = "已删除 ${f.name}"; load(path) }
+                .onFailure { error = it.message; loading = false }
+        }
+    }
+    // A-SftpRename：重命名（同目录新名）
+    fun rename(f: RemoteFile, newName: String) {
+        val dir = f.path.substringBeforeLast('/', "").ifEmpty { "." }
+        val target = (if (dir == ".") "./" else "$dir/") + newName
+        loading = true
+        scope.launch {
+            SshClient.renamePath(conn.host, conn.port, conn.user, password, f.path, target, privateKey, jump)
+                .onSuccess { toast = "已重命名为 $newName"; load(path) }
                 .onFailure { error = it.message; loading = false }
         }
     }
@@ -1529,6 +1541,10 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                                 Icon(Icons.Filled.Download, "下载", tint = Accent, modifier = Modifier.size(16.dp))
                             }
                         }
+                        // A-SftpRename：重命名
+                        IconButton(onClick = { pendingRename = f }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Filled.DriveFileRenameOutline, "重命名", tint = TextSecondary, modifier = Modifier.size(15.dp))
+                        }
                         // A-SftpEdit：删除（二次确认）
                         IconButton(onClick = { pendingDelete = f }, modifier = Modifier.size(28.dp)) {
                             Icon(Icons.Filled.DeleteOutline, "删除", tint = Danger, modifier = Modifier.size(16.dp))
@@ -1562,6 +1578,19 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                 colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent)) },
             confirmButton = { TextButton(onClick = { val n = name.trim(); if (n.isNotEmpty()) mkdir(n); showMkdir = false }) { Text("创建", color = Accent) } },
             dismissButton = { TextButton(onClick = { showMkdir = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+    // A-SftpRename：重命名对话框
+    pendingRename?.let { f ->
+        var newName by remember { mutableStateOf(f.name) }
+        AlertDialog(
+            onDismissRequest = { pendingRename = null },
+            title = { Text("重命名", color = TextPrimary) },
+            text = { OutlinedTextField(newName, { newName = it }, label = { Text("新名称") }, singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent)) },
+            confirmButton = { TextButton(onClick = { val n = newName.trim(); if (n.isNotEmpty() && n != f.name) rename(f, n); pendingRename = null }) { Text("确定", color = Accent) } },
+            dismissButton = { TextButton(onClick = { pendingRename = null }) { Text("取消", color = TextSecondary) } },
             containerColor = Surface
         )
     }

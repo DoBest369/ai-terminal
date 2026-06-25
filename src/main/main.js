@@ -2,12 +2,36 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
+const crypto = require('crypto');
 
 let mainWindow;
 let ptyProcess = null;
 
 // 多 SSH 会话存储
 const sshSessions = new Map();
+
+// ===== 主机密钥 TOFU（trust-on-first-use），对齐原生 R20 =====
+function knownHostsPath() {
+  return path.join(app.getPath('userData'), 'known_hosts.json');
+}
+function loadKnownHosts() {
+  try {
+    return JSON.parse(fs.readFileSync(knownHostsPath(), 'utf8')) || {};
+  } catch {
+    return {};
+  }
+}
+function saveKnownHosts(map) {
+  try {
+    fs.writeFileSync(knownHostsPath(), JSON.stringify(map, null, 2));
+  } catch (e) {
+    console.error('保存 known_hosts 失败:', e.message);
+  }
+}
+/** 计算主机公钥指纹（OpenSSH 风格 SHA256:base64 去尾=） */
+function hostKeyFingerprint(keyBuf) {
+  return 'SHA256:' + crypto.createHash('sha256').update(keyBuf).digest('base64').replace(/=+$/, '');
+}
 
 // 动态加载node-pty（需要rebuild）
 let pty;
@@ -158,6 +182,28 @@ ipcMain.handle('select-private-key', async () => {
   return result.filePaths[0];
 });
 
+// ===== 已知主机（TOFU）管理：列出 / 删除单条 / 全部清除 =====
+ipcMain.handle('known-hosts-list', async () => {
+  const map = loadKnownHosts();
+  return Object.keys(map)
+    .sort()
+    .map((host) => ({ host, fingerprint: map[host] }));
+});
+
+ipcMain.handle('known-hosts-remove', async (event, host) => {
+  const map = loadKnownHosts();
+  if (host in map) {
+    delete map[host];
+    saveKnownHosts(map);
+  }
+  return true;
+});
+
+ipcMain.handle('known-hosts-clear', async () => {
+  saveKnownHosts({});
+  return true;
+});
+
 ipcMain.on('ssh-connect', (event, { sessionId, config }) => {
   // 关闭该会话之前的连接
   if (sshSessions.has(sessionId)) {
@@ -169,6 +215,8 @@ ipcMain.on('ssh-connect', (event, { sessionId, config }) => {
   }
 
   const conn = new Client();
+  // TOFU 主机密钥校验：被 hostVerifier 置为 true 时，连接失败信息标注为密钥变化
+  let hostKeyChanged = false;
 
   // 创建会话记录
   sshSessions.set(sessionId, {
@@ -216,6 +264,16 @@ ipcMain.on('ssh-connect', (event, { sessionId, config }) => {
 
   conn.on('error', (err) => {
     let errorMsg = err.message;
+    // 主机密钥变化（TOFU 校验失败）—— 可能存在中间人攻击
+    if (hostKeyChanged) {
+      event.reply('ssh-status', {
+        sessionId,
+        status: 'error',
+        message: '连接失败: 主机密钥已变化（可能存在中间人攻击）。如确认服务器更换了密钥，请删除本地 known_hosts.json 中对应主机后重连。',
+      });
+      sshSessions.delete(sessionId);
+      return;
+    }
     // 提供更友好的错误提示
     if (err.message.includes('Timed out')) {
       errorMsg = '连接超时，请检查网络或服务器地址';
@@ -255,6 +313,27 @@ ipcMain.on('ssh-connect', (event, { sessionId, config }) => {
       port: config.port || 22,
       username: config.username,
       tryKeyboard: true,
+      // TOFU 主机密钥校验：首次记录指纹并放行，之后比对，不一致则拒绝
+      hostVerifier: (keyBuf, cb) => {
+        try {
+          const fp = hostKeyFingerprint(keyBuf);
+          const hostID = `${config.host}:${config.port || 22}`;
+          const store = loadKnownHosts();
+          const known = store[hostID];
+          if (!known) {
+            store[hostID] = fp;
+            saveKnownHosts(store);
+            cb(true);
+          } else if (known === fp) {
+            cb(true);
+          } else {
+            hostKeyChanged = true;   // 在 error 处理里给出明确提示
+            cb(false);
+          }
+        } catch (e) {
+          cb(false);
+        }
+      },
       readyTimeout: 30000,
       keepaliveInterval: 10000,
       keepaliveCountMax: 3,

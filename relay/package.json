@@ -1,0 +1,13 @@
+{
+  "name": "ai-terminal-relay",
+  "version": "1.0.0",
+  "description": "WebSocket → SSH 中继，让移动端/网页能连 SSH",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ssh2": "^1.14.0",
+    "ws": "^8.18.0"
+  }
+}

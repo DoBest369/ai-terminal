@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="midnight">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <title>AI Terminal</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">&gt;_</div>
+    <h1>AI Terminal</h1>
+    <select id="theme">
+      <option value="midnight">午夜</option>
+      <option value="onedark">One Dark</option>
+      <option value="dracula">Dracula</option>
+      <option value="solarized">Solarized</option>
+      <option value="nord">Nord</option>
+    </select>
+  </div>
+
+  <div class="content">
+    <div class="section-title">SSH 连接</div>
+    <div id="conns"></div>
+
+    <div class="placeholder">
+      <div class="big">🔌</div>
+      <h2>SSH 终端（经中继）</h2>
+      <p>移动端 / 网页通过 <b>WebSocket→SSH 中继</b> 连接（自托管 <code>relay/</code>）。<br/>
+         iOS / iPadOS 也可用体验最佳的 <b>SwiftUI 原生版</b>（apple/）。</p>
+      <a href="terminal.html" style="display:inline-block;margin-top:14px;padding:11px 22px;background:var(--accent);color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:14px;">打开 SSH 终端</a>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <a class="tab active" href="terminal.html" style="text-decoration:none;"><span class="ico">🖥️</span>终端</a>
+    <div class="tab"><span class="ico">📁</span>文件</div>
+    <div class="tab"><span class="ico">✨</span>AI</div>
+    <div class="tab"><span class="ico">⚙️</span>设置</div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

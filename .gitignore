@@ -3,3 +3,17 @@ dist/
 src/renderer/bundle.js
 .DS_Store
 *.log
+
+# Apple / Swift
+apple/**/.build/
+apple/**/.swiftpm/
+apple/App/AITerminal.xcodeproj/xcuserdata/
+apple/App/AITerminal.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/
+*.xcuserstate
+
+# Capacitor (mobile)
+mobile/node_modules/
+mobile/android/
+mobile/ios/
+relay/node_modules/

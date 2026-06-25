@@ -5,14 +5,33 @@ import {
   Monitor, Zap, HardDrive, Globe, BarChart3, Clock,
   Lock, Plus, Play, Square, Settings, ChevronLeft,
   ChevronRight, Eye, EyeOff, Edit, Trash2, Check, X,
-  Info, Bot, Laptop, Save
+  Info, Bot, Laptop, Save, Folder, Copy, Files, Cpu
 } from 'lucide-react';
 import './styles/app.css';
 
 const { ipcRenderer } = window.require('electron');
 
+// 配色方案（与原生版 AppColorScheme 一致）。UI 由 CSS 变量 [data-theme] 驱动，
+// 这里仅提供 xterm 终端主题。
+const THEMES = {
+  midnight: { name: '午夜', xterm: { background: '#1a1a2e', foreground: '#e6e6e6', cursor: '#f39c12', cursorAccent: '#1a1a2e', selectionBackground: 'rgba(233,69,96,0.3)', black: '#282c34', red: '#e06c75', green: '#98c379', yellow: '#e5c07b', blue: '#61afef', magenta: '#c678dd', cyan: '#56b6c2', white: '#abb2bf', brightBlack: '#5c6370', brightRed: '#ff7b86', brightGreen: '#b5e890', brightYellow: '#ffd596', brightBlue: '#7cc5ff', brightMagenta: '#dd9bf0', brightCyan: '#6fd6e2', brightWhite: '#ffffff' } },
+  onedark: { name: 'One Dark', xterm: { background: '#282c34', foreground: '#abb2bf', cursor: '#61afef', cursorAccent: '#282c34', selectionBackground: 'rgba(97,175,239,0.3)', black: '#282c34', red: '#e06c75', green: '#98c379', yellow: '#e5c07b', blue: '#61afef', magenta: '#c678dd', cyan: '#56b6c2', white: '#abb2bf', brightBlack: '#5c6370', brightRed: '#e06c75', brightGreen: '#98c379', brightYellow: '#e5c07b', brightBlue: '#61afef', brightMagenta: '#c678dd', brightCyan: '#56b6c2', brightWhite: '#ffffff' } },
+  dracula: { name: 'Dracula', xterm: { background: '#282a36', foreground: '#f8f8f2', cursor: '#f1fa8c', cursorAccent: '#282a36', selectionBackground: 'rgba(189,147,249,0.3)', black: '#21222c', red: '#ff5555', green: '#50fa7b', yellow: '#f1fa8c', blue: '#bd93f9', magenta: '#ff79c6', cyan: '#8be9fd', white: '#f8f8f2', brightBlack: '#6272a4', brightRed: '#ff6e6e', brightGreen: '#69ff94', brightYellow: '#ffffa5', brightBlue: '#d6acff', brightMagenta: '#ff92df', brightCyan: '#a4ffff', brightWhite: '#ffffff' } },
+  solarized: { name: 'Solarized', xterm: { background: '#002b36', foreground: '#839496', cursor: '#93a1a1', cursorAccent: '#002b36', selectionBackground: 'rgba(38,139,210,0.3)', black: '#073642', red: '#dc322f', green: '#859900', yellow: '#b58900', blue: '#268bd2', magenta: '#d33682', cyan: '#2aa198', white: '#eee8d5', brightBlack: '#586e75', brightRed: '#cb4b16', brightGreen: '#586e75', brightYellow: '#657b83', brightBlue: '#839496', brightMagenta: '#6c71c4', brightCyan: '#93a1a1', brightWhite: '#fdf6e3' } },
+  nord: { name: 'Nord', xterm: { background: '#2e3440', foreground: '#d8dee9', cursor: '#88c0d0', cursorAccent: '#2e3440', selectionBackground: 'rgba(136,192,208,0.3)', black: '#3b4252', red: '#bf616a', green: '#a3be8c', yellow: '#ebcb8b', blue: '#81a1c1', magenta: '#b48ead', cyan: '#88c0d0', white: '#e5e9f0', brightBlack: '#4c566a', brightRed: '#bf616a', brightGreen: '#a3be8c', brightYellow: '#ebcb8b', brightBlue: '#81a1c1', brightMagenta: '#b48ead', brightCyan: '#8fbcbb', brightWhite: '#eceff4' } },
+};
+const getXtermTheme = (id) => (THEMES[id] || THEMES.midnight).xterm;
+
 // 生成唯一ID
 const generateId = () => Math.random().toString(36).substr(2, 9);
+
+// 高危命令判定（对齐原生 AIService.dangerousPatterns，子串匹配）。模块级纯函数，AI 自动执行与快捷执行共用。
+const DANGEROUS_PATTERNS = ['rm -rf', 'rm -fr', ':(){', 'mkfs', 'dd if=', '> /dev/',
+  'chmod -r 000', 'shutdown', 'reboot', 'halt', 'init 0', 'forkbomb'];
+const isDangerousCommand = (command) => {
+  const lower = (command || '').toLowerCase();
+  return DANGEROUS_PATTERNS.some((p) => lower.includes(p));
+};
 
 // 格式化字节
 const formatBytes = (bytes) => {
@@ -174,6 +193,8 @@ function App() {
   const [showConnectionDrawer, setShowConnectionDrawer] = useState(false);
   const [drawerConnectionConfig, setDrawerConnectionConfig] = useState({
     name: '',
+    group: '',
+    note: '',
     host: '',
     port: '22',
     username: '',
@@ -188,8 +209,19 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [apiKey, setApiKey] = useState(localStorage.getItem('openai_api_key') || '');
   const [showSettings, setShowSettings] = useState(false);
+  const [knownHosts, setKnownHosts] = useState([]);
   const [terminalError, setTerminalError] = useState('');
   const [localSystemInfo, setLocalSystemInfo] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem('color_scheme') || 'midnight');
+
+  // 应用主题：设置 data-theme（驱动 CSS 变量）、持久化、并热更新所有终端的 xterm 主题
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('color_scheme', theme);
+    const xterm = getXtermTheme(theme);
+    if (termInstance.current) termInstance.current.options.theme = xterm;
+    sshTerminals.current.forEach((t) => { if (t.term) t.term.options.theme = xterm; });
+  }, [theme]);
 
   const terminalRef = useRef(null);
   const termInstance = useRef(null);
@@ -217,13 +249,7 @@ function App() {
   useEffect(() => {
     if (terminalRef.current && !termInstance.current) {
       const term = new Terminal({
-        theme: {
-          background: '#1a1a2e',
-          foreground: '#eee',
-          cursor: '#f39c12',
-          cursorAccent: '#1a1a2e',
-          selection: 'rgba(248, 28, 229, 0.3)',
-        },
+        theme: getXtermTheme(localStorage.getItem('color_scheme') || 'midnight'),
         fontSize: 14,
         fontFamily: 'Menlo, Monaco, "Courier New", monospace',
         cursorBlink: true,
@@ -332,11 +358,7 @@ function App() {
     if (!containerElement || sshTerminals.current.has(sessionId)) return;
 
     const term = new Terminal({
-      theme: {
-        background: '#1a1a2e',
-        foreground: '#eee',
-        cursor: '#f39c12',
-      },
+      theme: getXtermTheme(localStorage.getItem('color_scheme') || 'midnight'),
       fontSize: 14,
       fontFamily: 'Menlo, Monaco, "Courier New", monospace',
       cursorBlink: true,
@@ -698,6 +720,8 @@ function App() {
           connectionId: connectionId,
           sessionId: null,
           name: connection.name,
+          group: connection.group || '',
+          note: connection.note || '',
           host: connection.host,
           port: connection.port,
           username: connection.username,
@@ -713,6 +737,8 @@ function App() {
         connectionId: null,
         sessionId: null,
         name: '',
+        group: '',
+        note: '',
         host: '',
         port: '22',
         username: '',
@@ -740,6 +766,7 @@ function App() {
       const updatedConnection = {
         id: connectionId,
         name: config.name || `${config.username}@${config.host}`,
+        group: config.group || '',
         host: config.host,
         port: config.port,
         username: config.username,
@@ -875,21 +902,29 @@ function App() {
 
   // 从抽屉保存连接配置（统一的保存操作）
   const handleDrawerSave = useCallback(() => {
-    if (!drawerConnectionConfig.host || !drawerConnectionConfig.username) {
+    const { connectionId, sessionId, ...config } = drawerConnectionConfig;
+    // 去首尾空白，避免「生产 」与「生产」分裂、字段带多余空格
+    const host = (config.host || '').trim();
+    const username = (config.username || '').trim();
+    const name = (config.name || '').trim() || `${username}@${host}`;
+    const group = (config.group || '').trim();
+    const note = (config.note || '').trim();
+
+    if (!host || !username) {
       showToast('请填写主机地址和用户名', 'error');
       return;
     }
-
-    const { connectionId, sessionId, ...config } = drawerConnectionConfig;
 
     if (connectionId) {
       // 更新现有连接
       const updatedConnection = {
         id: connectionId,
-        name: config.name || `${config.username}@${config.host}`,
-        host: config.host,
+        name,
+        group,
+        note,
+        host,
         port: config.port,
-        username: config.username,
+        username,
         authType: config.authType,
         password: config.password,
         privateKeyPath: config.privateKeyPath,
@@ -905,7 +940,7 @@ function App() {
       // 更新现有会话配置（如果存在）
       setSshSessions(prev => prev.map(s =>
         s.connectionId === connectionId
-          ? { ...s, name: updatedConnection.name, config: { ...config } }
+          ? { ...s, name: updatedConnection.name, config: { ...config, host, username } }
           : s
       ));
 
@@ -914,10 +949,12 @@ function App() {
       // 新建连接
       const newConnection = {
         id: generateId(),
-        name: config.name || `${config.username}@${config.host}`,
-        host: config.host,
+        name,
+        group,
+        note,
+        host,
         port: config.port,
-        username: config.username,
+        username,
         authType: config.authType,
         password: config.password,
         privateKeyPath: config.privateKeyPath,
@@ -1056,7 +1093,7 @@ function App() {
     return await ipcRenderer.invoke('agent-execute', command);
   }, []);
 
-  // 解析AI响应中的命令
+  // 解析AI响应中的命令（高危命令执行前二次确认，只拦 AI 自动执行路径）
   const parseAndExecuteCommands = useCallback(async (text) => {
     const regex = /\[EXECUTE\]([\s\S]*?)\[\/EXECUTE\]/g;
     let match;
@@ -1065,6 +1102,11 @@ function App() {
     while ((match = regex.exec(text)) !== null) {
       const command = match[1].trim();
       if (command) {
+        if (isDangerousCommand(command) &&
+            !confirm(`⚠️ 检测到高危命令：\n${command}\n\n确定要执行吗？`)) {
+          results.push({ command, success: false, output: '已跳过高危命令（用户取消）' });
+          continue;
+        }
         const result = await executeCommand(command);
         results.push({ command, ...result });
       }
@@ -1153,8 +1195,127 @@ function App() {
     setShowSettings(false);
   };
 
+  // 单条连接 → 跨端可移植对象（默认不含密码）
+  const connToPortable = (c, includeSecrets = false) => ({
+    name: c.name || '',
+    host: c.host || '',
+    port: Number(c.port) || 22,
+    username: c.username || '',
+    authType: c.authType || 'password',
+    ...((c.group || '').trim() ? { group: (c.group || '').trim() } : {}),
+    ...((c.note || '').trim() ? { note: (c.note || '').trim() } : {}),
+    ...(includeSecrets && c.password ? { password: c.password } : {}),
+    ...(includeSecrets && c.passphrase ? { passphrase: c.passphrase } : {}),
+  });
+
+  // 复制单条连接配置到剪贴板（不含密码，对齐原生 N3）
+  const copyConnectionConfig = (conn) => {
+    if (!conn) return;
+    const data = {
+      format: 'ai-terminal-connections',
+      version: 1,
+      connections: [connToPortable(conn, false)],
+    };
+    const text = JSON.stringify(data, null, 2);
+    Promise.resolve(navigator.clipboard?.writeText(text)).catch(() => {});
+    showToast('已复制连接配置（不含密码）', 'success');
+  };
+
+  // 克隆连接（复制一份，换新 id、name 加「副本」，对齐原生 cloneConnection）
+  const cloneConnection = (conn) => {
+    if (!conn) return;
+    const cloned = {
+      ...conn,
+      id: generateId(),
+      name: (conn.name || `${conn.username}@${conn.host}`) + ' 副本',
+    };
+    const merged = [...savedConnections, cloned];
+    setSavedConnections(merged);
+    localStorage.setItem('ssh_saved_connections', JSON.stringify(merged));
+    showToast('已克隆连接', 'success');
+  };
+
+  // 连接导出（跨端通用 JSON 格式，默认不含密码）
+  const exportConnections = (includeSecrets = false) => {
+    const data = {
+      format: 'ai-terminal-connections',
+      version: 1,
+      connections: savedConnections.map((c) => connToPortable(c, includeSecrets)),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ai-terminal-connections.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // 连接导入（合并，按 host+username+port 去重）
+  const importConnections = (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (data.format !== 'ai-terminal-connections') { showToast('文件格式无效'); return; }
+        const incoming = (data.connections || []).map((c) => ({
+          id: generateId(),
+          name: c.name || '',
+          group: c.group || '',
+          note: c.note || '',
+          host: c.host || '',
+          port: String(c.port || 22),
+          username: c.username || '',
+          authType: c.authType || 'password',
+          password: c.password || '',
+          privateKeyPath: '',
+          passphrase: c.passphrase || '',
+        }));
+        const merged = [...savedConnections];
+        let added = 0;
+        incoming.forEach((c) => {
+          const dup = merged.some((e) => e.host === c.host && e.username === c.username && String(e.port) === String(c.port));
+          if (!dup) { merged.push(c); added += 1; }
+        });
+        setSavedConnections(merged);
+        localStorage.setItem('ssh_saved_connections', JSON.stringify(merged));
+        showToast(added > 0 ? `已导入 ${added} 个连接` : '无新连接');
+      } catch (err) {
+        showToast('导入失败：' + err.message);
+      }
+      event.target.value = '';
+    };
+    reader.readAsText(file);
+  };
+
+  // 已知主机（TOFU）管理
+  const reloadKnownHosts = async () => {
+    try {
+      const list = await ipcRenderer.invoke('known-hosts-list');
+      setKnownHosts(Array.isArray(list) ? list : []);
+    } catch {
+      setKnownHosts([]);
+    }
+  };
+  const removeKnownHost = async (host) => {
+    await ipcRenderer.invoke('known-hosts-remove', host);
+    reloadKnownHosts();
+  };
+  const clearKnownHosts = async () => {
+    await ipcRenderer.invoke('known-hosts-clear');
+    reloadKnownHosts();
+    showToast('已清除全部已知主机');
+  };
+
   // 快捷执行命令
   const quickExecute = async (command) => {
+    // 高危命令统一二次确认（防未来扩展，与 AI 自动执行路径一致）
+    if (isDangerousCommand(command) &&
+        !confirm(`⚠️ 检测到高危命令：\n${command}\n\n确定要执行吗？`)) {
+      return;
+    }
     setAiMessages((prev) => [...prev, { role: 'user', content: `执行: ${command}` }]);
     setIsProcessing(true);
 
@@ -1201,7 +1362,9 @@ function App() {
                 <Plus size={14} />
               </button>
             </div>
-            {savedConnections.map(conn => {
+            {(() => {
+            const groupOf = (c) => (c.group || '').trim();
+            const renderConnItem = (conn) => {
               const status = getConnectionStatus(conn.id);
               let session = sshSessions.find(s => s.connectionId === conn.id);
 
@@ -1248,6 +1411,9 @@ function App() {
                     <div className="session-info-wrapper">
                       <span className="session-name">{conn.name}</span>
                       <span className="session-host">{conn.username}@{conn.host}:{conn.port}</span>
+                      {(conn.note || '').trim() && (
+                        <span className="session-note" title={conn.note}>{conn.note}</span>
+                      )}
                     </div>
                   )}
                   {!sidebarCollapsed && status === 'disconnected' && (
@@ -1279,7 +1445,26 @@ function App() {
                   )}
                 </div>
               );
-            })}
+            };
+            const ungrouped = savedConnections.filter(c => !groupOf(c));
+            const groupNames = [...new Set(savedConnections.map(groupOf).filter(Boolean))].sort();
+            return (
+              <>
+                {ungrouped.map(renderConnItem)}
+                {groupNames.map(g => (
+                  <React.Fragment key={`grp-${g}`}>
+                    {!sidebarCollapsed && (
+                      <div className="nav-group-header">
+                        <Folder size={13} />
+                        <span>{g}</span>
+                      </div>
+                    )}
+                    {savedConnections.filter(c => groupOf(c) === g).map(renderConnItem)}
+                  </React.Fragment>
+                ))}
+              </>
+            );
+            })()}
             {savedConnections.length === 0 && (
               <div className="nav-item-hint" onClick={() => openConnectionDrawer()}>
                 点击 <Plus size={12} style={{display: 'inline', verticalAlign: 'middle'}} /> 添加SSH连接
@@ -1301,7 +1486,7 @@ function App() {
         {/* 已移到上方SSH连接列表中 */}
 
         <div className="sidebar-footer">
-          <button className="settings-btn" onClick={() => setShowSettings(true)} title="设置">
+          <button className="settings-btn" onClick={() => { setShowSettings(true); reloadKnownHosts(); }} title="设置">
             <Settings size={18} />
             {!sidebarCollapsed && ' 设置'}
           </button>
@@ -1342,6 +1527,12 @@ function App() {
                             {session.config.username}@{session.config.host}:{session.config.port}
                           </span>
                         )}
+                        {(() => {
+                          // 最稳：从 savedConnections 按 connectionId 查 note（不假设 session.config 带 note）
+                          const conn = savedConnections.find(c => c.id === session.connectionId);
+                          const note = (conn?.note || '').trim();
+                          return note ? <span className="connection-note" title={note}>📝 {note}</span> : null;
+                        })()}
                       </div>
                       <div className="ssh-actions">
                         {session.status !== 'connected' && session.status !== 'connecting' && (
@@ -1412,6 +1603,11 @@ function App() {
                     <li>"创建一个名为test的文件夹"</li>
                     <li>"查找所有.js文件"</li>
                   </ul>
+                  {/* 当前 AI 服务商/模型（对齐原生 T1）。模型来源：renderer fetch openai /v1/chat/completions model:'gpt-4' */}
+                  <p className="ai-model-badge">
+                    <Cpu size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                    当前：OpenAI · gpt-4
+                  </p>
                 </div>
               )}
               {aiMessages.map((msg, idx) => (
@@ -1471,6 +1667,19 @@ function App() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>设置</h2>
             <div className="form-group">
+              <label>配色主题</label>
+              <select
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+                className="theme-select"
+              >
+                {Object.entries(THEMES).map(([id, t]) => (
+                  <option key={id} value={id}>{t.name}</option>
+                ))}
+              </select>
+              <small>应用到界面与终端配色</small>
+            </div>
+            <div className="form-group">
               <label>OpenAI API Key</label>
               <input
                 type="password"
@@ -1479,6 +1688,44 @@ function App() {
                 placeholder="sk-..."
               />
               <small>用于AI Agent功能，支持GPT-4模型</small>
+            </div>
+            <div className="form-group">
+              <label>连接备份</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button className="btn-save" style={{ flex: 1 }} onClick={() => exportConnections(false)}>导出连接</button>
+                <button className="btn-save" style={{ flex: 1, background: 'var(--surface-light)' }}
+                  onClick={() => document.getElementById('import-conn-input').click()}>导入连接</button>
+              </div>
+              <input id="import-conn-input" type="file" accept="application/json,.json"
+                style={{ display: 'none' }} onChange={importConnections} />
+              <small>跨端通用 JSON 格式（docs/connection-format.md）。默认不导出密码。</small>
+            </div>
+            <div className="form-group">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <label style={{ margin: 0 }}>已知主机（TOFU）</label>
+                {knownHosts.length > 0 && (
+                  <button className="btn-save" style={{ background: 'var(--danger)', padding: '4px 10px', fontSize: '12px' }}
+                    onClick={clearKnownHosts}>全部清除</button>
+                )}
+              </div>
+              {knownHosts.length === 0 ? (
+                <small>暂无已知主机。首次连接 SSH 后会记录其指纹用于 TOFU 校验。</small>
+              ) : (
+                <div className="known-hosts-list">
+                  {knownHosts.map((h) => (
+                    <div key={h.host} className="known-host-row">
+                      <div className="known-host-info">
+                        <span className="known-host-name">{h.host}</span>
+                        <span className="known-host-fp" title={h.fingerprint}>{h.fingerprint}</span>
+                      </div>
+                      <button className="known-host-del" title="删除" onClick={() => removeKnownHost(h.host)}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <small>删除某主机后，下次连接会重新信任并记录其指纹。</small>
             </div>
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowSettings(false)}>
@@ -1553,6 +1800,28 @@ function App() {
                   value={drawerConnectionConfig.name}
                   onChange={(e) => setDrawerConnectionConfig({ ...drawerConnectionConfig, name: e.target.value })}
                   placeholder="例如: 生产服务器"
+                  className="drawer-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>分组（可选）</label>
+                <input
+                  type="text"
+                  value={drawerConnectionConfig.group || ''}
+                  onChange={(e) => setDrawerConnectionConfig({ ...drawerConnectionConfig, group: e.target.value })}
+                  placeholder="例如: 生产 / 测试"
+                  className="drawer-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>备注（可选）</label>
+                <input
+                  type="text"
+                  value={drawerConnectionConfig.note || ''}
+                  onChange={(e) => setDrawerConnectionConfig({ ...drawerConnectionConfig, note: e.target.value })}
+                  placeholder="例如: 数据库主库 / 跳板用"
                   className="drawer-input"
                 />
               </div>
@@ -1707,6 +1976,20 @@ function App() {
           }}>
             <Edit className="context-menu-icon" size={14} />
             编辑配置
+          </div>
+          <div className="context-menu-item" onClick={() => {
+            cloneConnection(contextMenu.connection);
+            closeContextMenu();
+          }}>
+            <Files className="context-menu-icon" size={14} />
+            克隆连接
+          </div>
+          <div className="context-menu-item" onClick={() => {
+            copyConnectionConfig(contextMenu.connection);
+            closeContextMenu();
+          }}>
+            <Copy className="context-menu-icon" size={14} />
+            复制配置
           </div>
           <div className="context-menu-divider"></div>
           <div className="context-menu-item danger" onClick={() => {

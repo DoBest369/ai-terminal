@@ -1,0 +1,8 @@
+{
+  "appId": "com.aiterminal.app",
+  "appName": "AI Terminal",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

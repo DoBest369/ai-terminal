@@ -1,0 +1,621 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		03BC793F67E181E301381E75 /* AITerminalCore in Frameworks */ = {isa = PBXBuildFile; productRef = AAEA151646130A1192840479 /* AITerminalCore */; };
+		08E54540A68E8F6E7C7BF4D3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348CBCA513E7D86D587F86A7 /* ContentView.swift */; };
+		0A29D0B96538D6FDCB6952BF /* TerminalContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8183D44872F7F9F04654042 /* TerminalContainer.swift */; };
+		0CACD89BA97BB9EE828F45AE /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D2962C85AE355BBA1CB822 /* AppModel.swift */; };
+		1A3B41D39851413410359DAF /* AITerminalCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4FCD2D192B183E159C31A2EB /* AITerminalCore */; };
+		1BFD3770E9714113106DF9E9 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24695F22C1F36F3E5808D72C /* StatusBarView.swift */; };
+		2917BF7D30D59FC68D317A1B /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3791F506DDABD456A9322F64 /* Platform.swift */; };
+		2A9A63F8A94FD5A330E92814 /* TerminalTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4012A18D1127E312CD35AB /* TerminalTheme.swift */; };
+		426D4A4D3765AD4ABF7DEB32 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 2EF9901F3265C14F75CCA92D /* SwiftTerm */; };
+		6BA39D4C186504BC976883C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 102412AE726021867B872659 /* Assets.xcassets */; };
+		6D0826A553588997511AC3D9 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C415D00A3CB4A921A4A40AC /* SidebarView.swift */; };
+		70BB1511AD0792C43EA4CB4B /* ConnectionEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D417850D0F917D1685FF76 /* ConnectionEditView.swift */; };
+		86312DF33AEA8400A4BEE7EF /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C415D00A3CB4A921A4A40AC /* SidebarView.swift */; };
+		8A955D87B40A780D445AC3C1 /* LocalSystemMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201BE29CAB8A5F32922BDEA3 /* LocalSystemMonitor.swift */; };
+		A4CC88B00D216722563FDCA8 /* TerminalSessionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588B0606ECC79EE54E4DCA0C /* TerminalSessionVM.swift */; };
+		A68163CBB2138124E5A70322 /* TerminalPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB3CB4884EF1A304033ABB4 /* TerminalPane.swift */; };
+		A6EC511310D250A2504BDEA0 /* AITerminalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A4C5206702236B1A56B760 /* AITerminalApp.swift */; };
+		A9F08EF6D07132D4FD2A9471 /* AIAgentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66D7DA8FA3A3D9A9F7835D2B /* AIAgentView.swift */; };
+		B433A891D3933A0BA2D5BF86 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348CBCA513E7D86D587F86A7 /* ContentView.swift */; };
+		B61369EE343B14C7AE0F0F33 /* AIAgentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66D7DA8FA3A3D9A9F7835D2B /* AIAgentView.swift */; };
+		BE225ECB65556EFE4E41CAD4 /* TerminalTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4012A18D1127E312CD35AB /* TerminalTheme.swift */; };
+		BE6FE5707ADDC1B6F5B2DBC4 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D2962C85AE355BBA1CB822 /* AppModel.swift */; };
+		CAC1EF1D1D63251F7F33A568 /* TerminalPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB3CB4884EF1A304033ABB4 /* TerminalPane.swift */; };
+		CFD123C52EA66187633EF86F /* TerminalKeyBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162BB60CE16162887A594F41 /* TerminalKeyBar.swift */; };
+		D188D91AA56DFA33BB7EC53E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 102412AE726021867B872659 /* Assets.xcassets */; };
+		DAC45FB2B8EB35FB1698178E /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3791F506DDABD456A9322F64 /* Platform.swift */; };
+		DAFEF025AFCE0C0725D711CA /* ConnectionEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D417850D0F917D1685FF76 /* ConnectionEditView.swift */; };
+		DC2B4D04CF888962F938EA0C /* AITerminalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A4C5206702236B1A56B760 /* AITerminalApp.swift */; };
+		DEC22396534FA15569116B05 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 41AA86963501D91F4F514B2D /* SwiftTerm */; };
+		E3C136DBD693AFABFDC4FA8F /* TerminalSessionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588B0606ECC79EE54E4DCA0C /* TerminalSessionVM.swift */; };
+		E4A211F5FFBDDD1CA697898C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25722034C89CBA7CE9003A97 /* SettingsView.swift */; };
+		E8D6382A01686193D94AAC1B /* LocalSystemMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201BE29CAB8A5F32922BDEA3 /* LocalSystemMonitor.swift */; };
+		E92414D6586C5C46244713F9 /* TerminalContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8183D44872F7F9F04654042 /* TerminalContainer.swift */; };
+		F0BE68705C0498D2761BCFED /* TerminalKeyBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162BB60CE16162887A594F41 /* TerminalKeyBar.swift */; };
+		F4F8DD0F6DBF0B86A9087BEC /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24695F22C1F36F3E5808D72C /* StatusBarView.swift */; };
+		F6E25B52AF2A3BA9E3B05832 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25722034C89CBA7CE9003A97 /* SettingsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		102412AE726021867B872659 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		11BCD290B96E77971CC140AB /* AITerminal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AITerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		162BB60CE16162887A594F41 /* TerminalKeyBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalKeyBar.swift; sourceTree = "<group>"; };
+		201BE29CAB8A5F32922BDEA3 /* LocalSystemMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalSystemMonitor.swift; sourceTree = "<group>"; };
+		24695F22C1F36F3E5808D72C /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
+		25722034C89CBA7CE9003A97 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		31A4C5206702236B1A56B760 /* AITerminalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AITerminalApp.swift; sourceTree = "<group>"; };
+		348CBCA513E7D86D587F86A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		3791F506DDABD456A9322F64 /* Platform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Platform.swift; sourceTree = "<group>"; };
+		42BA56BC954BF371A43A2E9D /* AITerminal.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AITerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		588B0606ECC79EE54E4DCA0C /* TerminalSessionVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSessionVM.swift; sourceTree = "<group>"; };
+		66D7DA8FA3A3D9A9F7835D2B /* AIAgentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentView.swift; sourceTree = "<group>"; };
+		98D2962C85AE355BBA1CB822 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		9B4012A18D1127E312CD35AB /* TerminalTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalTheme.swift; sourceTree = "<group>"; };
+		9C415D00A3CB4A921A4A40AC /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		A2D417850D0F917D1685FF76 /* ConnectionEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionEditView.swift; sourceTree = "<group>"; };
+		A8183D44872F7F9F04654042 /* TerminalContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalContainer.swift; sourceTree = "<group>"; };
+		CDB3CB4884EF1A304033ABB4 /* TerminalPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalPane.swift; sourceTree = "<group>"; };
+		F675EDFBA1835D3209EAD210 /* AITerminalCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AITerminalCore; path = ../AITerminalCore; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1A62BF8CAA67981EE1DAF637 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEC22396534FA15569116B05 /* SwiftTerm in Frameworks */,
+				1A3B41D39851413410359DAF /* AITerminalCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FDBFF0EEFC6899E761A782A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				426D4A4D3765AD4ABF7DEB32 /* SwiftTerm in Frameworks */,
+				03BC793F67E181E301381E75 /* AITerminalCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		013345B4C3E8167765D629C0 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				F675EDFBA1835D3209EAD210 /* AITerminalCore */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		4B28495663D0C37087840E66 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				42BA56BC954BF371A43A2E9D /* AITerminal.app */,
+				11BCD290B96E77971CC140AB /* AITerminal.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		58B1D8B515F82B7BB628D0B7 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				31A4C5206702236B1A56B760 /* AITerminalApp.swift */,
+				98D2962C85AE355BBA1CB822 /* AppModel.swift */,
+				588B0606ECC79EE54E4DCA0C /* TerminalSessionVM.swift */,
+				CAA3173EA7CD1D4317EF41E0 /* Support */,
+				D53691FFE0E67E00829C4564 /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		7F342ECC95D9D2A32D3C37E3 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				102412AE726021867B872659 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		CAA3173EA7CD1D4317EF41E0 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				201BE29CAB8A5F32922BDEA3 /* LocalSystemMonitor.swift */,
+				3791F506DDABD456A9322F64 /* Platform.swift */,
+				9B4012A18D1127E312CD35AB /* TerminalTheme.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		D53691FFE0E67E00829C4564 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				66D7DA8FA3A3D9A9F7835D2B /* AIAgentView.swift */,
+				A2D417850D0F917D1685FF76 /* ConnectionEditView.swift */,
+				348CBCA513E7D86D587F86A7 /* ContentView.swift */,
+				25722034C89CBA7CE9003A97 /* SettingsView.swift */,
+				9C415D00A3CB4A921A4A40AC /* SidebarView.swift */,
+				24695F22C1F36F3E5808D72C /* StatusBarView.swift */,
+				A8183D44872F7F9F04654042 /* TerminalContainer.swift */,
+				162BB60CE16162887A594F41 /* TerminalKeyBar.swift */,
+				CDB3CB4884EF1A304033ABB4 /* TerminalPane.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D53C75E584EE796BD6E9F56C = {
+			isa = PBXGroup;
+			children = (
+				013345B4C3E8167765D629C0 /* Packages */,
+				7F342ECC95D9D2A32D3C37E3 /* Resources */,
+				58B1D8B515F82B7BB628D0B7 /* Sources */,
+				4B28495663D0C37087840E66 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		92901D81A8C2F810ED4EB7B9 /* AITerminal_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 674A64AA939CFC88EE24D7D3 /* Build configuration list for PBXNativeTarget "AITerminal_iOS" */;
+			buildPhases = (
+				2CD22112B88DB7DBF03FA5E9 /* Sources */,
+				F0E486B1253BB472A34B243F /* Resources */,
+				1A62BF8CAA67981EE1DAF637 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AITerminal_iOS;
+			packageProductDependencies = (
+				41AA86963501D91F4F514B2D /* SwiftTerm */,
+				4FCD2D192B183E159C31A2EB /* AITerminalCore */,
+			);
+			productName = AITerminal_iOS;
+			productReference = 42BA56BC954BF371A43A2E9D /* AITerminal.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CFB1545A79F9A015E6F485AA /* AITerminal_macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4D8EF8B18E8EB19CA32F2B5E /* Build configuration list for PBXNativeTarget "AITerminal_macOS" */;
+			buildPhases = (
+				60739BA36D6DCEE429F37D40 /* Sources */,
+				D1965360C154A60B581B10D3 /* Resources */,
+				FDBFF0EEFC6899E761A782A4 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AITerminal_macOS;
+			packageProductDependencies = (
+				2EF9901F3265C14F75CCA92D /* SwiftTerm */,
+				AAEA151646130A1192840479 /* AITerminalCore */,
+			);
+			productName = AITerminal_macOS;
+			productReference = 11BCD290B96E77971CC140AB /* AITerminal.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B2E05A0215D4044B8FF9892B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					92901D81A8C2F810ED4EB7B9 = {
+						ProvisioningStyle = Automatic;
+					};
+					CFB1545A79F9A015E6F485AA = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 2CB818ABFE2AEF238E798A01 /* Build configuration list for PBXProject "AITerminal" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = D53C75E584EE796BD6E9F56C;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B4C9B37703D2F58B7B3BFCBF /* XCRemoteSwiftPackageReference "SwiftTerm" */,
+				D3D77771B49B9D78D144B1B0 /* XCLocalSwiftPackageReference "../AITerminalCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 4B28495663D0C37087840E66 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				92901D81A8C2F810ED4EB7B9 /* AITerminal_iOS */,
+				CFB1545A79F9A015E6F485AA /* AITerminal_macOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D1965360C154A60B581B10D3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6BA39D4C186504BC976883C3 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F0E486B1253BB472A34B243F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D188D91AA56DFA33BB7EC53E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2CD22112B88DB7DBF03FA5E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9F08EF6D07132D4FD2A9471 /* AIAgentView.swift in Sources */,
+				DC2B4D04CF888962F938EA0C /* AITerminalApp.swift in Sources */,
+				BE6FE5707ADDC1B6F5B2DBC4 /* AppModel.swift in Sources */,
+				DAFEF025AFCE0C0725D711CA /* ConnectionEditView.swift in Sources */,
+				B433A891D3933A0BA2D5BF86 /* ContentView.swift in Sources */,
+				E8D6382A01686193D94AAC1B /* LocalSystemMonitor.swift in Sources */,
+				DAC45FB2B8EB35FB1698178E /* Platform.swift in Sources */,
+				F6E25B52AF2A3BA9E3B05832 /* SettingsView.swift in Sources */,
+				86312DF33AEA8400A4BEE7EF /* SidebarView.swift in Sources */,
+				F4F8DD0F6DBF0B86A9087BEC /* StatusBarView.swift in Sources */,
+				E92414D6586C5C46244713F9 /* TerminalContainer.swift in Sources */,
+				F0BE68705C0498D2761BCFED /* TerminalKeyBar.swift in Sources */,
+				CAC1EF1D1D63251F7F33A568 /* TerminalPane.swift in Sources */,
+				A4CC88B00D216722563FDCA8 /* TerminalSessionVM.swift in Sources */,
+				BE225ECB65556EFE4E41CAD4 /* TerminalTheme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60739BA36D6DCEE429F37D40 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B61369EE343B14C7AE0F0F33 /* AIAgentView.swift in Sources */,
+				A6EC511310D250A2504BDEA0 /* AITerminalApp.swift in Sources */,
+				0CACD89BA97BB9EE828F45AE /* AppModel.swift in Sources */,
+				70BB1511AD0792C43EA4CB4B /* ConnectionEditView.swift in Sources */,
+				08E54540A68E8F6E7C7BF4D3 /* ContentView.swift in Sources */,
+				8A955D87B40A780D445AC3C1 /* LocalSystemMonitor.swift in Sources */,
+				2917BF7D30D59FC68D317A1B /* Platform.swift in Sources */,
+				E4A211F5FFBDDD1CA697898C /* SettingsView.swift in Sources */,
+				6D0826A553588997511AC3D9 /* SidebarView.swift in Sources */,
+				1BFD3770E9714113106DF9E9 /* StatusBarView.swift in Sources */,
+				0A29D0B96538D6FDCB6952BF /* TerminalContainer.swift in Sources */,
+				CFD123C52EA66187633EF86F /* TerminalKeyBar.swift in Sources */,
+				A68163CBB2138124E5A70322 /* TerminalPane.swift in Sources */,
+				E3C136DBD693AFABFDC4FA8F /* TerminalSessionVM.swift in Sources */,
+				2A9A63F8A94FD5A330E92814 /* TerminalTheme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3F2EFA11C04FAE4563029F96 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "AI Terminal";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aiterminal.app;
+				PRODUCT_NAME = AITerminal;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6310AEECA29B60703CDA8553 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "AI Terminal";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aiterminal.app;
+				PRODUCT_NAME = AITerminal;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B2E6E1C2F5B0914C37C85AC7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DA202316527E5BAB7CA969F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "AI Terminal";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aiterminal.app;
+				PRODUCT_NAME = AITerminal;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		E64177D2D1A4700310C54FA7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F7B49BF980968B9ACCD47091 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "AI Terminal";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aiterminal.app;
+				PRODUCT_NAME = AITerminal;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2CB818ABFE2AEF238E798A01 /* Build configuration list for PBXProject "AITerminal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B2E6E1C2F5B0914C37C85AC7 /* Debug */,
+				E64177D2D1A4700310C54FA7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4D8EF8B18E8EB19CA32F2B5E /* Build configuration list for PBXNativeTarget "AITerminal_macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F7B49BF980968B9ACCD47091 /* Debug */,
+				DA202316527E5BAB7CA969F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		674A64AA939CFC88EE24D7D3 /* Build configuration list for PBXNativeTarget "AITerminal_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6310AEECA29B60703CDA8553 /* Debug */,
+				3F2EFA11C04FAE4563029F96 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		D3D77771B49B9D78D144B1B0 /* XCLocalSwiftPackageReference "../AITerminalCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../AITerminalCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B4C9B37703D2F58B7B3BFCBF /* XCRemoteSwiftPackageReference "SwiftTerm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/migueldeicaza/SwiftTerm";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2EF9901F3265C14F75CCA92D /* SwiftTerm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4C9B37703D2F58B7B3BFCBF /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = SwiftTerm;
+		};
+		41AA86963501D91F4F514B2D /* SwiftTerm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4C9B37703D2F58B7B3BFCBF /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = SwiftTerm;
+		};
+		4FCD2D192B183E159C31A2EB /* AITerminalCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AITerminalCore;
+		};
+		AAEA151646130A1192840479 /* AITerminalCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AITerminalCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = B2E05A0215D4044B8FF9892B /* Project object */;
+}

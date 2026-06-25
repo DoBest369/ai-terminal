@@ -10,10 +10,30 @@
     "build": "webpack --config webpack.config.js",
     "rebuild": "electron-rebuild -f -w node-pty",
     "postinstall": "electron-rebuild -f -w node-pty || true",
-    "package": "electron-builder"
+    "package": "electron-builder",
+    "package:dir": "electron-builder --dir"
   },
   "author": "",
   "license": "MIT",
+  "build": {
+    "appId": "com.aiterminal.app",
+    "productName": "AI Terminal",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": "dir",
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility"
+    }
+  },
   "devDependencies": {
     "@babel/core": "^7.23.0",
     "@babel/preset-env": "^7.23.0",

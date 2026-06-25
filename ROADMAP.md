@@ -13,7 +13,11 @@
 | macOS / iOS / iPadOS | **Swift + SwiftUI**（Citadel SSH + SwiftTerm） | `apple/` | ✅ swift build（无 Xcode 不能出包/跑） |
 | Android | **Kotlin + Jetpack Compose**（✅ 骨架+APK 跑通） | `android/` | ✅ gradle 8.13+AGP 8.7.2 出 app-debug.apk 14.7MB |
 | Windows | **C# + WinUI 3 / .NET**（待建） | `windows/` | ❌ 需 Windows |
-| Linux | **Rust + GTK4 / C++ Qt**（待建） | `linux/` | ❌ 需 Linux |
+| Linux | **Rust + egui/eframe**（🟡 骨架已搭，未本机验证） | `linux/` | ❌ 本机无 Rust，需 Linux+cargo |
+
+### 🐧 Linux 原生 backlog（linux/ Rust+egui）
+- [x] **L0** 工程骨架（Cargo.toml eframe/egui+ssh2+ureq；src/main.rs TermindApp 连接列表占位 UI；README 构建说明+路线；⚠️ 本机无 cargo 未编译验证，需 Linux+Rust 环境；推送 9550426）
+- [ ] **L1** 真实 SSH（ssh2 crate）+ 交互终端 / **L2** 连接管理持久化 / **L3** AI 助手(ureq) / **L4** 智能运维逻辑移植
 
 > apple/ 保留为 macOS/iOS 原生旗舰（按 SSH 运维愿景重设计），不推倒重来——它本就是原生 Swift。
 > 可选后端 `relay/`（Node WebSocket→SSH）保留供原生移动端可选使用。

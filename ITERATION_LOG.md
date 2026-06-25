@@ -6,6 +6,14 @@
 
 ---
 
+## L0 · Linux 原生端起步（Rust + egui 骨架）
+- **内容**：本机查 `which cargo rustc`→**均无（cargo/rustc/rustup not found）**，故 Linux 端只搭源码骨架 + 文档，**不能本机编译验证**（如实标注）。新建 `linux/`：`Cargo.toml`(eframe 0.27/egui + ssh2 0.9 + ureq/serde/serde_json) + `src/main.rs`(`TermindApp: eframe::App`——TopBottomPanel 顶栏「⚡ Termind 智能 SSH 运维」+ CentralPanel 按分组渲染 server_card[在线绿/离线灰圆点 + name + user@host:port + 备注]，BG/SURFACE/ACCENT/... 配色常量呼应 apple/android 午夜深蓝+珊瑚红) + `README.md`(现状🟡骨架+未验证声明+cargo 构建说明[apt libssl-dev 等系统依赖]+对齐双端能力路线 L1-L4)。`.gitignore` 加 linux/target。
+- **改动**：新增 `linux/Cargo.toml`、`linux/src/main.rs`、`linux/README.md`；改 `.gitignore`。
+- **验证**：⚠️ **未编译验证**——开发机 macOS 无 Rust toolchain。源码按 eframe 0.27 API 编写，需 Linux+Rust 环境 `cargo run` 验证。推送 9550426。
+- **意义**：全平台 5 端补第 4 端骨架（apple✅ android✅ linux🟡骨架 windows⬜）。诚实标注未验证状态。
+
+---
+
 ## A-HealthAI · 安卓状态面板↔AI 联动（对齐 apple Z6b，双端一致）
 - **内容**：`ServerStatus`(OpsCore.kt)加 `pct()`(从格式化串如"47%"/"36G/80G (90%)"抽百分比) + `cpuPercent/diskPercent` + `hasWarning`(CPU/磁盘>85%) + `healthSummary`(拼 CPU/内存/磁盘+告警，对齐 apple SystemInfo.healthSummary)。`AiClient.HEALTH_PROMPT`(健康分析:总评/异常定位/处置建议/验证)。`ServerWorkspace` 状态面板：CPU/磁盘 StatCell 颜色 >85% 转 Danger；加「问 AI」IconButton(hasWarning→Warning 图标红高亮)→`showHealthAI`→`HealthAISheet`(ModalBottomSheet：状态摘要置顶 + LaunchedEffect 调 AiClient.chatStream 流式把 AI 健康分析逐字追加显示，未配 Key 提示)。
 - **改动**：`OpsCore.kt`(ServerStatus 扩展)、`AiClient.kt`(HEALTH_PROMPT)、`MainActivity.kt`(状态面板问AI按钮+HealthAISheet)。

@@ -6,6 +6,14 @@
 
 ---
 
+## A-Ansi · 安卓终端 ANSI 颜色渲染
+- **内容**：新建 `AnsiParser.kt`——`parse(text): AnnotatedString`，逐字符扫描，遇 `ESC[…m` SGR 序列则 flush 当前段并按参数更新颜色/粗体（basic 30-37/bright 90-97 映射为深色背景可读配色，1=粗体，0=重置，39=默认色，22=取消粗体；非 SGR 的光标/清屏序列直接剥离），用 `buildAnnotatedString`+`withStyle(SpanStyle(color,fontWeight))` 分段着色。`SshClient.openShell` 读循环不再 `stripAnsi(chunk)`，直接传原始 ANSI 给 onOutput（保留颜色码）。`ServerWorkspace` 终端输出区 `Text(output...)` → `Text(AnsiParser.parse(output)...)` 彩色渲染。
+- **改动**：新增 `android/.../AnsiParser.kt`；改 `SshClient.kt`(openShell 去 stripAnsi)、`MainActivity.kt`(终端区 AnsiParser)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 18s** → app-debug.apk。推送 c2f4941。真实彩色需真服务器输出 ANSI(如 ls --color/top)。
+- **意义**：安卓终端从「删颜色码灰绿单色」升级为「保留 ANSI 彩色高亮」，终端体验大升，贴近桌面终端。stripAnsi 保留（状态采集等纯文本场景仍可用）。
+
+---
+
 ## L0 · Linux 原生端起步（Rust + egui 骨架）
 - **内容**：本机查 `which cargo rustc`→**均无（cargo/rustc/rustup not found）**，故 Linux 端只搭源码骨架 + 文档，**不能本机编译验证**（如实标注）。新建 `linux/`：`Cargo.toml`(eframe 0.27/egui + ssh2 0.9 + ureq/serde/serde_json) + `src/main.rs`(`TermindApp: eframe::App`——TopBottomPanel 顶栏「⚡ Termind 智能 SSH 运维」+ CentralPanel 按分组渲染 server_card[在线绿/离线灰圆点 + name + user@host:port + 备注]，BG/SURFACE/ACCENT/... 配色常量呼应 apple/android 午夜深蓝+珊瑚红) + `README.md`(现状🟡骨架+未验证声明+cargo 构建说明[apt libssl-dev 等系统依赖]+对齐双端能力路线 L1-L4)。`.gitignore` 加 linux/target。
 - **改动**：新增 `linux/Cargo.toml`、`linux/src/main.rs`、`linux/README.md`；改 `.gitignore`。

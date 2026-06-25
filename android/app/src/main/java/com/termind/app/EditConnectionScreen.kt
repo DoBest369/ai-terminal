@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /** 新建/编辑连接表单（existing 为空=新建）。保存回调给上层写 store。 */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -21,6 +22,7 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
     var port by remember { mutableStateOf((existing?.port ?: 22).toString()) }
     var group by remember { mutableStateOf(existing?.group ?: "") }
     var note by remember { mutableStateOf(existing?.note ?: "") }
+    var authType by remember { mutableStateOf(existing?.authType ?: AuthType.PASSWORD) }
 
     val canSave = host.trim().isNotEmpty() && user.trim().isNotEmpty()
 
@@ -44,7 +46,8 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
                                 name = name.trim().ifEmpty { "$user@$host" },
                                 host = host.trim(), user = user.trim(),
                                 port = port.toIntOrNull() ?: 22,
-                                group = group.trim(), note = note.trim()
+                                group = group.trim(), note = note.trim(),
+                                authType = authType
                             )
                         )
                     }, enabled = canSave) {
@@ -67,7 +70,22 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
             }
             OutlinedTextField(group, { group = it }, label = { Text("分组（可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(note, { note = it }, label = { Text("备注（可选）") }, singleLine = true, colors = fieldColors, modifier = Modifier.fillMaxWidth())
-            Text("提示：SSH 密钥/密码将在连接时配置（敏感信息不入普通存储）。", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+            // A-KeyAuth：认证方式
+            Text("认证方式", color = TextSecondary, fontSize = 12.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(AuthType.PASSWORD to "密码", AuthType.KEY to "私钥").forEach { (t, label) ->
+                    FilterChip(
+                        selected = authType == t,
+                        onClick = { authType = t },
+                        label = { Text(label) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Accent.copy(alpha = 0.25f),
+                            selectedLabelColor = Accent, labelColor = TextSecondary
+                        )
+                    )
+                }
+            }
+            Text("提示：密码/私钥在连接时输入，敏感信息不入普通存储。", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
         }
     }
 }

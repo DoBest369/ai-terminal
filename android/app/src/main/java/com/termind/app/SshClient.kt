@@ -17,6 +17,19 @@ import java.util.concurrent.TimeUnit
 object SshClient {
 
     /**
+     * 认证（A-KeyAuth）：privateKey 非空走公钥认证（PEM 字符串），否则密码认证。
+     * sshj: loadKeys(privateKeyContent, publicKeyOrNull, passwordFinderOrNull) 把字符串当密钥内容。
+     */
+    private fun authenticate(ssh: SSHClient, user: String, password: String, privateKey: String?) {
+        if (!privateKey.isNullOrBlank()) {
+            val keyProvider = ssh.loadKeys(privateKey, null, null)
+            ssh.authPublickey(user, keyProvider)
+        } else {
+            ssh.authPassword(user, password)
+        }
+    }
+
+    /**
      * 连接并执行一条命令，返回合并的 stdout+stderr。
      * 在 IO 线程跑，带超时。host key 暂用 Promiscuous（仅 MVP，TODO: 后续做 TOFU/known_hosts，对齐 apple 端 R20）。
      */
@@ -26,7 +39,8 @@ object SshClient {
         user: String,
         password: String,
         command: String,
-        timeoutMs: Long = 15_000
+        timeoutMs: Long = 15_000,
+        privateKey: String? = null
     ): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
             withTimeout(timeoutMs) {
@@ -37,7 +51,7 @@ object SshClient {
                 ssh.timeout = 10_000
                 ssh.connect(host, port)
                 try {
-                    ssh.authPassword(user, password)
+                    authenticate(ssh, user, password, privateKey)
                     ssh.startSession().use { session ->
                         val cmd = session.exec(command)
                         val out = cmd.inputStream.bufferedReader().readText()
@@ -64,13 +78,14 @@ object SshClient {
     suspend fun openShell(
         host: String, port: Int, user: String, password: String,
         scope: CoroutineScope,
+        privateKey: String? = null,
         onOutput: (String) -> Unit
     ): SshShellSession = withContext(Dispatchers.IO) {
         val ssh = SSHClient()
         ssh.addHostKeyVerifier(PromiscuousVerifier())  // MVP，TODO TOFU
         ssh.connectTimeout = 10_000
         ssh.connect(host, port)
-        ssh.authPassword(user, password)
+        authenticate(ssh, user, password, privateKey)
         val session = ssh.startSession()
         session.allocateDefaultPTY()
         val shell = session.startShell()
@@ -96,15 +111,15 @@ object SshClient {
 
     /** 采集服务器状态（A-Status）：一次性跑 top/free/df 取回原始输出，由 ServerStatus.parse 解析。 */
     suspend fun fetchStatus(
-        host: String, port: Int, user: String, password: String
+        host: String, port: Int, user: String, password: String, privateKey: String? = null
     ): Result<ServerStatus> {
         val cmd = "top -bn1 2>/dev/null | grep -i '%Cpu'; echo '---'; free -m 2>/dev/null; echo '---'; df -h / 2>/dev/null"
-        return connectAndExec(host, port, user, password, cmd).map { ServerStatus.parse(it) }
+        return connectAndExec(host, port, user, password, cmd, privateKey = privateKey).map { ServerStatus.parse(it) }
     }
 
     /** 列远程目录（A-SFTP）：sshj SFTPClient ls，返回文件列表（文件夹优先、按名排序）。 */
     suspend fun listDir(
-        host: String, port: Int, user: String, password: String, path: String
+        host: String, port: Int, user: String, password: String, path: String, privateKey: String? = null
     ): Result<List<RemoteFile>> = withContext(Dispatchers.IO) {
         runCatching {
             withTimeout(15_000) {
@@ -113,7 +128,7 @@ object SshClient {
                 ssh.connectTimeout = 10_000
                 ssh.connect(host, port)
                 try {
-                    ssh.authPassword(user, password)
+                    authenticate(ssh, user, password, privateKey)
                     ssh.newSFTPClient().use { sftp ->
                         sftp.ls(path).mapNotNull { info ->
                             val name = info.name
@@ -131,17 +146,17 @@ object SshClient {
 
     /** 读取远程文本文件内容（A-FileView）：head -c 限制大小，避免大文件/二进制卡顿。 */
     suspend fun readFile(
-        host: String, port: Int, user: String, password: String, path: String, maxBytes: Int = 200_000
+        host: String, port: Int, user: String, password: String, path: String, maxBytes: Int = 200_000, privateKey: String? = null
     ): Result<String> {
         val safe = path.replace("'", "'\\''")
-        return connectAndExec(host, port, user, password, "head -c $maxBytes '$safe'")
+        return connectAndExec(host, port, user, password, "head -c $maxBytes '$safe'", privateKey = privateKey)
     }
 
     /** 探测服务器环境（A-Env）：跑 EnvDetector.detectCommand → ServerProfile。 */
     suspend fun fetchEnv(
-        host: String, port: Int, user: String, password: String
+        host: String, port: Int, user: String, password: String, privateKey: String? = null
     ): Result<ServerProfile> =
-        connectAndExec(host, port, user, password, EnvDetector.detectCommand).map { EnvDetector.parse(it) }
+        connectAndExec(host, port, user, password, EnvDetector.detectCommand, privateKey = privateKey).map { EnvDetector.parse(it) }
 
     /** 去除常见 ANSI 转义序列（颜色/光标控制），MVP 简化处理 */
     fun stripAnsi(s: String): String =

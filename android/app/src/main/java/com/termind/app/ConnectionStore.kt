@@ -5,7 +5,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 
-/** SSH 连接（含 id，可持久化） */
+/** 认证方式（A-KeyAuth） */
+enum class AuthType { PASSWORD, KEY }
+
+/** SSH 连接（含 id，可持久化）。私钥本身不入存储（敏感），运行时输入。 */
 data class ServerConn(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
@@ -14,11 +17,13 @@ data class ServerConn(
     val port: Int = 22,
     val group: String = "",
     val note: String = "",
+    val authType: AuthType = AuthType.PASSWORD,
     val online: Boolean = false
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id); put("name", name); put("host", host); put("user", user)
         put("port", port); put("group", group); put("note", note)
+        put("authType", authType.name)
     }
 }
 
@@ -38,7 +43,8 @@ object ConnectionStore {
                     id = o.optString("id", UUID.randomUUID().toString()),
                     name = o.optString("name"), host = o.optString("host"),
                     user = o.optString("user"), port = o.optInt("port", 22),
-                    group = o.optString("group"), note = o.optString("note")
+                    group = o.optString("group"), note = o.optString("note"),
+                    authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD)
                 )
             }
         }.getOrElse { seedDefaults() }

@@ -370,7 +370,9 @@ enum class ConnState { DISCONNECTED, CONNECTING, CONNECTED, ERROR }
 fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProfile) -> Unit = {}) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    var password by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }       // 密码认证
+    var privateKey by remember { mutableStateOf("") }      // A-KeyAuth 私钥（PEM，临时输入不持久化）
+    fun keyArg(): String? = if (conn.authType == AuthType.KEY) privateKey.takeIf { it.isNotBlank() } else null
     var command by remember { mutableStateOf("") }
     var output by remember { mutableStateOf("提示：输入密码后点「连接」建立交互式 SSH 会话。\n") }
     var state by remember { mutableStateOf(ConnState.DISCONNECTED) }
@@ -386,10 +388,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
-        if (password.isBlank() || refreshing) return
+        if ((password.isBlank() && keyArg() == null) || refreshing) return
         refreshing = true
         scope.launch {
-            SshClient.fetchStatus(conn.host, conn.port, conn.user, password)
+            SshClient.fetchStatus(conn.host, conn.port, conn.user, password, keyArg())
                 .onSuccess { status = it }
             refreshing = false
         }
@@ -398,12 +400,12 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     // 建立交互式 shell 会话
     fun connect() {
         if (state == ConnState.CONNECTING || state == ConnState.CONNECTED) return
-        if (password.isBlank()) { output += "⚠️ 请先输入密码\n"; return }
+        if (password.isBlank() && keyArg() == null) { output += "⚠️ 请先输入${if (conn.authType == AuthType.KEY) "私钥" else "密码"}\n"; return }
         state = ConnState.CONNECTING
         output += "正在连接 ${conn.user}@${conn.host}:${conn.port} …\n"
         scope.launch {
             runCatching {
-                SshClient.openShell(conn.host, conn.port, conn.user, password, scope) { chunk ->
+                SshClient.openShell(conn.host, conn.port, conn.user, password, scope, keyArg()) { chunk ->
                     output += Redactor.redact(chunk)   // A3：输出脱敏
                 }
             }.onSuccess {
@@ -411,7 +413,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 refreshStatus()   // 连接成功后采集状态
                 // A-Env：探测环境画像 → 上报给 AI
                 scope.launch {
-                    SshClient.fetchEnv(conn.host, conn.port, conn.user, password).onSuccess { p ->
+                    SshClient.fetchEnv(conn.host, conn.port, conn.user, password, keyArg()).onSuccess { p ->
                         onProfile(p)
                         if (p.aiSummary.isNotEmpty()) output += "🔎 ${p.aiSummary}\n"
                     }
@@ -456,12 +458,12 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
 
     // 排障工作流：真实执行各诊断命令 → AI 总结结论（A3b 升级）
     fun runDiagnostic(wf: DiagnosticWorkflow) {
-        if (password.isBlank()) { output += "⚠️ 请先输入密码（排障需连接执行）\n"; return }
+        if (password.isBlank() && keyArg() == null) { output += "⚠️ 请先输入登录凭据（排障需连接执行）\n"; return }
         output += "\n🩺 执行排障「${wf.name}」…\n"
         scope.launch {
             // 一次性跑所有命令（用分隔符串起），按分隔符拆回各命令输出
             val joined = wf.joinedCommand(DiagnosticWorkflow.SEP)
-            val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, joined, timeoutMs = 30_000)
+            val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, joined, timeoutMs = 30_000, privateKey = keyArg())
             r.onSuccess { raw ->
                 val outs = raw.split(DiagnosticWorkflow.SEP)
                 output += Redactor.redact(raw.replace(DiagnosticWorkflow.SEP, "──────")) + "\n"
@@ -480,7 +482,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
 
     // 初始化模板真执行：按步骤逐条跑命令 + 终端逐步反馈（A-Tpl-Exec，对齐 apple U-Z8）
     fun runSetupTemplate(tpl: SetupTemplate) {
-        if (password.isBlank()) { output += "⚠️ 请先输入密码（模板需连接执行）\n"; return }
+        if (password.isBlank() && keyArg() == null) { output += "⚠️ 请先输入登录凭据（模板需连接执行）\n"; return }
         output += "\n📦 执行模板「${tpl.name}」（${tpl.steps.size} 步）…\n"
         scope.launch {
             for ((i, step) in tpl.steps.withIndex()) {
@@ -488,7 +490,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 if (cmds.isEmpty()) { output += "\n▶ ${i + 1}. ${step.title}（跳过：仅注释）\n"; continue }
                 output += "\n▶ ${i + 1}. ${step.title}\n"
                 // sudo/交互 MVP 直接跑（TODO：sudo 密码/交互处理）
-                val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, cmds.joinToString(" && "), timeoutMs = 60_000)
+                val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, cmds.joinToString(" && "), timeoutMs = 60_000, privateKey = keyArg())
                 output += Redactor.redact(r.getOrElse { "⚠️ ${it.message}" }).trim().ifBlank { "(完成)" } + "\n"
             }
             output += "\n✅ 模板「${tpl.name}」执行完毕\n"
@@ -515,7 +517,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
 
     // A-SFTP 文件浏览 sheet
     if (showFiles) {
-        SftpBrowser(conn, password, onClose = { showFiles = false })
+        SftpBrowser(conn, password, keyArg(), onClose = { showFiles = false })
     }
 
     // A-Rollback 操作时间线 sheet
@@ -659,13 +661,22 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     }
                 }
             }
-            // 密码（仅未连接时显示；MVP，后续走 Keystore + 密钥）
+            // 登录凭据（仅未连接时显示；A-KeyAuth：按 authType 显密码或私钥框）
             if (state != ConnState.CONNECTED) {
-                OutlinedTextField(
-                    password, { password = it }, label = { Text("SSH 密码") }, singleLine = true,
-                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                    colors = termColors, modifier = Modifier.fillMaxWidth()
-                )
+                if (conn.authType == AuthType.KEY) {
+                    OutlinedTextField(
+                        privateKey, { privateKey = it },
+                        label = { Text("SSH 私钥（PEM，临时输入不保存）") },
+                        colors = termColors, modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp),
+                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Monospace, fontSize = 11.sp)
+                    )
+                } else {
+                    OutlinedTextField(
+                        password, { password = it }, label = { Text("SSH 密码") }, singleLine = true,
+                        visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                        colors = termColors, modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
             // 终端输出区（A-Ansi：解析 ANSI 颜色码彩色渲染）
             Surface(color = Color(0xFF0D0D1A), shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -763,7 +774,7 @@ fun HealthAISheet(status: ServerStatus, onClose: () -> Unit) {
 /** A-SFTP：远程文件浏览（全屏 sheet：路径栏 + 列表 + 进入/上级） */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SftpBrowser(conn: ServerConn, password: String, onClose: () -> Unit) {
+fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose: () -> Unit) {
     val scope = rememberCoroutineScope()
     var path by remember { mutableStateOf(".") }
     var files by remember { mutableStateOf<List<RemoteFile>>(emptyList()) }
@@ -774,7 +785,7 @@ fun SftpBrowser(conn: ServerConn, password: String, onClose: () -> Unit) {
     fun load(p: String) {
         loading = true; error = null
         scope.launch {
-            SshClient.listDir(conn.host, conn.port, conn.user, password, p)
+            SshClient.listDir(conn.host, conn.port, conn.user, password, p, privateKey)
                 .onSuccess { files = it; path = p }
                 .onFailure { error = it.message }
             loading = false
@@ -784,7 +795,7 @@ fun SftpBrowser(conn: ServerConn, password: String, onClose: () -> Unit) {
     fun openFile(f: RemoteFile) {
         loading = true
         scope.launch {
-            SshClient.readFile(conn.host, conn.port, conn.user, password, f.path)
+            SshClient.readFile(conn.host, conn.port, conn.user, password, f.path, privateKey = privateKey)
                 .onSuccess { viewing = f.name to Redactor.redact(it).ifBlank { "(空文件)" } }
                 .onFailure { error = it.message }
             loading = false

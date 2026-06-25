@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -276,11 +277,17 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
 fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    // A-Convos：多对话——每个对话是一组消息(role=user/assistant)
-    val convos = remember { mutableStateListOf(mutableStateListOf<Pair<String, String>>()) }
+    // A-Convos / A-ConvoPersist：多对话（从 store 加载，变更后持久化）
+    val convos = remember {
+        mutableStateListOf<SnapshotStateList<Pair<String, String>>>().apply {
+            ConvoStore.load(ctx).forEach { add(it.toMutableStateList()) }
+            if (isEmpty()) add(mutableStateListOf())
+        }
+    }
     var curIdx by remember { mutableStateOf(0) }
     val messages = convos[curIdx.coerceIn(0, convos.size - 1)]
     var convoMenu by remember { mutableStateOf(false) }
+    fun persistConvos() = ConvoStore.save(ctx, convos.map { it.toList() })
     fun convoTitle(c: List<Pair<String, String>>, i: Int) =
         c.firstOrNull { it.first == "user" }?.second?.take(16) ?: "新对话 ${i + 1}"
     var input by remember { mutableStateOf("") }
@@ -305,6 +312,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
             }
             r.onFailure { messages[aiIndex] = "assistant" to "⚠️ ${it.message ?: "请求失败"}" }
             sending = false
+            persistConvos()   // A-ConvoPersist：回复完成后持久化
         }
     }
 
@@ -326,16 +334,16 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
                         }
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text("➕ 新建对话", color = Accent) },
-                            onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; convoMenu = false })
+                            onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; convoMenu = false; persistConvos() })
                         if (convos.size > 1) DropdownMenuItem(text = { Text("🗑 删除当前", color = Danger) },
-                            onClick = { convos.removeAt(curIdx); curIdx = curIdx.coerceIn(0, convos.size - 1); convoMenu = false })
+                            onClick = { convos.removeAt(curIdx); curIdx = curIdx.coerceIn(0, convos.size - 1); convoMenu = false; persistConvos() })
                     }
                 }
                 if (profile?.aiSummary?.isNotEmpty() == true) {
                     Spacer(Modifier.width(8.dp)); Text("已感知环境", fontSize = 12.sp, color = TextSecondary)
                 }
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1 }) {
+                IconButton(onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; persistConvos() }) {
                     Icon(Icons.Filled.Add, "新建对话", tint = TextSecondary)
                 }
             }

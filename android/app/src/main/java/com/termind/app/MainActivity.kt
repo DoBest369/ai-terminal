@@ -384,6 +384,30 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
             TopAppBar(
                 title = { Column { Text(conn.name, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold); Text("${conn.user}@${conn.host}:${conn.port}", color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace) } },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, null, tint = TextPrimary) } },
+                actions = {
+                    // A3b：一键排障
+                    var diagMenu by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { diagMenu = true }) { Icon(Icons.Filled.MonitorHeart, "排障", tint = TextSecondary) }
+                        DropdownMenu(expanded = diagMenu, onDismissRequest = { diagMenu = false }) {
+                            DropdownMenuItem(enabled = false, text = { Text("一键排障", color = TextSecondary, fontSize = 12.sp) }, onClick = {})
+                            DiagnosticWorkflow.builtins.forEach { wf ->
+                                DropdownMenuItem(text = { Text(wf.name) }, onClick = { diagMenu = false; command = wf.commands.joinToString(" && ") })
+                            }
+                        }
+                    }
+                    // A3b：初始化模板
+                    var tplMenu by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { tplMenu = true }) { Icon(Icons.Filled.Dns, "初始化模板", tint = TextSecondary) }
+                        DropdownMenu(expanded = tplMenu, onDismissRequest = { tplMenu = false }) {
+                            DropdownMenuItem(enabled = false, text = { Text("初始化模板", color = TextSecondary, fontSize = 12.sp) }, onClick = {})
+                            SetupTemplate.builtins.forEach { tpl ->
+                                DropdownMenuItem(text = { Text(tpl.name) }, onClick = { tplMenu = false; command = tpl.allCommands.filterNot { it.startsWith("#") }.joinToString("\n") })
+                            }
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Surface)
             )
         }

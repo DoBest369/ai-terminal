@@ -360,6 +360,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var status by remember { mutableStateOf(ServerStatus()) }  // A-Status 真实状态
     var refreshing by remember { mutableStateOf(false) }
     var showFiles by remember { mutableStateOf(false) }  // A-SFTP 文件浏览
+    var pendingTemplate by remember { mutableStateOf<SetupTemplate?>(null) }  // A-Tpl-Exec 待确认模板
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -440,6 +441,41 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         }
     }
 
+    // 初始化模板真执行：按步骤逐条跑命令 + 终端逐步反馈（A-Tpl-Exec，对齐 apple U-Z8）
+    fun runSetupTemplate(tpl: SetupTemplate) {
+        if (password.isBlank()) { output += "⚠️ 请先输入密码（模板需连接执行）\n"; return }
+        output += "\n📦 执行模板「${tpl.name}」（${tpl.steps.size} 步）…\n"
+        scope.launch {
+            for ((i, step) in tpl.steps.withIndex()) {
+                val cmds = step.commands.filterNot { it.trimStart().startsWith("#") }
+                if (cmds.isEmpty()) { output += "\n▶ ${i + 1}. ${step.title}（跳过：仅注释）\n"; continue }
+                output += "\n▶ ${i + 1}. ${step.title}\n"
+                // sudo/交互 MVP 直接跑（TODO：sudo 密码/交互处理）
+                val r = SshClient.connectAndExec(conn.host, conn.port, conn.user, password, cmds.joinToString(" && "), timeoutMs = 60_000)
+                output += Redactor.redact(r.getOrElse { "⚠️ ${it.message}" }).trim().ifBlank { "(完成)" } + "\n"
+            }
+            output += "\n✅ 模板「${tpl.name}」执行完毕\n"
+            refreshStatus()
+        }
+    }
+
+    // A-Tpl-Exec：模板执行前确认（显示 previewText + 风险）
+    pendingTemplate?.let { tpl ->
+        AlertDialog(
+            onDismissRequest = { pendingTemplate = null },
+            icon = { Icon(Icons.Filled.Dns, null, tint = tpl.risk.color) },
+            title = { Text(tpl.name, color = TextPrimary) },
+            text = {
+                Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState())) {
+                    Text(tpl.previewText(), color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+                }
+            },
+            confirmButton = { TextButton(onClick = { val t = tpl; pendingTemplate = null; runSetupTemplate(t) }) { Text("执行", color = tpl.risk.color) } },
+            dismissButton = { TextButton(onClick = { pendingTemplate = null }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+
     // A-SFTP 文件浏览 sheet
     if (showFiles) {
         SftpBrowser(conn, password, onClose = { showFiles = false })
@@ -495,9 +531,9 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     Box {
                         IconButton(onClick = { tplMenu = true }) { Icon(Icons.Filled.Dns, "初始化模板", tint = TextSecondary) }
                         DropdownMenu(expanded = tplMenu, onDismissRequest = { tplMenu = false }) {
-                            DropdownMenuItem(enabled = false, text = { Text("初始化模板", color = TextSecondary, fontSize = 12.sp) }, onClick = {})
+                            DropdownMenuItem(enabled = false, text = { Text("初始化模板（确认后真执行）", color = TextSecondary, fontSize = 12.sp) }, onClick = {})
                             SetupTemplate.builtins.forEach { tpl ->
-                                DropdownMenuItem(text = { Text(tpl.name) }, onClick = { tplMenu = false; command = tpl.allCommands.filterNot { it.startsWith("#") }.joinToString("\n") })
+                                DropdownMenuItem(text = { Text(tpl.name) }, onClick = { tplMenu = false; pendingTemplate = tpl })
                             }
                         }
                     }

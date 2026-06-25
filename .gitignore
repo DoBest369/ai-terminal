@@ -17,3 +17,11 @@ mobile/node_modules/
 mobile/android/
 mobile/ios/
 relay/node_modules/
+
+# Android (Kotlin 原生)
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/captures/

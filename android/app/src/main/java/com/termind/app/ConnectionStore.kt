@@ -8,6 +8,11 @@ import java.util.UUID
 /** 认证方式（A-KeyAuth） */
 enum class AuthType { PASSWORD, KEY }
 
+/** 连接颜色标签（A-Tags）：一眼区分环境 */
+enum class ColorTag(val hex: Long?) {
+    NONE(null), RED(0xFFE74C3C), ORANGE(0xFFF39C12), GREEN(0xFF2ECC71), BLUE(0xFF3498DB), PURPLE(0xFF9B59B6)
+}
+
 /** SSH 连接（含 id，可持久化）。私钥本身不入存储（敏感），运行时输入。 */
 data class ServerConn(
     val id: String = UUID.randomUUID().toString(),
@@ -18,12 +23,13 @@ data class ServerConn(
     val group: String = "",
     val note: String = "",
     val authType: AuthType = AuthType.PASSWORD,
+    val colorTag: ColorTag = ColorTag.NONE,
     val online: Boolean = false
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id); put("name", name); put("host", host); put("user", user)
         put("port", port); put("group", group); put("note", note)
-        put("authType", authType.name)
+        put("authType", authType.name); put("colorTag", colorTag.name)
     }
 }
 
@@ -44,7 +50,8 @@ object ConnectionStore {
                     name = o.optString("name"), host = o.optString("host"),
                     user = o.optString("user"), port = o.optInt("port", 22),
                     group = o.optString("group"), note = o.optString("note"),
-                    authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD)
+                    authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD),
+                    colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE)
                 )
             }
         }.getOrElse { seedDefaults() }
@@ -72,7 +79,8 @@ object ConnectionStore {
                 ServerConn(
                     name = o.optString("name"), host = o.optString("host"), user = o.optString("user"),
                     port = o.optInt("port", 22), group = o.optString("group"), note = o.optString("note"),
-                    authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD)
+                    authType = runCatching { AuthType.valueOf(o.optString("authType", "PASSWORD")) }.getOrDefault(AuthType.PASSWORD),
+                    colorTag = runCatching { ColorTag.valueOf(o.optString("colorTag", "NONE")) }.getOrDefault(ColorTag.NONE)
                 )
             }
         }.getOrElse { emptyList() }

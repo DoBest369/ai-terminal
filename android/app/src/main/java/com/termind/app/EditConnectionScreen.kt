@@ -1,13 +1,21 @@
 package com.termind.app
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +31,7 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
     var group by remember { mutableStateOf(existing?.group ?: "") }
     var note by remember { mutableStateOf(existing?.note ?: "") }
     var authType by remember { mutableStateOf(existing?.authType ?: AuthType.PASSWORD) }
+    var colorTag by remember { mutableStateOf(existing?.colorTag ?: ColorTag.NONE) }
 
     val canSave = host.trim().isNotEmpty() && user.trim().isNotEmpty()
 
@@ -47,7 +56,7 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
                                 host = host.trim(), user = user.trim(),
                                 port = port.toIntOrNull() ?: 22,
                                 group = group.trim(), note = note.trim(),
-                                authType = authType
+                                authType = authType, colorTag = colorTag
                             )
                         )
                     }, enabled = canSave) {
@@ -83,6 +92,23 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
                             selectedLabelColor = Accent, labelColor = TextSecondary
                         )
                     )
+                }
+            }
+            // A-Tags：颜色标签
+            Text("颜色标签", color = TextSecondary, fontSize = 12.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                ColorTag.values().forEach { tag ->
+                    val sel = colorTag == tag
+                    Box(
+                        Modifier.size(28.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(tag.hex?.let { Color(it) } ?: SurfaceLight)
+                            .border(if (sel) 2.dp else 0.dp, if (sel) Accent else Color.Transparent, androidx.compose.foundation.shape.CircleShape)
+                            .clickable { colorTag = tag },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (tag == ColorTag.NONE) Icon(Icons.Filled.Block, null, tint = TextSecondary, modifier = Modifier.size(16.dp))
+                        else if (sel) Icon(Icons.Filled.Check, null, tint = Color.White, modifier = Modifier.size(16.dp))
+                    }
                 }
             }
             Text("提示：密码/私钥在连接时输入，敏感信息不入普通存储。", color = TextSecondary, style = MaterialTheme.typography.bodySmall)

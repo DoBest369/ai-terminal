@@ -308,6 +308,8 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            // A-Tags：颜色标签色条
+            conn.colorTag.hex?.let { Box(Modifier.width(4.dp).height(34.dp).clip(RoundedCornerShape(2.dp)).background(Color(it))); Spacer(Modifier.width(10.dp)) }
             Icon(Icons.Filled.Circle, null, tint = dotColor, modifier = Modifier.size(10.dp))
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {

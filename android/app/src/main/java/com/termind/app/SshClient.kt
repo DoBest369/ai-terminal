@@ -186,6 +186,42 @@ object SshClient {
         }
     }
 
+    /** 新建远程目录（A-SftpEdit）：sshj SFTPClient.mkdir。 */
+    suspend fun makeDir(
+        host: String, port: Int, user: String, password: String, path: String, privateKey: String? = null
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            withTimeout(15_000) {
+                val ssh = SSHClient()
+                ssh.addHostKeyVerifier(TofuVerifier())
+                ssh.connectTimeout = 10_000
+                ssh.connect(host, port)
+                try {
+                    authenticate(ssh, user, password, privateKey)
+                    ssh.newSFTPClient().use { it.mkdir(path) }
+                } finally { runCatching { ssh.disconnect() } }
+            }
+        }
+    }
+
+    /** 删除远程文件/空目录（A-SftpEdit）：文件用 rm、目录用 rmdir。 */
+    suspend fun deletePath(
+        host: String, port: Int, user: String, password: String, path: String, isDir: Boolean, privateKey: String? = null
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            withTimeout(15_000) {
+                val ssh = SSHClient()
+                ssh.addHostKeyVerifier(TofuVerifier())
+                ssh.connectTimeout = 10_000
+                ssh.connect(host, port)
+                try {
+                    authenticate(ssh, user, password, privateKey)
+                    ssh.newSFTPClient().use { if (isDir) it.rmdir(path) else it.rm(path) }
+                } finally { runCatching { ssh.disconnect() } }
+            }
+        }
+    }
+
     /** 读取远程文本文件内容（A-FileView）：head -c 限制大小，避免大文件/二进制卡顿。 */
     suspend fun readFile(
         host: String, port: Int, user: String, password: String, path: String, maxBytes: Int = 200_000, privateKey: String? = null

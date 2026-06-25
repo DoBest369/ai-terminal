@@ -1314,6 +1314,8 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
     var error by remember { mutableStateOf<String?>(null) }
     var viewing by remember { mutableStateOf<Pair<String, String>?>(null) }  // A-FileView：文件名→内容
     var toast by remember { mutableStateOf<String?>(null) }                  // A-Upload 下载提示
+    var showMkdir by remember { mutableStateOf(false) }                      // A-SftpEdit 新建文件夹
+    var pendingDelete by remember { mutableStateOf<RemoteFile?>(null) }      // A-SftpEdit 待删除确认
 
     fun load(p: String) {
         loading = true; error = null
@@ -1322,6 +1324,27 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
                 .onSuccess { files = it; path = p }
                 .onFailure { error = it.message }
             loading = false
+        }
+    }
+
+    // A-SftpEdit：新建文件夹（在当前目录）
+    fun mkdir(name: String) {
+        val base = if (path == "." || path == "/") path else path.trimEnd('/')
+        val target = (if (base == ".") "./" else "$base/") + name
+        loading = true
+        scope.launch {
+            SshClient.makeDir(conn.host, conn.port, conn.user, password, target, privateKey)
+                .onSuccess { toast = "已新建文件夹 $name"; load(path) }
+                .onFailure { error = it.message; loading = false }
+        }
+    }
+    // A-SftpEdit：删除文件/空目录
+    fun delete(f: RemoteFile) {
+        loading = true
+        scope.launch {
+            SshClient.deletePath(conn.host, conn.port, conn.user, password, f.path, f.isDir, privateKey)
+                .onSuccess { toast = "已删除 ${f.name}"; load(path) }
+                .onFailure { error = it.message; loading = false }
         }
     }
 
@@ -1394,6 +1417,10 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
                 Spacer(Modifier.width(8.dp))
                 Text("文件浏览", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                 if (loading) CircularProgressIndicator(Modifier.size(18.dp), color = Accent, strokeWidth = 2.dp)
+                // A-SftpEdit：新建文件夹
+                IconButton(onClick = { showMkdir = true }, enabled = !loading) {
+                    Icon(Icons.Filled.CreateNewFolder, "新建文件夹", tint = Accent, modifier = Modifier.size(18.dp))
+                }
                 IconButton(onClick = { picker.launch("*/*") }, enabled = !loading) {
                     Icon(Icons.Filled.Upload, "上传文件", tint = Accent, modifier = Modifier.size(18.dp))
                 }
@@ -1425,10 +1452,40 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
                                 Icon(Icons.Filled.Download, "下载", tint = Accent, modifier = Modifier.size(16.dp))
                             }
                         }
+                        // A-SftpEdit：删除（二次确认）
+                        IconButton(onClick = { pendingDelete = f }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Filled.DeleteOutline, "删除", tint = Danger, modifier = Modifier.size(16.dp))
+                        }
                     }
                 }
             }
         }
+    }
+
+    // A-SftpEdit：新建文件夹对话框
+    if (showMkdir) {
+        var name by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { showMkdir = false },
+            title = { Text("新建文件夹", color = TextPrimary) },
+            text = { OutlinedTextField(name, { name = it }, label = { Text("文件夹名") }, singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent)) },
+            confirmButton = { TextButton(onClick = { val n = name.trim(); if (n.isNotEmpty()) mkdir(n); showMkdir = false }) { Text("创建", color = Accent) } },
+            dismissButton = { TextButton(onClick = { showMkdir = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+    // A-SftpEdit：删除二次确认
+    pendingDelete?.let { f ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            icon = { Icon(Icons.Filled.Warning, null, tint = Danger) },
+            title = { Text("删除${if (f.isDir) "文件夹" else "文件"}", color = TextPrimary) },
+            text = { Text("确认删除 ${f.name}？${if (f.isDir) "（仅空文件夹可删）" else ""}此操作不可撤销。", color = TextSecondary) },
+            confirmButton = { TextButton(onClick = { val t = f; pendingDelete = null; delete(t) }) { Text("删除", color = Danger) } },
+            dismissButton = { TextButton(onClick = { pendingDelete = null }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
     }
 }
 

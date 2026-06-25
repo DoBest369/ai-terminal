@@ -356,6 +356,18 @@ final class AppModel: ObservableObject {
         inject(command)
     }
 
+    /// 运行一个初始化/部署模板（Z8）：把模板全部命令注入当前会话执行，关键配置自动备份。
+    @discardableResult
+    func runSetupTemplate(_ template: SetupTemplate) -> Bool {
+        guard let session = activeSession, let inject = session.injectCommand else {
+            toast = "请先打开一个终端会话"
+            return false
+        }
+        injectWithBackup(template.allCommands.joined(separator: "\n"), action: "初始化模板：\(template.name)", inject: inject)
+        toast = "已注入「\(template.name)」共 \(template.steps.count) 步命令"
+        return true
+    }
+
     /// 回滚一条时间线操作（注入还原命令到终端）。
     @discardableResult
     func rollback(_ entry: OpTimelineEntry) -> Bool {

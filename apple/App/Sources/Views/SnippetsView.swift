@@ -10,6 +10,7 @@ struct SnippetsView: View {
     @State private var newCommand = ""
     @State private var newGroup = ""
     @State private var search = ""
+    @State private var previewTemplate: SetupTemplate?  // U-Z8 初始化模板预览
 
     /// 按名称/命令/分组过滤
     private var filtered: [CommandSnippet] {
@@ -118,11 +119,53 @@ struct SnippetsView: View {
                     Button("完成") { dismiss() }
                 }
                 ToolbarItem(placement: .primaryAction) {
+                    // U-Z8：一键初始化/部署模板
+                    Menu {
+                        ForEach(SetupTemplate.builtins) { tpl in
+                            Button {
+                                previewTemplate = tpl
+                            } label: {
+                                Label(tpl.name, systemImage: tpl.icon)
+                            }
+                        }
+                    } label: {
+                        Label("初始化模板", systemImage: "square.stack.3d.up")
+                    }
                     Button("恢复默认") { model.resetSnippets() }
                 }
             }
+            .sheet(item: $previewTemplate) { tpl in
+                templatePreview(tpl)
+            }
         }
         .frame(minWidth: 420, minHeight: 480)
+    }
+
+    /// U-Z8 模板预览 sheet：滚动展示步骤+命令+风险+预计影响，确认后注入
+    private func templatePreview(_ tpl: SetupTemplate) -> some View {
+        NavigationStack {
+            ScrollView {
+                Text(tpl.previewText())
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+            }
+            .background(Theme.background)
+            .navigationTitle(tpl.name)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") { previewTemplate = nil }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("注入到终端") {
+                        if model.runSetupTemplate(tpl) { previewTemplate = nil; dismiss() }
+                    }
+                    .tint(Color(hex: tpl.risk.colorHex))
+                }
+            }
+        }
+        .frame(minWidth: 440, minHeight: 520)
     }
 
     private func snippetRow(_ snippet: CommandSnippet) -> some View {

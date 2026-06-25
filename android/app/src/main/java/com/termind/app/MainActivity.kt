@@ -920,9 +920,13 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
             onDismissRequest = { showNewSnippet = false },
             title = { Text("新建快捷命令", color = TextPrimary) },
             text = {
+                val dlgColors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight,
+                    focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent,
+                    focusedLabelColor = Accent, unfocusedLabelColor = TextSecondary)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(t, { t = it }, label = { Text("名称") }, singleLine = true, colors = termColors)
-                    OutlinedTextField(c, { c = it }, label = { Text("命令") }, singleLine = true, colors = termColors)
+                    OutlinedTextField(t, { t = it }, label = { Text("名称") }, singleLine = true, colors = dlgColors)
+                    OutlinedTextField(c, { c = it }, label = { Text("命令") }, singleLine = true, colors = dlgColors)
                 }
             },
             confirmButton = { TextButton(onClick = {

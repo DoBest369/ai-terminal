@@ -340,7 +340,17 @@ struct AIPanelShowcase: View {
             VStack(alignment: .leading, spacing: 10) {
                 if messages.isEmpty {
                     Text("用自然语言操作终端").font(.subheadline.bold()).foregroundStyle(Theme.textPrimary)
-                    ForEach(["列出当前目录文件", "查看系统内存使用", "找出占用 CPU 最高的进程"], id: \.self) { ex in
+                    // AI 提示词库分类（对齐 android A-Prompts）
+                    HStack(spacing: 6) {
+                        ForEach(["排障", "部署", "安全", "性能", "日志"], id: \.self) { cat in
+                            Text(cat).font(.system(size: 12))
+                                .padding(.horizontal, 10).padding(.vertical, 4)
+                                .background(cat == "排障" ? Theme.accent.opacity(0.3) : Theme.surfaceLight)
+                                .foregroundStyle(cat == "排障" ? Theme.accent : Theme.textSecondary)
+                                .clipShape(Capsule())
+                        }
+                    }
+                    ForEach(["帮我查看为什么网站打不开", "分析这段报错并给修复", "服务突然 502，怎么排查？"], id: \.self) { ex in
                         Text("· \(ex)").font(.caption).foregroundStyle(Theme.textSecondary)
                     }
                     HStack(spacing: 4) {

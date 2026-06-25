@@ -5,6 +5,7 @@ import AITerminalCore
 struct AIAgentView: View {
     @EnvironmentObject var model: AppModel
     @State private var input = ""
+    @State private var promptGroupIdx = 0   // AI 提示词库分类
     @State private var showExporter = false
     @State private var exportDoc: TextFileDocument?
     @State private var exportFilename = "ai-conversation"
@@ -306,14 +307,37 @@ struct AIAgentView: View {
         }
     }
 
+    // AI 运维提示词库（对齐 android A-Prompts）：分类常用运维提问
+    private static let promptGroups: [(String, [String])] = [
+        ("排障", ["帮我查看为什么网站打不开", "分析这段报错并给修复", "服务突然 502，怎么排查？"]),
+        ("部署", ["一键初始化 Ubuntu Web 服务器", "用 Docker 部署一个 Nginx + 静态站点", "配置 Let's Encrypt 免费 HTTPS 证书"]),
+        ("安全", ["检查这台服务器有哪些安全风险", "怎么加固 SSH 登录安全？", "查看最近的登录失败记录并判断是否被爆破"]),
+        ("性能", ["服务器很卡，帮我找出占用资源最高的进程", "磁盘快满了，怎么安全清理？", "分析内存占用是否正常"]),
+        ("日志", ["怎么查看 Nginx 最近的错误日志？", "用一条命令统计访问量 Top 10 IP", "解释这条命令：docker system prune -a"])
+    ]
+
     private var emptyHint: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("用自然语言操作终端")
                 .font(.subheadline.bold())
                 .foregroundStyle(Theme.textPrimary)
-            ForEach(["列出当前目录文件", "查看系统内存使用", "找出占用 CPU 最高的进程"], id: \.self) { ex in
+            // 分类提示词
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(Array(Self.promptGroups.enumerated()), id: \.offset) { idx, group in
+                        Button { promptGroupIdx = idx } label: {
+                            Text(group.0)
+                                .font(.system(size: 12))
+                                .padding(.horizontal, 10).padding(.vertical, 4)
+                                .background(promptGroupIdx == idx ? Theme.accent.opacity(0.3) : Theme.surfaceLight)
+                                .foregroundStyle(promptGroupIdx == idx ? Theme.accent : Theme.textSecondary)
+                                .clipShape(Capsule())
+                        }.buttonStyle(.plain)
+                    }
+                }
+            }
+            ForEach(Self.promptGroups[promptGroupIdx].1, id: \.self) { ex in
                 Button {
-                    // 点击示例直接发送（处理中则忽略），复用 send()
                     guard !model.aiProcessing else { return }
                     input = ex
                     send()
@@ -321,6 +345,7 @@ struct AIAgentView: View {
                     Text("· \(ex)")
                         .font(.caption)
                         .foregroundStyle(Theme.textSecondary)
+                        .multilineTextAlignment(.leading)
                 }
                 .buttonStyle(.plain)
             }

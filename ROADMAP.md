@@ -75,6 +75,7 @@
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-SnippetCRUD** 快捷命令自定义增删 ✅（SnippetStore SharedPreferences 持久化；ServerWorkspace 快捷命令 Chip 默认+自定义+「+新建」对话框+删除；修 termColors 前向引用；构建 20s；推送 2c48299→88b814a）
+- [x] **A-Complete** 终端命令历史补全 ✅（命令输入框上方显匹配历史 Chip[contains 取 4 条]→点击填入；构建 21s 无 warning；推送 90da71d）
 - [x] **apple 批量群发 UI** ✅（BatchView 多选+命令风险徽章+高危确认+runBatch 结果+AI 汇总；ContentView 入口+sheet；与巡检 UI 对称；推送 730ae50）
 - [x] **apple 批量巡检 UI** ✅（InspectView 多选+巡检+告警置顶结果+AI 总结按钮；ContentView 入口+sheet；Showcase 渲染 23-inspect；PARITY 批量巡检 apple🟡→✅；推送 b39fb6c）
 - [x] **CHANGELOG 阶段 6** ✅（双端深度对齐里程碑 + 当前状态刷新；推送 a59bd8e）

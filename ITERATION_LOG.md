@@ -6,6 +6,22 @@
 
 ---
 
+## A-Complete + 质量收口 · 命令历史补全 + 双端能力总览
+- **A-Complete**（命令补全）：ServerWorkspace 命令输入框上方——已连接+输入非空时，从 cmdHistory 过滤 `contains(q, ignoreCase)`(排除等于自身)取 4 条→AssistChip(History 图标+等宽)横滑显示→点击 `command = h` 填入。加速重复命令输入。构建 21s，推送 90da71d。
+- **质量收口**：apple `AITerminalCore`+`App` swift build 均 Build complete(含新 BatchView/InspectView)；--history/--batch/--risk/--metrics/--env-detect 五自测全 true 无回归；android 零 deprecated。
+- **双端能力总览（成熟态）**：
+  - **SSH/终端**：密码/私钥/跳板机 ProxyJump · 交互 PTY · ANSI 彩色 · 控制键栏 · 字号 · 复制/清屏 · 搜索 · keepalive · 命令历史+补全 · 端口转发 · 可达性
+  - **SFTP**：浏览/查看/下载/上传/新建/删除/重命名/路径跳转（双端完整）
+  - **AI**：对话流式/停止/重生成/多对话(持久化/搜索/导出)/模型选择/代码块渲染/消息复制/运维提示词库 · 命令解释/报错分析/健康分析/环境感知
+  - **智能运维 Z1-Z8**：命令解释/报错分析/环境感知/排障工作流/操作回滚/状态面板/风险分级脱敏/初始化模板（双端）
+  - **阶段 N 批量运维**：批量群发(UI)/群发 AI 汇总/批量巡检(UI)/巡检 AI 总结（双端 UI）；定时后台巡检(android)
+  - **安全**：凭据加密/TOFU 主机校验/脱敏 · 连接管理：分组/颜色标签/搜索/排序/启动命令/测试/校验/导出导入 · 多主题 5 套
+- **改动**：`MainActivity.kt`(命令补全)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 5 自测全过。
+- **意义**：双端能力全景成熟，仅余 apple 定时后台巡检 + apple 独有分屏录制 未双端。持续打磨细节。
+
+---
+
 ## apple 批量群发 UI（BatchView，N-Multi 完整对齐 android）
 - **内容**：新建 `apple/App/Sources/Views/BatchView.swift`(sheet)——`setupArea` 连接多选(Set<UUID>)+底部命令 TextField(显 `CommandRisk.riskLevel` 风险徽章+色点 Color(hex:colorHex))→工具栏「群发执行」(risk.needsConfirm 时 `.alert` 高危二次确认)→`runBatch(选中, command)`；`resultArea` ForEach `batchResults`：ok 绿勾/失败红+name+输出(3 行)；底部「让 AI 汇总这批结果」→`summarizeBatch`+dismiss。`ContentView` 工具栏「批量群发」(square.stack.3d.up)+`.sheet($model.showBatch)`；`AppModel.showBatch`。与上轮 InspectView 对称。
 - **改动**：`BatchView.swift`(新)、`ContentView.swift`(入口+sheet)、`AppModel.swift`(showBatch)。

@@ -70,7 +70,7 @@
 
 | 能力 | apple | android | 说明 |
 |------|:---:|:---:|------|
-| 命令历史（去重/调出） | ✅ | ✅ | 双端 |
+| 命令历史（去重/调出/输入补全） | ✅ | ✅ | android 输入时匹配历史 Chip 补全 |
 | 批量群发命令 | ✅ | ✅ | 双端完整 UI（apple BatchView 多选+风险徽章+确认+runBatch；android BatchScreen） |
 | 群发结果 AI 汇总 | ✅ | ✅ | 双端（apple summarizeBatch；android 完整） |
 | 批量健康巡检 | ✅ | ✅ | 双端（apple InspectView 多选+采集+告警置顶；android InspectScreen） |

@@ -6,6 +6,13 @@
 
 ---
 
+## X1b · 液态玻璃扩展全面板 + 窗口标题
+- **内容**：app.css 给 `.terminal-header`/`.ssh-header`（blur30 sat180）、`.ai-panel`（blur28 sat170，40% 不透明更通透）、`.modal`/`.drawer`（blur40 sat190 + 强阴影+高光，浮层玻璃感最强）、`.context-menu`（blur34 + 圆角12+阴影）统一加 `color-mix(in srgb, var(--surface) N%, transparent)` 半透明 + `backdrop-filter`，描边用 `color-mix(text-primary 9~12%)`。`.terminal`/xterm 正文不动（保持不透明可读）。index.html `<title>` 改 Termind。
+- **改动**：`src/renderer/styles/app.css`、`src/renderer/index.html`。
+- **验证**：`npm run build` ✓；重启截图——窗口标题「Termind」（osascript AXRaise 确认），侧栏/头部玻璃、终端正文清晰、本地终端+系统信息功能完好。推送 a9c728b。
+
+---
+
 ## X1 · Electron 液态玻璃 UI（侧栏）
 - **内容**：main.js BrowserWindow 加 `vibrancy:'under-window'` + `visualEffectState:'active'` + mac 下 backgroundColor 透明（win/linux 仍 #1a1a2e 兜底），启用 macOS 窗口级毛玻璃。app.css：body 背景透明（透出 vibrancy）；`.sidebar` 背景改 `color-mix(in srgb, var(--surface) 62%, transparent)`（主题感知半透明）+ `backdrop-filter: blur(34px) saturate(185%)` + 半透明描边 + 顶部高光 inset，呈 iOS 26 磨砂玻璃面板；窗口控制条背景也透明。
 - **改动**：`src/main/main.js`、`src/renderer/styles/app.css`。

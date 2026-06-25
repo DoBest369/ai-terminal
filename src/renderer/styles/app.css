@@ -520,14 +520,20 @@ body {
   padding: 14px 10px;
 }
 
+.nav-item {
+  transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+}
+
 .nav-item:hover {
-  background: var(--surface-light);
+  background: color-mix(in srgb, var(--text-primary) 9%, transparent);
   color: var(--text-primary);
+  transform: translateX(2px);
 }
 
 .nav-item.active {
   background: linear-gradient(135deg, var(--accent) 0%, var(--surface-light) 100%);
   color: #fff;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 38%, transparent);
 }
 
 .nav-icon {
@@ -888,9 +894,9 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: color-mix(in srgb, var(--surface) 40%, transparent);
-  -webkit-backdrop-filter: blur(28px) saturate(170%);
-  backdrop-filter: blur(28px) saturate(170%);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(175%);
+  backdrop-filter: blur(30px) saturate(175%);
 }
 
 .ai-header {
@@ -990,9 +996,10 @@ body {
 
 .message-content {
   padding: 14px 18px;
-  border-radius: 12px;
+  border-radius: 16px;
   max-width: 85%;
   line-height: 1.6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
 }
 
 .user-message {
@@ -1003,7 +1010,10 @@ body {
 }
 
 .assistant-message {
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
   color: var(--text-primary);
   border-bottom-left-radius: 4px;
 }
@@ -1253,21 +1263,24 @@ body {
 
 /* 滚动条 */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--surface-light);
-  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-primary) 18%, transparent);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--surface-light-hover);
+  background: color-mix(in srgb, var(--text-primary) 32%, transparent);
+  background-clip: padding-box;
 }
 
 /* Offcanvas 抽屉 */

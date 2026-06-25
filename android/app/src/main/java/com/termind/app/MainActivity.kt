@@ -26,6 +26,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
@@ -491,6 +492,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
 @Composable
 private fun ChatBubble(role: String, content: String) {
     val isUser = role == "user"
+    val clipboard = LocalClipboardManager.current
     Row(Modifier.fillMaxWidth(), horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start) {
         Surface(
             color = if (isUser) Accent.copy(alpha = 0.25f) else SurfaceLight.copy(alpha = 0.5f),
@@ -503,9 +505,16 @@ private fun ChatBubble(role: String, content: String) {
                     if (i % 2 == 1) {
                         // 代码块：去掉可能的语言行
                         val code = part.trimStart().substringAfter('\n', part).ifBlank { part.trim() }
+                        // A-Copy：点击代码块复制到剪贴板
                         Surface(color = Color(0xFF0D0D1A), shape = RoundedCornerShape(8.dp), modifier = Modifier.fillMaxWidth()) {
-                            Text(code.trim(), color = Success, fontSize = 12.sp, fontFamily = FontFamily.Monospace,
-                                modifier = Modifier.padding(10.dp).horizontalScroll(rememberScrollState()))
+                            Box {
+                                Text(code.trim(), color = Success, fontSize = 12.sp, fontFamily = FontFamily.Monospace,
+                                    modifier = Modifier.padding(10.dp).horizontalScroll(rememberScrollState()))
+                                Icon(Icons.Filled.ContentCopy, "复制",
+                                    tint = TextSecondary,
+                                    modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(16.dp)
+                                        .clickable { clipboard.setText(androidx.compose.ui.text.AnnotatedString(code.trim())) })
+                            }
                         }
                     } else if (part.isNotBlank()) {
                         Text(part.trim(), color = TextPrimary, fontSize = 13.sp)

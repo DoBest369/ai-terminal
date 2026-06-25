@@ -6,6 +6,14 @@
 
 ---
 
+## Z8 · 一键服务器初始化/部署模板（智能运维差异化第七项，阶段 Z 7/8）
+- **内容**：Core 新增 `SetupTemplate.swift`——`SetupStep`(title+commands+risk[复用 CommandRisk max])、`SetupTemplate`(id/name/icon/description/steps + allCommands/risk + `previewText()`[执行前预览：步骤序号+标题+风险标签+各命令 $ + 「⚠️ 预计影响…」，对齐 PRODUCT §16.3]) + `builtins` 5 模板：Ubuntu Web 服务器初始化（10 步：更新系统/基础工具/时区/建 deploy 用户/SSH 密钥/加固 SSH[关 root 密码登录]/Nginx/Docker/UFW/Fail2Ban）、Docker 服务器、Node.js 环境、静态网站部署、LNMP。
+- **改动**：新增 `apple/AITerminalCore/.../SetupTemplate.swift`；改 `DevTools/Screenshots.swift`(templateTest)+`ShotsMain/main.swift`(--template-test)。
+- **验证**：双端 swift build 通过；`--template-test`→「内置模板数=5；ubuntu 步骤=10 风险=高风险；预览格式正确=true」（首次自测断言误写 .critical→修正为 .high，初始化模板无极高危合理）；Z3-Z7 全回归正常。推送 eae6105。
+- **阶段 Z**：7/8（命令解释/报错分析/环境感知/排障/回滚/风险脱敏/初始化模板 ✅，Z6 状态面板待做）。
+
+---
+
 ## Z7 · 命令风险四级分级 + 敏感输出脱敏
 - **内容**：Core 新增 `CommandRisk.swift`——`enum CommandRisk{low/medium/high/critical}`（Comparable + label[安全/注意/高风险/极高危]/colorHex/needsConfirm(>=high)/icon）+ criticalPatterns(rm -rf/mkfs/iptables -f/systemctl stop ssh/drop database…)/highPatterns(systemctl restart·reload/ufw/iptables/chmod -r/kill/docker rm/apt remove…)/mediumPatterns(vim/sed -i/cp/mv/chmod/install…) + `riskLevel(_:)`（critical>high>medium>low 优先匹配）。`AIService.isDangerous` 改为委托 `CommandRisk.riskLevel(_).needsConfirm`（向后兼容，high/critical 才 true）。`Redactor.redact(_:)`：正则把 sensitiveKeys(password/secret/api_key/token…)=值、`sk-***`、`Bearer ***`、`AKIA***`、`-----BEGIN PRIVATE KEY-----` 块 打码 ******（保留键名/普通文本不动）。
 - **改动**：新增 `apple/AITerminalCore/.../CommandRisk.swift`；改 `AIService.swift`(isDangerous 委托)、`DevTools/Screenshots.swift`(riskTest)+`ShotsMain/main.swift`(--risk-test)。

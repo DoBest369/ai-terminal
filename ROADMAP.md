@@ -28,7 +28,9 @@
 - [x] **Z5** 操作回滚 ✅（Core OpRollback[criticalPrefixes/isCriticalConfig/criticalTargets/backupCommand/sshAutoRollbackCommand]+OpTimelineEntry[rollbackCommand]；AppModel.opTimeline+injectWithBackup[runSnippet 改关键配置前自动 cp 备份+记时间线]+rollback；--rollback-test 全过；双端 build；推送 41625d3。待 Z5b：AI [EXECUTE] 执行路径也接 injectWithBackup + 时间线 UI）
 - [ ] **Z6** 服务器状态面板升级：比状态栏更丰富（CPU/内存/磁盘/端口/服务/SSL/异常），面板↔命令↔AI 联动
 - [x] **Z7** 命令风险分级 + 敏感输出脱敏 ✅（Core CommandRisk 四级[low/medium/high/critical]+riskLevel+label/colorHex/needsConfirm/icon；isDangerous 委托 riskLevel.needsConfirm 兼容；Redactor.redact 打码 password/token/sk-/Bearer/AKIA/私钥块；--risk-test 全过；双端 build；推送 78a1ff8。待 UI 用风险颜色标注 + 高危二次确认接入）
-- [ ] **Z8** 一键服务器初始化/部署模板（Ubuntu Web 初始化、Docker、Node、静态站…）
+- [x] **Z8** 一键服务器初始化/部署模板 ✅（Core SetupTemplate+SetupStep+5 内置[Ubuntu Web 初始化 10 步/Docker/Node/静态站/LNMP]+previewText 执行前预览[步骤+命令+风险+预计影响]+risk 复用 CommandRisk；--template-test 过；双端 build；推送 eae6105。UI 入口接入待后续）
+
+> **阶段 Z 进度 7/8**：Z1-Z5,Z7,Z8 ✅ 落地原生 Core+逻辑+自测；唯 **Z6 状态面板升级**（需更多 UI/真连）待做。智能运维 MVP 差异化核心基本成形。
 
 
 

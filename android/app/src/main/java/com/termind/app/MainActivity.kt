@@ -38,6 +38,10 @@ val Success = Color(0xFF2ECC71)
 val Warning = Color(0xFFF39C12)
 val Danger = Color(0xFFE74C3C)
 
+// A-Rollback 时间戳：备份文件名用 yyyyMMdd-HHmmss，时间线显示用 HH:mm:ss
+private fun backupStamp(): String = java.text.SimpleDateFormat("yyyyMMdd-HHmmss", java.util.Locale.US).format(java.util.Date())
+private fun nowLabel(): String = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(java.util.Date())
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -361,6 +365,8 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var refreshing by remember { mutableStateOf(false) }
     var showFiles by remember { mutableStateOf(false) }  // A-SFTP 文件浏览
     var pendingTemplate by remember { mutableStateOf<SetupTemplate?>(null) }  // A-Tpl-Exec 待确认模板
+    val opTimeline = remember { mutableStateListOf<OpTimelineEntry>() }  // A-Rollback 操作时间线
+    var showTimeline by remember { mutableStateOf(false) }
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -404,11 +410,26 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         shellSession?.close(); shellSession = null; state = ConnState.DISCONNECTED
         output += "\n[已断开连接]\n"
     }
-    // 发送命令到交互 shell
+    // 发送命令到交互 shell（A-Rollback：改关键配置前自动备份+记时间线）
     fun send(cmd: String) {
         val s = shellSession ?: return
+        val targets = OpRollback.criticalTargets(cmd)
+        if (targets.isNotEmpty()) {
+            val stamp = backupStamp()
+            OpRollback.backupCommands(cmd, stamp).forEach { s.write(it + "\n") }
+            targets.forEach { t ->
+                opTimeline.add(0, OpTimelineEntry(nowLabel(), "改关键配置：$t", cmd, true, "$t.bak-$stamp"))
+            }
+            output += "⚠️ 检测到改动关键配置，已先备份（可在「时间线」回滚）\n"
+        }
         s.write(cmd + "\n")
         command = ""
+    }
+    // 回滚一条时间线操作（注入还原命令到 shell）
+    fun rollback(entry: OpTimelineEntry) {
+        val rb = entry.rollbackCommand ?: return
+        shellSession?.write(rb + "\n")
+        output += "↩️ 已注入回滚命令：$rb\n"
     }
     // 提交：未连先连；已连则高危确认后发送
     fun submit() {
@@ -481,6 +502,40 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         SftpBrowser(conn, password, onClose = { showFiles = false })
     }
 
+    // A-Rollback 操作时间线 sheet
+    if (showTimeline) {
+        ModalBottomSheet(onDismissRequest = { showTimeline = false }, containerColor = Bg) {
+            Column(Modifier.fillMaxWidth().padding(16.dp).heightIn(min = 200.dp, max = 480.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.History, null, tint = Accent)
+                    Spacer(Modifier.width(8.dp))
+                    Text("操作时间线", color = TextPrimary, fontWeight = FontWeight.Bold)
+                }
+                Spacer(Modifier.height(8.dp))
+                if (opTimeline.isEmpty()) {
+                    Text("暂无关键操作。改动 nginx/sshd/mysql 等关键配置时会自动备份并记录于此，可一键回滚。", color = TextSecondary, fontSize = 13.sp)
+                } else {
+                    LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(opTimeline.size) { i ->
+                            val e = opTimeline[i]
+                            Surface(color = SurfaceLight.copy(alpha = 0.4f), shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth()) {
+                                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("${e.time} · ${e.action}", color = TextPrimary, fontSize = 13.sp)
+                                        Text(e.command, color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace, maxLines = 1)
+                                    }
+                                    if (e.rollbackable && state == ConnState.CONNECTED) {
+                                        TextButton(onClick = { rollback(e) }) { Text("回滚", color = Accent, fontSize = 12.sp) }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // 离开工作区时关闭会话，避免泄漏
     DisposableEffect(Unit) { onDispose { shellSession?.close() } }
 
@@ -511,6 +566,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 title = { Column { Text(conn.name, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold); Text("${conn.user}@${conn.host}:${conn.port}", color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace) } },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, null, tint = TextPrimary) } },
                 actions = {
+                    // A-Rollback：操作时间线（有记录才高亮）
+                    IconButton(onClick = { showTimeline = true }) {
+                        Icon(Icons.Filled.History, "时间线", tint = if (opTimeline.isEmpty()) TextSecondary.copy(alpha = 0.5f) else Accent)
+                    }
                     // A-SFTP：文件浏览（仅已连接可用）
                     IconButton(onClick = { if (state == ConnState.CONNECTED) showFiles = true }, enabled = state == ConnState.CONNECTED) {
                         Icon(Icons.Filled.Folder, "文件", tint = if (state == ConnState.CONNECTED) TextSecondary else TextSecondary.copy(alpha = 0.3f))

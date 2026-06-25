@@ -543,6 +543,60 @@ struct SettingsShowcase: View {
     }
 }
 
+// MARK: 批量群发（N-Multi）
+
+struct BatchShowcase: View {
+    let connections: [Connection]
+    let outcomes: [BatchOutcome]
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "square.stack.3d.up.fill").foregroundStyle(Theme.accent)
+                Text("批量群发 · \(connections.count) 台").font(.headline).foregroundStyle(Theme.textPrimary)
+                Spacer()
+            }
+            // 选择服务器
+            Text("选择服务器").font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
+            ForEach(connections.prefix(3)) { c in
+                HStack(spacing: 10) {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.accent)
+                    Text(c.name).font(.system(size: 13)).foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Text("\(c.username)@\(c.host)").font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.textSecondary)
+                }
+                .padding(8).background(Theme.accent.opacity(0.12)).clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            // 命令
+            HStack(spacing: 8) {
+                Circle().fill(Theme.danger).frame(width: 8, height: 8)
+                Text("systemctl restart nginx").font(.system(size: 13, design: .monospaced)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Text("高风险").font(.system(size: 10, weight: .semibold)).foregroundStyle(Theme.danger)
+            }
+            .padding(10).background(Theme.surfaceLight).clipShape(RoundedRectangle(cornerRadius: 8))
+            // 结果
+            Text("执行结果").font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
+            ForEach(outcomes) { o in
+                HStack(spacing: 8) {
+                    Image(systemName: o.ok ? "checkmark.circle.fill" : "exclamationmark.octagon.fill")
+                        .foregroundStyle(o.ok ? Theme.success : Theme.danger)
+                    Text(o.name).font(.system(size: 13, weight: .medium)).foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Text(o.output).font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.textSecondary).lineLimit(1)
+                }
+                .padding(10).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            // AI 汇总入口
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles").foregroundStyle(Theme.accent)
+                Text("AI 汇总这批结果").font(.system(size: 13)).foregroundStyle(Theme.accent)
+            }
+            .padding(10).frame(maxWidth: .infinity).overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.accent.opacity(0.4)))
+        }
+        .padding(16).background(Theme.background)
+    }
+}
+
 // MARK: 快捷命令片段
 
 struct SnippetsShowcase: View {

@@ -27,6 +27,14 @@ public enum AppScreenshots {
         richInfo.cpuSeen = true
         render(ServerStatusShowcase(info: richInfo)
             .frame(width: 420, height: 360), dir, "21-server-status")
+        // N-Multi 批量群发界面
+        let batchOutcomes = [
+            BatchOutcome(name: "生产 Web 01", output: "nginx restarted", ok: true),
+            BatchOutcome(name: "生产 Web 02", output: "nginx restarted", ok: true),
+            BatchOutcome(name: "数据库主机", output: "⚠️ unit not found", ok: false),
+        ]
+        render(BatchShowcase(connections: Array(model.connections.prefix(3)), outcomes: batchOutcomes)
+            .frame(width: 440, height: 540), dir, "22-batch")
         render(AIPanelShowcase(messages: model.aiMessages)
             .frame(width: 380, height: 520), dir, "03-ai-panel")
         render(AIPanelShowcase(messages: Array(model.aiMessages.prefix(1)), processing: true)

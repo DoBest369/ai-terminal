@@ -14,6 +14,7 @@ struct AIAgentView: View {
     @State private var aiSearch = ""
     @State private var showClearConfirm = false
     @State private var showDeleteConvConfirm = false
+    @State private var previewWorkflow: DiagnosticWorkflow?  // U-Z4 排障预览
 
     var body: some View {
         VStack(spacing: 0) {
@@ -36,6 +37,47 @@ struct AIAgentView: View {
             }
             Button("取消", role: .cancel) {}
         }
+        .sheet(item: $previewWorkflow) { wf in
+            diagnosticPreview(wf)
+        }
+    }
+
+    /// U-Z4 排障工作流预览 sheet：展示要跑的诊断命令，确认后注入
+    private func diagnosticPreview(_ wf: DiagnosticWorkflow) -> some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(wf.description)
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.textSecondary)
+                    Text("将依次注入以下只读诊断命令：")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.textPrimary)
+                    ForEach(wf.commands, id: \.self) { c in
+                        Text("$ \(c)")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundStyle(Theme.textPrimary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+            }
+            .background(Theme.background)
+            .navigationTitle(wf.name)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") { previewWorkflow = nil }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("注入诊断命令") {
+                        model.runDiagnostic(wf)
+                        previewWorkflow = nil
+                    }
+                }
+            }
+        }
+        .frame(minWidth: 440, minHeight: 460)
     }
 
     private var activeTitle: String {
@@ -138,7 +180,7 @@ struct AIAgentView: View {
             Menu {
                 ForEach(DiagnosticWorkflow.builtins) { wf in
                     Button {
-                        model.runDiagnostic(wf)
+                        previewWorkflow = wf
                     } label: {
                         Label(wf.name, systemImage: wf.icon)
                     }
@@ -148,7 +190,7 @@ struct AIAgentView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(Theme.textSecondary)
-            .help("一键排障：注入诊断命令到终端")
+            .help("一键排障：预览诊断命令后注入")
             Button {
                 searchActive.toggle()
                 if !searchActive { aiSearch = "" }

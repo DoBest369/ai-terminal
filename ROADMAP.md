@@ -22,7 +22,7 @@
 - [x] **A0** 工程骨架 + APK 跑通 ✅（gradle 8.13[缓存] + AGP 8.7.2 + Kotlin 1.9.24 + Compose 1.5.14；MainActivity 连接列表 UI[Termind 顶栏+按分组 ServerCard]；assembleDebug 出 app-debug.apk 14.7MB；推送）
 - [ ] **A1** 安卓 SSH 连接：用 sshj 或 JSch 实现真实 SSH 连接 + 终端（Compose 终端视图）
 - [x] **A2-UI** 安卓界面充实 ✅（底部导航 连接/AI 助手/设置 三 tab；AI 助手屏[运维提示卡片+输入占位]；设置屏[配色/AI 服务商/Key/关于]；连接卡片→ServerWorkspace[状态面板 CPU/内存/磁盘+终端区+AI 入口，呼应工作台三层]；增量构建 13s 出 APK 14.8MB；推送 9d3a823）
-- [ ] **A2** 连接管理：本地存储连接（Room/DataStore）+ 增删改 + 分组/备注
+- [x] **A2** 连接管理（持久化+增删改）✅（ConnectionStore[SharedPreferences+JSON，零依赖]load/save+seed；EditConnectionScreen 新建/编辑表单[host/user 必填]；MainActivity mutableStateListOf+FAB 新建+卡片⋮菜单 编辑/删除+空状态+persist；增量构建 14s 出 APK 14.8MB；推送 0d69774）
 - [ ] **A3** 把智能运维能力搬到安卓（命令解释/报错分析/风险分级/排障/模板——逻辑可参照 apple Core 用 Kotlin 重写）
 - [ ] **A4** 安卓 AI 助手（OkHttp 调 Anthropic/OpenAI）+ 状态面板
 

@@ -6,6 +6,14 @@
 
 ---
 
+## A2 · 安卓连接管理（持久化 + 增删改）
+- **内容**：`ConnectionStore.kt`——`ServerConn`(加 id=UUID + toJson)；`object ConnectionStore`(SharedPreferences 存连接 JSON 数组[org.json，零额外依赖] load/save，首次 seedDefaults 3 示例)。`EditConnectionScreen.kt`——新建/编辑表单(名称/host/user/port[数字]/分组/备注 OutlinedTextField，珊瑚红主题色，host+user trim 非空才可保存，保存回调 copy 更新)。`MainActivity`：连接列表改 `mutableStateListOf` 从 ConnectionStore.load 初始化；`FloatingActionButton`(连接 tab 显示)新建；ServerCard 加 ⋮ DropdownMenu(编辑/删除)；空状态(无连接提示点 + 新建)；增删改后 persist()。移除写死 demoConns。
+- **改动**：新增 `android/.../ConnectionStore.kt`、`EditConnectionScreen.kt`；改 `MainActivity.kt`。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 14s** → app-debug.apk 14.8MB。推送 0d69774。运行需模拟器/真机。
+- **安卓进度**：A0 骨架 ✅ / A2-UI 界面 ✅ / A2 连接管理 ✅。下一步 A1 真实 SSH(sshj)。
+
+---
+
 ## A2-UI · 安卓界面充实（运维工作台演进）
 - **内容**：重写 MainActivity.kt：`TermindApp` 加 Material3 底部 `NavigationBar` 三 tab（连接/AI 助手/设置，enum Tab + Compose state 切换）。`ServerListScreen`（连接卡片可点击 onOpen）。`AIAssistantScreen`（顶部「AI 运维助手」+ 4 张示例运维提示卡片[网站打不开/解释命令/分析报错/初始化]+底部输入占位，呼应 apple AI 面板）。`SettingsScreen`（配色/AI 服务商/API Key/关于 Termind 占位行）。`ServerWorkspace`（连接卡片点击进入：顶栏连接信息+返回、状态面板占位[CPU/内存/磁盘 StatCell 着色]、终端区占位[deploy@host:~$ 绿字]、AI 入口占位「问 AI：这台服务器有什么异常？」——呼应运维工作台「连接后工作区」三层形态）。
 - **改动**：`android/app/src/main/java/com/termind/app/MainActivity.kt`（重写+拆 Composable）。

@@ -24,7 +24,8 @@
 
 ### ✨ 阶段 N — 双端产品创新（PARITY 收官后，加运维工作台杀手级能力）
 - [x] **N-History** 命令历史 + 调出重用 ✅（android CommandHistory.kt[SharedPreferences 去重/置顶/限50]+ServerWorkspace 历史按钮+sheet[风险色点/点击填命令/删/清空]；apple Core CommandHistory[updated 纯逻辑+UserDefaults]+--history-test 自测过；双端落地；推送 9c8a6aa→04d9623）
-- [ ] **N-Multi** 批量群发命令（多服务器同命令，运维杀手级）/ **N-Cron** 定时巡检提醒
+- [x] **N-Multi** 批量群发命令 ✅（BatchScreen 选多连接+统一密码+命令[风险徽章]→并发 async+awaitAll connectAndExec→结果卡片[运行/成功/失败+输出脱敏]；高危群发二次确认；ServerListScreen「批量群发」入口；构建 22s；推送 d5f301f。运维工作台核心差异化）
+- [ ] **N-Cron** 定时巡检提醒 / apple 端 N-Multi/N-History UI 对齐
 
 ### 🤖 安卓原生 backlog（android/ Kotlin+Compose）
 - [x] **A0** 工程骨架 + APK 跑通 ✅（gradle 8.13[缓存] + AGP 8.7.2 + Kotlin 1.9.24 + Compose 1.5.14；MainActivity 连接列表 UI[Termind 顶栏+按分组 ServerCard]；assembleDebug 出 app-debug.apk 14.7MB；推送）

@@ -6,6 +6,15 @@
 
 ---
 
+## A-CardBadge + PRODUCT.md 刷新 · 连接卡片特性图标 + 产品现状
+- **A-CardBadge**（卡片特性图标）：`ServerCard` 名称行旁加小图标(13dp，TextSecondary)——`conn.hasJump`→AltRoute(经跳板)、`startupCommand` 非空→Bolt(有启动命令)、`authType==KEY`→VpnKey(私钥认证)。连接列表一眼区分特性。首构建 AltRoute deprecated warning→改 `Icons.AutoMirrored.Filled.AltRoute`+导入消警告。构建 21s，推送 2b1f12c→1016f85。
+- **PRODUCT.md 刷新**：「已具备 vs 待建」MVP 对照表从「差异化能力⬜待建」更新为真实现状——AI 命令解释/报错分析/排障工作流/环境感知/操作回滚/风险分级脱敏/初始化模板(Z1-Z8)+批量群发/巡检/主动巡检+SFTP 完整+跳板机+加密/TOFU/多主题 全标✅已具备(双端)；剩 服务器知识卡片/团队权限/云平台/分屏录制/Linux·Windows 端/真机打包发布。顶部加边界声明。
+- **改动**：`MainActivity.kt`(卡片图标+AltRoute 导入)、`docs/PRODUCT.md`。
+- **验证**：android 重建消 deprecated warning(待确认)。
+- **意义**：连接列表信息更丰富(一眼看跳板/启动命令/认证)；产品文档真实反映「MVP 差异化核心已全双端落地、超出 MVP 做了阶段 N」的成熟状态。
+
+---
+
 ## A-JumpAll · SFTP/端口转发经跳板补完（跳板覆盖全 SSH 操作）
 - **内容**：把 `listDir/downloadFile/uploadFile/makeDir/deletePath/readFile/openForward` 各加 `jump: JumpConfig?` 参数，内部统一用 `connectClient(...)` 助手建连(替换原直连样板)，finally 同时关 ssh+bastion。`PortForwardHandle` 加 bastion 字段，close 一并 disconnect。`SftpBrowser` 签名加 `jump: JumpConfig?` 参数，6 处内部 SFTP 调用(list/mkdir/delete/download/upload/readFile)传 jump；`ServerWorkspace` 调用 SftpBrowser 传 jumpCfg()、openForward 传 jumpCfg()。
 - **改动**：`SshClient.kt`(7 方法 jump+PortForwardHandle bastion)、`MainActivity.kt`(SftpBrowser 签名+调用传 jump)。

@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.NetworkCheck
@@ -58,7 +58,7 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
         topBar = {
             TopAppBar(
                 title = { Text(if (existing == null) "新建连接" else "编辑连接", color = TextPrimary) },
-                navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.Filled.ArrowBack, null, tint = TextPrimary) } },
+                navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = TextPrimary) } },
                 actions = {
                     TextButton(onClick = {
                         onSave(

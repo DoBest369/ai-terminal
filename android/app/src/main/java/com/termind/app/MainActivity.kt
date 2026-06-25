@@ -21,6 +21,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.AltRoute
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -259,7 +261,7 @@ fun ServerListScreen(
                 Spacer(Modifier.weight(1f))
                 Box {
                     IconButton(onClick = { sortMenu = true }, enabled = conns.isNotEmpty()) {
-                        Icon(Icons.Filled.Sort, "排序", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                        Icon(Icons.AutoMirrored.Filled.Sort, "排序", tint = TextSecondary, modifier = Modifier.size(18.dp))
                     }
                     DropdownMenu(expanded = sortMenu, onDismissRequest = { sortMenu = false }) {
                         listOf("名称", "最近使用", "在线优先").forEachIndexed { i, label ->
@@ -1027,7 +1029,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         topBar = {
             TopAppBar(
                 title = { Column { Text(conn.name, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold); Text("${conn.user}@${conn.host}:${conn.port}", color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace) } },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, null, tint = TextPrimary) } },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = TextPrimary) } },
                 actions = {
                     // A-Forward：端口转发（有活动转发则高亮）
                     IconButton(onClick = { showForward = true }) {

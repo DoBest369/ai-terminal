@@ -6,6 +6,13 @@
 
 ---
 
+## A2-UI · 安卓界面充实（运维工作台演进）
+- **内容**：重写 MainActivity.kt：`TermindApp` 加 Material3 底部 `NavigationBar` 三 tab（连接/AI 助手/设置，enum Tab + Compose state 切换）。`ServerListScreen`（连接卡片可点击 onOpen）。`AIAssistantScreen`（顶部「AI 运维助手」+ 4 张示例运维提示卡片[网站打不开/解释命令/分析报错/初始化]+底部输入占位，呼应 apple AI 面板）。`SettingsScreen`（配色/AI 服务商/API Key/关于 Termind 占位行）。`ServerWorkspace`（连接卡片点击进入：顶栏连接信息+返回、状态面板占位[CPU/内存/磁盘 StatCell 着色]、终端区占位[deploy@host:~$ 绿字]、AI 入口占位「问 AI：这台服务器有什么异常？」——呼应运维工作台「连接后工作区」三层形态）。
+- **改动**：`android/app/src/main/java/com/termind/app/MainActivity.kt`（重写+拆 Composable）。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 13s**（依赖已缓存，远快于首次 1h5m）→ app-debug.apk 14.8MB。Compose UI 编译正确。推送 9d3a823。运行/截图需模拟器（SDK 有 emulator，重/慢，本轮以构建成功为准）。
+
+---
+
 ## 🎉 A0 · 安卓原生骨架 + APK 跑通（里程碑：第二个原生端落地）
 - **内容**：新建 android/ Kotlin+Jetpack Compose 工程（settings/build/app build.gradle.kts、Manifest、themes/strings、MainActivity.kt[Termind 顶栏 ⚡+智能SSH运维 + 按分组 SSH 连接列表 ServerCard：状态点/name/user@host:port/备注，午夜深蓝+珊瑚红配色呼应 apple 端]）。
 - **构建踩坑**：① gradle 缓存中 8.2.1-bin 残缺(.part)，改用完整的 8.13-bin。② AGP 8.2.2 配 gradle 8.13 卡死（main 线程 parking 12 分钟无进展）→ 升 AGP 8.7.2 + Kotlin 1.9.24 + Compose compiler 1.5.14 后正常下载。③ 网络诊断确认 dl.google/maven/github/gradle 全通。

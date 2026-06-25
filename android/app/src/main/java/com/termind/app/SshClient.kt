@@ -84,6 +84,7 @@ object SshClient {
         ssh.addHostKeyVerifier(TofuVerifier())  // MVP，TODO TOFU
         ssh.connectTimeout = 10_000
         ssh.connect(host, port)
+        ssh.connection.keepAlive.keepAliveInterval = 30   // A-KeepAlive：30s 心跳防 NAT/服务器超时断连
         authenticate(ssh, user, password, privateKey)
         val session = ssh.startSession()
         session.allocateDefaultPTY()

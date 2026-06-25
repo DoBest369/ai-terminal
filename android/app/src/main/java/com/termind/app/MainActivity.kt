@@ -744,6 +744,12 @@ fun SettingsScreen() {
                 }
             }
             SettingRow(Icons.Filled.Info, "关于 Termind", "智能 SSH 运维工作台 v1.0")
+            // A-About：开源仓库链接（点击浏览器打开）
+            SettingRow(Icons.Filled.Code, "开源仓库", "github.com/DoBest369/ai-terminal · MIT") {
+                runCatching {
+                    ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/DoBest369/ai-terminal")))
+                }
+            }
         }
     }
 }

@@ -88,6 +88,7 @@ fun TermindApp() {
     var editing by remember { mutableStateOf<ServerConn?>(null) }   // 当前编辑中的连接
     var showEditor by remember { mutableStateOf(false) }
     var activeProfile by remember { mutableStateOf<ServerProfile?>(null) }  // A-Env：当前连接的环境画像，喂给 AI
+    var showBatch by remember { mutableStateOf(false) }  // N-Multi 批量群发
     // A-Reach：可达性探测结果 id→可达(true/false)；不在 map=探测中/未探测
     val reachMap = remember { mutableStateMapOf<String, Boolean>() }
     var probing by remember { mutableStateOf(false) }
@@ -108,6 +109,11 @@ fun TermindApp() {
     // 连接详情「工作区」覆盖在最上层
     detail?.let { conn ->
         ServerWorkspace(conn, onBack = { detail = null }, onProfile = { activeProfile = it })
+        return
+    }
+    // N-Multi 批量群发覆盖
+    if (showBatch) {
+        BatchScreen(conns = conns.toList(), onBack = { showBatch = false })
         return
     }
     // 新建/编辑表单覆盖
@@ -158,6 +164,7 @@ fun TermindApp() {
                     reachMap = reachMap,
                     probing = probing,
                     onRefresh = { probeAll() },
+                    onBatch = { showBatch = true },
                     onOpen = { detail = it },
                     onEdit = { editing = it; showEditor = true },
                     onDelete = { conns.remove(it); persist() }
@@ -194,6 +201,7 @@ fun ServerListScreen(
     reachMap: Map<String, Boolean>,
     probing: Boolean,
     onRefresh: () -> Unit,
+    onBatch: () -> Unit,
     onOpen: (ServerConn) -> Unit,
     onEdit: (ServerConn) -> Unit,
     onDelete: (ServerConn) -> Unit
@@ -208,6 +216,9 @@ fun ServerListScreen(
                 Spacer(Modifier.width(8.dp))
                 Text("智能 SSH 运维", fontSize = 12.sp, color = TextSecondary)
                 Spacer(Modifier.weight(1f))
+                IconButton(onClick = onBatch, enabled = conns.isNotEmpty()) {
+                    Icon(Icons.Filled.Dns, "批量群发", tint = Accent, modifier = Modifier.size(18.dp))
+                }
                 IconButton(onClick = onRefresh, enabled = !probing) {
                     if (probing) CircularProgressIndicator(Modifier.size(16.dp), color = Accent, strokeWidth = 2.dp)
                     else Icon(Icons.Filled.Refresh, "刷新在线状态", tint = TextSecondary, modifier = Modifier.size(18.dp))

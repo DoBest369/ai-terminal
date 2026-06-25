@@ -6,6 +6,17 @@
 
 ---
 
+## A-Startup + A-TermActions + A-Sort + 质量收口 · 安卓连接/终端完善
+- **A-Startup**（连接启动命令）：`ServerConn.startupCommand`+JSON 持久化；EditConnectionScreen「启动命令」字段；ServerWorkspace connect 建立 shell 成功后 `it.write(startupCommand+\n)` 自动执行(cd/source/tmux)。构建 22s，推送 48230de。
+- **A-TermActions**（终端复制/清屏）：终端区字号按钮行加 复制全部(`clipboard.setText(stripAnsi(output))`)+清屏(`output=""`)。构建 20s，推送 5887ec7。
+- **A-Sort**（连接排序）：`ServerConn.lastUsed`+JSON 持久化；打开连接时 `copy(lastUsed=now)`+persist；ServerListScreen 顶栏「排序」DropdownMenu(名称[name.lowercase]/最近使用[lastUsed desc]/在线优先[reachMap])。构建 23s，推送 4731fae。
+- **质量收口**：apple `AITerminalCore`+`App` swift build 均 Build complete；--history/--batch/--risk/--metrics/--env-detect 五自测全 true，无回归。
+- **改动**：`ConnectionStore.kt`/`EditConnectionScreen.kt`/`MainActivity.kt`、`docs/PARITY.md`。
+- **验证**：android 各项 BUILD SUCCESSFUL；apple swift build + 5 自测全过。
+- **意义**：安卓连接管理(分组/颜色标签/搜索/排序/启动命令/导出导入/可达性/密码私钥)与终端(彩色/控制键栏/字号/复制清屏)已达专业 SSH 客户端水准，双端高度对齐。
+
+---
+
 ## A-Stop + A-SnippetCRUD + 质量收口 · 安卓 AI/快捷命令打磨
 - **A-Stop**（AI 停止生成）：AIAssistantScreen send 流式任务存 `sendJob`(scope.launch 返回 Job)；`stop()` `sendJob.cancel()`+保留已生成内容+追加「[已停止]」+persist。输入栏发送按钮 sending 时变 Danger 红停止按钮(Stop 图标)。协程取消在 chatStream onDelta 的 withContext(Main) 挂起点生效。构建 19s，推送 1aa07f3。
 - **A-SnippetCRUD**（快捷命令自定义）：`SnippetStore`(SharedPreferences 存用户快捷命令 JSON load/save/add/remove)；ServerWorkspace 快捷命令 Chip 行 = `defaults + customSnippets`，自定义项带 X 删除，末尾「+新建」Chip→AlertDialog 输入名称/命令保存。修首构建 termColors 前向引用(对话框用局部 dlgColors)。构建 20s，推送 2c48299→88b814a。

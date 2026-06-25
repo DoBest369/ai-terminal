@@ -10,7 +10,10 @@
 | 连接管理（分组/备注/持久化/增删改） | ✅ | ✅ | |
 | 连接颜色标签 | 🟡 | ✅ | android 6 色环境标识 |
 | 连接列表搜索过滤 | ✅ | ✅ | 按名称/主机/用户/分组 |
+| 连接列表排序 | ✅ | ✅ | 名称/最近使用/在线优先 |
+| 连接级启动命令 | ✅ | ✅ | 连上自动执行 |
 | 终端字号调节 | ✅ | ✅ | android +/- 8-22sp |
+| 终端复制全部/清屏 | ✅ | ✅ | android |
 | 连接可达性 TCP 探测 | ✅ | ✅ | apple ReachabilityChecker / android Reachability |
 | 密码认证 | ✅ | ✅ | |
 | 私钥认证 | ✅ | ✅ | android sshj authPublickey |

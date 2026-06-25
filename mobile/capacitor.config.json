@@ -1,8 +1,0 @@
-{
-  "appId": "com.termind.app",
-  "appName": "Termind",
-  "webDir": "www",
-  "server": {
-    "androidScheme": "https"
-  }
-}

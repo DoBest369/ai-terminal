@@ -145,16 +145,12 @@ object SshClient {
 
     /** 列远程目录（A-SFTP）：sshj SFTPClient ls，返回文件列表（文件夹优先、按名排序）。 */
     suspend fun listDir(
-        host: String, port: Int, user: String, password: String, path: String, privateKey: String? = null
+        host: String, port: Int, user: String, password: String, path: String, privateKey: String? = null, jump: JumpConfig? = null
     ): Result<List<RemoteFile>> = withContext(Dispatchers.IO) {
         runCatching {
             withTimeout(15_000) {
-                val ssh = SSHClient()
-                ssh.addHostKeyVerifier(TofuVerifier())  // MVP，TODO TOFU
-                ssh.connectTimeout = 10_000
-                ssh.connect(host, port)
+                val (ssh, bastion) = connectClient(host, port, user, password, privateKey, jump)
                 try {
-                    authenticate(ssh, user, password, privateKey)
                     ssh.newSFTPClient().use { sftp ->
                         sftp.ls(path).mapNotNull { info ->
                             val name = info.name
@@ -165,6 +161,7 @@ object SshClient {
                     }
                 } finally {
                     runCatching { ssh.disconnect() }
+                    runCatching { bastion?.disconnect() }
                 }
             }
         }
@@ -173,19 +170,16 @@ object SshClient {
     /** 下载远程文件到本地路径（A-Upload）：sshj SFTPClient.get。 */
     suspend fun downloadFile(
         host: String, port: Int, user: String, password: String,
-        remotePath: String, localPath: String, privateKey: String? = null
+        remotePath: String, localPath: String, privateKey: String? = null, jump: JumpConfig? = null
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             withTimeout(60_000) {
-                val ssh = SSHClient()
-                ssh.addHostKeyVerifier(TofuVerifier())  
-                ssh.connectTimeout = 10_000
-                ssh.connect(host, port)
+                val (ssh, bastion) = connectClient(host, port, user, password, privateKey, jump)
                 try {
-                    authenticate(ssh, user, password, privateKey)
                     ssh.newSFTPClient().use { it.get(remotePath, localPath) }
                 } finally {
                     runCatching { ssh.disconnect() }
+                    runCatching { bastion?.disconnect() }
                 }
             }
         }
@@ -194,19 +188,16 @@ object SshClient {
     /** 上传本地文件到远程路径（A-Upload）：sshj SFTPClient.put。 */
     suspend fun uploadFile(
         host: String, port: Int, user: String, password: String,
-        localPath: String, remotePath: String, privateKey: String? = null
+        localPath: String, remotePath: String, privateKey: String? = null, jump: JumpConfig? = null
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             withTimeout(60_000) {
-                val ssh = SSHClient()
-                ssh.addHostKeyVerifier(TofuVerifier())  
-                ssh.connectTimeout = 10_000
-                ssh.connect(host, port)
+                val (ssh, bastion) = connectClient(host, port, user, password, privateKey, jump)
                 try {
-                    authenticate(ssh, user, password, privateKey)
                     ssh.newSFTPClient().use { it.put(localPath, remotePath) }
                 } finally {
                     runCatching { ssh.disconnect() }
+                    runCatching { bastion?.disconnect() }
                 }
             }
         }
@@ -214,46 +205,38 @@ object SshClient {
 
     /** 新建远程目录（A-SftpEdit）：sshj SFTPClient.mkdir。 */
     suspend fun makeDir(
-        host: String, port: Int, user: String, password: String, path: String, privateKey: String? = null
+        host: String, port: Int, user: String, password: String, path: String, privateKey: String? = null, jump: JumpConfig? = null
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             withTimeout(15_000) {
-                val ssh = SSHClient()
-                ssh.addHostKeyVerifier(TofuVerifier())
-                ssh.connectTimeout = 10_000
-                ssh.connect(host, port)
+                val (ssh, bastion) = connectClient(host, port, user, password, privateKey, jump)
                 try {
-                    authenticate(ssh, user, password, privateKey)
                     ssh.newSFTPClient().use { it.mkdir(path) }
-                } finally { runCatching { ssh.disconnect() } }
+                } finally { runCatching { ssh.disconnect() }; runCatching { bastion?.disconnect() } }
             }
         }
     }
 
     /** 删除远程文件/空目录（A-SftpEdit）：文件用 rm、目录用 rmdir。 */
     suspend fun deletePath(
-        host: String, port: Int, user: String, password: String, path: String, isDir: Boolean, privateKey: String? = null
+        host: String, port: Int, user: String, password: String, path: String, isDir: Boolean, privateKey: String? = null, jump: JumpConfig? = null
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             withTimeout(15_000) {
-                val ssh = SSHClient()
-                ssh.addHostKeyVerifier(TofuVerifier())
-                ssh.connectTimeout = 10_000
-                ssh.connect(host, port)
+                val (ssh, bastion) = connectClient(host, port, user, password, privateKey, jump)
                 try {
-                    authenticate(ssh, user, password, privateKey)
                     ssh.newSFTPClient().use { if (isDir) it.rmdir(path) else it.rm(path) }
-                } finally { runCatching { ssh.disconnect() } }
+                } finally { runCatching { ssh.disconnect() }; runCatching { bastion?.disconnect() } }
             }
         }
     }
 
     /** 读取远程文本文件内容（A-FileView）：head -c 限制大小，避免大文件/二进制卡顿。 */
     suspend fun readFile(
-        host: String, port: Int, user: String, password: String, path: String, maxBytes: Int = 200_000, privateKey: String? = null
+        host: String, port: Int, user: String, password: String, path: String, maxBytes: Int = 200_000, privateKey: String? = null, jump: JumpConfig? = null
     ): Result<String> {
         val safe = path.replace("'", "'\\''")
-        return connectAndExec(host, port, user, password, "head -c $maxBytes '$safe'", privateKey = privateKey)
+        return connectAndExec(host, port, user, password, "head -c $maxBytes '$safe'", privateKey = privateKey, jump = jump)
     }
 
     /**
@@ -263,13 +246,9 @@ object SshClient {
     suspend fun openForward(
         host: String, port: Int, user: String, password: String,
         localPort: Int, remoteHost: String, remotePort: Int,
-        scope: CoroutineScope, privateKey: String? = null
+        scope: CoroutineScope, privateKey: String? = null, jump: JumpConfig? = null
     ): PortForwardHandle = withContext(Dispatchers.IO) {
-        val ssh = SSHClient()
-        ssh.addHostKeyVerifier(TofuVerifier())
-        ssh.connectTimeout = 10_000
-        ssh.connect(host, port)
-        authenticate(ssh, user, password, privateKey)
+        val (ssh, bastion) = connectClient(host, port, user, password, privateKey, jump)
         val ss = java.net.ServerSocket()
         ss.reuseAddress = true
         ss.bind(java.net.InetSocketAddress("127.0.0.1", localPort))
@@ -281,7 +260,7 @@ object SshClient {
         val job = scope.launch(Dispatchers.IO) {
             runCatching { forwarder.listen() }
         }
-        PortForwardHandle(ssh, ss, job)
+        PortForwardHandle(ssh, ss, job, bastion)
     }
 
     /** 探测服务器环境（A-Env）：跑 EnvDetector.detectCommand → ServerProfile。 */
@@ -314,12 +293,14 @@ data class RemoteFile(val name: String, val isDir: Boolean, val size: Long, val 
 class PortForwardHandle(
     private val ssh: SSHClient,
     private val serverSocket: java.net.ServerSocket,
-    private val job: kotlinx.coroutines.Job
+    private val job: kotlinx.coroutines.Job,
+    private val bastion: SSHClient? = null   // A-Jump 跳板机连接
 ) {
     fun close() {
         runCatching { serverSocket.close() }
         runCatching { job.cancel() }
         runCatching { ssh.disconnect() }
+        runCatching { bastion?.disconnect() }
     }
 }
 

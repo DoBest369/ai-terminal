@@ -873,7 +873,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
 
     // A-SFTP 文件浏览 sheet
     if (showFiles) {
-        SftpBrowser(conn, password, keyArg(), onClose = { showFiles = false })
+        SftpBrowser(conn, password, keyArg(), jumpCfg(), onClose = { showFiles = false })
     }
 
     // A-Rollback 操作时间线 sheet
@@ -925,7 +925,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 if (password.isBlank() && keyArg() == null) { output += "⚠️ 请先输入登录凭据\n"; showForward = false; return@PortForwardDialog }
                 scope.launch {
                     runCatching {
-                        SshClient.openForward(conn.host, conn.port, conn.user, password, lp, rh, rp, scope, keyArg())
+                        SshClient.openForward(conn.host, conn.port, conn.user, password, lp, rh, rp, scope, keyArg(), jumpCfg())
                     }.onSuccess { forwardHandle = it; forwardLabel = "127.0.0.1:$lp → $rh:$rp"; output += "🔀 端口转发已建立：$forwardLabel\n" }
                         .onFailure { output += "⚠️ 端口转发失败：${it.message}\n" }
                     showForward = false
@@ -1316,7 +1316,7 @@ fun HealthAISheet(status: ServerStatus, onClose: () -> Unit) {
 /** A-SFTP：远程文件浏览（全屏 sheet：路径栏 + 列表 + 进入/上级） */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose: () -> Unit) {
+fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: JumpConfig?, onClose: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var path by remember { mutableStateOf(".") }
@@ -1331,7 +1331,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
     fun load(p: String) {
         loading = true; error = null
         scope.launch {
-            SshClient.listDir(conn.host, conn.port, conn.user, password, p, privateKey)
+            SshClient.listDir(conn.host, conn.port, conn.user, password, p, privateKey, jump)
                 .onSuccess { files = it; path = p }
                 .onFailure { error = it.message }
             loading = false
@@ -1344,7 +1344,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
         val target = (if (base == ".") "./" else "$base/") + name
         loading = true
         scope.launch {
-            SshClient.makeDir(conn.host, conn.port, conn.user, password, target, privateKey)
+            SshClient.makeDir(conn.host, conn.port, conn.user, password, target, privateKey, jump)
                 .onSuccess { toast = "已新建文件夹 $name"; load(path) }
                 .onFailure { error = it.message; loading = false }
         }
@@ -1353,7 +1353,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
     fun delete(f: RemoteFile) {
         loading = true
         scope.launch {
-            SshClient.deletePath(conn.host, conn.port, conn.user, password, f.path, f.isDir, privateKey)
+            SshClient.deletePath(conn.host, conn.port, conn.user, password, f.path, f.isDir, privateKey, jump)
                 .onSuccess { toast = "已删除 ${f.name}"; load(path) }
                 .onFailure { error = it.message; loading = false }
         }
@@ -1365,7 +1365,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
         scope.launch {
             val dir = ctx.getExternalFilesDir("Downloads") ?: ctx.cacheDir
             val local = java.io.File(dir, f.name)
-            SshClient.downloadFile(conn.host, conn.port, conn.user, password, f.path, local.absolutePath, privateKey)
+            SshClient.downloadFile(conn.host, conn.port, conn.user, password, f.path, local.absolutePath, privateKey, jump)
                 .onSuccess { toast = "已下载到 ${local.absolutePath}" }
                 .onFailure { error = it.message }
             loading = false
@@ -1386,7 +1386,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
                 val tmp = java.io.File(ctx.cacheDir, name)
                 ctx.contentResolver.openInputStream(uri)!!.use { input -> tmp.outputStream().use { input.copyTo(it) } }
                 val remote = (if (path == "." || path == "/") path else path.trimEnd('/')) + "/" + name
-                SshClient.uploadFile(conn.host, conn.port, conn.user, password, tmp.absolutePath, remote, privateKey).getOrThrow()
+                SshClient.uploadFile(conn.host, conn.port, conn.user, password, tmp.absolutePath, remote, privateKey, jump).getOrThrow()
                 name
             }.onSuccess { toast = "已上传 $it"; load(path) }
                 .onFailure { error = it.message }
@@ -1398,7 +1398,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, onClose
     fun openFile(f: RemoteFile) {
         loading = true
         scope.launch {
-            SshClient.readFile(conn.host, conn.port, conn.user, password, f.path, privateKey = privateKey)
+            SshClient.readFile(conn.host, conn.port, conn.user, password, f.path, privateKey = privateKey, jump = jump)
                 .onSuccess { viewing = f.name to Redactor.redact(it).ifBlank { "(空文件)" } }
                 .onFailure { error = it.message }
             loading = false

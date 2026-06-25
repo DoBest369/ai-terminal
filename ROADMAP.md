@@ -28,7 +28,9 @@
 - [x] **A4** 安卓 AI 助手（OkHttp 调 Anthropic）✅（AiClient.chat[Messages API 非流式 org.json]；SettingsStore[SharedPreferences 存 Key/模型]；AIAssistantScreen 真对话气泡+输入栏+发送；SettingsScreen API Key 弹框配置；构建 58s 出 APK 30.8MB[含 OkHttp]；推送 6df2aff。流式+状态面板真采集待后续）
 - [x] **A1b** 交互式 PTY 终端 ✅（SshClient.openShell[allocateDefaultPTY+startShell，协程读 inputStream→onOutput 脱敏，stripAnsi 去转义]+SshShellSession[write/close]；ServerWorkspace ConnState 状态机[未连/连接中/已连/失败]+状态条+断开+持久 shell send(cmd+\n)+DisposableEffect 防泄漏；构建 15s 出 APK 30.8MB；推送 7864c66）
 - [x] **A-Status** 状态面板真实采集 ✅（SshClient.fetchStatus[top -bn1|grep %Cpu + free -m + df -h /]+ServerStatus.parse[CPU=100-idle/内存 used/total GB/磁盘 used/total 占用%]；ServerWorkspace 连接后 refreshStatus 采集，状态面板显真实值+刷新按钮；构建 16s 出 APK 30.8MB；推送 8f42c33）
-- [ ] **A-Env** 环境感知 Kotlin 化 + AI 接环境（ServerProfile/EnvDetector 移植 + aiSummary 注入 AiClient systemPrompt，对齐 apple Z3）
+- [x] **A-Env** 环境感知 Kotlin 化 + AI 接环境 ✅（EnvCore.kt ServerProfile[+aiSummary]+EnvDetector[detectCommand+parse]，移植 apple ServerProfile.swift；SshClient.fetchEnv；ServerWorkspace 连接后探测→onProfile 上报+终端显🔎摘要；TermindApp activeProfile；AIAssistantScreen 注入 aiSummary 到 systemPrompt[AI 结合真实环境]+顶栏「已感知环境」；构建 16s 出 APK 30.8MB；推送 de655eb）
+
+> **🎉 安卓端核心能力全齐**：连接管理 · 真实 SSH · 交互式 PTY 终端 · 状态面板真采集 · 风险分级/脱敏 · AI 对话+环境感知 · 排障工作流 · 初始化模板 —— 与 apple 端智能运维护城河高度对齐，从零数轮迭代建成。
 
 ## 🤖 阶段 Z — 智能 SSH 运维能力（MVP 差异化核心）· 最高优先级
 

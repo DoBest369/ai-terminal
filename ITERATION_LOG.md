@@ -6,6 +6,14 @@
 
 ---
 
+## A-Env · 安卓环境感知 Kotlin 化 + AI 接环境（对齐 apple Z3 护城河）
+- **内容**：`EnvCore.kt`——`ServerProfile`(hostname/os/distro/kernel/arch/currentUser/isRoot/packageManager/services + installedServices/missingServices/`aiSummary`[一行环境摘要]) + `object EnvDetector`(probedServices[nginx/docker/node…] + `detectCommand`[复合 shell：hostname/uname/id/os-release/包管理器/command -v 各服务，前缀 HOST:/UNAME:/USER:/OSREL:/PM:/SVC:] + `parse(output)`→ServerProfile)，移植 apple ServerProfile.swift。`SshClient.fetchEnv`=connectAndExec(detectCommand).map{parse}。`ServerWorkspace` 连接成功后协程 fetchEnv→`onProfile(p)` 上报 + 终端显「🔎 环境摘要」。`TermindApp` 加 `activeProfile` state，ServerWorkspace onProfile 写入；`AIAssistantScreen(profile)` 发消息时把 `profile.aiSummary` 拼进 systemPrompt（"…请结合以上真实服务器环境给出针对性回答"），顶栏副标题显「已感知环境」。
+- **改动**：新增 `android/.../EnvCore.kt`；改 `SshClient.kt`(fetchEnv)、`MainActivity.kt`(TermindApp activeProfile/ServerWorkspace onProfile+探测/AIAssistantScreen 注入)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 16s** → app-debug.apk 30.8MB。推送 de655eb。真实探测需真服务器。
+- **里程碑**：安卓端核心能力全齐（连接管理/真实 SSH/交互终端/状态采集/风险脱敏/AI 对话+环境感知/排障/模板），与 apple 端智能运维护城河高度对齐。剩流式 AI/快捷命令/SFTP 等打磨 + Windows/Linux 端待起。
+
+---
+
 ## A-Status · 安卓状态面板真实采集
 - **内容**：`SshClient.fetchStatus(host,port,user,password)`——一次性跑 `top -bn1|grep %Cpu; echo ---; free -m; echo ---; df -h /`，connectAndExec 取回 → `ServerStatus.parse`。`OpsCore.ServerStatus(cpu/mem/disk + parse)`：正则解析 CPU(`([0-9.]+) id`→100-idle)、内存(`^Mem: total used`→used/total GB)、磁盘(`df / 行`→used/total(占用%))，解析失败保留「—」。`ServerWorkspace` 加 status/refreshing state + `refreshStatus()`(协程 fetchStatus)，连接成功后自动采集；状态面板(仅已连显示)显真实 CPU/内存/磁盘 + 刷新 IconButton(转圈)。
 - **改动**：`android/.../SshClient.kt`(fetchStatus)、`OpsCore.kt`(ServerStatus)、`MainActivity.kt`(ServerWorkspace 状态面板)。

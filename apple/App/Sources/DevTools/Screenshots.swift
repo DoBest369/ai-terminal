@@ -400,8 +400,8 @@ public enum AppScreenshots {
             Connection(name: "数据库主机", host: "db.internal.net", port: 22, username: "admin", authType: .password, group: "生产", lastUsedAt: Date().addingTimeInterval(-300), note: "数据库主库", colorTag: .blue)
         ]
         model.aiMessages = [
-            ChatMessage(role: .user, content: "列出当前目录文件并查看内存"),
-            ChatMessage(role: .assistant, content: "好的，我来执行：\n[EXECUTE]ls -la[/EXECUTE]\n[EXECUTE]free -h[/EXECUTE]\n命令已在终端执行，请查看结果。")
+            ChatMessage(role: .user, content: "怎么查看 Nginx 错误日志？"),
+            ChatMessage(role: .assistant, content: "用下面的命令查看最近的 Nginx 错误日志：\n```bash\ntail -n 50 /var/log/nginx/error.log\n```\n如要实时跟踪，把 `tail -n 50` 换成 `tail -f`。")
         ]
         return model
     }

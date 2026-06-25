@@ -458,10 +458,7 @@ private struct MessageBubble: View {
                 Text(isUser ? "你" : "AI")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(Theme.textSecondary)
-                Text(displayText)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Theme.textPrimary)
-                    .textSelection(.enabled)
+                bubbleContent
                     .padding(10)
                     .background(isUser ? Theme.surfaceLight : Theme.background)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -490,6 +487,53 @@ private struct MessageBubble: View {
         message.role == .assistant
             ? AIService.strippedDisplayText(from: message.content)
             : message.content
+    }
+
+    /// 气泡正文：助手消息按 ``` 围栏拆出代码块，单独等宽深色框渲染（对齐 android A-Md）；用户消息纯文本。
+    @ViewBuilder
+    private var bubbleContent: some View {
+        if message.role == .assistant && displayText.contains("```") {
+            let parts = displayText.components(separatedBy: "```")
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(Array(parts.enumerated()), id: \.offset) { idx, part in
+                    if idx % 2 == 1 {
+                        // 代码块：去掉可能的语言行
+                        let code = Self.stripLangLine(part)
+                        Text(code)
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundStyle(Theme.success)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(8)
+                            .background(Color.black.opacity(0.35))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    } else {
+                        let t = part.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !t.isEmpty {
+                            Text(t).font(.system(size: 13)).foregroundStyle(Theme.textPrimary).textSelection(.enabled)
+                        }
+                    }
+                }
+            }
+        } else {
+            Text(displayText)
+                .font(.system(size: 13))
+                .foregroundStyle(Theme.textPrimary)
+                .textSelection(.enabled)
+        }
+    }
+
+    /// 代码块去掉首行可能的语言标识（如 ```bash），返回纯代码。
+    private static func stripLangLine(_ raw: String) -> String {
+        let trimmed = raw.hasPrefix("\n") ? String(raw.dropFirst()) : raw
+        if let nl = trimmed.firstIndex(of: "\n") {
+            let first = trimmed[trimmed.startIndex..<nl].trimmingCharacters(in: .whitespaces)
+            // 首行是单个词（语言名）→ 去掉
+            if !first.isEmpty && !first.contains(" ") && first.count < 16 {
+                return String(trimmed[trimmed.index(after: nl)...]).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+        }
+        return trimmed.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// 复制文本到系统剪贴板（跨平台，共用 Clipboard）

@@ -377,16 +377,37 @@ struct AIPanelShowcase: View {
     }
     private func bubble(_ msg: ChatMessage) -> some View {
         let isUser = msg.role == .user
+        let text = AIService.strippedDisplayText(from: msg.content)
         return HStack {
             if isUser { Spacer(minLength: 24) }
             VStack(alignment: isUser ? .trailing : .leading, spacing: 4) {
                 Text(isUser ? "你" : "AI").font(.system(size: 10, weight: .bold)).foregroundStyle(Theme.textSecondary)
-                Text(AIService.strippedDisplayText(from: msg.content))
-                    .font(.system(size: 13)).foregroundStyle(Theme.textPrimary)
+                bubbleBody(text, isUser: isUser)
                     .padding(10).background(isUser ? Theme.surfaceLight : Theme.background)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             if !isUser { Spacer(minLength: 24) }
+        }
+    }
+    // 与真实 MessageBubble 一致：助手含 ``` 时拆代码块为等宽深色框
+    @ViewBuilder private func bubbleBody(_ text: String, isUser: Bool) -> some View {
+        if !isUser && text.contains("```") {
+            let parts = text.components(separatedBy: "```")
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(Array(parts.enumerated()), id: \.offset) { idx, part in
+                    if idx % 2 == 1 {
+                        Text(part.trimmingCharacters(in: .whitespacesAndNewlines))
+                            .font(.system(size: 12, design: .monospaced)).foregroundStyle(Theme.success)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(8).background(Color.black.opacity(0.35)).clipShape(RoundedRectangle(cornerRadius: 6))
+                    } else {
+                        let t = part.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !t.isEmpty { Text(t).font(.system(size: 13)).foregroundStyle(Theme.textPrimary) }
+                    }
+                }
+            }
+        } else {
+            Text(text).font(.system(size: 13)).foregroundStyle(Theme.textPrimary)
         }
     }
 }

@@ -128,6 +128,14 @@ object SshClient {
         }
     }
 
+    /** 读取远程文本文件内容（A-FileView）：head -c 限制大小，避免大文件/二进制卡顿。 */
+    suspend fun readFile(
+        host: String, port: Int, user: String, password: String, path: String, maxBytes: Int = 200_000
+    ): Result<String> {
+        val safe = path.replace("'", "'\\''")
+        return connectAndExec(host, port, user, password, "head -c $maxBytes '$safe'")
+    }
+
     /** 探测服务器环境（A-Env）：跑 EnvDetector.detectCommand → ServerProfile。 */
     suspend fun fetchEnv(
         host: String, port: Int, user: String, password: String

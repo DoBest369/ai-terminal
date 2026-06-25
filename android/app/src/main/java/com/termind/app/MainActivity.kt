@@ -706,6 +706,7 @@ fun SftpBrowser(conn: ServerConn, password: String, onClose: () -> Unit) {
     var files by remember { mutableStateOf<List<RemoteFile>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var viewing by remember { mutableStateOf<Pair<String, String>?>(null) }  // A-FileView：文件名→内容
 
     fun load(p: String) {
         loading = true; error = null
@@ -716,7 +717,32 @@ fun SftpBrowser(conn: ServerConn, password: String, onClose: () -> Unit) {
             loading = false
         }
     }
+    // 查看文本文件内容
+    fun openFile(f: RemoteFile) {
+        loading = true
+        scope.launch {
+            SshClient.readFile(conn.host, conn.port, conn.user, password, f.path)
+                .onSuccess { viewing = f.name to Redactor.redact(it).ifBlank { "(空文件)" } }
+                .onFailure { error = it.message }
+            loading = false
+        }
+    }
     LaunchedEffect(Unit) { load(".") }
+
+    // 文件内容查看弹窗
+    viewing?.let { (name, content) ->
+        AlertDialog(
+            onDismissRequest = { viewing = null },
+            title = { Text(name, color = TextPrimary, fontSize = 15.sp, maxLines = 1) },
+            text = {
+                Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
+                    Text(content, color = TextPrimary, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+                }
+            },
+            confirmButton = { TextButton(onClick = { viewing = null }) { Text("关闭", color = Accent) } },
+            containerColor = Surface
+        )
+    }
 
     ModalBottomSheet(onDismissRequest = onClose, containerColor = Bg) {
         Column(Modifier.fillMaxWidth().padding(16.dp).heightIn(min = 300.dp, max = 560.dp)) {
@@ -739,7 +765,7 @@ fun SftpBrowser(conn: ServerConn, password: String, onClose: () -> Unit) {
                 items(files.size) { i ->
                     val f = files[i]
                     Row(
-                        Modifier.fillMaxWidth().clickable { if (f.isDir) load(f.path) }.padding(vertical = 10.dp),
+                        Modifier.fillMaxWidth().clickable { if (f.isDir) load(f.path) else openFile(f) }.padding(vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(if (f.isDir) Icons.Filled.Folder else Icons.Filled.InsertDriveFile, null,

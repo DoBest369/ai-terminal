@@ -276,8 +276,13 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
 fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    // 对话消息（role=user/assistant）
-    val messages = remember { mutableStateListOf<Pair<String, String>>() }
+    // A-Convos：多对话——每个对话是一组消息(role=user/assistant)
+    val convos = remember { mutableStateListOf(mutableStateListOf<Pair<String, String>>()) }
+    var curIdx by remember { mutableStateOf(0) }
+    val messages = convos[curIdx.coerceIn(0, convos.size - 1)]
+    var convoMenu by remember { mutableStateOf(false) }
+    fun convoTitle(c: List<Pair<String, String>>, i: Int) =
+        c.firstOrNull { it.first == "user" }?.second?.take(16) ?: "新对话 ${i + 1}"
     var input by remember { mutableStateOf("") }
     var sending by remember { mutableStateOf(false) }
     val suggestions = listOf("帮我查看为什么网站打不开", "解释这条命令：docker system prune -a", "分析这段报错并给修复", "一键初始化 Ubuntu Web 服务器")
@@ -304,7 +309,37 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
     }
 
     Column {
-        TopBar("AI 运维助手", if (profile?.aiSummary?.isNotEmpty() == true) "已感知环境" else null)
+        // A-Convos：顶栏带对话切换 + 新建
+        Surface(color = Surface) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.AutoAwesome, null, tint = Accent)
+                Spacer(Modifier.width(8.dp))
+                Box {
+                    Row(Modifier.clickable { convoMenu = true }, verticalAlignment = Alignment.CenterVertically) {
+                        Text(convoTitle(messages, curIdx), fontWeight = FontWeight.Bold, color = TextPrimary, maxLines = 1)
+                        Icon(Icons.Filled.ArrowDropDown, null, tint = TextSecondary)
+                    }
+                    DropdownMenu(expanded = convoMenu, onDismissRequest = { convoMenu = false }) {
+                        convos.forEachIndexed { i, c ->
+                            DropdownMenuItem(text = { Text(convoTitle(c, i), color = if (i == curIdx) Accent else TextPrimary) },
+                                onClick = { curIdx = i; convoMenu = false })
+                        }
+                        HorizontalDivider()
+                        DropdownMenuItem(text = { Text("➕ 新建对话", color = Accent) },
+                            onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; convoMenu = false })
+                        if (convos.size > 1) DropdownMenuItem(text = { Text("🗑 删除当前", color = Danger) },
+                            onClick = { convos.removeAt(curIdx); curIdx = curIdx.coerceIn(0, convos.size - 1); convoMenu = false })
+                    }
+                }
+                if (profile?.aiSummary?.isNotEmpty() == true) {
+                    Spacer(Modifier.width(8.dp)); Text("已感知环境", fontSize = 12.sp, color = TextSecondary)
+                }
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1 }) {
+                    Icon(Icons.Filled.Add, "新建对话", tint = TextSecondary)
+                }
+            }
+        }
         if (messages.isEmpty()) {
             Column(Modifier.weight(1f).fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("让 AI 结合服务器真实环境帮你运维", color = TextSecondary, fontSize = 13.sp)

@@ -92,6 +92,14 @@ object SshClient {
         SshShellSession(ssh, session, out)
     }
 
+    /** 采集服务器状态（A-Status）：一次性跑 top/free/df 取回原始输出，由 ServerStatus.parse 解析。 */
+    suspend fun fetchStatus(
+        host: String, port: Int, user: String, password: String
+    ): Result<ServerStatus> {
+        val cmd = "top -bn1 2>/dev/null | grep -i '%Cpu'; echo '---'; free -m 2>/dev/null; echo '---'; df -h / 2>/dev/null"
+        return connectAndExec(host, port, user, password, cmd).map { ServerStatus.parse(it) }
+    }
+
     /** 去除常见 ANSI 转义序列（颜色/光标控制），MVP 简化处理 */
     fun stripAnsi(s: String): String =
         s.replace(Regex("\\[[0-9;?]*[a-zA-Z]"), "")

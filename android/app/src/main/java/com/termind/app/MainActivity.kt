@@ -344,6 +344,19 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
     var state by remember { mutableStateOf(ConnState.DISCONNECTED) }
     var pendingConfirm by remember { mutableStateOf<String?>(null) }  // 高危命令二次确认
     var shellSession by remember { mutableStateOf<SshShellSession?>(null) }
+    var status by remember { mutableStateOf(ServerStatus()) }  // A-Status 真实状态
+    var refreshing by remember { mutableStateOf(false) }
+
+    // 采集服务器状态（CPU/内存/磁盘）
+    fun refreshStatus() {
+        if (password.isBlank() || refreshing) return
+        refreshing = true
+        scope.launch {
+            SshClient.fetchStatus(conn.host, conn.port, conn.user, password)
+                .onSuccess { status = it }
+            refreshing = false
+        }
+    }
 
     // 建立交互式 shell 会话
     fun connect() {
@@ -358,6 +371,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
                 }
             }.onSuccess {
                 shellSession = it; state = ConnState.CONNECTED
+                refreshStatus()   // 连接成功后采集状态
             }.onFailure {
                 output += "⚠️ 连接失败：${it.message}\n"; state = ConnState.ERROR
             }
@@ -453,6 +467,20 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit) {
                     Text(label, color = TextPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
                     if (state == ConnState.CONNECTED) {
                         TextButton(onClick = { disconnect() }) { Text("断开", color = Danger, fontSize = 12.sp) }
+                    }
+                }
+            }
+            // A-Status：真实状态面板（连接后采集 top/free/df）
+            if (state == ConnState.CONNECTED) {
+                Surface(color = SurfaceLight.copy(alpha = 0.5f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(14.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                        StatCell("CPU", status.cpu, Success)
+                        StatCell("内存", status.mem, Warning)
+                        StatCell("磁盘", status.disk, Success)
+                        IconButton(onClick = { refreshStatus() }, enabled = !refreshing) {
+                            if (refreshing) CircularProgressIndicator(Modifier.size(16.dp), color = Accent, strokeWidth = 2.dp)
+                            else Icon(Icons.Filled.Refresh, "刷新状态", tint = Accent, modifier = Modifier.size(18.dp))
+                        }
                     }
                 }
             }

@@ -64,6 +64,36 @@ enum class CommandRisk(val level: Int) {
     }
 }
 
+/** 服务器状态（A-Status）：CPU/内存/磁盘，由 top/free/df 输出解析。 */
+data class ServerStatus(
+    val cpu: String = "—",
+    val mem: String = "—",
+    val disk: String = "—"
+) {
+    companion object {
+        /** 解析 `top -bn1|grep %Cpu` + `free -m` + `df -h /` 的合并输出（以 --- 分段或全文扫描） */
+        fun parse(raw: String): ServerStatus {
+            var cpu = "—"; var mem = "—"; var disk = "—"
+            // CPU：top 行形如 "%Cpu(s):  3.2 us,  1.1 sy, ... 95.0 id, ..." → 100 - idle
+            Regex("([0-9.]+)\\s*id").find(raw)?.let {
+                val idle = it.groupValues[1].toDoubleOrNull()
+                if (idle != null) cpu = "${(100 - idle).coerceIn(0.0, 100.0).toInt()}%"
+            }
+            // 内存：free -m 的 "Mem:  total used free ..." → used/total GB
+            Regex("(?im)^Mem:\\s+(\\d+)\\s+(\\d+)").find(raw)?.let {
+                val total = it.groupValues[1].toIntOrNull(); val used = it.groupValues[2].toIntOrNull()
+                if (total != null && used != null && total > 0)
+                    mem = "%.1f/%.1f GB".format(used / 1024.0, total / 1024.0)
+            }
+            // 磁盘：df -h / 的数据行 "/dev/xxx  80G  36G  44G  46% /"
+            Regex("(?m)^\\S+\\s+(\\S+)\\s+(\\S+)\\s+\\S+\\s+(\\d+)%\\s+/\\s*$").find(raw)?.let {
+                disk = "${it.groupValues[2]}/${it.groupValues[1]} (${it.groupValues[3]}%)"
+            }
+            return ServerStatus(cpu, mem, disk)
+        }
+    }
+}
+
 /** 敏感输出脱敏：密钥/密码/Token 打码后再展示（移植 apple Redactor） */
 object Redactor {
     private val sensitiveKeys = listOf(

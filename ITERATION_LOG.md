@@ -6,6 +6,14 @@
 
 ---
 
+## A-JumpAll · SFTP/端口转发经跳板补完（跳板覆盖全 SSH 操作）
+- **内容**：把 `listDir/downloadFile/uploadFile/makeDir/deletePath/readFile/openForward` 各加 `jump: JumpConfig?` 参数，内部统一用 `connectClient(...)` 助手建连(替换原直连样板)，finally 同时关 ssh+bastion。`PortForwardHandle` 加 bastion 字段，close 一并 disconnect。`SftpBrowser` 签名加 `jump: JumpConfig?` 参数，6 处内部 SFTP 调用(list/mkdir/delete/download/upload/readFile)传 jump；`ServerWorkspace` 调用 SftpBrowser 传 jumpCfg()、openForward 传 jumpCfg()。
+- **改动**：`SshClient.kt`(7 方法 jump+PortForwardHandle bastion)、`MainActivity.kt`(SftpBrowser 签名+调用传 jump)。
+- **验证**：android BUILD SUCCESSFUL 21s；apple swift build + 5 自测无回归。推送 90a8d21。未真机实测。
+- **意义**：跳板机 ProxyJump 现**完整覆盖所有 SSH 操作**(终端/状态/环境/排障/模板/SFTP/端口转发)，补完 A-Jump 的 TODO。企业堡垒机场景下 android 全功能可用，与 apple 全对齐。
+
+---
+
 ## A-Jump 跳板机 ProxyJump（android 最后核心缺口对齐 apple）
 - **sshj API 调研**（javap）：`SocketClient.connectVia(DirectConnection)` 原生支持 ProxyJump！流程：连 bastion SSHClient + 认证 → `bastion.newDirectConnection(targetHost, targetPort): DirectConnection` → 目标 `target.connectVia(dc)` + 认证。无需手搭本地转发。
 - **实现**：`JumpConfig(host,port,user,password)` 数据类。`SshClient.connectClient(...)` 私有助手：jump 非空时经 bastion connectVia 建目标，返回 `Pair<target, bastion?>`；否则直连。`connectAndExec/openShell/fetchStatus/fetchEnv` 加 `jump: JumpConfig?` 参数走助手；`connectAndExec` finally 关 ssh+bastion；`SshShellSession` 持 bastion 字段，close 一并 disconnect。

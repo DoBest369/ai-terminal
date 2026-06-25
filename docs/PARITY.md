@@ -19,7 +19,7 @@
 | 密码认证 | ✅ | ✅ | |
 | 私钥认证 | ✅ | ✅ | android sshj authPublickey |
 | 本地端口转发 | ✅ | ✅ | android sshj LocalPortForwarder |
-| 跳板机（ProxyJump 经堡垒机） | ✅ | ✅ | android sshj connectVia（终端/状态/环境/排障/模板已接；SFTP/转发 TODO；未真机实测） |
+| 跳板机（ProxyJump 经堡垒机） | ✅ | ✅ | android sshj connectVia，覆盖 终端/状态/环境/排障/模板/SFTP/端口转发全操作（未真机实测） |
 | 交互式 PTY 终端 | ✅ | ✅ | |
 | 终端会话 keepalive 心跳 | ✅ | ✅ | android sshj 30s 防超时断连 |
 | 终端 ANSI 颜色渲染 | ✅ | ✅ | android AnsiParser→AnnotatedString |
@@ -93,5 +93,5 @@
 - **SSH/终端/SFTP/AI/安全/端口转发/跳板机/多主题/多对话 双端齐平**
 - apple 为功能最全的旗舰；**android 已是功能完整、体验接近桌面的第二原生端，核心能力与 apple 高度对齐**
 - **android AI 能力已与 apple 完全对齐**（对话/解释/报错/健康/环境感知/流式/停止/重新生成/多对话/持久化/搜索/导出/代码块/消息复制）
-- android 跳板机 ProxyJump 已接入（终端/状态/环境/排障/模板路径；SFTP/转发经跳板 TODO）——**仅剩 分屏/会话录制**（移动端意义有限，标 N/A）未对齐
+- android 跳板机 ProxyJump 已**完整覆盖所有 SSH 操作**（终端/状态/环境/排障/模板/SFTP/端口转发）——**仅剩 分屏/会话录制**（移动端意义有限，标 N/A）未对齐
 - `linux/`（Rust+egui）🟡 骨架；`windows/`（C#/.NET）⬜ 待起

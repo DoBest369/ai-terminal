@@ -6,6 +6,13 @@
 
 ---
 
+## U-Z8 · 初始化模板入口 + 预览确认（UI 打磨）
+- **内容**：AppModel 加 `runSetupTemplate(_:)`（guard 活动会话 → `injectWithBackup(allCommands.joined, action:"初始化模板:名")` 关键配置自动备份 + toast）。`SnippetsView` 加 `@State previewTemplate: SetupTemplate?`，工具栏 primaryAction 加「初始化模板」Menu（ForEach SetupTemplate.builtins，Label name+icon）→ 点击设 previewTemplate；`.sheet(item:)` 弹 `templatePreview`：NavigationStack + ScrollView(Text(tpl.previewText())) 滚动展示步骤/命令/风险/预计影响，工具栏「取消」/「注入到终端」(tint=Color(hex: tpl.risk.colorHex)，确认调 runSetupTemplate + dismiss)。
+- **改动**：`apple/App/Sources/AppModel.swift`、`Views/SnippetsView.swift`。
+- **验证**：Core + App swift build 通过。Menu/sheet 不可静态渲染（同 K4/N1），编译验证。推送 97fac56。
+
+---
+
 ## U-Z7 · 快捷命令面板接入四级风险颜色（UI 打磨）
 - **内容**：`SnippetsView.snippetRow` 把二元 `snippet.isDangerous`(红/普通) 升级为 `CommandRisk.riskLevel(command)` 四级：低=`chevron.left.forwardslash.chevron.right` + Theme.accent；中/高/极高=`risk.icon` + `Color(hex: risk.colorHex)`，并在标题旁加风险标签 Capsule 徽章（risk.label：注意/高风险/极高危，背景 riskColor 0.22）。`DevTools/Showcase.swift` 的 snipRow 同步；`Screenshots.swift` SnippetsShowcase 加 3 风险示例片段（vim 配置=中/systemctl restart=高/rm -rf=极高）。
 - **改动**：`apple/App/Sources/Views/SnippetsView.swift`、`DevTools/Showcase.swift`、`DevTools/Screenshots.swift`。

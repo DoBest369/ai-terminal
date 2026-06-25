@@ -6,6 +6,14 @@
 
 ---
 
+## A-KeyAuth · 安卓 SSH 私钥认证（密码/私钥二选一）
+- **内容**：`ConnectionStore` 加 `enum AuthType{PASSWORD,KEY}` + `ServerConn.authType`(+JSON 持久化/解析容错)。`SshClient.authenticate(ssh,user,password,privateKey)`：privateKey 非空→`ssh.loadKeys(privateKey, null, null)`(PEM 字符串当密钥内容)+`ssh.authPublickey(user, keyProvider)`，否则 `authPassword`；`openShell`/`connectAndExec`/`listDir`/`fetchStatus`/`fetchEnv`/`readFile` 全加 `privateKey: String? = null` 参数并改调 authenticate。`EditConnectionScreen` 加「认证方式」FilterChip(密码/私钥)。`ServerWorkspace`：`privateKey` state + `keyArg()`(authType==KEY 时返回非空私钥)；凭据框按 authType 显密码框或私钥 PEM 多行 Mono 框；connect/refreshStatus/runDiagnostic/runSetupTemplate/fetchEnv/SftpBrowser 各调用传 keyArg()；凭据空判断改 `password.isBlank() && keyArg()==null`。私钥临时输入不持久化(注释 TODO EncryptedSharedPreferences)。
+- **改动**：`ConnectionStore.kt`、`SshClient.kt`、`EditConnectionScreen.kt`、`MainActivity.kt`。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 18s** → app-debug.apk。**sshj loadKeys(String,String,String)+authPublickey API 编译通过**。推送 b2a6fae。真实密钥登录需真服务器。
+- **意义**：安卓从仅密码升级为 密码/私钥 双认证，对齐桌面 SSH 客户端与 apple 端密钥能力。
+
+---
+
 ## A-Ansi · 安卓终端 ANSI 颜色渲染
 - **内容**：新建 `AnsiParser.kt`——`parse(text): AnnotatedString`，逐字符扫描，遇 `ESC[…m` SGR 序列则 flush 当前段并按参数更新颜色/粗体（basic 30-37/bright 90-97 映射为深色背景可读配色，1=粗体，0=重置，39=默认色，22=取消粗体；非 SGR 的光标/清屏序列直接剥离），用 `buildAnnotatedString`+`withStyle(SpanStyle(color,fontWeight))` 分段着色。`SshClient.openShell` 读循环不再 `stripAnsi(chunk)`，直接传原始 ANSI 给 onOutput（保留颜色码）。`ServerWorkspace` 终端输出区 `Text(output...)` → `Text(AnsiParser.parse(output)...)` 彩色渲染。
 - **改动**：新增 `android/.../AnsiParser.kt`；改 `SshClient.kt`(openShell 去 stripAnsi)、`MainActivity.kt`(终端区 AnsiParser)。

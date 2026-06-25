@@ -45,6 +45,7 @@
 - [x] **A-Rollback** 操作回滚 Kotlin 化 ✅（RollbackCore.kt OpRollback[criticalPrefixes/isCriticalConfig/criticalTargets/backupCommand/sshAutoRollbackCommand]+OpTimelineEntry[rollbackCommand]，移植 apple；ServerWorkspace.send 改关键配置前自动 cp 备份+记 opTimeline；顶栏「时间线」History 入口→ModalBottomSheet 列操作+可回滚项一键回滚；构建 17s 出 APK 30.8MB；推送 8425732）
 
 - [x] **A-FileView** SFTP 查看文本文件内容 ✅（SshClient.readFile[head -c 200KB 限大小+单引号转义]；SftpBrowser 点文件→openFile 读→AlertDialog 滚动显示(脱敏)；构建 17s 出 APK 30.8MB；推送 f922570）
+- [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-Ansi** 终端 ANSI 颜色渲染 ✅（AnsiParser.parse→AnnotatedString 解析 SGR 前景色 30-37/90-97+粗体+重置；openShell 传原始 ANSI；终端区彩色显示替代删色单色；构建 18s；推送 c2f4941）
 - [x] **A-HealthAI** 状态面板↔AI 联动 ✅（ServerStatus.healthSummary/hasWarning/cpuPercent/diskPercent；AiClient.HEALTH_PROMPT；ServerWorkspace 状态面板 CPU/磁盘>85% 红+「问 AI」按钮[告警高亮]→HealthAISheet chatStream 流式分析；对齐 apple Z6b；构建 17s；推送 15f597d）
 - [x] **A-Secure** API Key 加密存储 ✅（security-crypto:1.1.0-alpha06；SettingsStore API Key 走 EncryptedSharedPreferences[MasterKey AES256_GCM]，对齐 apple Keychain；旧明文→加密迁移+失败回退；构建 1m12s 加 Tink 触发 multidex；推送 9be395f）

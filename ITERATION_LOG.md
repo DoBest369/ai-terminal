@@ -6,6 +6,15 @@
 
 ---
 
+## A-AIActions · 安卓 AI 快捷入口（命令解释 + 报错分析）
+- **内容**：`AiClient` 加 `EXPLAIN_PROMPT`(命令讲解:作用/关键参数/风险/安全等级，不执行不给 [EXECUTE]) + `ERROR_PROMPT`(报错分析:含义/最可能原因/修复步骤/验证，识别 502/Permission denied/端口占用等)，对齐 apple commandExplainPrompt/errorAnalysisPrompt。`AIAssistantScreen.send(text, basePrompt=SYSTEM_PROMPT)` 加 basePrompt 参数（仍注入 profile.aiSummary 环境摘要）；输入栏上方加「解释命令」(Lightbulb 黄)「分析报错」(BugReport 红) AssistChip，点击 `send(input, EXPLAIN/ERROR_PROMPT)` 流式发送。
+- **改动**：`android/.../AiClient.kt`(两常量)、`MainActivity.kt`(send basePrompt + 两 Chip + 文件图标 Description)。
+- **踩坑**：首构建把文件图标误改 `Icons.AutoMirrored.Filled.InsertDriveFile`(无该变体)→BUILD FAILED；回退用 `Icons.Filled.Description`→成。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 17s** → app-debug.apk 30.8MB。推送 0cae82e→3b1c33a。
+- **安卓打磨**：…/A-FileView/**A-AIActions** ✅。安卓 AI 助手三种模式（对话+环境感知/命令解释/报错分析）全有，对齐 apple。
+
+---
+
 ## A-FileView · 安卓 SFTP 查看文本文件内容
 - **内容**：`SshClient.readFile(host,port,user,password,path,maxBytes=200_000)`——`head -c <max> '<path>'`(单引号转义防注入)读文本，限大小避免大文件/二进制卡顿。`SftpBrowser` 加 `viewing: Pair<name,content>?` state + `openFile(f)`(协程 readFile→脱敏→viewing)；文件行点击：文件夹 load 进入、文件 openFile；`viewing` 非空弹 AlertDialog 滚动等宽显示内容。顺手修 InsertDriveFile→`Icons.AutoMirrored.Filled.InsertDriveFile`(消 deprecated 警告)。
 - **改动**：`android/.../SshClient.kt`(readFile)、`MainActivity.kt`(SftpBrowser openFile+viewing 弹窗+图标)。

@@ -1,0 +1,20 @@
+[package]
+name = "termind"
+version = "0.1.0"
+edition = "2021"
+description = "Termind — 智能 SSH 服务器运维工作台（Linux 原生端）"
+
+[[bin]]
+name = "termind"
+path = "src/main.rs"
+
+[dependencies]
+# 原生 GUI（纯 Rust，跨平台立即模式 UI）
+eframe = "0.27"
+egui = "0.27"
+# SSH（纯 C 绑定，连接/exec/SFTP）；需系统 libssh2 + openssl
+ssh2 = "0.9"
+# HTTP（AI：Anthropic/OpenAI），rustls 避免 OpenSSL 链接
+ureq = { version = "2.9", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

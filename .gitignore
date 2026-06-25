@@ -25,3 +25,7 @@ android/app/build/
 android/local.properties
 android/.idea/
 android/captures/
+
+# Linux (Rust 原生)
+linux/target/
+linux/Cargo.lock

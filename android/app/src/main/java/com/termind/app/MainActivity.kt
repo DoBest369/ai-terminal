@@ -359,6 +359,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var shellSession by remember { mutableStateOf<SshShellSession?>(null) }
     var status by remember { mutableStateOf(ServerStatus()) }  // A-Status 真实状态
     var refreshing by remember { mutableStateOf(false) }
+    var showFiles by remember { mutableStateOf(false) }  // A-SFTP 文件浏览
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -439,6 +440,11 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         }
     }
 
+    // A-SFTP 文件浏览 sheet
+    if (showFiles) {
+        SftpBrowser(conn, password, onClose = { showFiles = false })
+    }
+
     // 离开工作区时关闭会话，避免泄漏
     DisposableEffect(Unit) { onDispose { shellSession?.close() } }
 
@@ -469,6 +475,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 title = { Column { Text(conn.name, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold); Text("${conn.user}@${conn.host}:${conn.port}", color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace) } },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, null, tint = TextPrimary) } },
                 actions = {
+                    // A-SFTP：文件浏览（仅已连接可用）
+                    IconButton(onClick = { if (state == ConnState.CONNECTED) showFiles = true }, enabled = state == ConnState.CONNECTED) {
+                        Icon(Icons.Filled.Folder, "文件", tint = if (state == ConnState.CONNECTED) TextSecondary else TextSecondary.copy(alpha = 0.3f))
+                    }
                     // A3b：一键排障
                     var diagMenu by remember { mutableStateOf(false) }
                     Box {
@@ -585,6 +595,63 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     ) {
                         if (state == ConnState.CONNECTING) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
                         else Text("连接", color = Color.White)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** A-SFTP：远程文件浏览（全屏 sheet：路径栏 + 列表 + 进入/上级） */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SftpBrowser(conn: ServerConn, password: String, onClose: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    var path by remember { mutableStateOf(".") }
+    var files by remember { mutableStateOf<List<RemoteFile>>(emptyList()) }
+    var loading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    fun load(p: String) {
+        loading = true; error = null
+        scope.launch {
+            SshClient.listDir(conn.host, conn.port, conn.user, password, p)
+                .onSuccess { files = it; path = p }
+                .onFailure { error = it.message }
+            loading = false
+        }
+    }
+    LaunchedEffect(Unit) { load(".") }
+
+    ModalBottomSheet(onDismissRequest = onClose, containerColor = Bg) {
+        Column(Modifier.fillMaxWidth().padding(16.dp).heightIn(min = 300.dp, max = 560.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Folder, null, tint = Accent)
+                Spacer(Modifier.width(8.dp))
+                Text("文件浏览", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                if (loading) CircularProgressIndicator(Modifier.size(18.dp), color = Accent, strokeWidth = 2.dp)
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(path, color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace, maxLines = 1)
+            Spacer(Modifier.height(8.dp))
+            // 上级目录
+            TextButton(onClick = {
+                val parent = path.trimEnd('/').substringBeforeLast('/', "").ifEmpty { "/" }
+                load(if (path == "." || path == "/") "/" else parent)
+            }) { Icon(Icons.Filled.ArrowUpward, null, tint = Accent, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text("上级目录", color = Accent, fontSize = 12.sp) }
+            error?.let { Text("⚠️ $it", color = Danger, fontSize = 12.sp) }
+            LazyColumn(Modifier.weight(1f)) {
+                items(files.size) { i ->
+                    val f = files[i]
+                    Row(
+                        Modifier.fillMaxWidth().clickable { if (f.isDir) load(f.path) }.padding(vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(if (f.isDir) Icons.Filled.Folder else Icons.Filled.InsertDriveFile, null,
+                            tint = if (f.isDir) Accent else TextSecondary, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(12.dp))
+                        Text(f.name, color = TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f), maxLines = 1)
+                        Text(f.sizeLabel, color = TextSecondary, fontSize = 11.sp)
                     }
                 }
             }

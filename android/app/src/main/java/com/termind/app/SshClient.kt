@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.connection.channel.direct.Session
+import net.schmizz.sshj.sftp.FileMode
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import java.io.OutputStream
 import java.util.concurrent.TimeUnit
@@ -100,6 +101,33 @@ object SshClient {
         return connectAndExec(host, port, user, password, cmd).map { ServerStatus.parse(it) }
     }
 
+    /** 列远程目录（A-SFTP）：sshj SFTPClient ls，返回文件列表（文件夹优先、按名排序）。 */
+    suspend fun listDir(
+        host: String, port: Int, user: String, password: String, path: String
+    ): Result<List<RemoteFile>> = withContext(Dispatchers.IO) {
+        runCatching {
+            withTimeout(15_000) {
+                val ssh = SSHClient()
+                ssh.addHostKeyVerifier(PromiscuousVerifier())  // MVP，TODO TOFU
+                ssh.connectTimeout = 10_000
+                ssh.connect(host, port)
+                try {
+                    ssh.authPassword(user, password)
+                    ssh.newSFTPClient().use { sftp ->
+                        sftp.ls(path).mapNotNull { info ->
+                            val name = info.name
+                            if (name == "." || name == "..") return@mapNotNull null
+                            val isDir = info.attributes.type == FileMode.Type.DIRECTORY
+                            RemoteFile(name, isDir, info.attributes.size, info.path)
+                        }.sortedWith(compareByDescending<RemoteFile> { it.isDir }.thenBy { it.name.lowercase() })
+                    }
+                } finally {
+                    runCatching { ssh.disconnect() }
+                }
+            }
+        }
+    }
+
     /** 探测服务器环境（A-Env）：跑 EnvDetector.detectCommand → ServerProfile。 */
     suspend fun fetchEnv(
         host: String, port: Int, user: String, password: String
@@ -111,6 +139,19 @@ object SshClient {
         s.replace(Regex("\\[[0-9;?]*[a-zA-Z]"), "")
          .replace(Regex("[()][AB0-2]"), "")
          .replace("]0;", "").replace("", "")
+}
+
+/** 远程文件（A-SFTP） */
+data class RemoteFile(val name: String, val isDir: Boolean, val size: Long, val path: String) {
+    /** 人类可读大小 */
+    val sizeLabel: String
+        get() = when {
+            isDir -> ""
+            size < 1024 -> "$size B"
+            size < 1024 * 1024 -> "%.1f KB".format(size / 1024.0)
+            size < 1024 * 1024 * 1024 -> "%.1f MB".format(size / 1024.0 / 1024.0)
+            else -> "%.1f GB".format(size / 1024.0 / 1024.0 / 1024.0)
+        }
 }
 
 /** 交互式 shell 会话句柄：write 发命令到 PTY，close 断开。 */

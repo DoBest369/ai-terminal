@@ -6,6 +6,13 @@
 
 ---
 
+## Z7 · 命令风险四级分级 + 敏感输出脱敏
+- **内容**：Core 新增 `CommandRisk.swift`——`enum CommandRisk{low/medium/high/critical}`（Comparable + label[安全/注意/高风险/极高危]/colorHex/needsConfirm(>=high)/icon）+ criticalPatterns(rm -rf/mkfs/iptables -f/systemctl stop ssh/drop database…)/highPatterns(systemctl restart·reload/ufw/iptables/chmod -r/kill/docker rm/apt remove…)/mediumPatterns(vim/sed -i/cp/mv/chmod/install…) + `riskLevel(_:)`（critical>high>medium>low 优先匹配）。`AIService.isDangerous` 改为委托 `CommandRisk.riskLevel(_).needsConfirm`（向后兼容，high/critical 才 true）。`Redactor.redact(_:)`：正则把 sensitiveKeys(password/secret/api_key/token…)=值、`sk-***`、`Bearer ***`、`AKIA***`、`-----BEGIN PRIVATE KEY-----` 块 打码 ******（保留键名/普通文本不动）。
+- **改动**：新增 `apple/AITerminalCore/.../CommandRisk.swift`；改 `AIService.swift`(isDangerous 委托)、`DevTools/Screenshots.swift`(riskTest)+`ShotsMain/main.swift`(--risk-test)。
+- **验证**：双端 swift build 通过；`--risk-test`→「风险分级正确=true；isDangerous 兼容=true；脱敏正确=true」；Z5 回归(--rollback-test)正常。推送 78a1ff8。UI 风险颜色标注+高危二次确认接入留后续。
+
+---
+
 ## Z5 · 操作回滚（可恢复操作链路）
 - **内容**：Core 新增 `OpRollback.swift`——`criticalPrefixes`（/etc/nginx/* /etc/ssh/sshd_config /etc/mysql/* /etc/fstab /etc/crontab /etc/sudoers…）+ `isCriticalConfig` + `criticalTargets(in:)`（启发式：命令含 vim/sed -i/tee/cp/重定向 等写意图 + 命中关键路径才返回，只读如 cat 不命中）+ `backupCommand(for:stamp:)`=`cp <path> <path>.bak-<stamp>` + `sshAutoRollbackCommand(minutes:stamp:)`（改 sshd 备份 + `at now + N minutes` 自动还原重启，防改错锁门外）。`OpTimelineEntry`（time/action/command/rollbackable/backupPath + `rollbackCommand` 从 .bak-stamp 反推还原）。AppModel 加 `@Published opTimeline` + `injectWithBackup`（runSnippet 注入命令前，若 criticalTargets 非空则先注入各 cp 备份 + 记时间线 + toast 提示）+ `rollback(_:)`（注入还原命令）+ backupStamp()。
 - **改动**：新增 `apple/AITerminalCore/.../OpRollback.swift`；改 `AppModel.swift`、`DevTools/Screenshots.swift`(rollbackTest)+`ShotsMain/main.swift`(--rollback-test)。

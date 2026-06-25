@@ -27,7 +27,7 @@
 - [x] **Z4** 场景化排障工作流 ✅（Core DiagnosticWorkflow+5 内置[网站打不开/磁盘清理/SSL/Nginx/Docker]+composeForAI；AppModel.runDiagnostic[注入诊断命令]+analyzeDiagnostic[输出→AI 总结]；AIAgentView「排障」Menu[stethoscope]；--diag-test 自测过；双端 build；推送 6054119。待 Z4b SSH exec 捕获输出后自动 AI 总结）
 - [x] **Z5** 操作回滚 ✅（Core OpRollback[criticalPrefixes/isCriticalConfig/criticalTargets/backupCommand/sshAutoRollbackCommand]+OpTimelineEntry[rollbackCommand]；AppModel.opTimeline+injectWithBackup[runSnippet 改关键配置前自动 cp 备份+记时间线]+rollback；--rollback-test 全过；双端 build；推送 41625d3。待 Z5b：AI [EXECUTE] 执行路径也接 injectWithBackup + 时间线 UI）
 - [ ] **Z6** 服务器状态面板升级：比状态栏更丰富（CPU/内存/磁盘/端口/服务/SSL/异常），面板↔命令↔AI 联动
-- [ ] **Z7** 命令风险分级（低/中/高/极高）+ 高危二次确认 + 敏感输出脱敏
+- [x] **Z7** 命令风险分级 + 敏感输出脱敏 ✅（Core CommandRisk 四级[low/medium/high/critical]+riskLevel+label/colorHex/needsConfirm/icon；isDangerous 委托 riskLevel.needsConfirm 兼容；Redactor.redact 打码 password/token/sk-/Bearer/AKIA/私钥块；--risk-test 全过；双端 build；推送 78a1ff8。待 UI 用风险颜色标注 + 高危二次确认接入）
 - [ ] **Z8** 一键服务器初始化/部署模板（Ubuntu Web 初始化、Docker、Node、静态站…）
 
 

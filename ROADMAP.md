@@ -26,7 +26,8 @@
 - [x] **N-History** 命令历史 + 调出重用 ✅（android CommandHistory.kt[SharedPreferences 去重/置顶/限50]+ServerWorkspace 历史按钮+sheet[风险色点/点击填命令/删/清空]；apple Core CommandHistory[updated 纯逻辑+UserDefaults]+--history-test 自测过；双端落地；推送 9c8a6aa→04d9623）
 - [x] **N-Multi** 批量群发命令 ✅（BatchScreen 选多连接+统一密码+命令[风险徽章]→并发 async+awaitAll connectAndExec→结果卡片[运行/成功/失败+输出脱敏]；高危群发二次确认；ServerListScreen「批量群发」入口；构建 22s；推送 d5f301f。运维工作台核心差异化）
 - [x] **N-Multi-AI** 群发结果 AI 汇总 ✅（BatchScreen 全部完成后「AI 汇总」按钮→拼各连接结果→AiClient.chatStream 流式总结[总览/失败原因/共性/建议]；群发+AI 洞察=单连接工具做不到；构建 15s；推送 4845975）
-- [ ] **N-Cron** 定时巡检提醒 / apple 端 N-Multi/N-History UI 对齐
+- [x] **N-Multi apple** Core 框架 + UI 渲染 ✅（Core BatchRunner[run/summary/composeForAI]+--batch-test；Showcase BatchShowcase[多选+命令风险+结果卡片+AI 汇总入口]+渲染 22-batch.png 核对；swift build；推送 38b7974→6c6f684。真实 SSH 接入[SSHTerminalSession.runCommand] 留 UI TODO）
+- [ ] **N-Cron** 定时巡检提醒
 
 ### 🤖 安卓原生 backlog（android/ Kotlin+Compose）
 - [x] **A0** 工程骨架 + APK 跑通 ✅（gradle 8.13[缓存] + AGP 8.7.2 + Kotlin 1.9.24 + Compose 1.5.14；MainActivity 连接列表 UI[Termind 顶栏+按分组 ServerCard]；assembleDebug 出 app-debug.apk 14.7MB；推送）

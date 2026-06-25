@@ -6,6 +6,16 @@
 
 ---
 
+## N-Multi apple · Core 批量群发框架 + BatchShowcase 界面渲染
+- **Core BatchRunner**（BatchRunner.swift）：`BatchOutcome`(name/output/ok)+`run`(withTaskGroup 并发对多目标执行注入的 runner，任务外取 name 避逃逸捕获，按输入序 sorted 聚合)+`summary`(成功/失败统计)+`composeForAI`(群发结果拼 AI 汇总素材)，对齐 android。runner 闭包注入便于测试；真实接入走 SSHTerminalSession.runCommand(Citadel) 留 UI TODO。
+- **UI**：`Showcase.BatchShowcase`(批量群发界面：多选服务器勾选+命令风险标注+执行结果卡片[成功绿/失败红 octagon]+「AI 汇总这批结果」入口，Theme 配色)；renderAll 渲染 `22-batch.png`(3台/2成功1失败/systemctl restart nginx 高风险)。Read 核对清晰，存 apple/screenshots。
+- **自测**：`--batch-test` 初版 async(并发 run mock) 在 @MainActor+Task.detached+TaskGroup 下卡死无输出→改**同步纯逻辑**(直接构造 outcomes 测 summary 统计+composeForAI 素材 contains)，run 的并发由 UI 实测。
+- **改动**：新增 `BatchRunner.swift`；改 `Screenshots.swift`(batchTest+渲染)、`Showcase.swift`(BatchShowcase)、`main.swift`(--batch-test 同步)；新增 `apple/screenshots/22-batch.png`。
+- **验证**：swift build 通过 + 渲染 22-batch 核对(界面清晰)。推送 38b7974→6c6f684→2004d16。
+- **意义**：apple N-Multi 批量群发 Core 框架+UI 雏形齐(android 完整实测)。阶段 N 双端创新继续推进。
+
+---
+
 ## N-Multi + N-Multi-AI + N-History UI · 批量群发 + 群发AI汇总 + apple历史接入
 - **N-Multi（android 批量群发）**：`BatchScreen.kt`——选多连接(checkbox 列表)+统一密码+命令(CommandRisk 徽章)→`map{async}+awaitAll` 并发 `connectAndExec`→各连接结果卡片(Sync/CheckCircle/Error 图标+输出脱敏)；高危群发 AlertDialog 二次确认(影响面大)。`TermindApp` showBatch 覆盖；`ServerListScreen` 顶栏「批量群发」入口。构建 22s，推送 d5f301f。
 - **N-Multi-AI（android 群发AI汇总）**：BatchScreen 全部完成(allDone)显「AI 汇总这批结果」→拼各连接名+成功失败+输出→`AiClient.chatStream`(运维助手:总览/失败原因/共性/建议)流式 AlertDialog 显示。构建 15s，推送 4845975。

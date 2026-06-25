@@ -35,7 +35,9 @@
 ### UI 接入打磨
 - [x] **U-Z7** 快捷命令面板接入四级风险颜色 ✅（SnippetsView snippetRow 用 CommandRisk.riskLevel 替二元 isDangerous：图标+colorHex+风险徽章[注意/高风险/极高危]；Showcase+3 风险示例；渲染 08-snippets 验证四级色彩清晰；推送 f40e3ff）
 - [x] **U-Z8** 初始化模板入口 + 预览确认 ✅（AppModel.runSetupTemplate[allCommands 注入+injectWithBackup 备份]；SnippetsView 工具栏「初始化模板」Menu 列 builtins→预览 sheet[ScrollView previewText]→「注入到终端」按风险 colorHex 着色确认；双端 build；推送 97fac56）
-- [ ] **U-Z4** 排障菜单点击先 confirmationDialog 预览命令再注入
+- [x] **U-Z4** 排障预览确认 ✅（AIAgentView「排障」Menu→previewWorkflow 预览 sheet[description+诊断命令列表]→「注入诊断命令」确认调 runDiagnostic；双端 build；推送 8fd1ea8）
+
+**Z 阶段 UI 接入齐：风险颜色(U-Z7) + 模板入口(U-Z8) + 排障预览(U-Z4) ✅**
 
 
 

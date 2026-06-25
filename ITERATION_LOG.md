@@ -6,6 +6,13 @@
 
 ---
 
+## U-Z4 · 排障工作流预览确认（UI 打磨）
+- **内容**：`AIAgentView` 加 `@State previewWorkflow: DiagnosticWorkflow?`；「排障」Menu 各工作流 Button action 从直接 runDiagnostic 改为 `previewWorkflow = wf`；body 加 `.sheet(item: $previewWorkflow)` → `diagnosticPreview(wf)`：NavigationStack + ScrollView 展示 wf.description + 「将依次注入以下只读诊断命令」+ 各 `$ cmd`，工具栏「取消」/「注入诊断命令」(确认调 model.runDiagnostic + 清 previewWorkflow)。避免盲目注入诊断命令。
+- **改动**：`apple/App/Sources/Views/AIAgentView.swift`。
+- **验证**：Core + App swift build 通过。Menu/sheet 编译验证。推送 8fd1ea8。
+
+---
+
 ## U-Z8 · 初始化模板入口 + 预览确认（UI 打磨）
 - **内容**：AppModel 加 `runSetupTemplate(_:)`（guard 活动会话 → `injectWithBackup(allCommands.joined, action:"初始化模板:名")` 关键配置自动备份 + toast）。`SnippetsView` 加 `@State previewTemplate: SetupTemplate?`，工具栏 primaryAction 加「初始化模板」Menu（ForEach SetupTemplate.builtins，Label name+icon）→ 点击设 previewTemplate；`.sheet(item:)` 弹 `templatePreview`：NavigationStack + ScrollView(Text(tpl.previewText())) 滚动展示步骤/命令/风险/预计影响，工具栏「取消」/「注入到终端」(tint=Color(hex: tpl.risk.colorHex)，确认调 runSetupTemplate + dismiss)。
 - **改动**：`apple/App/Sources/AppModel.swift`、`Views/SnippetsView.swift`。

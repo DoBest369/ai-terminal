@@ -6,6 +6,14 @@
 
 ---
 
+## apple 批量巡检 UI（InspectView，N-Cron 完整对齐 android）
+- **内容**：新建 `apple/App/Sources/Views/InspectView.swift`(sheet)——`selectionList` 连接多选(Set<UUID>，勾选圈)→工具栏「开始巡检」`runHealthInspection(选中)`→`resultList` ForEach `inspectionResults`：告警图标(hasWarning 红三角/正常绿勾)+name+CPU/内存/磁盘 metric(>85% 红)+采集失败提示；底部「让 AI 总结这批巡检」→`summarizeInspection`+dismiss。`ContentView` 工具栏加「批量巡检」按钮(stethoscope)+`.sheet($model.showInspect)`；`AppModel.showInspect`。`Showcase.InspectShowcase`(纯布局)+`Screenshots` 渲染 23-inspect(数据库主机告警/生产正常/开发机失败 三态)。
+- **改动**：`InspectView.swift`(新)、`ContentView.swift`(入口+sheet)、`AppModel.swift`(showInspect)、`Showcase.swift`(InspectShowcase)、`Screenshots.swift`(渲染)、`apple/screenshots/23-inspect.png`。
+- **验证**：Core+App swift build Build complete；swift run Shots 渲染 23-inspect 核对——告警置顶(CPU92%/内存88% 红)+正常(绿)+采集失败(连接超时 红)+AI 总结入口清晰。推送 b39fb6c。
+- **意义**：apple 批量巡检从逻辑→完整 UI 可用，**PARITY 批量巡检/AI 总结 apple🟡→✅**。阶段 N 主动运维双端基本对齐，仅余 apple 定时后台巡检(macOS 后台任务)+apple 独有分屏录制 未双端。
+
+---
+
 ## apple 批量健康巡检逻辑接入（N-Cron 对齐 android）
 - **内容**：`AppModel` 加 `InspectionResult`(name/info:SystemInfo?/error/hasWarning) + `@Published inspectionResults/inspectionRunning`。`runHealthInspection(targets)`：`withTaskGroup` 并发对各连接建 `SSHTerminalSession`+`RemoteSystemMonitor.fetch(using:previousCPU:nil)` 采集 SystemInfo+close；聚合后 hasWarning 异常置顶排序。`summarizeInspection()`：拼各机 `info.healthSummary`→`runAICompletion`(总览/优先处理/共性/建议)。复用已有 SystemMonitor+SSHTerminalSession+runAICompletion 模式(类比 runBatch/summarizeBatch)。
 - **改动**：`apple/App/Sources/AppModel.swift`(runHealthInspection+summarizeInspection+InspectionResult)。

@@ -46,6 +46,7 @@
 
 - [x] **A-FileView** SFTP 查看文本文件内容 ✅（SshClient.readFile[head -c 200KB 限大小+单引号转义]；SftpBrowser 点文件→openFile 读→AlertDialog 滚动显示(脱敏)；构建 17s 出 APK 30.8MB；推送 f922570）
 - [x] **A-Forward** 本地端口转发 ✅（SshClient.openForward[ServerSocket bind+newLocalPortForwarder+协程 listen]+PortForwardHandle；ServerWorkspace「端口转发」按钮→PortForwardDialog 建立/停止；修 sshj API[LocalPortForwarder 在 .direct.；Parameters 独立类]；构建 19s；推送 df6989f。PARITY 端口转发 ⬜→✅）
+- [x] **A-ConvoPersist** AI 对话持久化 ✅（ConvoStore SharedPreferences 存对话 JSON；AIAssistantScreen 加载+发消息/新建/删除后 persist；重启不丢；构建 18s；推送 908ca54）
 - [x] **A-Convos** AI 多对话管理 ✅（AIAssistantScreen messages→convos 列表+curIdx；顶栏对话标题下拉 切换/新建/删除当前；内存多对话；构建 18s；推送 b9a6ee5。PARITY 多对话 ⬜→✅）
 - [x] **A-TOFU** 主机密钥 TOFU 校验 ✅（KnownHosts 指纹[SHA-256 Base64]存 SharedPreferences+check NEW/MATCH/MISMATCH；TofuVerifier 实现 sshj HostKeyVerifier；5 处 PromiscuousVerifier→TofuVerifier；onCreate init；首次信任+后续比对防 MITM；构建 18s；推送 da3ffa9。PARITY TOFU 🟡→✅）
 - [x] **A-Themes** 多主题配色 ✅（Themes.kt 5 套 ThemeScheme[午夜/One Dark/Dracula/Solarized/Nord，对齐 apple]+全局 activeTheme；顶层颜色改计算属性自动跟随；SettingsStore themeId；SettingsScreen 主题选择 dialog 即时切换+持久化；构建 18s；推送 9bf20ff。PARITY 多主题 🟡→✅）

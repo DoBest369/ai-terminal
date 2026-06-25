@@ -496,7 +496,22 @@ private fun ChatBubble(role: String, content: String) {
             color = if (isUser) Accent.copy(alpha = 0.25f) else SurfaceLight.copy(alpha = 0.5f),
             shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth(0.85f)
         ) {
-            Text(content, color = TextPrimary, fontSize = 13.sp, modifier = Modifier.padding(12.dp))
+            // A-Md：按 ``` 围栏拆出代码块，单独渲染等宽深色框（便于看/复制运维命令）
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                val parts = content.split("```")
+                parts.forEachIndexed { i, part ->
+                    if (i % 2 == 1) {
+                        // 代码块：去掉可能的语言行
+                        val code = part.trimStart().substringAfter('\n', part).ifBlank { part.trim() }
+                        Surface(color = Color(0xFF0D0D1A), shape = RoundedCornerShape(8.dp), modifier = Modifier.fillMaxWidth()) {
+                            Text(code.trim(), color = Success, fontSize = 12.sp, fontFamily = FontFamily.Monospace,
+                                modifier = Modifier.padding(10.dp).horizontalScroll(rememberScrollState()))
+                        }
+                    } else if (part.isNotBlank()) {
+                        Text(part.trim(), color = TextPrimary, fontSize = 13.sp)
+                    }
+                }
+            }
         }
     }
 }

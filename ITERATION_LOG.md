@@ -6,6 +6,14 @@
 
 ---
 
+## Z6 · apple 服务器状态面板升级（Core 层）
+- **内容**：apple 已有 RemoteSystemMonitor+SystemInfo(cpu/mem/load/uptime)，Z6 扩展：`SystemInfo` 加 `diskUsed/diskTotal/diskPercent` + `services[服务→active]` + `runningServices/stoppedServices` + `healthSummary`(CPU/内存/磁盘/负载/⚠️未运行服务 一行摘要，供面板顶部+喂 AI 排障联动) + `hasWarning`(CPU/内存/磁盘>85% 或关键服务停) + `cpuSeen`(避免首帧 0% 误显)。`probe` 加 `DISK@@$(df -B1 /...)` + `SVC@@$s:$(systemctl is-active ...)`(nginx/docker/mysql/redis/sshd)；`parse` 解析 DISK/SVC(unknown 跳过)；`parse` 改 public(供自测)。
+- **改动**：`apple/AITerminalCore/.../SystemMonitor.swift`；`apple/App/Sources/DevTools/Screenshots.swift`(metricsTest)+`ShotsMain/main.swift`(--metrics-test)。
+- **验证**：Core+App swift build 通过；`--metrics-test`→「解析正确=true；健康摘要=服务器状态：CPU 0% · 内存 75% · 磁盘 42% · 负载 0.50/0.40/0.30 · ⚠️ 未运行 mysql」。推送 b37a0a5。
+- **Z 阶段**：Z1-Z8 全部 Core 落地（Z6 收尾）。下一步 Z6 UI 面板视图 ServerStatusPanel + Showcase 渲染抽查。
+
+---
+
 ## Doc · README 全面更新（反映双端原生真实现状）
 - **内容**：旧 README 严重过时（旧名「AI Terminal」、本地终端定位、已删的 Electron(src/)/Capacitor(mobile/) 平台矩阵与构建说明）。全面重写为：Termind 智能 SSH 运维工作台定位 + 护城河闭环；全平台原生矩阵（apple Swift ✅旗舰 / android Kotlin ✅可构建 / Windows·Linux ⬜待起）；**智能运维能力双端对照表**（连接管理/真实SSH/SFTP/状态/环境感知/AI助手/排障/模板/风险分级/脱敏/回滚 apple✅android✅）；真实快速开始（apple xcodegen+swift build 自测、android gradle assembleDebug）；项目结构（去掉 src/mobile）；**现状与边界真实说明**（apple 无 Xcode 未出包、android 实测需真机+服务器+Key、Win/Linux 待起）。
 - **改动**：`README.md`（全量重写）。

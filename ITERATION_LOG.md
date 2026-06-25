@@ -6,6 +6,14 @@
 
 ---
 
+## A-Reach · 安卓连接可达性 TCP 探测（真实在线状态）
+- **内容**：新建 `Reachability.kt`——`suspend probe(host,port,timeoutMs=3000): Boolean`，`Socket().use { connect(InetSocketAddress(host,port), timeout) }`，Dispatchers.IO，纯 TCP 不做 SSH 握手（对齐 apple ReachabilityChecker）。`TermindApp`：`reachMap: SnapshotStateMap<id,Boolean>` + `probing` + `probeAll()`（协程 `async` 并发探测所有连接→逐个 await 写 reachMap）+ `LaunchedEffect(Unit){probeAll()}` 首次自动探测。`ServerListScreen` 顶栏改自绘 Row + 「刷新在线状态」IconButton(probing 时转圈)，传 reachMap/probing/onRefresh。`ServerCard(conn, reachable, probing, …)`：状态点 dotColor = 在线 Success / 离线 Danger / 探测中 Warning / 未知 TextSecondary，替换写死 `conn.online`。
+- **改动**：新增 `android/.../Reachability.kt`；改 `MainActivity.kt`(TermindApp probeAll+ServerListScreen 顶栏刷新+ServerCard dotColor)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 17s** → app-debug.apk。推送 1a055fc。真实在线判定需可达网络。
+- **意义**：连接列表从写死占位升级为真实 TCP 可达性，一眼看出哪些服务器在线，对齐桌面 SSH 客户端。
+
+---
+
 ## A-KeyAuth · 安卓 SSH 私钥认证（密码/私钥二选一）
 - **内容**：`ConnectionStore` 加 `enum AuthType{PASSWORD,KEY}` + `ServerConn.authType`(+JSON 持久化/解析容错)。`SshClient.authenticate(ssh,user,password,privateKey)`：privateKey 非空→`ssh.loadKeys(privateKey, null, null)`(PEM 字符串当密钥内容)+`ssh.authPublickey(user, keyProvider)`，否则 `authPassword`；`openShell`/`connectAndExec`/`listDir`/`fetchStatus`/`fetchEnv`/`readFile` 全加 `privateKey: String? = null` 参数并改调 authenticate。`EditConnectionScreen` 加「认证方式」FilterChip(密码/私钥)。`ServerWorkspace`：`privateKey` state + `keyArg()`(authType==KEY 时返回非空私钥)；凭据框按 authType 显密码框或私钥 PEM 多行 Mono 框；connect/refreshStatus/runDiagnostic/runSetupTemplate/fetchEnv/SftpBrowser 各调用传 keyArg()；凭据空判断改 `password.isBlank() && keyArg()==null`。私钥临时输入不持久化(注释 TODO EncryptedSharedPreferences)。
 - **改动**：`ConnectionStore.kt`、`SshClient.kt`、`EditConnectionScreen.kt`、`MainActivity.kt`。

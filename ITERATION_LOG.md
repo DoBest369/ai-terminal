@@ -6,6 +6,17 @@
 
 ---
 
+## A-FontSize + A-Tags + A-Filter + 质量收口（安卓连接/终端体验打磨）
+- **A-FontSize**（终端字号）：SettingsStore termFont(8-22sp 持久化)；终端输出区右上 +/- 按钮调字号，Text fontSize 跟随。运维看长日志可调大小。构建 20s，推送 506d155。
+- **A-Tags**（连接颜色标签）：`ServerConn.colorTag`(ColorTag 枚举 NONE/RED/ORANGE/GREEN/BLUE/PURPLE)+JSON 持久化(含导入)；EditConnectionScreen 6 色圆点选择(选中边框/勾)；ServerCard 左侧色条。生产红/测试黄/开发绿一眼区分环境。构建 22s，推送 2eee143。
+- **A-Filter**（连接搜索）：ServerListScreen 顶栏搜索图标 toggle 搜索框→按 name/host/user/group `contains`(不区分大小写)过滤，分组渲染用过滤结果。构建 20s，推送 21b4416。
+- **质量收口**：apple `AITerminalCore`+`App` swift build 均 Build complete；--history/--batch/--risk/--metrics/--env-detect 五自测全 true，无回归。
+- **改动**：`SettingsStore.kt`/`ConnectionStore.kt`/`EditConnectionScreen.kt`/`MainActivity.kt`、`docs/PARITY.md`。
+- **验证**：android 各项 BUILD SUCCESSFUL；apple swift build + 5 自测全过。
+- **意义**：安卓连接管理(颜色标签/搜索/导出导入/可达性)与终端(彩色/控制键栏/字号)体验全面，贴近专业桌面 SSH 客户端。双端质量稳健。
+
+---
+
 ## A-Keys + A-Md + A-Copy + 质量收口（安卓终端/AI 体验打磨）
 - **A-Keys**（终端控制键栏）：ServerWorkspace 终端区下方横滑键栏 Tab/Esc/Ctrl+C/D/L/Z/A/E+方向键↑↓←→→`shellSession.write` 对应控制字符( 等)/ESC 序列(ESC[A 等)。移动端无 Ctrl/Tab，让 vim/top/交互程序可用。构建 19s，推送 370a550。
 - **A-Md**（AI 代码块渲染）：ChatBubble 按 ``` 围栏拆分，代码块单独渲染等宽深色框(绿字+横滑)，其余文本正常。手写轻量无依赖。构建 19s，推送 dc40f61。

@@ -74,6 +74,8 @@
 - [x] **A-Portability** 连接配置导出/导入 ✅（ConnectionStore exportJson[不含密码]/importJson；ServerListScreen 更多菜单 导出分享/导入文件去重 merge；对齐 apple ConnectionPortability；构建 18s；推送 9b9fd7c）
 - [x] **A-Reach** 连接可达性 TCP 探测 ✅（Reachability.probe[Socket+InetSocketAddress 纯 TCP 探测，对齐 apple]；TermindApp probeAll 并发 async 探测+LaunchedEffect 自动+「刷新在线状态」按钮；ServerCard 状态点 在线绿/离线红/探测中黄/未知灰 替写死 online；构建 17s；推送 1a055fc）
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
+- [x] **A-Filter** 连接列表搜索过滤 ✅（ServerListScreen 搜索框按 name/host/user/group contains 过滤；构建 20s；推送 21b4416）
+- [x] **A-Tags** 连接颜色标签 ✅（ServerConn.colorTag[6 色枚举]+JSON 持久化；EditConnectionScreen 颜色选择圆点；ServerCard 左侧色条；一眼区分环境；构建 22s；推送 2eee143）
 - [x] **A-FontSize** 终端字号调节 ✅（SettingsStore termFont[8-22sp]；终端区右上 +/- 按钮调字号+持久化；构建 20s；推送 506d155）
 - [x] **A-Copy** AI 代码块一键复制 ✅（ChatBubble 代码块右上复制图标→clipboard.setText；推送 199272e）
 - [x] **A-Md** AI 气泡代码块渲染 ✅（ChatBubble 按 ``` 拆代码块→等宽深色框[绿字+横滑]，其余文本正常；手写轻量无依赖；构建 19s；推送 dc40f61）

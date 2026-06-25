@@ -6,6 +6,14 @@
 
 ---
 
+## A-Stream · 安卓 AI 流式输出（SSE 逐字）
+- **内容**：`AiClient.chatStream(apiKey,model,messages,systemPrompt,onDelta)`——body 加 `"stream": true`，OkHttp execute 后 `response.body.source()` 逐行 `readUtf8Line` 读 SSE，对 `data:` 行解析 JSON：`type==content_block_delta` 取 `delta.text` 逐块 `withContext(Main) onDelta(text)`，`type==message_stop` 结束；HTTP 错误取 error.message；Result 封装。`AIAssistantScreen.send` 改流式：保存 history + 先 `messages.add("assistant" to "")` 占位 + 记 aiIndex，chatStream 的 onDelta 里 `messages[aiIndex] = "assistant" to (旧+delta)` 逐字追加，失败则替换为错误。
+- **改动**：`android/.../AiClient.kt`(chatStream)、`MainActivity.kt`(AIAssistantScreen.send 流式)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 16s** → app-debug.apk 30.8MB。推送 4195a06。真实流式需 API Key。
+- **安卓打磨**：A-Diag/A-Snippets/**A-Stream** ✅。安卓 AI 体验已对齐 apple（结合环境 + 流式逐字）。下一步 A-SFTP 文件浏览。
+
+---
+
 ## A-Snippets · 安卓快捷命令面板
 - **内容**：`Snippets.kt`——`CommandSnippet(title/command/group + risk[复用 CommandRisk])` + 12 内置常用运维命令(df -h/free -m/top/ss -tlnp/systemctl status nginx/nginx -t/systemctl reload nginx/docker ps/docker system df/journalctl/登录失败记录)。`ServerWorkspace` 已连接时命令框上方加横滑 `Row(horizontalScroll)` 的 `AssistChip` 行，点击 `command = sn.command` 填入命令框，每个 Chip leadingIcon 用 `sn.risk.color` 色点（仿 apple SnippetsView）。
 - **改动**：新增 `android/.../Snippets.kt`；改 `MainActivity.kt`(ServerWorkspace Chip 行 + horizontalScroll 导入)。

@@ -194,6 +194,21 @@ public enum AppScreenshots {
         return String(decoding: model.exportAIConversationMarkdown(), as: UTF8.self)
     }
 
+    /// 部署模板自测（Z8）：内置模板 + 步骤 + 预览 + 风险标注
+    public static func templateTest() -> String {
+        let builtins = SetupTemplate.builtins
+        guard let ubuntu = builtins.first(where: { $0.id == "ubuntu-web" }) else { return "缺 ubuntu-web 模板" }
+        let preview = ubuntu.previewText()
+        let ok = builtins.count >= 5
+            && ubuntu.steps.count == 10
+            && ubuntu.allCommands.contains("apt update")
+            && ubuntu.risk == .high  // 含 systemctl restart sshd / ufw 等高风险（初始化模板不含极高危）
+            && preview.contains("即将执行模板「Ubuntu Web 服务器初始化」")
+            && preview.contains("$ apt update")
+            && preview.contains("预计影响")
+        return "内置模板数=\(builtins.count)；ubuntu 步骤=\(ubuntu.steps.count) 风险=\(ubuntu.risk.label)；预览格式正确=\(ok)"
+    }
+
     /// 命令风险分级 + 脱敏自测（Z7）
     public static func riskTest() -> String {
         func r(_ c: String) -> CommandRisk { CommandRisk.riskLevel(c) }

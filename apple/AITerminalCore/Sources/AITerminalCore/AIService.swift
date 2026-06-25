@@ -100,6 +100,18 @@ public let errorAnalysisPrompt = """
 熟悉并能识别常见报错：502 Bad Gateway / Permission denied / Connection refused / No space left on device / address already in use / nginx 配置语法错误 / SSL 证书问题 / 端口被占用 / 服务未启动 等。若信息不足，说明还需查看什么（给出查看命令）。
 """
 
+/// 服务器健康分析提示（Z6b 状态面板↔AI 联动）
+public let healthAnalysisPrompt = """
+你是 Termind 智能 SSH 运维助手的「服务器健康分析」模块。用户给你这台服务器当前的状态指标（CPU/内存/磁盘/负载/关键服务运行情况），请用简洁中文：
+
+1. 总评：当前整体是否健康（一句话），点明最值得关注的项。
+2. 异常定位：逐项分析偏高的资源或未运行的关键服务，说明可能影响与原因。
+3. 处置建议：给出可执行的排查/优化命令或步骤；如需执行用 [EXECUTE]命令[/EXECUTE]，高危操作用 ⚠️ 强调并建议先备份。
+4. 验证：处置后如何确认恢复正常。
+
+资源占用 >85% 或关键服务停（如 nginx/mysql/docker）视为需立即关注。若指标都正常，简短确认健康并给一两条日常巡检建议。
+"""
+
 /// 系统提示词预设模板（一键套用）
 public struct PromptPreset: Identifiable, Sendable {
     public let id: String

@@ -2,6 +2,7 @@ import SwiftUI
 import AITerminalCore
 
 struct StatusBarView: View {
+    @EnvironmentObject var model: AppModel
     @ObservedObject var session: TerminalSessionVM
     @State private var localInfo: SystemInfo?
     @State private var expanded = false
@@ -48,15 +49,34 @@ struct StatusBarView: View {
                                value: "\(formatBytes(info.memUsed)) / \(formatBytes(info.memTotal))",
                                percent: info.memPercent,
                                warn: info.memPercent > 80)
+                    if info.diskTotal > 0 {
+                        metricItem(icon: "internaldrive", label: "磁盘",
+                                   value: "\(formatBytes(info.diskUsed)) / \(formatBytes(info.diskTotal))",
+                                   percent: info.diskPercent,
+                                   warn: info.diskPercent > 85)
+                    }
                     if !info.loadavg.isEmpty {
                         statusItem(icon: "chart.bar.fill", label: "负载",
                                    value: info.loadavg.map { String(format: "%.2f", $0) }.joined(separator: " "))
                     }
-                    if !info.uptime.isEmpty {
-                        statusItem(icon: "clock", label: "运行", value: info.uptime)
-                    }
                     Image(systemName: expanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 10)).foregroundStyle(Theme.textSecondary)
+                    // Z6b：状态↔AI 联动——远程会话且有状态时可一键让 AI 分析健康
+                    if !session.isLocal, !info.healthSummary.isEmpty {
+                        Button { model.diagnoseHealth() } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: info.hasWarning ? "exclamationmark.triangle.fill" : "sparkles")
+                                Text(info.hasWarning ? "异常·问 AI" : "问 AI")
+                            }
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(info.hasWarning ? Theme.danger : Theme.accent)
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background((info.hasWarning ? Theme.danger : Theme.accent).opacity(0.15))
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .help("让 AI 分析当前服务器状态并给排查/优化建议")
+                    }
                 } else if !session.statusMessage.isEmpty {
                     statusItem(icon: "info.circle", label: "信息", value: session.statusMessage)
                 }

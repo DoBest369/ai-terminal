@@ -620,6 +620,26 @@ final class AppModel: ObservableObject {
         runAICompletion(systemPrompt: errorAnalysisPrompt)
     }
 
+    /// 服务器健康分析（Z6b）：取当前会话的 SystemInfo 状态摘要，让 AI 排查异常并给建议。
+    /// 实现「状态面板发现异常 → 一键问 AI 怎么办」的面板↔AI 联动。
+    func diagnoseHealth() {
+        guard aiConfig.isConfigured else {
+            toast = "请先在设置中配置 API Key"
+            showSettings = true
+            return
+        }
+        guard let info = activeSession?.systemInfo, !info.healthSummary.isEmpty else {
+            toast = "暂无服务器状态数据（请连接服务器并等待状态采集）"
+            return
+        }
+        guard !aiProcessing else { return }
+        var detail = info.healthSummary
+        if !info.uptime.isEmpty { detail += "\n运行时长：\(info.uptime)" }
+        if info.cpuCores > 0 { detail += "\nCPU 核数：\(info.cpuCores)" }
+        aiMessages.append(ChatMessage(role: .user, content: "这台服务器当前状态如下，请分析有无异常并给排查/优化建议：\n\(detail)"))
+        runAICompletion(systemPrompt: healthAnalysisPrompt)
+    }
+
     /// 公共流式生成：假定用户消息已在 aiMessages 末尾，追加占位 assistant 并流式填充。
     /// systemPrompt 可覆盖（命令解释等专用模式）。
     private func runAICompletion(systemPrompt: String? = nil) {

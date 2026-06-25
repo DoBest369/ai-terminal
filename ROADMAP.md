@@ -34,6 +34,7 @@
 
 #### 安卓打磨
 - [x] **A-Diag** 排障工作流真实执行+AI总结 ✅（DiagnosticWorkflow.joinedCommand/composeForAI；ServerWorkspace.runDiagnostic 一次跑全部命令→拆分→终端显原始(脱敏)→AiClient summaryPrompt 总结「AI 结论」；从填命令框升级；构建 16s 出 APK 30.8MB；推送 d36e4d8）
+- [x] **A-Snippets** 快捷命令面板 ✅（Snippets.kt CommandSnippet+12 内置常用命令[磁盘/内存/进程/端口/Nginx/Docker/日志/登录失败等]+risk；ServerWorkspace 已连接时命令框上方横滑 AssistChip 行，点击填命令框，带风险色点；构建 17s 出 APK 30.8MB；推送 139238e）
 
 ## 🤖 阶段 Z — 智能 SSH 运维能力（MVP 差异化核心）· 最高优先级
 

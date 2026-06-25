@@ -6,6 +6,14 @@
 
 ---
 
+## A-Snippets · 安卓快捷命令面板
+- **内容**：`Snippets.kt`——`CommandSnippet(title/command/group + risk[复用 CommandRisk])` + 12 内置常用运维命令(df -h/free -m/top/ss -tlnp/systemctl status nginx/nginx -t/systemctl reload nginx/docker ps/docker system df/journalctl/登录失败记录)。`ServerWorkspace` 已连接时命令框上方加横滑 `Row(horizontalScroll)` 的 `AssistChip` 行，点击 `command = sn.command` 填入命令框，每个 Chip leadingIcon 用 `sn.risk.color` 色点（仿 apple SnippetsView）。
+- **改动**：新增 `android/.../Snippets.kt`；改 `MainActivity.kt`(ServerWorkspace Chip 行 + horizontalScroll 导入)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 17s** → app-debug.apk 30.8MB。推送 139238e。
+- **安卓打磨进度**：A-Diag 排障真执行 ✅ / A-Snippets 快捷命令 ✅。下一步 A-Stream AI 流式输出 / SFTP。
+
+---
+
 ## A-Diag · 安卓排障工作流真实执行 + AI 总结
 - **内容**：`DiagnosticWorkflow` 加 `joinedCommand(sep)`(各命令用 `; echo sep;` 串成一条 shell)+`composeForAI(outputs)`(工作流名+各命令及输出拼给 AI，对齐 apple)+`SEP` 常量。`ServerWorkspace.runDiagnostic(wf)`：协程一次性 `connectAndExec`(30s) 跑 joinedCommand→按 SEP 拆回各命令输出→终端显原始(脱敏，分隔符换 ──────)→若配了 API Key 则 `AiClient.chat(summaryPrompt, composeForAI)` 生成「AI 结论」显示，否则提示配 Key。排障 Menu 从「填命令框」改为点击直接 runDiagnostic。
 - **改动**：`android/.../OpsWorkflows.kt`(joinedCommand/composeForAI/SEP)、`MainActivity.kt`(ServerWorkspace runDiagnostic + ctx + 菜单)。

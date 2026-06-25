@@ -6,6 +6,14 @@
 
 ---
 
+## Z6 UI · apple 富服务器状态面板（阶段 Z 收官 8/8）
+- **内容**：`DevTools/Showcase.swift` 加 `ServerStatusShowcase`：① 顶部健康摘要条(info.hasWarning→「发现异常」danger 警示色 / 否则「运行正常」success，右侧 hostname) ② CPU/内存/磁盘 进度条(bar：图标+标签+值+百分比+Capsule 进度，>85% 用 Theme.danger) ③ 关键服务 绿(success)/红(danger)点列表 ④ 负载/运行时长。全 Theme.* 配色。`Screenshots.renderAll` 加 richInfo(磁盘 91% + mysql=false 触发告警态)渲染 `21-server-status.png`。
+- **改动**：`apple/App/Sources/DevTools/Showcase.swift`(ServerStatusShowcase)、`Screenshots.swift`(渲染)；新增 `apple/screenshots/21-server-status.png`。
+- **验证**：Core+App swift build 通过；`swift run Shots` 渲染 + Read 核对 21-server-status.png——「⚠️ 发现异常」红条 + CPU47%/内存56%/磁盘90%(红)进度条 + docker/nginx/redis/sshd 绿·mysql 红点 + 负载/运行，清晰美观。推送 f7a6fd2。
+- **🎉 阶段 Z 全部完成 8/8**：apple 端 Z1-Z8 Core+UI 全落地，android 端能力对齐。Termind 智能运维护城河双端成形。
+
+---
+
 ## Z6 · apple 服务器状态面板升级（Core 层）
 - **内容**：apple 已有 RemoteSystemMonitor+SystemInfo(cpu/mem/load/uptime)，Z6 扩展：`SystemInfo` 加 `diskUsed/diskTotal/diskPercent` + `services[服务→active]` + `runningServices/stoppedServices` + `healthSummary`(CPU/内存/磁盘/负载/⚠️未运行服务 一行摘要，供面板顶部+喂 AI 排障联动) + `hasWarning`(CPU/内存/磁盘>85% 或关键服务停) + `cpuSeen`(避免首帧 0% 误显)。`probe` 加 `DISK@@$(df -B1 /...)` + `SVC@@$s:$(systemctl is-active ...)`(nginx/docker/mysql/redis/sshd)；`parse` 解析 DISK/SVC(unknown 跳过)；`parse` 改 public(供自测)。
 - **改动**：`apple/AITerminalCore/.../SystemMonitor.swift`；`apple/App/Sources/DevTools/Screenshots.swift`(metricsTest)+`ShotsMain/main.swift`(--metrics-test)。

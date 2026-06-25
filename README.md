@@ -116,9 +116,12 @@ ai-terminal/
 - android 端：`gradle assembleDebug` 通过、产出可安装 APK；**真实连接/AI 对话需真机或模拟器 + 目标服务器 + API Key** 实测。
 - Windows / Linux 原生端：架构已定，待在对应平台环境起步。
 
-## 路线图
+## 路线图与历程
 
-迭代进展见 [`ROADMAP.md`](ROADMAP.md) 与 [`ITERATION_LOG.md`](ITERATION_LOG.md)。
+- 演进里程碑：[`CHANGELOG.md`](CHANGELOG.md)
+- 路线图 + 阶段进度：[`ROADMAP.md`](ROADMAP.md)
+- 每轮详细迭代：[`ITERATION_LOG.md`](ITERATION_LOG.md)
+- 双端能力对照：[`docs/PARITY.md`](docs/PARITY.md)
 
 ## 许可证
 

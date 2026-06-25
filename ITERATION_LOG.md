@@ -6,6 +6,13 @@
 
 ---
 
+## Doc · CHANGELOG.md 演进历程梳理
+- **内容**：新建 `CHANGELOG.md` 按阶段梳理 Termind 演进里程碑：阶段0 起点(Electron+原生雏形)→阶段1 重定位(智能 SSH 运维工作台+全平台原生决策+删 Electron/Capacitor+定名 Termind)→阶段2 apple 智能运维 Z1-Z8→阶段3 android 从零到双端对齐→阶段4 阶段 N 批量运维创新(群发/巡检/AI汇总/主动巡检)→阶段5 持续体验打磨→当前状态。顶部真实边界声明(本机无 Xcode 未出 iOS 包/未真机实测；android 实测需真机+服务器+Key；Linux/Windows 骨架待建)。README「路线图与历程」区链接 CHANGELOG/ROADMAP/ITERATION_LOG/PARITY。
+- **改动**：新增 `CHANGELOG.md`；改 `README.md`。
+- **验证**：纯文档(未动代码)。如实不夸大反映项目历程与当前完整度。
+
+---
+
 ## A-Startup + A-TermActions + A-Sort + 质量收口 · 安卓连接/终端完善
 - **A-Startup**（连接启动命令）：`ServerConn.startupCommand`+JSON 持久化；EditConnectionScreen「启动命令」字段；ServerWorkspace connect 建立 shell 成功后 `it.write(startupCommand+\n)` 自动执行(cd/source/tmux)。构建 22s，推送 48230de。
 - **A-TermActions**（终端复制/清屏）：终端区字号按钮行加 复制全部(`clipboard.setText(stripAnsi(output))`)+清屏(`output=""`)。构建 20s，推送 5887ec7。

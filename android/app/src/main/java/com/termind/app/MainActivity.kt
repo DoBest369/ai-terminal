@@ -89,6 +89,7 @@ fun TermindApp() {
     var showEditor by remember { mutableStateOf(false) }
     var activeProfile by remember { mutableStateOf<ServerProfile?>(null) }  // A-Env：当前连接的环境画像，喂给 AI
     var showBatch by remember { mutableStateOf(false) }  // N-Multi 批量群发
+    var showInspect by remember { mutableStateOf(false) }  // N-Cron 批量巡检
     // A-Reach：可达性探测结果 id→可达(true/false)；不在 map=探测中/未探测
     val reachMap = remember { mutableStateMapOf<String, Boolean>() }
     var probing by remember { mutableStateOf(false) }
@@ -114,6 +115,11 @@ fun TermindApp() {
     // N-Multi 批量群发覆盖
     if (showBatch) {
         BatchScreen(conns = conns.toList(), onBack = { showBatch = false })
+        return
+    }
+    // N-Cron 批量巡检覆盖
+    if (showInspect) {
+        InspectScreen(conns = conns.toList(), onBack = { showInspect = false })
         return
     }
     // 新建/编辑表单覆盖
@@ -165,6 +171,7 @@ fun TermindApp() {
                     probing = probing,
                     onRefresh = { probeAll() },
                     onBatch = { showBatch = true },
+                    onInspect = { showInspect = true },
                     onOpen = { detail = it },
                     onEdit = { editing = it; showEditor = true },
                     onDelete = { conns.remove(it); persist() }
@@ -202,6 +209,7 @@ fun ServerListScreen(
     probing: Boolean,
     onRefresh: () -> Unit,
     onBatch: () -> Unit,
+    onInspect: () -> Unit,
     onOpen: (ServerConn) -> Unit,
     onEdit: (ServerConn) -> Unit,
     onDelete: (ServerConn) -> Unit
@@ -216,6 +224,9 @@ fun ServerListScreen(
                 Spacer(Modifier.width(8.dp))
                 Text("智能 SSH 运维", fontSize = 12.sp, color = TextSecondary)
                 Spacer(Modifier.weight(1f))
+                IconButton(onClick = onInspect, enabled = conns.isNotEmpty()) {
+                    Icon(Icons.Filled.MonitorHeart, "健康巡检", tint = Accent, modifier = Modifier.size(18.dp))
+                }
                 IconButton(onClick = onBatch, enabled = conns.isNotEmpty()) {
                     Icon(Icons.Filled.Dns, "批量群发", tint = Accent, modifier = Modifier.size(18.dp))
                 }

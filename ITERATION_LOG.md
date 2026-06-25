@@ -6,6 +6,14 @@
 
 ---
 
+## Doc · README 完善（GitHub 门面刷新）
+- **内容**：平台矩阵 apple「Z1-Z8 全完成」、android「与 apple 全对齐」；智能运维能力表补 SFTP 完整管理(浏览/查看/下载/上传/新建/删除/重命名/路径跳转)、终端体验(ANSI/控制键/字号/复制清屏/搜索)、跳板机 ProxyJump、连接管理增强(颜色标签/搜索/排序/启动命令/导出导入)、AI 助手增强(流式/停止/重生成/模型选择/代码块/提示词库)等双端✅；批量运维段更新「apple AppModel.runBatch 已真接 SSH」；新增「界面预览」区引用 apple/screenshots(01-sidebar/03-ai-panel/09-sftp + 指向 20+ 张)。
+- **改动**：`README.md`。
+- **验证**：apple swift build Build complete(纯文档无影响)；推送 86c343b。截图文件存在性已 ls 确认。
+- **意义**：GitHub 仓库门面如实反映 Termind 双端成熟全对齐状态，新访客一眼看懂定位/能力/技术栈/构建/边界。
+
+---
+
 ## A-SftpRename + A-Prompts + 质量收口 · SFTP 重命名 + AI 提示词库
 - **A-SftpRename**（SFTP 重命名）：`SshClient.renamePath`(sshj `SFTPClient.rename(old,new)`，javap 确认；支持 jump)；`SftpBrowser` 每行重命名图标(DriveFileRenameOutline)→对话框预填当前名输新名→同目录 rename+刷新。**SFTP 文件管理现完整**：浏览/查看/下载/上传/新建/删除/重命名/路径跳转。构建 22s，推送 4467ec9。
 - **A-Prompts**（AI 提示词库）：`AIAssistantScreen` 空对话提示词从 4 条扩为 5 类(排障/部署/安全/性能/日志)×3 条 promptGroups；分类 FilterChip 切换(promptGroupIdx)+点击直接 send；空态加 verticalScroll。降低用户运维提问门槛。构建 21s，推送 af89171。

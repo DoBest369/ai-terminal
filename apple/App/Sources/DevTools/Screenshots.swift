@@ -194,6 +194,22 @@ public enum AppScreenshots {
         return String(decoding: model.exportAIConversationMarkdown(), as: UTF8.self)
     }
 
+    /// 排障工作流自测（Z4）：验证内置工作流 + composeForAI 拼装格式
+    public static func diagTest() -> String {
+        let builtins = DiagnosticWorkflow.builtins
+        guard let web = builtins.first(where: { $0.id == "web-down" }) else { return "缺 web-down 工作流" }
+        let composed = web.composeForAI(outputs: [
+            "nginx -t": "nginx: configuration file test failed"
+        ])
+        let ok = builtins.count >= 5
+            && web.commands.contains("nginx -t")
+            && composed.contains("【排障工作流：网站打不开排查】")
+            && composed.contains("$ nginx -t")
+            && composed.contains("configuration file test failed")
+            && composed.contains("(未获取到输出)")  // 未提供输出的命令占位
+        return "内置工作流数=\(builtins.count)；composeForAI 格式正确=\(ok)"
+    }
+
     /// 环境感知解析自测（Z3）：用假的探测输出验证 parse → ServerProfile
     public static func envDetectTest() -> String {
         let fake = """

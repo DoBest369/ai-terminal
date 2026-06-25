@@ -134,6 +134,21 @@ struct AIAgentView: View {
                 Text("将删除整个对话及其历史，不可恢复。")
             }
             Spacer()
+            // Z4：一键排障工作流
+            Menu {
+                ForEach(DiagnosticWorkflow.builtins) { wf in
+                    Button {
+                        model.runDiagnostic(wf)
+                    } label: {
+                        Label(wf.name, systemImage: wf.icon)
+                    }
+                }
+            } label: {
+                Image(systemName: "stethoscope")
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.textSecondary)
+            .help("一键排障：注入诊断命令到终端")
             Button {
                 searchActive.toggle()
                 if !searchActive { aiSearch = "" }

@@ -328,6 +328,32 @@ final class AppModel: ObservableObject {
         return true
     }
 
+    // MARK: - Z4 场景化排障工作流
+
+    /// 触发一个排障工作流：把诊断命令依次注入当前会话终端执行（用户可见输出）。
+    @discardableResult
+    func runDiagnostic(_ workflow: DiagnosticWorkflow) -> Bool {
+        guard let session = activeSession, let inject = session.injectCommand else {
+            toast = "请先打开一个终端会话"
+            return false
+        }
+        // 用 `;` 串起来一次注入，便于复核后整体执行
+        inject(workflow.commands.joined(separator: "\n"))
+        toast = "已注入「\(workflow.name)」诊断命令"
+        return true
+    }
+
+    /// 用命令输出让 AI 总结排障结论（outputs：命令→输出）。待 SSH exec 捕获接入后由 runDiagnostic 自动调用。
+    func analyzeDiagnostic(_ workflow: DiagnosticWorkflow, outputs: [String: String]) {
+        guard aiConfig.isConfigured else {
+            toast = "请先在设置中配置 API Key"
+            showSettings = true
+            return
+        }
+        aiMessages.append(ChatMessage(role: .user, content: workflow.composeForAI(outputs: outputs)))
+        runAICompletion(systemPrompt: workflow.summaryPrompt)
+    }
+
     // MARK: - 连接管理
 
     func saveConnection(_ connection: Connection) {

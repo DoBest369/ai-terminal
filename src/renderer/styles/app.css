@@ -579,8 +579,10 @@ body {
 
 .terminal-header {
   padding: 12px 20px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--surface-light);
+  background: color-mix(in srgb, var(--surface) 68%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 9%, transparent);
   font-size: 13px;
   color: var(--text-muted);
   display: flex;
@@ -692,8 +694,10 @@ body {
 
 .ssh-header {
   padding: 15px 20px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--surface-light);
+  background: color-mix(in srgb, var(--surface) 68%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 9%, transparent);
   flex-shrink: 0;
 }
 
@@ -884,7 +888,9 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
 }
 
 .ai-header {
@@ -1139,12 +1145,15 @@ body {
 }
 
 .modal {
-  background: var(--surface);
-  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  backdrop-filter: blur(40px) saturate(190%);
+  border-radius: 18px;
   padding: 30px;
   width: 400px;
   max-width: 90%;
-  border: 1px solid var(--surface-light);
+  border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .modal h2 {
@@ -1280,8 +1289,11 @@ body {
   bottom: 0;
   width: 450px;
   max-width: 90vw;
-  background: var(--surface);
-  border-left: 1px solid var(--surface-light);
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  backdrop-filter: blur(40px) saturate(190%);
+  border-left: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
+  box-shadow: -24px 0 70px rgba(0, 0, 0, 0.4);
   z-index: 1001;
   display: flex;
   flex-direction: column;
@@ -1456,11 +1468,14 @@ body {
 /* 右键菜单 */
 .context-menu {
   position: fixed;
-  background: var(--surface);
-  border: 1px solid var(--surface-light);
-  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  -webkit-backdrop-filter: blur(34px) saturate(190%);
+  backdrop-filter: blur(34px) saturate(190%);
+  border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
+  border-radius: 12px;
   padding: 6px;
   min-width: 180px;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.4);
   z-index: 2000;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   animation: fadeInScale 0.15s ease;

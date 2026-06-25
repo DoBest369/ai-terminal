@@ -6,6 +6,13 @@
 
 ---
 
+## X1 · Electron 液态玻璃 UI（侧栏）
+- **内容**：main.js BrowserWindow 加 `vibrancy:'under-window'` + `visualEffectState:'active'` + mac 下 backgroundColor 透明（win/linux 仍 #1a1a2e 兜底），启用 macOS 窗口级毛玻璃。app.css：body 背景透明（透出 vibrancy）；`.sidebar` 背景改 `color-mix(in srgb, var(--surface) 62%, transparent)`（主题感知半透明）+ `backdrop-filter: blur(34px) saturate(185%)` + 半透明描边 + 顶部高光 inset，呈 iOS 26 磨砂玻璃面板；窗口控制条背景也透明。
+- **改动**：`src/main/main.js`、`src/renderer/styles/app.css`。
+- **验证**：`npm run build` ✓ + `node --check` ✓；重启 electron + osascript AXRaise 前置 + 截图——侧栏呈半透明磨砂玻璃、透出桌面壁纸模糊色彩，「⚡ Termind」品牌、本地终端 `bestdo@...%` + 实时系统信息正常，功能完好。已提交推送 0bf3d13。
+
+---
+
 ## 里程碑 · PC 端编译打包测试 + 品牌重塑 Termind + 公开仓库
 - **PC 端（Electron）真机跑通**：补下 Electron 27.3.11 二进制（首次 npm install 跳过）；electron-rebuild CLI 在 Node v25 因 yargs ESM 崩 → 改用 @electron/rebuild 库 API 为 Electron ABI 119 重编 node-pty（验证运行时可加载）；`electron .` 启动 → 截图确认窗口渲染、**本地终端实时显示真实系统信息**（主机/CPU/内存）→ 全链路打通；`electron-builder --dir` 出 .app。
 - **品牌重塑 X0**：命名 **Termind**（Terminal+Mind，会思考的智能终端）；重设计图标（AppIconView：macOS squircle + 珊瑚红渐变 + 顶部高光 + `>_` + 右上 AI 火花 sparkles），swift run Shots 重渲染 icon-1024.png → iconutil 生成 build/icon.icns；package.json 顶层 productName + build.appId/icon（mac/win/linux）；main.js app.setName('Termind')+dock 图标+窗口 title；renderer 侧栏 logo 改 Termind。截图验证侧栏显示「⚡ Termind」。

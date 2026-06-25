@@ -6,7 +6,8 @@
 
 用户方向：界面颜色/设计迭代优化，**参考 iOS 26 最新 Liquid Glass（液态玻璃）设计风格**；功能自动扩展；性能优化。每轮择一推进，编译 + 截图验证。
 - [x] **X0** 品牌重塑：命名 **Termind** + 全新图标（squircle+珊瑚红渐变+`>_`+AI 火花），Electron productName/icon/dock/侧栏接入，已提交推送公开仓库
-- [ ] **X1** Electron 液态玻璃 UI：窗口 vibrancy + 面板 backdrop-filter 毛玻璃 + 精修配色（侧栏/头部/卡片）
+- [x] **X1** Electron 液态玻璃 UI（侧栏）✅（main.js vibrancy:'under-window'+visualEffectState+mac 透明 bg；app.css body 透明、侧栏 color-mix 半透明+backdrop-filter blur34 saturate185+高光描边；截图验证磨砂玻璃透出桌面、功能完好；已推送 0bf3d13）
+- [ ] **X1b** 液态玻璃扩展：头部/状态栏/卡片/弹窗/抽屉 也玻璃化 + 修 index.html title 为 Termind
 - [ ] **X2** 原生 SwiftUI 液态玻璃：Theme 引入 .ultraThinMaterial / 半透明分层 / 精修 5 套主题
 - [ ] **X3** 配色系统升级：更有层次的色板（深度/高光/玻璃叠加），全端一致
 - [ ] **X4+** 功能扩展（自行规划，符合智能终端定位）+ 性能优化（启动/渲染/内存）

@@ -26,6 +26,8 @@
 - [x] **A3** 智能运维 Kotlin 化（风险分级+脱敏）✅（OpsCore.kt：CommandRisk 四级[label/color/needsConfirm/riskLevel，照搬 apple 规则与配色]+Redactor.redact[移植 apple]；ServerWorkspace 命令实时风险徽章+高危 AlertDialog 二次确认+SSH 输出脱敏；构建 14s 出 APK 25.9MB；推送 ac8791f）
 - [x] **A3b** 排障工作流 + 初始化模板 Kotlin 化 ✅（OpsWorkflows.kt：DiagnosticWorkflow 5 内置+SetupTemplate 5 内置[risk 复用 CommandRisk+previewText]，移植 apple；ServerWorkspace 顶栏「排障」「初始化模板」Menu 点击填命令框；推送 80b3533）
 - [x] **A4** 安卓 AI 助手（OkHttp 调 Anthropic）✅（AiClient.chat[Messages API 非流式 org.json]；SettingsStore[SharedPreferences 存 Key/模型]；AIAssistantScreen 真对话气泡+输入栏+发送；SettingsScreen API Key 弹框配置；构建 58s 出 APK 30.8MB[含 OkHttp]；推送 6df2aff。流式+状态面板真采集待后续）
+- [x] **A1b** 交互式 PTY 终端 ✅（SshClient.openShell[allocateDefaultPTY+startShell，协程读 inputStream→onOutput 脱敏，stripAnsi 去转义]+SshShellSession[write/close]；ServerWorkspace ConnState 状态机[未连/连接中/已连/失败]+状态条+断开+持久 shell send(cmd+\n)+DisposableEffect 防泄漏；构建 15s 出 APK 30.8MB；推送 7864c66）
+- [ ] **A-Status** 状态面板真实采集（连接后跑 top/free/df 解析→CPU/内存/磁盘）
 
 ## 🤖 阶段 Z — 智能 SSH 运维能力（MVP 差异化核心）· 最高优先级
 

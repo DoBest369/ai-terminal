@@ -6,6 +6,14 @@
 
 ---
 
+## A1b · 安卓交互式 PTY 终端（持久 shell 会话）
+- **内容**：`SshClient.openShell(host,port,user,password,scope,onOutput)`——sshj connect+authPassword+startSession+`allocateDefaultPTY()`+`startShell()`，拿 shell.outputStream(写)；协程在 IO 持续 read shell.inputStream→`stripAnsi` 去 ANSI→`withContext(Main) onOutput(chunk)`；返回 `SshShellSession(ssh,session,out)`(write[发命令到 PTY]/close[关 session+断开])。`stripAnsi` 工具去常见转义序列。`ServerWorkspace` 重构为交互式：`enum ConnState{DISCONNECTED/CONNECTING/CONNECTED/ERROR}` + 连接状态条(色点+文案+断开按钮) + `connect()`(建 shell，输出回调脱敏累积) + `disconnect()` + `send(cmd)`(已连写 cmd+\n 到 shell，不再每条重连) + `submit()`(未连先连/已连高危确认后发) + `DisposableEffect onDispose 关闭会话防泄漏`；密码框仅未连显示，命令框仅已连显示否则显「连接」按钮。风险徽章+高危确认+脱敏保留。
+- **改动**：`android/.../SshClient.kt`(openShell+SshShellSession+stripAnsi)；`MainActivity.kt`(ServerWorkspace 交互式重构)。
+- **验证**：增量 gradle assembleDebug **BUILD SUCCESSFUL in 15s** → app-debug.apk 30.8MB。推送 7864c66。实测交互需真服务器。
+- **安卓进度**：A0/A2-UI/A2/A1/A3/A4/A3b/**A1b** ✅。剩 A-Status 状态面板真采集 / 环境感知 Kotlin 化 / 流式 AI。安卓端体验已接近桌面 SSH 终端。
+
+---
+
 ## A4 + A3b · 安卓 AI 助手对话 + 排障/模板 Kotlin 化
 - **A4 AI 助手**：加 okhttp:4.12.0；`SettingsStore.kt`(SharedPreferences 存 ai_api_key/ai_model[默认 claude-opus-4-8] + isConfigured，TODO 迁 Keystore)；`AiClient.kt`(suspend chat(apiKey,model,messages,systemPrompt)→Anthropic Messages API[x-api-key+anthropic-version 2023-06-01，org.json 拼 body+解析 content text]，IO+超时+Result，错误取 error.message；SSH 运维助手系统提示)。`AIAssistantScreen` 改真对话(mutableStateListOf<Pair<role,content>> + ChatBubble 气泡[user 右珊瑚/assistant 左] + 输入栏发送[协程 AiClient.chat] + 空态示例可点 + 未配 Key 跳设置)。`SettingsScreen` API Key 行点击 AlertDialog 输入保存(显示 ••••后4位)。验证：构建 58s → APK 30.8MB(含 OkHttp)。推送 6df2aff。
 - **A3b 排障+模板**：`OpsWorkflows.kt`——`DiagnosticWorkflow`(5 内置:网站打不开/磁盘清理/SSL/Nginx/Docker，commands+summaryPrompt) + `SetupTemplate`/`SetupStep`(5 内置:Ubuntu Web 10 步/Docker/Node/静态站/LNMP，step.risk 复用 CommandRisk，previewText 预览)，移植 apple DiagnosticWorkflow.swift+SetupTemplate.swift。`ServerWorkspace` 顶栏加「排障」(MonitorHeart)「初始化模板」(Dns) DropdownMenu，点击把命令序列填入命令框(排障 && 串联；模板换行+过滤注释)。验证：构建 16s → APK 30.8MB。推送 80b3533。

@@ -6,6 +6,15 @@
 
 ---
 
+## SFTP 批量删除双端（多选→批量删，复用单删逻辑）
+- **android**：`SftpBrowser` 文件行 `combinedClickable` 长按进多选+勾选框(CheckCircle)；批量操作栏(已选 N/删除/取消)+二次确认 AlertDialog→`batchDelete` 循环 `deletePath`。多选模式隐藏单项操作图标。`ExperimentalFoundationApi` OptIn。构建 24s，推送 6153c08。
+- **apple**：`FileBrowserView` 工具栏「批量删除」开关→`multiSelect`；行 multiSelect 时显勾选框+点击切换选中；底部 `safeAreaInset` 操作栏(已选 N/删除/取消)+`.alert` 二次确认→`batchRemove` 循环 `sftpRemove`。修：`.alert` 误挂 if/else 后→移到 List 上。推送 4fd4a8f。
+- **改动**：`MainActivity.kt`(SftpBrowser 多选+批量删)、`FileBrowserView.swift`(多选+批量删)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 24s 零 deprecated；apple swift build + 抽测过。
+- **意义**：SFTP 文件管理从单文件删扩展到批量删(复用单删逻辑+二次确认)，清理多文件高效。双端齐。SFTP 增删改+路径跳转+时间排序过滤+批量删 完整。
+
+---
+
 ## 终端区功能完整度评估（双端齐平，无缺口）
 - **评估**：grep 双端终端区功能逐项对比：
   | 终端功能 | apple | android |

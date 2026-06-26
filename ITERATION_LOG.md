@@ -6,6 +6,15 @@
 
 ---
 
+## 命令收藏夹自测 + 质量收口（自测 7→8 项）
+- **自测**：`Screenshots.favoritesTest` + main `--favorites-test`——验证 `CommandFavorites.toggled`：空列表加 ls/df-h 后 ["df-h","ls"](置顶最新)、再 toggle ls 取消→["df-h"]、空字符串忽略。输出「置顶加入=true；取消=true；去空=true」。CLAUDE.md 自测清单加 --favorites-test。
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；**8 自测**(history/batch/risk/metrics/env-detect/inspect/notebook/favorites)全 true 无回归；android clean assembleDebug **零 deprecated**。
+- **改动**：`Screenshots.swift`(favoritesTest)、`ShotsMain/main.swift`(子命令)、`CLAUDE.md`。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：命令收藏夹核心纯逻辑(置顶/去重/去空)有回归保护。自测覆盖 7→8 项。连续多轮实用功能后质量稳健确认。
+
+---
+
 ## 命令收藏夹双端（常用命令星标置顶）
 - **android**：`CommandFavorites.kt`(SharedPreferences 存收藏命令，toggle 置顶/取消)；命令历史行加星标按钮(Star/StarBorder)收藏；ServerWorkspace 收藏命令横滑 ⭐ Chip(置于快捷命令上方)点击填入+取消收藏。构建 22s，推送 dac2a90。
 - **apple**：Core `CommandFavorites`(UserDefaults，toggled 纯逻辑+toggle/load，类比 CommandHistory)；`SnippetsView`「⭐ 收藏命令」Section 置顶 + 命令历史行 contextMenu「收藏命令/取消收藏」。新增 Core 文件触发 SPM 缓存"cannot find CommandFavorites"→`swift package clean` 解决。推送 7d31e36。

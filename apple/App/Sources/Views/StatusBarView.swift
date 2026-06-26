@@ -107,8 +107,8 @@ struct StatusBarView: View {
         ) {
             detailCell("主机", info.hostname.isEmpty ? "—" : info.hostname)
             detailCell("运行时长", info.uptime.isEmpty ? "—" : info.uptime)
-            detailCell("CPU", String(format: "%.1f%% · %d 核", info.cpuUsage, info.cpuCores))
-            detailCell("内存", String(format: "%@ / %@ (%.0f%%)", formatBytes(info.memUsed), formatBytes(info.memTotal), info.memPercent))
+            detailCellWithBar("CPU", String(format: "%.1f%% · %d 核", info.cpuUsage, info.cpuCores), percent: info.cpuUsage)
+            detailCellWithBar("内存", String(format: "%@ / %@ (%.0f%%)", formatBytes(info.memUsed), formatBytes(info.memTotal), info.memPercent), percent: info.memPercent)
             if load.count >= 3 {
                 detailCell("负载 1 / 5 / 15 分钟", String(format: "%.2f / %.2f / %.2f", load[0], load[1], load[2]))
             } else if !load.isEmpty {
@@ -123,6 +123,26 @@ struct StatusBarView: View {
             Text(label).font(.system(size: 10)).foregroundStyle(Theme.textSecondary)
             Text(value).font(.system(size: 12, weight: .medium, design: .monospaced))
                 .foregroundStyle(Theme.textPrimary).lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// CPU/内存详情：数值下加 mini 进度条（绿<60 / 橙60-80 / 红>80），一眼看占用
+    private func detailCellWithBar(_ label: String, _ value: String, percent: Double) -> some View {
+        let barColor: Color = percent > 80 ? Theme.danger : (percent > 60 ? .orange : Theme.success)
+        return VStack(alignment: .leading, spacing: 3) {
+            Text(label).font(.system(size: 10)).foregroundStyle(Theme.textSecondary)
+            Text(value).font(.system(size: 12, weight: .medium, design: .monospaced))
+                .foregroundStyle(Theme.textPrimary).lineLimit(1)
+            // 纯布局 mini 进度条（自适应宽度，按占用着色）
+            GeometryReader { g in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.white.opacity(0.1))
+                    Capsule().fill(barColor)
+                        .frame(width: g.size.width * min(max(percent, 0), 100) / 100)
+                }
+            }
+            .frame(height: 4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

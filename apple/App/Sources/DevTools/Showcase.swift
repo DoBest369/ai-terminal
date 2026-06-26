@@ -196,8 +196,8 @@ struct StatusBarShowcase: View {
                 LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)], spacing: 10) {
                     detail("主机", info.hostname)
                     detail("运行时长", info.uptime)
-                    detail("CPU", String(format: "%.1f%% · %d 核", info.cpuUsage, info.cpuCores))
-                    detail("内存", String(format: "%@ / %@ (%.0f%%)", formatBytes(info.memUsed), formatBytes(info.memTotal), info.memPercent))
+                    detailBar("CPU", String(format: "%.1f%% · %d 核", info.cpuUsage, info.cpuCores), info.cpuUsage)
+                    detailBar("内存", String(format: "%@ / %@ (%.0f%%)", formatBytes(info.memUsed), formatBytes(info.memTotal), info.memPercent), info.memPercent)
                     detail("负载 1 / 5 / 15 分钟", info.loadavg.map { String(format: "%.2f", $0) }.joined(separator: " / "))
                 }
                 .padding(.horizontal, 14).padding(.vertical, 10)
@@ -209,6 +209,18 @@ struct StatusBarShowcase: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label).font(.system(size: 10)).foregroundStyle(Theme.textSecondary)
             Text(value).font(.system(size: 12, weight: .medium, design: .monospaced)).foregroundStyle(Theme.textPrimary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    private func detailBar(_ label: String, _ value: String, _ percent: Double) -> some View {
+        let c: Color = percent > 80 ? Theme.danger : (percent > 60 ? .orange : Theme.success)
+        return VStack(alignment: .leading, spacing: 3) {
+            Text(label).font(.system(size: 10)).foregroundStyle(Theme.textSecondary)
+            Text(value).font(.system(size: 12, weight: .medium, design: .monospaced)).foregroundStyle(Theme.textPrimary)
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.white.opacity(0.1)).frame(width: 130, height: 4)
+                Capsule().fill(c).frame(width: 130 * min(max(percent, 0), 100) / 100, height: 4)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

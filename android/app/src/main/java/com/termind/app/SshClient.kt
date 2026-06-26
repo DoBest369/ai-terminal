@@ -139,7 +139,7 @@ object SshClient {
     suspend fun fetchStatus(
         host: String, port: Int, user: String, password: String, privateKey: String? = null, jump: JumpConfig? = null
     ): Result<ServerStatus> {
-        val cmd = "top -bn1 2>/dev/null | grep -i '%Cpu'; echo '---'; free -m 2>/dev/null; echo '---'; df -h / 2>/dev/null; echo '---'; uptime 2>/dev/null"
+        val cmd = "top -bn1 2>/dev/null | grep -i '%Cpu'; echo '---'; free -m 2>/dev/null; echo '---'; df -h / 2>/dev/null; echo '---'; uptime 2>/dev/null; echo '---'; for s in nginx docker mysql redis sshd; do echo \"SVC@@\$s:\$(systemctl is-active \$s 2>/dev/null || echo unknown)\"; done"
         return connectAndExec(host, port, user, password, cmd, privateKey = privateKey, jump = jump).map { ServerStatus.parse(it) }
     }
 

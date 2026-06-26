@@ -70,16 +70,19 @@ data class ServerStatus(
     val mem: String = "—",
     val disk: String = "—",
     val load: String = "—",      // 负载 1/5/15 分钟（对齐 apple loadavg）
-    val uptime: String = "—"     // 运行时长（对齐 apple uptime）
+    val uptime: String = "—",    // 运行时长（对齐 apple uptime）
+    val services: Map<String, Boolean> = emptyMap()   // 关键服务运行状态（对齐 apple services）
 ) {
+    /** 已探测到的未运行服务（unknown 视为未安装，不计） */
+    val stoppedServices: List<String> get() = services.filter { !it.value }.keys.sorted()
     /** 从格式化字符串里抽出百分比数值（如 "47%" / "36G/80G (90%)"），无则 null */
     private fun pct(s: String): Int? = Regex("(\\d+)%").find(s)?.groupValues?.get(1)?.toIntOrNull()
 
     val cpuPercent: Int? get() = pct(cpu)
     val diskPercent: Int? get() = pct(disk)
 
-    /** 有告警：CPU 或 磁盘 >85%（A-HealthAI，对齐 apple hasWarning） */
-    val hasWarning: Boolean get() = (cpuPercent ?: 0) > 85 || (diskPercent ?: 0) > 85
+    /** 有告警：CPU 或 磁盘 >85%，或有关键服务未运行（对齐 apple hasWarning） */
+    val hasWarning: Boolean get() = (cpuPercent ?: 0) > 85 || (diskPercent ?: 0) > 85 || stoppedServices.isNotEmpty()
 
     /** 健康摘要（喂给 AI，对齐 apple SystemInfo.healthSummary） */
     val healthSummary: String
@@ -90,7 +93,8 @@ data class ServerStatus(
             if (disk != "—") parts.add("磁盘 $disk")
             if (load != "—") parts.add("负载 $load")
             if (uptime != "—") parts.add("运行 $uptime")
-            if (hasWarning) parts.add("⚠️ 资源偏高")
+            if (stoppedServices.isNotEmpty()) parts.add("⚠️ 未运行 ${stoppedServices.joinToString(",")}")
+            else if (hasWarning) parts.add("⚠️ 资源偏高")
             return if (parts.isEmpty()) "" else "服务器状态：" + parts.joinToString(" · ")
         }
 
@@ -121,7 +125,13 @@ data class ServerStatus(
             Regex("up\\s+(.+?),\\s+\\d+\\s+user").find(raw)?.let {
                 uptime = it.groupValues[1].trim()
             }
-            return ServerStatus(cpu, mem, disk, load, uptime)
+            // 服务状态：SVC@@nginx:active / inactive / unknown（unknown=未安装，不纳入）
+            val services = mutableMapOf<String, Boolean>()
+            Regex("SVC@@(\\w+):(\\S+)").findAll(raw).forEach {
+                val name = it.groupValues[1]; val state = it.groupValues[2]
+                if (state != "unknown") services[name] = (state == "active")
+            }
+            return ServerStatus(cpu, mem, disk, load, uptime, services)
         }
     }
 }

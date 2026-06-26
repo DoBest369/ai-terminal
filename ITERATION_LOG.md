@@ -6,6 +6,22 @@
 
 ---
 
+## 质量收口 · 知识卡片体验全齐快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **知识卡片体验（差异化护城河，本批次完善后全齐）**：
+  - 记录：每台机 问题/方案/笔记 按连接持久化
+  - **随手记**：命令历史一键存为卡片
+  - **AI 结论存为方案**：AI 回复一键沉淀为方案卡片
+  - **类型筛选**：全部/问题/方案/笔记
+  - **关键词搜索**：类型+关键词组合过滤
+  - **喂 AI（全路径）**：对话/解释/报错/排障/健康 都注入本机历史
+  - **导出共享**：按类型分组 Markdown
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：知识卡片从记录到检索到喂 AI 到沉淀到共享全链路体验完整。连续多轮知识卡片+连接管理增强后质量稳健。Termind 护城河核心(知识沉淀)体验打磨到位。
+
+---
+
 ## 知识卡片关键词搜索双端（类型筛选+关键词组合过滤）
 - **android**：`NotebookSheet` 加 `noteQuery` state + 搜索框(记录>3 条时显，Search 图标)→`shownNotes` 按 `(类型匹配) && (text.contains(query, ignoreCase))` 组合过滤。
 - **apple**：`NotebookView` 加 `search` state + `.searchable(prompt:"搜索记录")`→`shownNotes` 计算属性按 类型 + `localizedCaseInsensitiveContains` 组合过滤。删除用 shownNotes 索引(已对齐)。

@@ -6,6 +6,20 @@
 
 ---
 
+## 质量收口 · 审计补齐成果快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **近批次「系统性审计→补齐单端落后」成果**：
+  - 连接端口范围校验（apple 补，1–65535）
+  - AI 清空对话二次确认（android 补）
+  - 删除连接/删除对话二次确认（android 补）
+  - 连接编辑颜色标签色选器 + 主机/用户名必填标识（apple 补）
+- **审计方法论价值**：grep 双端同类功能 → 对比确认/校验/字段差异 → 补齐落后端，使「配对能力 🟡=0」从功能层延伸到交互/校验/安全细节层。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：连续多轮审计驱动的双端一致性补齐后质量稳健。Termind 双端不仅功能对齐，连必填标识/二次确认/色选器等细节都一致，成熟度扎实。
+
+---
+
 ## 连接编辑字段一致性审计 + apple 颜色标签色选器
 - **审计**：grep 双端连接编辑表单字段集。基本一致(名称/主机/端口/用户名/分组/备注/启动命令/跳板机/认证方式)。**发现差异**：① android 编辑器有**颜色标签色选器**(6 色圆点)，apple **无**(PARITY 原标「色选器待接入」，只能批量改色) ② android 主机/用户名标「*」必填，apple 无必填标识。
 - **apple 补齐**：① 加「颜色标签」Section——`ColorTag.allCases` 6 色圆点(none 显 nosign，选中 accent 描边)→`draft.colorTag`。② 主机/用户名 TextField 占位加「*」。对齐 android。

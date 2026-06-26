@@ -6,6 +6,20 @@
 
 ---
 
+## 质量收口 · 知识卡片功能全景快照（护城河核心）
+- **质量门禁**：apple swift build Build complete；8 自测全 true 无回归(notebook 含 tags 改动验证)；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **服务器知识卡片（差异化护城河核心，双端全功能）**：
+  - **记录**：类型(问题/方案/笔记) + 自由标签 + 内容 + 时间，按连接持久化
+  - **录入入口（全覆盖）**：手动新增(含标签) · 随手记(命令历史一键) · AI 结论存方案(全 AI 路径:对话/解释/报错/排障/健康) · 任意 AI 消息存卡片
+  - **检索（三维）**：类型筛选 + 标签筛选(#标签 Chip) + 关键词搜索（组合过滤）
+  - **应用**：喂 AI 全路径(所有 AI 路径注入本机历史)
+  - **共享**：按类型分组导出 Markdown
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：知识卡片从记录(类型+标签)到全入口录入到三维检索到喂 AI 到共享，功能完整双端齐。护城河核心「让 AI 记得每台服务器」的载体——知识卡片——能力扎实完整。
+
+---
+
 ## 知识卡片标签筛选双端（多维筛选 类型+标签+关键词）
 - **内容**：上轮加了标签录入/显示，本轮加按标签筛选。双端 `allTags`(notes.flatMap{tags} 去重)→类型筛选下方显可点 `#标签` Chip(FilterChip)→点击设 `filterTag`→`shownNotes` 再按 `tags.contains(filterTag)` 过滤。与现有 类型筛选(filterKind)+关键词搜索(query) **组合过滤**(三条件 AND)。
 - **android**：NotebookSheet filterTag state + 标签 Chip 行(横滑)。**apple**：NotebookView filterTag state + allTags 计算属性 + 标签 Chip 行(ScrollView 横滑 Capsule)。

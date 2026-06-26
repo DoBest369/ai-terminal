@@ -249,6 +249,7 @@ fun ServerListScreen(
     var search by remember { mutableStateOf("") }
     var sortMenu by remember { mutableStateOf(false) }       // A-Sort
     var sortMode by remember { mutableStateOf(0) }           // 0=名称 1=最近 2=在线
+    val collapsedGroups = remember { mutableStateListOf<String>() }   // A-GroupFold 折叠的分组
     Column {
         // 顶栏 + 刷新状态
         Surface(color = Surface) {
@@ -324,9 +325,21 @@ fun ServerListScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             grouped.forEach { (group, list) ->
-                if (group.isNotEmpty()) item { Text(group, fontSize = 12.sp, color = TextSecondary, modifier = Modifier.padding(top = 14.dp, bottom = 2.dp)) }
-                items(list, key = { it.id }) { conn ->
-                    ServerCard(conn, reachMap[conn.id], probing, onClick = { onOpen(conn) }, onEdit = { onEdit(conn) }, onDelete = { onDelete(conn) })
+                // A-GroupFold：分组标题可点折叠/展开（仅有组名时）
+                if (group.isNotEmpty()) item(key = "hdr-$group") {
+                    val folded = group in collapsedGroups
+                    Row(
+                        Modifier.fillMaxWidth().clickable { if (folded) collapsedGroups.remove(group) else collapsedGroups.add(group) }.padding(top = 14.dp, bottom = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(if (folded) Icons.Filled.ChevronRight else Icons.Filled.ExpandMore, null, tint = TextSecondary, modifier = Modifier.size(16.dp))
+                        Text("$group (${list.size})", fontSize = 12.sp, color = TextSecondary)
+                    }
+                }
+                if (group !in collapsedGroups) {
+                    items(list, key = { it.id }) { conn ->
+                        ServerCard(conn, reachMap[conn.id], probing, onClick = { onOpen(conn) }, onEdit = { onEdit(conn) }, onDelete = { onDelete(conn) })
+                    }
                 }
             }
         }

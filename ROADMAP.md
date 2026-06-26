@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **批量巡检结果导出双端** ✅（巡检报告 Markdown[统计+各机 healthSummary/error]；apple 复制+「导出」按钮/android 分享 Intent；批量结果导出完整群发+巡检；推送 2661a8c）
 - [x] **批量群发结果导出双端** ✅（结果拼 Markdown[命令+统计+各机ok/fail+输出]；apple 复制[edc7648]/android 分享 Intent[06d8cf2]；运维记录留存）
 - [x] **质量收口·运维数据维度全景快照** ✅（apple 8 自测+android clean 零 warning；PARITY 🟡=0；CPU/内存/磁盘/负载/运行时长/服务 6 维度双端齐采集→展示/告警/AI；推送见下）
 - [x] **android 状态采集加关键服务状态** ✅（审计:apple 采集 nginx/docker/mysql/redis/sshd 运行状态,android 缺→补 systemctl is-active+services/stoppedServices+healthSummary「未运行 X」+告警；双端服务状态经健康摘要+告警+AI 素材体现，apple/android 均不单独 UI；推送 7aec186）

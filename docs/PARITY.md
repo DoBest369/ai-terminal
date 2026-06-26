@@ -90,7 +90,8 @@
 | 群发结果 AI 汇总 | ✅ | ✅ | 双端（apple summarizeBatch；android 完整） |
 | 群发结果导出 | ✅ | ✅ | 双端导出 Markdown（apple 复制 / android 分享 Intent） |
 | 批量健康巡检 | ✅ | ✅ | 双端多选+采集+告警置顶+统计(告警/正常/失败)；apple InspectView / android InspectScreen |
-| 巡检结果 AI 总结 | ✅ | ✅ | 双端 AI 素材含 CPU/内存/磁盘/负载/运行时长/告警 |
+| 巡检结果 AI 总结 | ✅ | ✅ | 双端 AI 素材含 CPU/内存/磁盘/负载/运行时长/服务/告警 |
+| 巡检结果导出 | ✅ | ✅ | 双端导出巡检报告 Markdown（apple 复制 / android 分享 Intent） |
 | 定时后台巡检 + 通知 | ⬜ | ✅ | android WorkManager（主动运维，离线推通知） |
 
 > 阶段 N 让 Termind 从「逐台 SSH」升级为「**一批机器的批量操作 + AI 智能洞察**」——这是单连接 SSH 工具（Xshell/Termius）做不到的运维工作台核心差异化。android 先行落地，apple 框架就绪待 UI 接入。

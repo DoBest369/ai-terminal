@@ -6,6 +6,16 @@
 
 ---
 
+## 批量巡检结果导出双端（巡检报告留存）
+- **内容**：批量巡检结果导出为 Markdown 巡检报告(对齐上轮群发结果导出)。
+- **android**：`InspectScreen` 统计行加分享图标→拼 Markdown(标题+告警/正常/失败统计+各机名+healthSummary(去前缀)/error，告警置顶顺序)→`ACTION_SEND` 分享。
+- **apple**：`InspectView` 结果区加「导出」按钮(与「AI 总结」并排)→`exportInspection` 拼同样 Markdown→`Clipboard.copy`+toast。
+- **改动**：`InspectScreen.kt`(导出图标)、`InspectView.swift`(导出按钮+exportInspection)、`docs/PARITY.md`。
+- **验证**：apple swift build + inspect/batch 自测过；android BUILD SUCCESSFUL 15s 零 deprecated。推送 2661a8c。
+- **意义**：批量结果导出完整(群发+巡检)，巡检报告可留存/汇报/共享。批量运维结果(统计+AI 汇总+导出)体验完整双端齐。
+
+---
+
 ## 批量群发结果导出双端（Markdown 留存）
 - **内容**：批量群发结果可导出为 Markdown 留存运维记录(对齐 AI 对话导出)。
 - **android**：`BatchScreen` AI 汇总按钮旁加「导出分享」→拼 Markdown(标题/命令/成功失败统计/各机 ✅❌+代码块输出)→`ACTION_SEND` 分享 Intent。

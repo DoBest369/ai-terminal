@@ -6,6 +6,15 @@
 
 ---
 
+## docs/PRODUCT.md 更新到当前成熟度
+- **内容**：MVP 对照表刷新——Z4 排障标 8 场景、Z8 部署标 8 模板（含执行前预览）、批量群发加 全选/分组选目标、新增「命令收藏夹/历史补全/连接批量编辑/最近使用/SSH config 导入」实用能力行、知识沉淀闭环升级为「六环·护城河核心」。新增独立章节 **🎯 知识沉淀闭环（六环·双端全链路）**：随手记→记录→筛选→喂AI全路径→AI结论存方案→导出共享，阐明差异化价值(AI 记得每台服务器，单连接工具+通用 AI 都做不到)。
+- **边界保留**：本机无 Xcode→apple 未出包/未真机实测；android 出 APK 真实连接需真机+服务器+API Key。
+- **改动**：`docs/PRODUCT.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 59062b9。
+- **意义**：产品文档同步到当前成熟度，护城河价值(知识沉淀闭环)在产品层面清晰表达。文档体系(README/CHANGELOG/ROADMAP/ITERATION_LOG/PARITY/PRODUCT)齐全准确。
+
+---
+
 ## apple AI 面板 Showcase 补新 UI（截图与功能同步）
 - **内容**：`AIPanelShowcase` 在输入栏上方加 末条 assistant 时的快捷行——「重新生成」+「存为方案」(绿 bookmark)+快捷追问(给我具体命令/换个思路)Chip，对齐真实 AIAgentView。`swift run Shots` 渲染 `03-ai-panel.png`，Read 看图核对：代码块等宽深色框渲染正确、Chip 布局/配色(Theme.success 绿 + Theme.surfaceLight)无误，拷到 `apple/screenshots/03-ai-panel.png`。
 - **改动**：`Showcase.swift`(AIPanelShowcase 快捷行)、`apple/screenshots/03-ai-panel.png`。

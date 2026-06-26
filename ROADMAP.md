@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **docs/PRODUCT.md 更新** ✅（Z4 8场景/Z8 8模板/命令收藏夹/批量编辑/最近使用 入 MVP 对照；新增「🎯 知识沉淀闭环六环」章节；apple build 抽查通过；推送 59062b9）
 - [x] **apple AI 面板 Showcase 补新 UI** ✅（AIPanelShowcase 加 重新生成/存为方案/快捷追问 Chip；渲染 03-ai-panel.png 核对+拷 screenshots；截图与功能同步；8 自测全过；推送 a5b41a6）
 - [x] **质量收口·知识沉淀闭环全景快照** ✅（apple 8 自测+android clean 零 warning；PARITY 🟡=0；闭环六环 随手记→记录→筛选→喂AI全路径→AI结论存方案→导出 全双端打通；推送见下）
 - [x] **AI 结论一键存为方案双端** ✅（AI 回复后「存为方案」→ServerNotebook SOLUTION；发现问题→AI分析→沉淀方案 闭环；android 7e3e4d9/apple 2c6ac74）

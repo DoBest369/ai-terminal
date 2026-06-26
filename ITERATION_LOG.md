@@ -6,6 +6,16 @@
 
 ---
 
+## android 批量编辑扩展 + 最近使用快速访问 + 质量收口
+- **批量编辑扩展**：多选操作栏在 改分组 基础上加 **批量颜色标签**(ColorTag 颜色圆点选择→批量 copy colorTag)+**批量删除**(Warning 图标二次确认→conns.removeAll{id in ids})。onBatchColor/onBatchDelete 回调。
+- **最近使用快速访问**：连接列表顶部(非多选/非搜索时)加「最近使用」横滑小卡区——`conns.filter{lastUsed>0}.sortedByDescending{lastUsed}.take(5)`，小卡显在线点+名称→点击直接 onOpen。
+- **质量收口**：apple swift build + 8 自测无回归；android clean assembleDebug 零 deprecated。
+- **改动**：`MainActivity.kt`(批量颜色/删除对话框+回调+最近使用区)、`docs/PARITY.md`。
+- **验证**：android 两次 BUILD SUCCESSFUL(24s/23s)无 warning；apple swift build + 8 自测全过。
+- **意义**：连接管理体验完善——批量改分组/颜色/删除整理高效，最近使用快速访问常用机器。apple 批量编辑/最近使用可后续对齐。
+
+---
+
 ## android 连接批量编辑 + 质量收口（连接多时整理高效）
 - **内容**：`ServerCard` 加 `selectMode`/`selected`/`onLongPress` 参数——`combinedClickable`(长按 onLongPress 进多选+选中该卡)，选中态高亮+勾选框(CheckCircle/RadioButtonUnchecked)。`ServerListScreen` 加 `selectedIds`/`selectMode` state+多选操作栏(已选 N/改分组/取消)+批量改分组 AlertDialog(输分组名，留空=移出)→`onBatchGroup(ids, group)` 回调→TermindApp 批量 `conns[i].copy(group=)`+persist。
 - **质量收口**：apple swift build + 8 自测无回归；android clean assembleDebug 零 deprecated。

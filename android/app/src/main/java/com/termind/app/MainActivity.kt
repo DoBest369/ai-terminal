@@ -584,11 +584,11 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
     var search by remember { mutableStateOf("") }
     // A-Prompts：分类运维提示词库（覆盖排障/部署/安全/性能/日志）
     val promptGroups = listOf(
-        "排障" to listOf("帮我查看为什么网站打不开", "分析这段报错并给修复", "服务突然 502，怎么排查？"),
-        "部署" to listOf("一键初始化 Ubuntu Web 服务器", "用 Docker 部署一个 Nginx + 静态站点", "配置 Let's Encrypt 免费 HTTPS 证书"),
-        "安全" to listOf("检查这台服务器有哪些安全风险", "怎么加固 SSH 登录安全？", "查看最近的登录失败记录并判断是否被爆破"),
-        "性能" to listOf("服务器很卡，帮我找出占用资源最高的进程", "磁盘快满了，怎么安全清理？", "分析内存占用是否正常"),
-        "日志" to listOf("解释这条命令：docker system prune -a", "怎么查看 Nginx 最近的错误日志？", "用一条命令统计访问量 Top 10 IP")
+        "排障" to listOf("帮我查看为什么网站打不开", "分析这段报错并给修复", "服务突然 502，怎么排查？", "数据库连接不上，帮我排查", "某个端口被占用，怎么定位是哪个进程？"),
+        "部署" to listOf("一键初始化 Ubuntu Web 服务器", "用 Docker 部署一个 Nginx + 静态站点", "配置 Let's Encrypt 免费 HTTPS 证书", "帮我写一个 Nginx 反向代理配置", "用 systemd 把我的程序配成开机自启服务"),
+        "安全" to listOf("检查这台服务器有哪些安全风险", "怎么加固 SSH 登录安全？", "查看最近的登录失败记录并判断是否被爆破", "配置防火墙只放行 22/80/443 端口", "排查是否有可疑的定时任务或异常进程"),
+        "性能" to listOf("服务器很卡，帮我找出占用资源最高的进程", "磁盘快满了，怎么安全清理？", "分析内存占用是否正常", "分析这个进程为什么 CPU 占用高", "磁盘 I/O 很高，帮我定位原因"),
+        "日志" to listOf("怎么查看 Nginx 最近的错误日志？", "用一条命令统计访问量 Top 10 IP", "解释这条命令：docker system prune -a", "从日志里找出最近的报错并归类", "实时跟踪某个服务的日志输出")
     )
     var promptGroupIdx by remember { mutableStateOf(0) }
 

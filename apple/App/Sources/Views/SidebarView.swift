@@ -28,6 +28,13 @@ struct SidebarView: View {
 
     private var sortMode: ConnSortMode { ConnSortMode(rawValue: sortModeRaw) ?? .recent }
 
+    /// 最近使用：lastUsedAt 非空，倒序前 5（对齐 android 最近使用快速访问）
+    private var recentConns: [Connection] {
+        model.connections.filter { $0.lastUsedAt != nil }
+            .sorted { ($0.lastUsedAt ?? .distantPast) > ($1.lastUsedAt ?? .distantPast) }
+            .prefix(5).map { $0 }
+    }
+
     private var filtered: [Connection] {
         let q = search.trimmingCharacters(in: .whitespaces).lowercased()
         guard !q.isEmpty else { return model.connections }
@@ -86,6 +93,28 @@ struct SidebarView: View {
                     .buttonStyle(.plain)
                 }
                 #endif
+
+                // 最近使用：快速访问最近连过的服务器（非搜索时显）
+                if search.isEmpty, !recentConns.isEmpty {
+                    Section("最近使用") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(recentConns) { conn in
+                                    Button { model.openSession(for: conn) } label: {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "clock.arrow.circlepath").font(.system(size: 11)).foregroundStyle(Theme.accent)
+                                            Text(conn.name.isEmpty ? conn.host : conn.name).font(.system(size: 12)).foregroundStyle(Theme.textPrimary).lineLimit(1)
+                                        }
+                                        .padding(.horizontal, 10).padding(.vertical, 6)
+                                        .background(Theme.surfaceLight.opacity(0.5)).clipShape(Capsule())
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                        .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                    }
+                }
 
                 Section {
                     if model.connections.isEmpty {

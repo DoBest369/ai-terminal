@@ -6,6 +6,22 @@
 
 ---
 
+## 质量收口 · 知识沉淀闭环全景快照（护城河核心）
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
+- **🎯 知识沉淀闭环（双端全链路，差异化护城河核心）——「AI 记得每台服务器」**：
+  1. **随手记**：命令历史一键存为知识卡片（apple 右键 / android 书签）
+  2. **记录**：每台机沉淀 问题/方案/笔记（按连接持久化）
+  3. **类型筛选**：全部/问题/方案/笔记 快速定位
+  4. **喂 AI（全路径）**：对话/解释/报错/排障/健康 所有 AI 路径都注入本机历史记录（apple runAICompletion 中心化 / android send+各路径）
+  5. **AI 结论存为方案**：AI 给出结论后一键沉淀为方案卡片（发现问题→AI 分析→沉淀方案→复用）
+  6. **导出共享**：按类型分组导出 Markdown（apple 复制 / android 分享）
+- **闭环价值**：通用 AI 工具只会给教程；Termind 的 AI 结合「这台机出过什么、怎么解决的」给针对性结论，且结论可再沉淀复用——这是「AI + 真实环境 + 知识沉淀」的核心差异化，单连接 SSH 工具与通用 AI 都做不到。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：知识沉淀闭环六环全部双端打通，闭环极致完整。质量持续稳健。
+
+---
+
 ## AI 结论一键存为方案双端（知识沉淀闭环再强化）
 - **android**：`AIAssistantScreen` 末条 assistant 且 connId 非空时，快捷追问行加「存为方案」Chip(BookmarkAdd 绿)→把末条 AI 回复存为 `ServerNote(SOLUTION)` 到当前连接知识卡片 + Toast。构建 23s，推送 7e3e4d9。
 - **apple**：`AIAgentView` 快捷追问区，末条 assistant 且 activeSession.connection 存在时加「存为方案」Button→`ServerNotebook.add(.solution, 回复内容, connectionID)` + toast。推送 2c6ac74。

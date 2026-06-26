@@ -6,6 +6,14 @@
 
 ---
 
+## apple 连接编辑端口校验加警告图标（实时校验更醒目）
+- **内容**：ConnectionEditView 端口非法（非 1–65535）时的红色文字提示加 `exclamationmark.triangle.fill` 警告图标，实时校验反馈更醒目。
+- **改动**：`ConnectionEditView.swift`(端口校验 HStack + 图标)。
+- **验证**：swift build Build complete。推送 7ef6471。
+- **意义**：连接编辑端口实时校验反馈更醒目（图标 + 红色文字），输入非法端口立即有视觉警示。反复打磨表单交互细节。
+
+---
+
 ## windows 连接列表分组标题 → 连接分组五端对齐
 - **内容**：windows `ConnItem` 加 `GroupName`/`ShowHeader` 字段；`ItemTemplate` 组内第一个连接上方显分组标题（生产环境 / 开发环境）；连接按组聚合排列。
 - **改动**：`MainWindow.axaml.cs`(ConnItem 分组数据)、`MainWindow.axaml`(ItemTemplate 分组标题)。

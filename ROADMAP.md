@@ -79,6 +79,8 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] 🔧 **全平台工具链打通 + 品牌统一**（2026-06-27）✅（纠正认知:本机有完整 Xcode 26.4 能出 mac/iOS 包；Windows=Avalonia 本机可编译;Rust/dotnet/Metal 后台装中[网络限制];CI workflow 配好待 workflow scope;品牌 AI Terminal→Termind;记忆+CLAUDE.md 纠正;推送 60d73fa）
+- [ ] **全平台对齐节点**（进行中）：mac/iOS(Xcode✅) + android(gradle✅) + linux(Rust 装中) + windows(Avalonia 待建) 五端本机编译 → 打节点 tag → 启动每 100 迭代 CI
 - [x] **命令历史搜索双端** ✅（apple SnippetsView/android history sheet >5 条显搜索框过滤；搜索能力全覆盖；apple 8 自测+android clean 零 warning；apple 6c18b1c/android 81c599f；PARITY 101 项）
 - [x] **README 成熟度徽章 + 指向 MATURITY** ✅（顶部加 双端 100 项对齐徽章 + 成熟度一览句指向 docs/MATURITY.md；仓库门面反映成熟度；推送 d9d6dd6）
 - [x] **产品成熟度总览 docs/MATURITY.md** ✅（7 维盘点:平台/主线/护城河 Z1-Z8/批量运维/知识沉淀闭环/质量/边界;如实记录边界;PARITY 100 项里程碑沉淀;推送 a4daeb3）

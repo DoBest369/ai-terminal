@@ -6,6 +6,19 @@
 
 ---
 
+## 全平台工具链打通 + 品牌名统一（2026-06-27 重大基础设施）
+- **纠正认知**：本机实测**有完整 Xcode 26.4**（`/Applications/Xcode.app` + iOS/macOS SDK 26.4 + xcodegen），之前长期误判「无完整 Xcode」。`xcode-select` 默认指 CommandLineTools，用 `sudo xcode-select -s .../Xcode.app/Contents/Developer`（已永久切）或 `DEVELOPER_DIR` 启用 `xcodebuild`。已验证 `xcodegen generate` + `xcodebuild` 编译 macOS app（`.app` 生成，差 Metal Toolchain 组件）。**本机能出 macOS/iOS 包**。
+- **Windows 方案 = Avalonia（C#/.NET）**：本机装 .NET SDK 即可 `dotnet build` 编译、`dotnet run` 在 mac 跑起来看 UI、`dotnet publish -r win-x64` 交叉编译出 Windows `.exe`，全程不离开 mac（WinUI3 被否，Windows-only 无法本机验证）。
+- **工具链安装（受网络限制）**：Rust（rustup dist server rsproxy/ustc/官方 TLS handshake eof 反复失败 → 改 `brew install rust` 后台串行）；.NET SDK（brew，依赖链长下载中）；Metal Toolchain（Apple 服务器，待重下）。后台 combo 串行装，装好通知。
+- **CI**：全平台 workflow 配好（`ci/github-actions-ci.yml`，matrix: macOS swift/android gradle/linux cargo/windows dotnet），待 `gh auth refresh -s workflow` 授权后移到 `.github/workflows/`。全平台对齐后每 100 迭代打 `ci-N` tag 触发在线编译。
+- **品牌统一**：apple 4 处 `AI Terminal`→`Termind` + 定位文案「原生终端工具」→「智能 SSH 服务器运维工作台」，Showcase 截图验证（侧边栏标题已变 Termind）；android `app_name` 已是 Termind。
+- **记忆沉淀**：[[native-toolchain]]/[[ui-modern]]/[[fullplatform-ci]]；CLAUDE.md 工具链段纠正（xcodebuild 出包流程）。
+- **改动**：`ContentView.swift`/`SettingsView.swift`/`Showcase.swift`(品牌)、`CLAUDE.md`、`ci/`、memory。推送 60d73fa 等。
+- **验证**：apple swift build + Showcase 截图；品牌名生效。
+- **下一步**：工具链装好 → linux(cargo)/windows(Avalonia) 本机编译 + 真 app 截图自测；apple/android UI 现代化持续。
+
+---
+
 ## 命令历史搜索双端（搜索能力全覆盖）
 - **内容**：命令历史 >5 条时显搜索框，按关键词过滤。apple SnippetsView 命令历史 Section + historySearch；android history sheet + histQuery。
 - **搜索能力全覆盖（双端）**：知识卡片三维检索(类型+标签+关键词) · AI 对话内搜索 + 全局搜索(跨对话匹配数) · 命令历史搜索 · 终端输出搜索。各处可检索的内容都能按词定位。

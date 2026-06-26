@@ -6,6 +6,16 @@
 
 ---
 
+## 🎉 AI 对话全局搜索双端 → PARITY 100 项里程碑
+- **评估**：双端 AI 对话搜索原本**仅搜当前对话**(apple aiSearch filter aiMessages / android messages.filter)，跨对话定位是空白。
+- **全局搜索**：搜索激活且有词时，**对话切换器**标注每个对话的匹配条数 `🔍N`，点击跳转该对话。apple `conversationLabel` 计算 conv.messages 匹配数；android convoMenu 各项计算 c.count{content.contains}。低侵入(复用现有搜索词 + 切换器)，跨对话定位历史内容。
+- **🏆 里程碑**：**PARITY 配对能力达 100 项双端共有全 ✅✅，🟡=0**。
+- **改动**：`AIAgentView.swift`(conversationLabel 匹配数)、`MainActivity.kt`(convoMenu 匹配数)、`docs/PARITY.md`(对话内搜索补述+全局搜索)。
+- **验证**：apple swift build + 8 自测 + ai-conv 自测过；android BUILD SUCCESSFUL 29s 零 deprecated；PARITY 实测 **100 项 ✅✅，🟡=0**。推送 apple d0d23cb/android 1a6ffe9。
+- **意义**：自 ~50 余轮持续迭代，Termind 双端共有能力达 **100 项全对齐**(🟡=0)，覆盖 SSH/终端/SFTP/AI 对话/连接管理/护城河 Z1-Z8/批量运维/知识沉淀闭环/安全/导入导出 全维度。成熟度规模里程碑。下一步可做产品成熟度总结文档。
+
+---
+
 ## 质量收口 · PARITY 99 项快照（批量运维增强后）
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归(inspect 告警置顶)；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **99 项 ✅✅，🟡=0**，逼近 100 项里程碑。
 - **近 N 轮进展（双端）**：知识卡片(标签/三维检索/导入) · 快捷命令(导出/导入) · 排障结论存方案 · AI 对话重命名 · 复制 ssh 连接串 · 批量巡检告警筛选 · CHANGELOG 阶段 13/14/15 · PARITY 95→99。

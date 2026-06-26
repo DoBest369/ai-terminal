@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] 🎉 **AI 对话全局搜索双端 → PARITY 100 项里程碑** ✅（双端搜索原仅当前对话→加跨对话搜索:切换器标各对话匹配数 🔍N;**PARITY 配对能力达 100 项全 ✅✅，🟡=0**;apple 8 自测+ai-conv+android clean 零 warning;apple d0d23cb/android 1a6ffe9）
 - [x] **质量收口·PARITY 99 项快照（批量运维增强）** ✅（apple 8 自测+android clean 零 warning；PARITY 99 项 🟡=0；逼近 100 项里程碑；推送见下）
 - [x] **批量巡检告警筛选双端** ✅（apple InspectView onlyAlerts 点告警数 toggle/android InspectScreen「仅告警」FilterChip；巡检多台快速定位问题机；apple 8 自测+android clean 零 warning；apple 12416b3/android faa0fc2）
 - [x] **质量收口·PARITY 98 项快照（连接管理全功能）** ✅（apple 8 自测+android clean 零 warning；PARITY 98 项 🟡=0；连接管理 18+ 维度全覆盖；推送见下）

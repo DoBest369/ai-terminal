@@ -6,6 +6,15 @@
 
 ---
 
+## windows 端连接列表 ListBox 交互（占位→可用）
+- **内容**：Windows 连接列表从静态卡片 → **Avalonia ListBox**，自带选中高亮 / hover / 键盘上下导航。`ItemTemplate`(色条 + 状态点 + 名称 + user@host:port)，code-behind 提供 `ConnItem`(Name/Addr/Bar/Dot，IBrush 颜色)数据，`SelectedIndex=1` 默认选中。
+- **修复**：Avalonia 编译绑定（`AvaloniaUseCompiledBindingsByDefault`）需 `xmlns:local="using:TermindWindows"` + `DataTemplate x:DataType="local:ConnItem"`，否则 AVLN2000 解析不到属性。
+- **改动**：`MainWindow.axaml`(ListBox)、`MainWindow.axaml.cs`(ConnItem 数据)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图，Read 看图确认 ListBox 连接列表 + "数据库主机"选中高亮（蓝底）。推送 424d972。
+- **意义**：Windows 端从「静态展示卡片」→「可交互连接列表」（点击选中/键盘导航/hover），向真实可用迈进。一点点对照实现 apple/android 的连接列表交互。
+
+---
+
 ## UI 现代化双端对齐：android 状态面板 CPU/内存/磁盘 mini 进度条
 - **内容**：上轮 apple 状态面板加了 CPU/内存进度条，本轮 android 对齐。`StatCell` 从 value 字符串正则提取百分比（"47%" / "9.0 GB / 16.0 GB (56%)"）→ 画 mini 进度条（Box + fillMaxWidth 比例），**绿<60 / 橙60-80 / 红>80 三档**着色。CPU/内存/磁盘三个 StatCell 都有进度条。
 - **改动**：`MainActivity.kt`(StatCell + 进度条)。

@@ -201,6 +201,11 @@ fun TermindApp() {
                     onClone = { c ->
                         val copy = c.copy(id = java.util.UUID.randomUUID().toString(), name = "${c.name} 副本", lastUsed = 0L)
                         conns.add(copy); persist(); editing = copy; showEditor = true
+                    },
+                    // 批量改分组
+                    onBatchGroup = { ids, group ->
+                        ids.forEach { id -> val i = conns.indexOfFirst { it.id == id }; if (i >= 0) conns[i] = conns[i].copy(group = group) }
+                        persist()
                     }
                 )
                 Tab.AI -> AIAssistantScreen(onGoSettings = { tab = Tab.Settings }, profile = activeProfile, connId = activeConnId)
@@ -242,7 +247,8 @@ fun ServerListScreen(
     onOpen: (ServerConn) -> Unit,
     onEdit: (ServerConn) -> Unit,
     onDelete: (ServerConn) -> Unit,
-    onClone: (ServerConn) -> Unit = {}
+    onClone: (ServerConn) -> Unit = {},
+    onBatchGroup: (List<String>, String) -> Unit = { _, _ -> }   // 批量改分组
 ) {
     val ctxLocal = LocalContext.current
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -259,6 +265,9 @@ fun ServerListScreen(
     var sortMenu by remember { mutableStateOf(false) }       // A-Sort
     var sortMode by remember { mutableStateOf(0) }           // 0=名称 1=最近 2=在线
     val collapsedGroups = remember { mutableStateListOf<String>() }   // A-GroupFold 折叠的分组
+    val selectedIds = remember { mutableStateListOf<String>() }        // 批量编辑：多选连接 id
+    var selectMode by remember { mutableStateOf(false) }
+    var showBatchGroup by remember { mutableStateOf(false) }
     Column {
         // 顶栏 + 刷新状态
         Surface(color = Surface) {
@@ -301,6 +310,29 @@ fun ServerListScreen(
                     else Icon(Icons.Filled.Refresh, "刷新在线状态", tint = TextSecondary, modifier = Modifier.size(18.dp))
                 }
             }
+        }
+        // 批量编辑操作栏（多选模式时）
+        if (selectMode) {
+            Surface(color = Accent.copy(alpha = 0.12f)) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("已选 ${selectedIds.size}", color = Accent, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { showBatchGroup = true }, enabled = selectedIds.isNotEmpty()) { Text("改分组", color = Accent, fontSize = 13.sp) }
+                    TextButton(onClick = { selectMode = false; selectedIds.clear() }) { Text("取消", color = TextSecondary, fontSize = 13.sp) }
+                }
+            }
+        }
+        // 批量改分组对话框
+        if (showBatchGroup) {
+            var g by remember { mutableStateOf("") }
+            AlertDialog(
+                onDismissRequest = { showBatchGroup = false },
+                title = { Text("批量改分组（${selectedIds.size} 台）", color = TextPrimary) },
+                text = { OutlinedTextField(g, { g = it }, label = { Text("分组名（留空=移出分组）") }, singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent)) },
+                confirmButton = { TextButton(onClick = { onBatchGroup(selectedIds.toList(), g.trim()); showBatchGroup = false; selectMode = false; selectedIds.clear() }) { Text("确定", color = Accent) } },
+                dismissButton = { TextButton(onClick = { showBatchGroup = false }) { Text("取消", color = TextSecondary) } },
+                containerColor = Surface
+            )
         }
         // SSH config 文本导入对话框（粘贴 ~/.ssh/config 内容→解析批量添加连接）
         if (showConfigImport) {
@@ -370,7 +402,11 @@ fun ServerListScreen(
                 }
                 if (group !in collapsedGroups) {
                     items(list, key = { it.id }) { conn ->
-                        ServerCard(conn, reachMap[conn.id], probing, onClick = { onOpen(conn) }, onEdit = { onEdit(conn) }, onDelete = { onDelete(conn) }, onClone = { onClone(conn) })
+                        ServerCard(conn, reachMap[conn.id], probing,
+                            selectMode = selectMode, selected = conn.id in selectedIds,
+                            onClick = { if (selectMode) { if (conn.id in selectedIds) selectedIds.remove(conn.id) else selectedIds.add(conn.id) } else onOpen(conn) },
+                            onLongPress = { selectMode = true; if (conn.id !in selectedIds) selectedIds.add(conn.id) },
+                            onEdit = { onEdit(conn) }, onDelete = { onDelete(conn) }, onClone = { onClone(conn) })
                     }
                 }
             }
@@ -378,9 +414,9 @@ fun ServerListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit, onClone: () -> Unit = {}) {
+fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit, onClone: () -> Unit = {}, selectMode: Boolean = false, selected: Boolean = false, onLongPress: () -> Unit = {}) {
     var menu by remember { mutableStateOf(false) }
     // A-Reach：在线绿 / 离线灰 / 探测中黄
     val dotColor = when {
@@ -390,12 +426,16 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
         else -> TextSecondary
     }
     Card(
-        onClick = onClick,
-        colors = CardDefaults.cardColors(containerColor = SurfaceLight.copy(alpha = 0.5f)),
+        colors = CardDefaults.cardColors(containerColor = if (selected) Accent.copy(alpha = 0.2f) else SurfaceLight.copy(alpha = 0.5f)),
         shape = RoundedCornerShape(14.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onLongPress)
     ) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            // 批量编辑：多选勾选框
+            if (selectMode) {
+                Icon(if (selected) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked, null, tint = if (selected) Accent else TextSecondary, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(10.dp))
+            }
             // A-Tags：颜色标签色条
             conn.colorTag.hex?.let { Box(Modifier.width(4.dp).height(34.dp).clip(RoundedCornerShape(2.dp)).background(Color(it))); Spacer(Modifier.width(10.dp)) }
             Icon(Icons.Filled.Circle, null, tint = dotColor, modifier = Modifier.size(10.dp))

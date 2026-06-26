@@ -6,6 +6,17 @@
 
 ---
 
+## 🎯 UI 现代化 30 项总结快照 + 质量基线
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归（多轮 UI 改动后）；PARITY 配对能力 **103 项 ✅✅**。
+- **🏆 五端对齐能力（设计语言完全一致）**：① 状态面板 CPU/内存进度条（绿/橙/红三档）② 终端区快捷命令栏 ③ 连接搜索 ④ 终端可滚动 ⑤ 关键服务状态点（Z6）⑥ AI 对话面板（角色标签「你」/「✦ AI」+ 气泡 + 代码块 + 快捷追问 chips + 输入框）⑦ 三栏工作台布局（apple/windows/linux）。
+- **双端对齐 UI 现代化**：AI 代码块一键复制 + toast · SFTP 文件类型语义图标 · 终端键栏功能着色（^C 红/方向键 accent）· 空状态体系（连接列表/批量群发/巡检/AI 对话，图标+标题+引导）。
+- **各端打磨**：品牌名 Termind 统一 · windows（ListBox 可交互/输入框/工具栏/服务状态/滚动）· linux（搜索框/AI 输入/服务状态/卡片备注/角色标签）从骨架→功能完整工作台。
+- **改动**：`ITERATION_LOG.md`(总结快照)。
+- **验证**：apple swift build + 8 自测全过；PARITY 103 项。
+- **意义**：30 项 UI 现代化里程碑——五端 UI 设计语言高度一致（多项五端对齐），windows/linux 从「能编译的骨架」打磨到「与 apple/android 一致的工作台」。「一点点对照实现、UI 好用好看」见成效。
+
+---
+
 ## windows AI 气泡角色标签 → AI 角色标签五端对齐
 - **内容**：windows AI 面板用户气泡前加「你」（右对齐）、AI 气泡前加「✦ AI」（粉红 ✦ + AI）标签，对照 apple/android/linux。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(AI 气泡角色标签，用 Run 内联粉红 ✦)。

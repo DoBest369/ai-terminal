@@ -42,6 +42,9 @@ struct FileBrowserView: View {
     @State private var gotoText = ""
     @State private var sortMode = 0           // 0=名称 1=大小 2=时间
     @State private var filter = ""            // 文件名过滤
+    @State private var multiSelect = false    // SFTP 批量删除多选
+    @State private var selectedPaths: Set<String> = []
+    @State private var showBatchDelete = false
 
     /// 过滤 + 文件夹优先，组内按选定方式排序
     private var sortedEntries: [SFTPEntry] {
@@ -105,6 +108,13 @@ struct FileBrowserView: View {
                         }
                     } label: {
                         Label("排序", systemImage: "arrow.up.arrow.down")
+                    }
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        if multiSelect { multiSelect = false; selectedPaths.removeAll() } else { multiSelect = true }
+                    } label: {
+                        Label("批量删除", systemImage: multiSelect ? "checkmark.circle.fill" : "checkmark.circle")
                     }
                 }
                 ToolbarItem(placement: .primaryAction) {
@@ -210,18 +220,43 @@ struct FileBrowserView: View {
             .scrollContentBackground(.hidden)
             .background(Theme.background)
             .searchable(text: $filter, placement: .automatic, prompt: "过滤文件名")
+            .alert("删除 \(selectedPaths.count) 项？", isPresented: $showBatchDelete) {
+                Button("取消", role: .cancel) {}
+                Button("删除", role: .destructive) { Task { await batchRemove() } }
+            } message: {
+                Text("将删除选中的文件/空文件夹，此操作不可撤销。")
+            }
+            .safeAreaInset(edge: .bottom) {
+                if multiSelect {
+                    HStack(spacing: 12) {
+                        Text("已选 \(selectedPaths.count)").font(.system(size: 12)).foregroundStyle(Theme.accent)
+                        Spacer()
+                        Button(role: .destructive) { showBatchDelete = true } label: { Text("删除").font(.system(size: 13)) }
+                            .disabled(selectedPaths.isEmpty)
+                        Button("取消") { multiSelect = false; selectedPaths.removeAll() }.font(.system(size: 13))
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    .background(Theme.accent.opacity(0.1))
+                }
+            }
         }
     }
 
     private func row(_ entry: SFTPEntry) -> some View {
         Button {
-            if entry.isDirectory {
+            if multiSelect {
+                if selectedPaths.contains(entry.path) { selectedPaths.remove(entry.path) } else { selectedPaths.insert(entry.path) }
+            } else if entry.isDirectory {
                 Task { await load(entry.path) }
             } else {
                 Task { await download(entry) }
             }
         } label: {
             HStack(spacing: 10) {
+                if multiSelect {
+                    Image(systemName: selectedPaths.contains(entry.path) ? "checkmark.circle.fill" : "circle")
+                        .foregroundStyle(selectedPaths.contains(entry.path) ? Theme.accent : Theme.textSecondary)
+                }
                 Image(systemName: entry.isDirectory ? "folder.fill" : "doc")
                     .foregroundStyle(entry.isDirectory ? Theme.accent : Theme.textSecondary)
                     .frame(width: 20)
@@ -264,6 +299,18 @@ struct FileBrowserView: View {
         busy = "删除中…"; defer { busy = nil }
         do { try await session.sftpRemove(entry.path, isDirectory: entry.isDirectory); deleteTarget = nil; await load(path) }
         catch let e { self.error = (e as? SSHFriendlyError)?.message ?? "\(e)" }
+    }
+
+    /// 批量删除选中项（复用 sftpRemove 循环，对齐 android）
+    private func batchRemove() async {
+        let targets = entries.filter { selectedPaths.contains($0.path) }
+        busy = "删除中…"; defer { busy = nil }
+        var ok = 0
+        for entry in targets {
+            do { try await session.sftpRemove(entry.path, isDirectory: entry.isDirectory); ok += 1 }
+            catch let e { self.error = (e as? SSHFriendlyError)?.message ?? "\(e)" }
+        }
+        multiSelect = false; selectedPaths.removeAll(); await load(path)
     }
 
     private func rename(_ entry: SFTPEntry, to newName: String) async {

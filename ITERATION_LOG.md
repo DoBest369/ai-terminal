@@ -6,6 +6,15 @@
 
 ---
 
+## android AI 清空对话二次确认（对齐 apple，防误删）
+- **评估发现**：apple `AIAgentView` 清空对话有 `confirmationDialog`(「清空当前对话？」)，android 清空当前消息**直接 `messages.clear()` 无确认** → android 落后(误触即丢整段对话)。
+- **android 补齐**：清空菜单项改为弹 `AlertDialog` 二次确认(标题/说明/清空[Danger]/取消)，确认才 clear+persist。对齐 apple。
+- **改动**：`MainActivity.kt`(showClearConfirm state + AlertDialog)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 24s 零 deprecated；apple swift build + 8 自测全过。推送 5c3905a。
+- **意义**：危险操作(清空对话)二次确认双端齐，防误操作丢数据。延续「评估发现单端落后→补齐」的双端一致性打磨。
+
+---
+
 ## 质量收口 · 双端对齐持续巩固快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **本批次双端对齐/完善（实用细节）**：

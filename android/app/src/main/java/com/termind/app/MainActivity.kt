@@ -1491,18 +1491,28 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
             // A-Status：真实状态面板（连接后采集 top/free/df）
             if (state == ConnState.CONNECTED) {
                 Surface(color = SurfaceLight.copy(alpha = 0.5f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
-                    Row(Modifier.padding(14.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        StatCell("CPU", status.cpu, if ((status.cpuPercent ?: 0) > 85) Danger else Success)
-                        StatCell("内存", status.mem, Warning)
-                        StatCell("磁盘", status.disk, if ((status.diskPercent ?: 0) > 85) Danger else Success)
-                        // A-HealthAI：问 AI（有告警高亮）
-                        IconButton(onClick = { if (status.healthSummary.isNotEmpty()) showHealthAI = true }) {
-                            Icon(if (status.hasWarning) Icons.Filled.Warning else Icons.Filled.AutoAwesome,
-                                "问 AI", tint = if (status.hasWarning) Danger else Accent, modifier = Modifier.size(18.dp))
+                    Column(Modifier.padding(14.dp).fillMaxWidth()) {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                            StatCell("CPU", status.cpu, if ((status.cpuPercent ?: 0) > 85) Danger else Success)
+                            StatCell("内存", status.mem, Warning)
+                            StatCell("磁盘", status.disk, if ((status.diskPercent ?: 0) > 85) Danger else Success)
+                            // A-HealthAI：问 AI（有告警高亮）
+                            IconButton(onClick = { if (status.healthSummary.isNotEmpty()) showHealthAI = true }) {
+                                Icon(if (status.hasWarning) Icons.Filled.Warning else Icons.Filled.AutoAwesome,
+                                    "问 AI", tint = if (status.hasWarning) Danger else Accent, modifier = Modifier.size(18.dp))
+                            }
+                            IconButton(onClick = { refreshStatus() }, enabled = !refreshing) {
+                                if (refreshing) CircularProgressIndicator(Modifier.size(16.dp), color = Accent, strokeWidth = 2.dp)
+                                else Icon(Icons.Filled.Refresh, "刷新状态", tint = Accent, modifier = Modifier.size(18.dp))
+                            }
                         }
-                        IconButton(onClick = { refreshStatus() }, enabled = !refreshing) {
-                            if (refreshing) CircularProgressIndicator(Modifier.size(16.dp), color = Accent, strokeWidth = 2.dp)
-                            else Icon(Icons.Filled.Refresh, "刷新状态", tint = Accent, modifier = Modifier.size(18.dp))
+                        // 负载 + 运行时长（对齐 apple StatusBar）
+                        if (status.load != "—" || status.uptime != "—") {
+                            Spacer(Modifier.height(8.dp))
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                                if (status.load != "—") Text("负载 ${status.load}", color = TextSecondary, fontSize = 11.sp)
+                                if (status.uptime != "—") Text("运行 ${status.uptime}", color = TextSecondary, fontSize = 11.sp)
+                            }
                         }
                     }
                 }

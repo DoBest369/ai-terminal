@@ -68,7 +68,9 @@ enum class CommandRisk(val level: Int) {
 data class ServerStatus(
     val cpu: String = "—",
     val mem: String = "—",
-    val disk: String = "—"
+    val disk: String = "—",
+    val load: String = "—",      // 负载 1/5/15 分钟（对齐 apple loadavg）
+    val uptime: String = "—"     // 运行时长（对齐 apple uptime）
 ) {
     /** 从格式化字符串里抽出百分比数值（如 "47%" / "36G/80G (90%)"），无则 null */
     private fun pct(s: String): Int? = Regex("(\\d+)%").find(s)?.groupValues?.get(1)?.toIntOrNull()
@@ -86,6 +88,8 @@ data class ServerStatus(
             if (cpu != "—") parts.add("CPU $cpu")
             if (mem != "—") parts.add("内存 $mem")
             if (disk != "—") parts.add("磁盘 $disk")
+            if (load != "—") parts.add("负载 $load")
+            if (uptime != "—") parts.add("运行 $uptime")
             if (hasWarning) parts.add("⚠️ 资源偏高")
             return if (parts.isEmpty()) "" else "服务器状态：" + parts.joinToString(" · ")
         }
@@ -109,7 +113,15 @@ data class ServerStatus(
             Regex("(?m)^\\S+\\s+(\\S+)\\s+(\\S+)\\s+\\S+\\s+(\\d+)%\\s+/\\s*$").find(raw)?.let {
                 disk = "${it.groupValues[2]}/${it.groupValues[1]} (${it.groupValues[3]}%)"
             }
-            return ServerStatus(cpu, mem, disk)
+            // uptime 行形如 " 17:50:01 up 12 days,  3:24,  2 users,  load average: 0.15, 0.10, 0.08"
+            var load = "—"; var uptime = "—"
+            Regex("load average[s]?:\\s*([0-9.]+),\\s*([0-9.]+),\\s*([0-9.]+)").find(raw)?.let {
+                load = "${it.groupValues[1]} / ${it.groupValues[2]} / ${it.groupValues[3]}"
+            }
+            Regex("up\\s+(.+?),\\s+\\d+\\s+user").find(raw)?.let {
+                uptime = it.groupValues[1].trim()
+            }
+            return ServerStatus(cpu, mem, disk, load, uptime)
         }
     }
 }

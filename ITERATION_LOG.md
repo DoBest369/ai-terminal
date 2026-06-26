@@ -6,6 +6,15 @@
 
 ---
 
+## 服务器知识卡片 Core 模型（双端对齐后转向差异化深化）
+- **背景**：双端配对能力已 100% 对齐，转向 PRODUCT MVP 待建的差异化项「服务器知识卡片」——每台机沉淀历史问题/解决方案/运维笔记，让经验沉淀+喂 AI 排障参考。
+- **内容**：新增 `apple/AITerminalCore/.../ServerNotebook.swift`——`ServerNote`(id/kind[issue 问题/solution 方案/note 笔记]/text/createdAt，Codable)+`enum ServerNotebook`：`adding`(置顶最新，空忽略)/`removing` 纯逻辑+按连接 id 持久化(UserDefaults JSON load/save/add/remove)+`composeForAI`(拼「这台服务器的历史运维记录：· [类] text」给 AI 排障参考)。`Screenshots.notebookTest`+main `--notebook-test`：验证 新增置顶/删除/AI 素材含「[问题]/[方案]」。CLAUDE.md 自测清单加 --notebook-test。
+- **改动**：`ServerNotebook.swift`(新)、`Screenshots.swift`(notebookTest)、`ShotsMain/main.swift`(子命令)、`CLAUDE.md`。
+- **验证**：Core+App swift build Build complete；`swift run Shots --notebook-test`→「新增置顶=true；删除=true；AI 素材正确=true」(自测 6→7 项)。推送 5c0b94b。**UI(双端笔记本视图)待接**。
+- **意义**：从双端对齐转向产品差异化深化。服务器知识卡片是 PRODUCT 护城河「知识沉淀」的落地起点——Core 逻辑+持久化+自测扎实，双端共用，UI 后续接入(连接详情/工作区加笔记本入口+AI 排障时注入 composeForAI 上下文)。
+
+---
+
 ## 🎯 apple 终端连接时长对齐——双端配对能力完全对齐！
 - **内容**：`TerminalSessionVM` 加 `@Published connectedAt: Date?`(连接成功 `Date()`/handleClose+disconnect 清 nil)。`StatusBarView` 状态栏加「时长」项——`TimelineView(.periodic(from: start, by: 1))` 每秒刷新显 `durationLabel`(mm:ss/HH:mm:ss)。对齐 android A-Duration。
 - **改动**：`TerminalSessionVM.swift`(connectedAt)、`StatusBarView.swift`(时长项+durationLabel)。

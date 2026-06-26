@@ -54,4 +54,11 @@ object SnippetStore {
     fun remove(ctx: Context, s: CommandSnippet): List<CommandSnippet> {
         val list = ArrayList(load(ctx)); list.remove(s); save(ctx, list); return list
     }
+    /** 用 new 替换 old（编辑自定义快捷命令，保持位置）。 */
+    fun update(ctx: Context, old: CommandSnippet, new: CommandSnippet): List<CommandSnippet> {
+        val list = ArrayList(load(ctx))
+        val i = list.indexOf(old)
+        if (i >= 0) list[i] = new else list.add(new)
+        save(ctx, list); return list
+    }
 }

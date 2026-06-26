@@ -1018,6 +1018,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     val customSnippets = remember { mutableStateListOf<CommandSnippet>().apply { addAll(SnippetStore.load(ctx)) } }  // A-SnippetCRUD
     val favorites = remember { mutableStateListOf<String>().apply { addAll(CommandFavorites.load(ctx)) } }  // 命令收藏夹
     var showNewSnippet by remember { mutableStateOf(false) }
+    var editingSnippet by remember { mutableStateOf<CommandSnippet?>(null) }   // 正在编辑的自定义片段
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -1320,6 +1321,36 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
             containerColor = Surface
         )
     }
+    // 编辑自定义快捷命令对话框（长按自定义 Chip 进入；可改 名称/命令/分组）
+    editingSnippet?.let { orig ->
+        var t by remember { mutableStateOf(orig.title) }
+        var c by remember { mutableStateOf(orig.command) }
+        var g by remember { mutableStateOf(orig.group) }
+        val dlgColors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight,
+            focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent,
+            focusedLabelColor = Accent, unfocusedLabelColor = TextSecondary)
+        AlertDialog(
+            onDismissRequest = { editingSnippet = null },
+            title = { Text("编辑快捷命令", color = TextPrimary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(t, { t = it }, label = { Text("名称") }, singleLine = true, colors = dlgColors)
+                    OutlinedTextField(c, { c = it }, label = { Text("命令") }, singleLine = true, colors = dlgColors)
+                    OutlinedTextField(g, { g = it }, label = { Text("分组（可选）") }, singleLine = true, colors = dlgColors)
+                }
+            },
+            confirmButton = { TextButton(onClick = {
+                if (c.isNotBlank()) {
+                    val new = CommandSnippet(t.trim().ifEmpty { c.trim() }, c.trim(), g.trim().ifEmpty { "自定义" })
+                    customSnippets.clear(); customSnippets.addAll(SnippetStore.update(ctx, orig, new))
+                }
+                editingSnippet = null
+            }) { Text("保存", color = Accent) } },
+            dismissButton = { TextButton(onClick = { editingSnippet = null }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
 
     // 离开工作区时关闭会话/转发，避免泄漏
     DisposableEffect(Unit) { onDispose { shellSession?.close(); forwardHandle?.close() } }
@@ -1562,16 +1593,19 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                         Text(group, color = TextSecondary, fontSize = 10.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(start = 2.dp))
                         list.forEach { sn ->
                             val custom = sn in customSnippets
-                            AssistChip(
-                                onClick = { command = sn.command },
-                                label = { Text(sn.title, fontSize = 11.sp) },
-                                leadingIcon = { Icon(Icons.Filled.Circle, null, tint = sn.risk.color, modifier = Modifier.size(8.dp)) },
-                                trailingIcon = if (custom) { {
-                                    Icon(Icons.Filled.Close, "删除", tint = TextSecondary,
-                                        modifier = Modifier.size(14.dp).clickable { customSnippets.clear(); customSnippets.addAll(SnippetStore.remove(ctx, sn)) })
-                                } } else null,
-                                colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
-                            )
+                            // 自定义片段长按可编辑（combinedClickable 包裹）
+                            Box(Modifier.combinedClickable(onClick = { command = sn.command }, onLongClick = { if (custom) editingSnippet = sn })) {
+                                AssistChip(
+                                    onClick = { command = sn.command },
+                                    label = { Text(sn.title, fontSize = 11.sp) },
+                                    leadingIcon = { Icon(Icons.Filled.Circle, null, tint = sn.risk.color, modifier = Modifier.size(8.dp)) },
+                                    trailingIcon = if (custom) { {
+                                        Icon(Icons.Filled.Close, "删除", tint = TextSecondary,
+                                            modifier = Modifier.size(14.dp).clickable { customSnippets.clear(); customSnippets.addAll(SnippetStore.remove(ctx, sn)) })
+                                    } } else null,
+                                    colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
+                                )
+                            }
                         }
                     }
                     AssistChip(onClick = { showNewSnippet = true }, label = { Text("+ 新建", fontSize = 11.sp) },

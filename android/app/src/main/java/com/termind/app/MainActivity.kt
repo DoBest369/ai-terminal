@@ -834,6 +834,8 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var termFont by remember { mutableStateOf(SettingsStore.loadTermFont(ctx)) }   // A-FontSize 终端字号
     var termSearch by remember { mutableStateOf("") }          // A-TermSearch 终端搜索
     var termSearchOn by remember { mutableStateOf(false) }
+    var connectedAt by remember { mutableStateOf(0L) }         // A-Duration 连接时刻
+    var durTick by remember { mutableStateOf(0) }              // 每秒 tick 触发重组
     val customSnippets = remember { mutableStateListOf<CommandSnippet>().apply { addAll(SnippetStore.load(ctx)) } }  // A-SnippetCRUD
     var showNewSnippet by remember { mutableStateOf(false) }
 
@@ -861,6 +863,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 }
             }.onSuccess {
                 shellSession = it; state = ConnState.CONNECTED
+                connectedAt = System.currentTimeMillis()   // A-Duration
                 // A-Startup：连接成功后自动执行启动命令
                 if (conn.startupCommand.isNotBlank()) it.write(conn.startupCommand + "\n")
                 refreshStatus()   // 连接成功后采集状态
@@ -879,6 +882,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     // 断开
     fun disconnect() {
         shellSession?.close(); shellSession = null; state = ConnState.DISCONNECTED
+        connectedAt = 0L   // A-Duration
         output += "\n[已断开连接]\n"
     }
     // 发送命令到交互 shell（A-Rollback：改关键配置前自动备份+记时间线）
@@ -1172,7 +1176,15 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     }
                     Icon(Icons.Filled.Circle, null, tint = dot, modifier = Modifier.size(9.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(label, color = TextPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                    Text(label, color = TextPrimary, fontSize = 13.sp)
+                    // A-Duration：连接时长（每秒刷新）
+                    if (state == ConnState.CONNECTED && connectedAt > 0) {
+                        LaunchedEffect(connectedAt) { while (true) { kotlinx.coroutines.delay(1000); durTick++ } }
+                        durTick // 读一次触发重组
+                        Spacer(Modifier.width(8.dp))
+                        Text(formatDuration(System.currentTimeMillis() - connectedAt), color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+                    }
+                    Spacer(Modifier.weight(1f))
                     if (state == ConnState.CONNECTED) {
                         TextButton(onClick = { disconnect() }) { Text("断开", color = Danger, fontSize = 12.sp) }
                     }
@@ -1736,6 +1748,13 @@ private fun relativeTime(ms: Long): String {
         diff < 7 * 86_400_000L -> "${diff / 86_400_000} 天前"
         else -> java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date(ms))
     }
+}
+
+/** A-Duration：毫秒时长 → mm:ss 或 HH:mm:ss。 */
+private fun formatDuration(ms: Long): String {
+    val s = ms / 1000
+    val h = s / 3600; val m = (s % 3600) / 60; val sec = s % 60
+    return if (h > 0) "%d:%02d:%02d".format(h, m, sec) else "%02d:%02d".format(m, sec)
 }
 
 /** A-TermSearch：把文本中匹配 query 的子串高亮（背景色），返回 AnnotatedString。 */

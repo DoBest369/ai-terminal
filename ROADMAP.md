@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **android AI 对话重命名** ✅（审计 apple 已有/android 落后→补 convoTitles 平行列表+ConvoStore saveTitles/loadTitles+对话菜单重命名+新建删除同步；双端齐；apple 8 自测+ai-conv/ai-persist+android clean 零 warning；推送 cc3913c）
 - [x] **CHANGELOG 阶段15·导入导出对称与质量基线** ✅（知识卡片/快捷命令导入与导出对称+核心资产全对称+18 项自测基线+PARITY 97 项；当前状态刷新；推送 5eb4282）
 - [x] **质量基线·全 18 项自测完整回归（知识卡片增强后）** ✅（18 项逐一通过+diag/template 数=11+apple build+android clean 零 warning；PARITY 97 项 🟡=0；核心逻辑无回归；推送见下）
 - [x] **知识卡片导入双端** ✅（Core/ServerNotebook.parseImport 解析 Markdown[## 类型+- 内容]+去重；apple 工具栏/android 标题栏 粘贴对话框；与导出对称；notebook 自测过；apple a0d5f32/android d03e23d）

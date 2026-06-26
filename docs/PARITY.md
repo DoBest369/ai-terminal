@@ -55,7 +55,7 @@
 | 报错分析 | ✅ | ✅ | |
 | 环境感知（探测→喂 AI） | ✅ | ✅ | ServerProfile / EnvDetector 双端 |
 | 健康分析（状态↔AI 联动） | ✅ | ✅ | apple Z6b / android A-HealthAI |
-| 多对话（新建/切换/删除/清空/持久化） | ✅ | ✅ | 双端持久化；清空当前消息（双端二次确认防误删） |
+| 多对话（新建/切换/删除/清空/重命名/持久化） | ✅ | ✅ | 双端持久化；清空二次确认；对话可自定义重命名（apple title / android 平行 titles） |
 | 对话导出 Markdown | ✅ | ✅ | android 分享 Intent |
 | 对话内搜索 | ✅ | ✅ | |
 | 多行输入 | ✅ | ✅ | 粘贴报错/长指令 |

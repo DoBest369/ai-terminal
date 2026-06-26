@@ -6,6 +6,15 @@
 
 ---
 
+## android AI 对话重命名（对齐 apple，平行标题列表）
+- **审计**：apple 已有对话重命名(`AIConversation.title`+`titleIsCustom`+`renameConversation`+AIAgentView 重命名菜单/alert)；android 对话标题取首条 user 消息或「新对话 N」，**无自定义重命名** → android 落后。
+- **android 补齐**：`convoTitles: SnapshotStateList<String>`(平行 convos，空=自动标题)；`ConvoStore.saveTitles/loadTitles`(独立 key 持久化)；`convoTitle` 优先用自定义标题；对话菜单加「重命名」→ AlertDialog(留空恢复自动)；**新建/删除对话同步 convoTitles**(add ""/removeAt curIdx)，避免标题错位。
+- **改动**：`ConvoStore.kt`(titles 持久化)、`MainActivity.kt`(convoTitles+重命名+同步)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 25s 零 deprecated；apple swift build + 8 自测 + **ai-conv/ai-persist 自测过**(对话相关无回归)。推送 cc3913c。
+- **意义**：AI 对话重命名双端齐(apple AIConversation.title/android 平行 titles)，多对话可自定义命名便于区分。AI 多对话管理(新建/切换/删除/清空/重命名/搜索/导出)完整。
+
+---
+
 ## CHANGELOG 阶段15 梳理（导入导出对称与质量基线）
 - **内容**：CHANGELOG 加「阶段 15 — 导入导出对称与质量基线」——知识卡片导入、快捷命令导入(与导出对称)、核心资产导入导出全对称(连接配置/知识卡片/快捷命令)、18 项自测质量基线、PARITY 97 项双端对齐。当前状态刷新双端共有能力 97 项全 ✅✅。
 - **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。

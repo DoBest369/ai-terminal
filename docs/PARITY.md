@@ -105,6 +105,7 @@
 | 群发结果 AI 汇总 | ✅ | ✅ | apple summarizeBatch + composeForAI；android 完整 |
 | 多主题配色 | ✅ | ✅ | 双端 5 套（午夜/One Dark/Dracula/Solarized/Nord） |
 | 连接配置导出/导入 | ✅ | ✅ | JSON（不含密码）；apple ConnectionPortability / android 分享Intent |
+| SSH config 导入 | ✅ | ✅ | apple 读 ~/.ssh/config 文件（macOS）；android 粘贴 config 文本解析 |
 | 分屏 / 会话录制 | ✅ | ⬜ | apple 独有 |
 
 ## 小结

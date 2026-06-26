@@ -6,6 +6,15 @@
 
 ---
 
+## SSH config 导入双端（批量建连接）
+- **android**：新建 `SshConfigParser.kt` 对齐 apple `SSHConfigParser`——解析 Host/HostName/Port/User，跳通配 Host(含 * ?)，HostName 空则用 alias。连接列表「📋 从 SSH config 导入」菜单→AlertDialog 粘贴 config 文本(等宽多行)→`SshConfigParser.parse`→`onImport` 批量添加。私钥路径移动端无意义，按密码认证导入。构建 23s，推送 8da9e25。
+- **apple**（核查发现早有）：`AppModel.importFromSSHConfig`(macOS 直接读 `~/.ssh/config` 文件)+`SettingsView`「从 ~/.ssh/config 导入」入口。文件方式适配 macOS 桌面(有标准 config 文件)。
+- **改动**：`SshConfigParser.kt`(新)、`MainActivity.kt`(导入对话框+菜单)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + --ssh-config-test 通过。
+- **意义**：SSH config 导入双端✅(方式各适配平台:apple 读文件/android 粘贴文本)——已有 ~/.ssh/config 的用户可批量建连接，降低迁移门槛。
+
+---
+
 ## 知识卡片导出 Markdown + 质量收口 · 知识卡片能力全景
 - **导出 Markdown**：Core `ServerNotebook.exportMarkdown(notes, serverName:)`(双端 Swift/Kotlin 逻辑一致——# 标题 + 按 问题/方案/笔记 ## 分组 + - 列表)。`--notebook-test` 加导出 MD 校验(# 知识卡片/## 问题/## 方案)→「导出 MD=true」。apple NotebookView 工具栏导出按钮→`Clipboard.copy`；android NotebookSheet 导出按钮→`Intent.ACTION_SEND` text/plain 分享。
 - **质量收口**：apple swift build + 7 自测(含 notebook 导出 MD)全过；android clean assembleDebug 零 deprecated。

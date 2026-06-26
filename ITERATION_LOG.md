@@ -6,6 +6,15 @@
 
 ---
 
+## android 连接批量编辑 + 质量收口（连接多时整理高效）
+- **内容**：`ServerCard` 加 `selectMode`/`selected`/`onLongPress` 参数——`combinedClickable`(长按 onLongPress 进多选+选中该卡)，选中态高亮+勾选框(CheckCircle/RadioButtonUnchecked)。`ServerListScreen` 加 `selectedIds`/`selectMode` state+多选操作栏(已选 N/改分组/取消)+批量改分组 AlertDialog(输分组名，留空=移出)→`onBatchGroup(ids, group)` 回调→TermindApp 批量 `conns[i].copy(group=)`+persist。
+- **质量收口**：apple swift build + 8 自测无回归；android clean assembleDebug 零 deprecated。
+- **改动**：`MainActivity.kt`(ServerCard 多选+操作栏+批量分组+回调)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 23s 无 warning；apple swift build + 8 自测全过。
+- **意义**：连接多时长按多选→批量改分组，整理高效。连接管理体验进一步完善。apple 批量编辑可后续对齐。
+
+---
+
 ## 质量收口 · 近期进展快照（实用能力 + AI 体验）
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测(history/batch/risk/metrics/env-detect/inspect/notebook/favorites)全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~20.9MB)。
 - **PARITY 状态**：配对能力 🟡=0（全 ✅✅），仅余 2 项各自独有特性（android 定时后台巡检 / apple 分屏录制）。

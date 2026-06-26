@@ -6,6 +6,15 @@
 
 ---
 
+## CHANGELOG 阶段15 梳理（导入导出对称与质量基线）
+- **内容**：CHANGELOG 加「阶段 15 — 导入导出对称与质量基线」——知识卡片导入、快捷命令导入(与导出对称)、核心资产导入导出全对称(连接配置/知识卡片/快捷命令)、18 项自测质量基线、PARITY 97 项双端对齐。当前状态刷新双端共有能力 97 项全 ✅✅。
+- **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。
+- **改动**：`CHANGELOG.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 5eb4282。
+- **意义**：文档体系反映 Termind 导入导出对称(核心资产可流转)+质量基线(18 项自测)里程碑。CHANGELOG 已至阶段 15，完整记录产品从基础到护城河到批量运维到知识卡片到导入导出对称的演进，双端共有能力 97 项。
+
+---
+
 ## 质量基线 · 全 18 项自测完整回归（知识卡片增强后）
 - **全 18 项自测逐一通过**(知识卡片 tags+导入改动后完整回归)：ssh-config(解析正确)/portability(往返正确)/ai-md/ai-md-all(导出)/ai-persist/ai-conv(对话持久化往返)/reach(可达=false 符合预期)/history(去重置顶限长)/risk(分级)/metrics(指标解析)/env-detect(环境探测)/batch(群发聚合)/**diag(工作流数=11)**/rollback(回滚)/**template(模板数=11)**/inspect(巡检)/notebook(知识卡片，tags 向后兼容)/favorites(收藏夹)。
 - **构建**：apple `AITerminalCore`+`App` swift build Build complete；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **97 项 ✅✅，🟡=0**。

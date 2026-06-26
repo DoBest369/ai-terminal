@@ -1440,6 +1440,8 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
     var pendingDelete by remember { mutableStateOf<RemoteFile?>(null) }      // A-SftpEdit 待删除确认
     var pendingRename by remember { mutableStateOf<RemoteFile?>(null) }      // A-SftpRename 待重命名
     var showGoto by remember { mutableStateOf(false) }                       // A-SftpPath 路径直跳
+    var sortMenu by remember { mutableStateOf(false) }                       // A-SftpSort 排序
+    var sortMode by remember { mutableStateOf(0) }                           // 0=名称 1=大小 2=时间
 
     fun load(p: String) {
         loading = true; error = null
@@ -1552,6 +1554,17 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                 Spacer(Modifier.width(8.dp))
                 Text("文件浏览", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                 if (loading) CircularProgressIndicator(Modifier.size(18.dp), color = Accent, strokeWidth = 2.dp)
+                // A-SftpSort：排序
+                Box {
+                    IconButton(onClick = { sortMenu = true }) {
+                        Icon(Icons.AutoMirrored.Filled.Sort, "排序", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                    }
+                    DropdownMenu(expanded = sortMenu, onDismissRequest = { sortMenu = false }) {
+                        listOf("名称", "大小", "时间").forEachIndexed { i, label ->
+                            DropdownMenuItem(text = { Text(label, color = if (sortMode == i) Accent else TextPrimary) }, onClick = { sortMode = i; sortMenu = false })
+                        }
+                    }
+                }
                 // A-SftpEdit：新建文件夹
                 IconButton(onClick = { showMkdir = true }, enabled = !loading) {
                     Icon(Icons.Filled.CreateNewFolder, "新建文件夹", tint = Accent, modifier = Modifier.size(18.dp))
@@ -1574,9 +1587,18 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
             }) { Icon(Icons.Filled.ArrowUpward, null, tint = Accent, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text("上级目录", color = Accent, fontSize = 12.sp) }
             error?.let { Text("⚠️ $it", color = Danger, fontSize = 12.sp) }
             toast?.let { Text("✅ $it", color = Success, fontSize = 11.sp, maxLines = 2) }
+            // A-SftpSort：文件夹优先，组内按 名称/大小降/时间降
+            val shownFiles = remember(files, sortMode) {
+                val cmp = compareByDescending<RemoteFile> { it.isDir }
+                when (sortMode) {
+                    1 -> files.sortedWith(cmp.thenByDescending { it.size })
+                    2 -> files.sortedWith(cmp.thenByDescending { it.mtime })
+                    else -> files.sortedWith(cmp.thenBy { it.name.lowercase() })
+                }
+            }
             LazyColumn(Modifier.weight(1f)) {
-                items(files.size) { i ->
-                    val f = files[i]
+                items(shownFiles.size) { i ->
+                    val f = shownFiles[i]
                     Row(
                         Modifier.fillMaxWidth().clickable { if (f.isDir) load(f.path) else openFile(f) }.padding(vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically

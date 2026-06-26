@@ -1224,9 +1224,14 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 Box {
                     // 搜索激活+有词：渲染去 ANSI 的高亮文本；否则正常 ANSI 彩色
                     val termText = if (termSearchOn && termSearch.isNotEmpty()) highlightMatches(SshClient.stripAnsi(output), termSearch) else AnsiParser.parse(output)
+                    // A-AutoScroll：新输出时自动滚到底部（搜索时不强制滚，让用户查看）
+                    val termScroll = rememberScrollState()
+                    LaunchedEffect(output.length) {
+                        if (!termSearchOn) termScroll.scrollTo(termScroll.maxValue)
+                    }
                     Text(
                         termText, fontSize = termFont.sp, fontFamily = FontFamily.Monospace,
-                        modifier = Modifier.padding(14.dp).verticalScroll(rememberScrollState())
+                        modifier = Modifier.padding(14.dp).verticalScroll(termScroll)
                     )
                     // A-FontSize / A-TermActions / A-TermSearch：搜索 + 字号 +/- + 复制全部 + 清屏
                     val termClip = LocalClipboardManager.current

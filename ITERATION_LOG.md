@@ -6,6 +6,15 @@
 
 ---
 
+## 批量巡检结果统计（告警/正常/失败，对齐群发统计）
+- **审计**：apple `InspectView` 巡检结果**无统计头部**(只列表+AI 按钮)；android `InspectScreen` 有「N 台需关注/全部正常」摘要但无 告警/正常/失败 明细。
+- **双端补齐/对齐**：① apple 结果列表上方加统计行「⚠️告警 N · ✅正常 M · ❌失败 K」(error→失败、hasWarning→告警、其余正常)。② android 摘要细化为同样的「⚠️告警 N · ✅正常 M · ❌失败 K」明细。与上轮群发统计风格一致。
+- **改动**：`InspectView.swift`(统计头部)、`InspectScreen.kt`(摘要细化)、`docs/PARITY.md`。
+- **验证**：apple swift build + inspect/batch 自测过；android BUILD SUCCESSFUL 15s 零 deprecated。推送 apple 99afe80/android 54bb170。
+- **意义**：批量运维(群发+巡检)结果都有一致的统计汇总，多机操作一眼看总览。批量运维统计体验双端齐、风格统一。
+
+---
+
 ## 质量收口 · 批量运维完整度快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **批量运维能力（双端齐平，杀手级差异化）**：

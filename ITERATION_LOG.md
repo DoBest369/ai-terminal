@@ -6,6 +6,15 @@
 
 ---
 
+## 质量收口 · 快捷命令全功能 + PARITY 96 项快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **96 项 ✅✅，🟡=0**。
+- **快捷命令管理（双端全功能）**：默认库(分组) · 自定义增/删/改(名称/命令/分组) · 分组显示 · 风险着色 · 一键填入 · 命令收藏夹(星标置顶) · **导出**(Markdown 复制/分享) · **导入**(粘贴解析 Markdown/宽松格式+去重)。导出导入对称，支持备份恢复/团队共享。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：快捷命令作为运维高频功能，管理能力完整(增删改+分组+收藏+导入导出)。PARITY 配对能力增至 96 项全对齐。
+
+---
+
 ## 快捷命令导入双端（与导出对称，备份恢复）
 - **解析器**：apple `CommandSnippet.parseImport`(Core) + android `SnippetStore.parseImport`——解析 `## 分组` 设当前分组 + `- **标题**：\`命令\``(导出格式) 或宽松 `标题|命令`/`标题=命令`，逻辑对齐。
 - **UI**：apple SnippetsView 工具栏「导入快捷命令」→ alert 粘贴；android 快捷命令 Chip 行「导入」→ AlertDialog 粘贴。解析后按 `title|command` 去重 + 数量反馈。

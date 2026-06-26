@@ -6,6 +6,15 @@
 
 ---
 
+## AI 单条消息存为知识卡片双端（知识沉淀入口更灵活）
+- **apple**：`MessageBubble` 的 contextMenu(AI 气泡，已有复制/复制纯文本)加「存为知识卡片」(.note)+「存为方案」(.solution)→`ServerNotebook.add(displayText, connectionID: activeSession.connection)`+toast。任意一条 AI 回复都可沉淀。推送 a48f793。
+- **android**：`ChatBubble` 收 `connId` 参数；AI 消息长按改为弹 `DropdownMenu`(复制/存为笔记/存为方案)→`ServerNotebook.add`+Toast（无连接时仍直接复制）。Box 包裹 Surface+菜单。推送 d8c0a53。
+- **改动**：`AIAgentView.swift`(MessageBubble contextMenu)、`MainActivity.kt`(ChatBubble connId+长按菜单)、`docs/PARITY.md`。
+- **验证**：apple swift build + 抽测过；android BUILD SUCCESSFUL 24s 零 deprecated。
+- **意义**：知识沉淀入口更灵活——不止末条「存为方案」，任意历史 AI 回复都能右键/长按存为 笔记/方案。配合随手记/AI结论存方案，知识录入路径全覆盖。
+
+---
+
 ## README 更新到当前成熟度
 - **内容**：能力清单表新增/刷新——连接管理加 批量编辑·最近使用；AI 助手加 快捷追问；新增 排障工作流 Z4(8 场景)/初始化模板 Z8(8 模板)/命令收藏夹 行；批量运维加 按分组快速选目标。知识卡片章节升级为「**知识沉淀闭环六环**」：随手记→记录→筛选检索→喂 AI 全路径→AI 结论存方案→导出共享，阐明完整运维闭环差异化。
 - **边界保留**：本机无 Xcode → apple 未出包/未真机实测。

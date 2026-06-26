@@ -373,6 +373,22 @@ struct AIPanelShowcase: View {
             .padding(12)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
+            // 快捷追问 + 存为方案（末条 assistant 且非处理/搜索时，对齐真实视图）
+            if !messages.isEmpty && !processing && !searching && messages.last?.role == .assistant {
+                HStack(spacing: 6) {
+                    HStack(spacing: 3) {
+                        Image(systemName: "arrow.clockwise").font(.system(size: 10)); Text("重新生成").font(.system(size: 12))
+                    }.padding(.horizontal, 10).padding(.vertical, 5).background(Theme.surfaceLight).foregroundStyle(Theme.textPrimary).clipShape(Capsule())
+                    HStack(spacing: 3) {
+                        Image(systemName: "bookmark").font(.system(size: 10)); Text("存为方案").font(.system(size: 12))
+                    }.padding(.horizontal, 10).padding(.vertical, 5).background(Theme.success.opacity(0.15)).foregroundStyle(Theme.success).clipShape(Capsule())
+                    ForEach(["给我具体命令", "换个思路"], id: \.self) { q in
+                        Text(q).font(.system(size: 12)).padding(.horizontal, 10).padding(.vertical, 5)
+                            .background(Theme.surfaceLight).foregroundStyle(Theme.textSecondary).clipShape(Capsule())
+                    }
+                }
+                .padding(.horizontal, 12).padding(.vertical, 6)
+            }
             Rectangle().fill(Theme.surfaceLight).frame(height: 0.5)
             HStack(spacing: 8) {
                 Text("输入指令…").font(.system(size: 13)).foregroundStyle(Theme.textSecondary)

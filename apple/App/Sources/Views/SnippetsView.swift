@@ -11,6 +11,9 @@ struct SnippetsView: View {
     @State private var newGroup = ""
     @State private var search = ""
     @State private var previewTemplate: SetupTemplate?  // U-Z8 初始化模板预览
+    @State private var quickNoteCmd: String?            // 随手记：把命令存为知识卡片
+    @State private var quickNoteText = ""
+    @State private var quickNoteKind: ServerNote.Kind = .note
 
     /// 按名称/命令/分组过滤
     private var filtered: [CommandSnippet] {
@@ -78,6 +81,11 @@ struct SnippetsView: View {
                                 }
                             }
                             .buttonStyle(.plain)
+                            .contextMenu {
+                                Button {
+                                    quickNoteText = cmd; quickNoteKind = .note; quickNoteCmd = cmd
+                                } label: { Label("存为知识卡片", systemImage: "book.closed") }
+                            }
                         }
                     }
                 }
@@ -137,6 +145,18 @@ struct SnippetsView: View {
             }
             .formStyle(.grouped)
             .navigationTitle("快捷命令")
+            .alert("存为知识卡片", isPresented: Binding(get: { quickNoteCmd != nil }, set: { if !$0 { quickNoteCmd = nil } })) {
+                TextField("内容", text: $quickNoteText)
+                Button("取消", role: .cancel) { quickNoteCmd = nil }
+                Button("保存") {
+                    let t = quickNoteText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !t.isEmpty, let connID = model.activeSession?.connection?.id.uuidString {
+                        _ = ServerNotebook.add(ServerNote(kind: quickNoteKind, text: t), connectionID: connID)
+                        model.toast = "已存入知识卡片"
+                    } else if model.activeSession?.connection == nil { model.toast = "请先打开一个连接的会话" }
+                    quickNoteCmd = nil
+                }
+            } message: { Text("把这条命令记入当前服务器的知识卡片（笔记）") }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("完成") { dismiss() }

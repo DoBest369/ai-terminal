@@ -139,6 +139,19 @@ struct BatchView: View {
                 }
                 .padding(12).background(Theme.surface)
             }
+            // 成功/失败统计（结果完成后显）
+            if !model.batchResults.isEmpty && !model.batchRunning {
+                let okN = model.batchResults.filter { $0.ok }.count
+                HStack(spacing: 14) {
+                    Text("✅ 成功 \(okN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.success)
+                    if model.batchResults.count - okN > 0 {
+                        Text("❌ 失败 \(model.batchResults.count - okN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.danger)
+                    }
+                    Text("共 \(model.batchResults.count) 台").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                    Spacer()
+                }
+                .padding(.horizontal, 12).padding(.vertical, 6).background(Theme.surface)
+            }
             List {
                 ForEach(model.batchResults) { o in
                     HStack(spacing: 10) {

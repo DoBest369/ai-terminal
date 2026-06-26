@@ -109,6 +109,19 @@ struct InspectView: View {
                 }
                 .padding(12).background(Theme.surface)
             }
+            // 巡检统计（告警/正常/失败，对齐群发统计）
+            if !model.inspectionResults.isEmpty && !model.inspectionRunning {
+                let failN = model.inspectionResults.filter { $0.error != nil }.count
+                let warnN = model.inspectionResults.filter { $0.error == nil && $0.hasWarning }.count
+                let okN = model.inspectionResults.count - failN - warnN
+                HStack(spacing: 14) {
+                    if warnN > 0 { Text("⚠️ 告警 \(warnN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.danger) }
+                    Text("✅ 正常 \(okN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.success)
+                    if failN > 0 { Text("❌ 失败 \(failN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.textSecondary) }
+                    Spacer()
+                }
+                .padding(.horizontal, 12).padding(.vertical, 6).background(Theme.surface)
+            }
             List {
                 ForEach(model.inspectionResults) { r in
                     resultRow(r)

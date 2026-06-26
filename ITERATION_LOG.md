@@ -6,6 +6,15 @@
 
 ---
 
+## 知识卡片关键词搜索双端（类型筛选+关键词组合过滤）
+- **android**：`NotebookSheet` 加 `noteQuery` state + 搜索框(记录>3 条时显，Search 图标)→`shownNotes` 按 `(类型匹配) && (text.contains(query, ignoreCase))` 组合过滤。
+- **apple**：`NotebookView` 加 `search` state + `.searchable(prompt:"搜索记录")`→`shownNotes` 计算属性按 类型 + `localizedCaseInsensitiveContains` 组合过滤。删除用 shownNotes 索引(已对齐)。
+- **改动**：`MainActivity.kt`(搜索框+组合过滤)、`NotebookView.swift`(.searchable+组合过滤)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 24s 无 warning；apple swift build + 抽测(notebook/favorites/inspect)过。推送 a417e5a。
+- **意义**：知识卡片记录多时，类型+关键词组合快速定位，体验更顺。知识卡片体验持续完善(随手记/类型筛选/关键词搜索/喂AI/导出 都齐)。
+
+---
+
 ## docs/PRODUCT.md 更新到当前成熟度
 - **内容**：MVP 对照表刷新——Z4 排障标 8 场景、Z8 部署标 8 模板（含执行前预览）、批量群发加 全选/分组选目标、新增「命令收藏夹/历史补全/连接批量编辑/最近使用/SSH config 导入」实用能力行、知识沉淀闭环升级为「六环·护城河核心」。新增独立章节 **🎯 知识沉淀闭环（六环·双端全链路）**：随手记→记录→筛选→喂AI全路径→AI结论存方案→导出共享，阐明差异化价值(AI 记得每台服务器，单连接工具+通用 AI 都做不到)。
 - **边界保留**：本机无 Xcode→apple 未出包/未真机实测；android 出 APK 真实连接需真机+服务器+API Key。

@@ -106,4 +106,22 @@ public enum ServerNotebook {
         }
         return md
     }
+
+    /// 解析导出的 Markdown 为知识卡片（与 exportMarkdown 对称）。
+    /// `## 问题/方案/笔记` 设当前类型；`- 内容` 为一条卡片。
+    public static func parseImport(_ text: String) -> [ServerNote] {
+        var result: [ServerNote] = []
+        var kind: ServerNote.Kind = .note
+        for rawLine in text.split(separator: "\n", omittingEmptySubsequences: false) {
+            let line = rawLine.trimmingCharacters(in: .whitespaces)
+            if line.hasPrefix("## ") {
+                let label = String(line.dropFirst(3)).trimmingCharacters(in: .whitespaces)
+                kind = ServerNote.Kind.allCases.first { $0.label == label } ?? .note
+            } else if line.hasPrefix("- ") {
+                let t = String(line.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+                if !t.isEmpty { result.append(ServerNote(kind: kind, text: t)) }
+            }
+        }
+        return result
+    }
 }

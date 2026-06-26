@@ -15,6 +15,8 @@ struct NotebookView: View {
     @State private var filterKind: ServerNote.Kind?   // nil=全部
     @State private var search = ""                    // 关键词搜索
     @State private var filterTag: String?             // 按标签筛选
+    @State private var showImport = false             // 知识卡片导入粘贴
+    @State private var importText = ""
 
     private var connID: String { connection.id.uuidString }
     private var allTags: [String] { notes.flatMap { $0.tags }.reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } } }
@@ -143,7 +145,21 @@ struct NotebookView: View {
                     } label: { Label("导出", systemImage: "square.and.arrow.up") }
                     .disabled(notes.isEmpty)
                 }
+                ToolbarItem(placement: .primaryAction) {
+                    Button { importText = ""; showImport = true } label: { Label("导入", systemImage: "square.and.arrow.down") }
+                }
             }
+            .alert("导入知识卡片", isPresented: $showImport) {
+                TextField("粘贴导出的 Markdown", text: $importText, axis: .vertical)
+                Button("取消", role: .cancel) {}
+                Button("导入") {
+                    let parsed = ServerNotebook.parseImport(importText)
+                    let existing = Set(notes.map { $0.text })
+                    var added = 0
+                    for n in parsed where !existing.contains(n.text) { notes = ServerNotebook.add(n, connectionID: connID); added += 1 }
+                    model.toast = added > 0 ? "已导入 \(added) 条知识卡片" : "无新卡片（已存在或解析为空）"
+                }
+            } message: { Text("支持导出的 Markdown 格式（## 类型 + - 内容）") }
             .onAppear { notes = ServerNotebook.load(connectionID: connID) }
         }
         .frame(minWidth: 460, minHeight: 520)

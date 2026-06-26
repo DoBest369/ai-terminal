@@ -6,6 +6,15 @@
 
 ---
 
+## 质量收口 · SFTP 文件管理完整度快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **SFTP 文件管理（双端齐平，完整）**：浏览 · 查看文件内容 · 下载 · 上传(文件选择器/拖拽) · 新建文件夹 · 删除单文件/目录 · **批量删除(多选)** · 重命名 · 路径直接跳转 · 修改时间显示 · 名称/大小/时间排序 · 文件名过滤 · 文件大小友好显示(B/KB/MB/GB) · 跳板机下 SFTP。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：SFTP 作为运维高频功能，双端能力完整(浏览/传输/增删改/批量/排序过滤/路径跳转)。连续多轮 SFTP+AI+连接+知识卡片增强后质量稳健。
+
+---
+
 ## SFTP 批量删除双端（多选→批量删，复用单删逻辑）
 - **android**：`SftpBrowser` 文件行 `combinedClickable` 长按进多选+勾选框(CheckCircle)；批量操作栏(已选 N/删除/取消)+二次确认 AlertDialog→`batchDelete` 循环 `deletePath`。多选模式隐藏单项操作图标。`ExperimentalFoundationApi` OptIn。构建 24s，推送 6153c08。
 - **apple**：`FileBrowserView` 工具栏「批量删除」开关→`multiSelect`；行 multiSelect 时显勾选框+点击切换选中；底部 `safeAreaInset` 操作栏(已选 N/删除/取消)+`.alert` 二次确认→`batchRemove` 循环 `sftpRemove`。修：`.alert` 误挂 if/else 后→移到 List 上。推送 4fd4a8f。

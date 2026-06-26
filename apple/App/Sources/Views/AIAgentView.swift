@@ -129,10 +129,17 @@ struct AIAgentView: View {
     /// 会话项标题：「标题 · 相对时间」
     private func conversationLabel(_ conv: AIConversation) -> String {
         let title = conv.title.isEmpty ? "新对话" : conv.title
+        // 全局搜索：搜索激活且有词时，标注每个对话的匹配条数（跨对话定位）
+        let q = aiSearch.trimmingCharacters(in: .whitespaces)
+        let matchSuffix: String = {
+            guard searchActive, !q.isEmpty else { return "" }
+            let n = conv.messages.filter { $0.content.localizedCaseInsensitiveContains(q) }.count
+            return n > 0 ? " · 🔍\(n)" : ""
+        }()
         if let updated = conv.updatedAt {
-            return "\(title) · \(RelativeTime.string(updated))"
+            return "\(title) · \(RelativeTime.string(updated))\(matchSuffix)"
         }
-        return title
+        return title + matchSuffix
     }
 
     private var header: some View {

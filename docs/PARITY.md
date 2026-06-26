@@ -30,7 +30,8 @@
 | SFTP 新建文件夹 / 删除 | ✅ | ✅ | 双端（apple Citadel createDirectory/rmdir/remove；android sftp.mkdir/rm/rmdir）+ 二次确认 |
 | SFTP 文件重命名 | ✅ | ✅ | 双端 sftp.rename（apple 右键菜单 / android 行图标） |
 | SFTP 路径直接跳转 | ✅ | ✅ | 双端输路径直达深目录 |
-| SFTP 修改时间 / 排序 | 🟡 | ✅ | android 行显时间 + 名称/大小/时间排序 |
+| SFTP 修改时间 / 排序 / 过滤 | 🟡 | ✅ | android 行显时间 + 名称/大小/时间排序 + 文件名过滤 |
+| 连接列表分组折叠 | 🟡 | ✅ | android 分组标题可折叠 |
 | 终端输出搜索 | ✅ | ✅ | apple SwiftTerm 内置搜索（高亮+上/下导航+定位）；android 高亮+匹配计数 |
 | 终端控制键栏（Tab/Ctrl/方向键） | ✅ | ✅ | 双端；apple TerminalKeyBar（iOS SSH 会话，18 键含 ^R/^U/管道符）+ macOS 物理键盘 |
 | AI 代码块渲染 | ✅ | ✅ | 双端按 ``` 拆等宽深色框（apple MessageBubble + 渲染验证） |

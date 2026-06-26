@@ -6,6 +6,16 @@
 
 ---
 
+## A-GroupFold + A-SftpFilter + 质量收口 · 连接分组折叠 + SFTP 过滤
+- **A-GroupFold**（分组折叠）：ServerListScreen 分组标题改可点 Row(ChevronRight/ExpandMore 箭头+「组名 (数量)」)→toggle `collapsedGroups`(mutableStateListOf)；折叠的组 `group !in collapsedGroups` 时才渲染连接。连接多时整洁。构建 21s，推送 02916ff。
+- **A-SftpFilter**（文件过滤）：SftpBrowser 顶栏过滤图标 toggle 过滤框→`remember(files,sortMode,filter)` 先 `name.contains(filter)` 过滤再排序(与 A-SftpSort 联动)。文件多时找得快。构建 21s，推送 c787f76。
+- **质量收口**：apple `AITerminalCore`+`App` swift build Build complete；6 自测(history/batch/risk/metrics/env-detect/inspect)全 true 无回归；android clean assembleDebug **零 deprecated**。
+- **改动**：`MainActivity.kt`(分组折叠+SFTP 过滤)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL clean 零 warning；apple swift build + 6 自测全过。
+- **意义**：连接列表(分组折叠)+SFTP(时间/排序/过滤)在数据多时更易用，贴近专业工具。双端成熟产品持续打磨。
+
+---
+
 ## A-SftpTime + A-SftpSort + 质量收口 · SFTP 时间显示 + 排序
 - **A-SftpTime**（修改时间）：`RemoteFile` 加 `mtime: Long`(秒，sshj `FileAttributes.getMtime()` javap 确认) + `timeLabel`(今年 MM-dd HH:mm/往年 yyyy-MM-dd，SimpleDateFormat)；`listDir` 填充 `info.attributes.mtime`；SftpBrowser 行名称下显时间。构建 22s，推送 559689f。
 - **A-SftpSort**（文件排序）：SftpBrowser 顶栏排序 DropdownMenu(名称/大小/时间)；`remember(files, sortMode)` 计算 shownFiles——文件夹优先(compareByDescending isDir)+组内 名称升/大小降/mtime 降。文件多时找得快。构建 21s，推送 b9e7421。

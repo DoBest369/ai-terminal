@@ -76,6 +76,8 @@
 - [x] **A-KeyAuth** 私钥认证 ✅（ServerConn.authType[PASSWORD/KEY]+持久化；SshClient.authenticate[loadKeys PEM+authPublickey / authPassword]+各调用加 privateKey 参数；EditConnectionScreen 认证方式 FilterChip；ServerWorkspace 凭据框按 authType 显密码/私钥 PEM 框+keyArg() 传各调用；私钥临时不持久化；构建 18s；推送 b2a6fae）
 - [x] **A-SnippetCRUD** 快捷命令自定义增删 ✅（SnippetStore SharedPreferences 持久化；ServerWorkspace 快捷命令 Chip 默认+自定义+「+新建」对话框+删除；修 termColors 前向引用；构建 20s；推送 2c48299→88b814a）
 - [x] **apple 巡检自测 --inspect-test** ✅（Core HealthInspection.sorted/composeForAI 纯逻辑解耦；AppModel 复用；自测「告警置顶排序=true；AI 素材正确=true」；CLAUDE.md 加清单；推送 ffa2815）
+- [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
+- [x] **A-GroupFold** 连接列表分组折叠 ✅（分组标题可点行+箭头+组内数量→toggle collapsedGroups 隐藏连接；构建 21s 无 warning；推送 02916ff）
 - [x] **A-SftpSort** SFTP 文件排序 ✅（顶栏排序 Menu 名称/大小/时间；文件夹优先+组内 sortedWith；构建 21s 无 warning；推送 b9e7421）
 - [x] **A-SftpTime** SFTP 行显示修改时间 ✅（RemoteFile.mtime[sshj getMtime]+timeLabel[今年 MM-dd HH:mm/往年 yyyy-MM-dd]；行名下显时间；构建 22s 无 warning；推送 559689f）
 - [x] **A-AutoScroll** 终端输出自动滚到底部 ✅（具名 termScroll+LaunchedEffect(output.length) 非搜索时 scrollTo maxValue；长会话刚需；构建 21s 无 warning；推送 1121efd）

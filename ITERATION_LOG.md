@@ -6,6 +6,15 @@
 
 ---
 
+## 知识卡片喂 AI 健康分析（知识沉淀闭环扩展到健康分析，双端）
+- **android**：`HealthAISheet` 加 `connId` 参数；AI 健康分析 system prompt 注入 `ServerNotebook.composeForAI(load(ctx, connId))`(连接有记录时)；ServerWorkspace 调用处传 `conn.id`。构建 22s，推送 e628343。
+- **apple**：`AppModel.diagnoseHealth` 同理——连接 id 从 `activeSession?.connection?.id.uuidString`，注入 `runAICompletion` systemPrompt(类比 analyzeDiagnostic)。推送 779c0dc。
+- **改动**：`MainActivity.kt`(HealthAISheet 注入)、`AppModel.swift`(diagnoseHealth 注入)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 7 自测全过。
+- **意义**：知识沉淀闭环从「排障」扩展到「健康分析」——AI 在排障和健康分析两条路径都会结合这台机历史记录。差异化价值「AI 记得每台服务器」覆盖更多 AI 场景。
+
+---
+
 ## 知识卡片喂 AI 排障（知识沉淀闭环双端完成）
 - **android**：`ServerWorkspace.runDiagnostic` AI 总结时，`ServerNotebook.composeForAI(load(ctx, conn.id))` 非空则拼进 system prompt(+「请结合以上历史运维记录给出针对性结论」)，终端提示「📓 已结合本机知识卡片」。构建 22s，推送 2f6c29f。
 - **apple**：`AppModel.analyzeDiagnostic` 同理——连接 id 从 `activeSession?.connection?.id.uuidString`，`ServerNotebook.composeForAI(load(connectionID:))` 注入 `runAICompletion` 的 systemPrompt。推送 3e0c3b8。

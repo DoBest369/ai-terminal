@@ -6,6 +6,15 @@
 
 ---
 
+## android AI 消息时间戳（Pair→ChatMsg 重构，PARITY 🟡=0 恢复）
+- **重构**：android AI 消息类型从 `Pair<String,String>`(role,content) 改为 `data class ChatMsg(role,content,time:Long=0)`。涉及：`convos: SnapshotStateList<SnapshotStateList<ChatMsg>>`、`ConvoStore`(save/load JSON 加 time，optLong 兼容旧对话)、`convoTitle`/`exportConvo`(it.first/.second→.role/.content)、`send`(messages.add ChatMsg(...,currentTimeMillis)；history=messages.map{role to content} 转 chatStream)、`stop`/`regenerate`(.copy/.role)、流式更新(`messages[i].copy(content=...)`)、`shown` 过滤、`ChatBubble(role,content,time,...)`、快捷追问。约 18 处。
+- **显示**：`ChatBubble` 外层改 Column，time>0 时显 `HH:mm`(SimpleDateFormat)。
+- **改动**：`ConvoStore.kt`(ChatMsg+time 持久化)、`MainActivity.kt`(全 messages 链路+ChatBubble 时间)。
+- **验证**：android BUILD SUCCESSFUL 24s 零 deprecated；ConvoStore optLong 向后兼容旧对话(旧 JSON 无 time=0 不显时间，不崩)。推送 7ca96c9。
+- **意义**：AI 消息时间戳双端对齐，**PARITY 配对能力 🟡 重归 0**。上轮 apple 先行的 🟡 本轮 android 补齐消除。消息类型重构干净(data class)，持久化向后兼容。
+
+---
+
 ## apple AI 消息时间戳（android 评估记 backlog）
 - **apple 落地**：`ChatMessage` 加 `createdAt: Date?=nil`（Codable 向后兼容，旧持久化缺失解码 nil；API 请求 line 344 只取 role/content，时间戳不泄漏）。`sendAIMessage`/`runAICompletion` assistant 占位/命令解释/报错分析/健康分析/排障 各处新建消息戳 `Date()`。`MessageBubble` 角色标签旁显 `HH:mm`（有 createdAt 时）。
 - **android 评估**：消息为 `mutableStateListOf<Pair<String,String>>`，加时间戳需把 Pair 改 data class（role/content/time），涉及 ChatBubble 签名、send append、`.first`/`.second` 访问、ConvoStore 持久化(兼容旧 JSON) 等 ~15+ 处。中等改动 → **本轮 apple 先行，android 记 backlog 下轮做**(PARITY 标 apple✅/android🟡)。

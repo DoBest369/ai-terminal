@@ -6,6 +6,21 @@
 
 ---
 
+## 质量收口 · 近期进展快照（实用能力 + AI 体验）
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测(history/batch/risk/metrics/env-detect/inspect/notebook/favorites)全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~20.9MB)。
+- **PARITY 状态**：配对能力 🟡=0（全 ✅✅），仅余 2 项各自独有特性（android 定时后台巡检 / apple 分屏录制）。
+- **近期进展（实用能力 + AI 体验完善）**：
+  - **知识卡片体验**：随手记(命令历史一键)+类型筛选(全部/问题/方案/笔记)，配合 喂AI全路径+导出共享，闭环极完整
+  - **AI 对话体验**：快捷追问(给我命令/换思路/解释/风险)、多行输入、停止/重生成、模型选择、代码块渲染/复制、角色头像
+  - **命令快捷**：命令收藏夹(星标置顶跨连接)+命令历史(补全/随手记)+快捷命令(自定义)
+  - **批量运维**：群发/巡检双端 UI + 全选/清空/按分组快速选目标
+  - **连接管理**：SSH config 导入、复制克隆、分组折叠、颜色标签、搜索/排序/测试/校验
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：连续多轮实用能力(命令收藏夹/快捷追问/知识卡片筛选)+AI 体验完善后质量稳健确认。Termind 在双端对齐+差异化深化基础上，实用细节持续打磨，质量始终稳健。
+
+---
+
 ## 知识卡片类型筛选双端（记录多时按类型找）
 - **android**：`NotebookSheet` 列表上方加类型筛选 `FilterChip`(全部/问题/方案/笔记，着色)→`filterKind` state；`shownNotes = if(null) notes else notes.filter{kind}`，列表用 shownNotes。
 - **apple**：`NotebookView` 列表上方加 segmented `Picker`(全部/问题/方案/笔记)→`filterKind: ServerNote.Kind?`+`shownNotes` 计算属性；删除用 shownNotes 索引。

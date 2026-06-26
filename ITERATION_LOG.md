@@ -6,6 +6,15 @@
 
 ---
 
+## README 整体审查更新（对外门面准确性）
+- **审查发现并修正**：① 平台矩阵 Linux 行误标「Rust + GTK4 / C++ Qt」「⬜ 待起」→ 实为 Rust+egui 骨架，改为「Rust + egui/eframe」「🟡 骨架（无 Rust 工具链未编译验证）」+ 链接 linux/README。② 能力清单 SFTP 行只写「浏览+查看」→ 补「下载/上传/新建/重命名/删除/批量删除/排序/过滤」；AI 行补「快捷追问/重发/存卡片」；排障 5→8 场景、模板 4→8 个。③ 现状边界 Windows/Linux 笼统「待起」→ 分开:Linux 骨架未编译验证(无 Rust)、Windows 待起。
+- **核对无误**：README 引用的 7 张截图(01-sidebar/03-ai-panel/04-connection-edit/09-sftp/24-notebook/23-inspect/22-batch)全部存在;边界说明(本机无 Xcode 未出包/android 真机实测)准确。
+- **改动**：`README.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 7a6a71f。
+- **意义**：对外门面(README)整体审查，修正平台矩阵/能力清单/边界的滞后与不准确处，确保 GitHub 访客看到的信息真实反映当前成熟度。文档体系准确性收口。
+
+---
+
 ## 质量收口 · SFTP 文件管理完整度快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **SFTP 文件管理（双端齐平，完整）**：浏览 · 查看文件内容 · 下载 · 上传(文件选择器/拖拽) · 新建文件夹 · 删除单文件/目录 · **批量删除(多选)** · 重命名 · 路径直接跳转 · 修改时间显示 · 名称/大小/时间排序 · 文件名过滤 · 文件大小友好显示(B/KB/MB/GB) · 跳板机下 SFTP。

@@ -668,8 +668,12 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                         Icon(Icons.Filled.ArrowDropDown, null, tint = TextSecondary)
                     }
                     DropdownMenu(expanded = convoMenu, onDismissRequest = { convoMenu = false }) {
+                        // 全局搜索：搜索激活且有词时，标注各对话匹配条数（跨对话定位）
+                        val gq = if (searchActive) search.trim() else ""
                         convos.forEachIndexed { i, c ->
-                            DropdownMenuItem(text = { Text(convoTitle(c, i), color = if (i == curIdx) Accent else TextPrimary) },
+                            val mn = if (gq.isNotEmpty()) c.count { it.content.contains(gq, ignoreCase = true) } else 0
+                            val label = convoTitle(c, i) + if (mn > 0) " · 🔍$mn" else ""
+                            DropdownMenuItem(text = { Text(label, color = if (i == curIdx) Accent else TextPrimary) },
                                 onClick = { curIdx = i; convoMenu = false })
                         }
                         HorizontalDivider()

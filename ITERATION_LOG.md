@@ -6,6 +6,15 @@
 
 ---
 
+## 质量收口 + README 门面刷新
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；7 自测(history/batch/risk/metrics/env-detect/inspect/notebook)全 true 无回归；android clean assembleDebug **零 deprecated**。
+- **README 更新**：加「📓 服务器知识卡片」护城河区(记录→喂AI→共享 闭环);界面预览加第二行截图(知识卡片 24-notebook/批量巡检 23-inspect/批量群发 22-batch，文件已确认存在);智能运维能力表补 服务器知识卡片/批量运维/SSH config 导入 三行双端✅。批量运维段说明更新(群发+巡检双端完整 UI)。
+- **改动**：`README.md`。
+- **验证**：apple swift build + 7 自测全过；android clean 零 warning；截图文件 ls 确认。推送 0a6bda1。
+- **意义**：连续多轮新功能后质量稳健确认 + GitHub 门面反映最新差异化能力(知识卡片护城河+批量运维)。Termind 双端对齐+差异化深化成熟，门面与质量同步。
+
+---
+
 ## SSH config 导入双端（批量建连接）
 - **android**：新建 `SshConfigParser.kt` 对齐 apple `SSHConfigParser`——解析 Host/HostName/Port/User，跳通配 Host(含 * ?)，HostName 空则用 alias。连接列表「📋 从 SSH config 导入」菜单→AlertDialog 粘贴 config 文本(等宽多行)→`SshConfigParser.parse`→`onImport` 批量添加。私钥路径移动端无意义，按密码认证导入。构建 23s，推送 8da9e25。
 - **apple**（核查发现早有）：`AppModel.importFromSSHConfig`(macOS 直接读 `~/.ssh/config` 文件)+`SettingsView`「从 ~/.ssh/config 导入」入口。文件方式适配 macOS 桌面(有标准 config 文件)。

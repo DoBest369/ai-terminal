@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **质量收口 + README 更新** ✅（apple 7 自测+android clean 零 warning；README 加知识卡片护城河区+新截图[24/23/22]+能力表补充；推送 0a6bda1）
 - [x] **SSH config 导入双端** ✅（android SshConfigParser.kt 对齐 apple+粘贴文本导入；apple 早有读 ~/.ssh/config 文件[SettingsView 入口]→双端，方式各适配平台；推送 8da9e25）
 - [x] **知识卡片导出 Markdown** ✅（双端 Core exportMarkdown[按类型分组]+--notebook-test 导出 MD=true；apple 复制/android 分享 Intent；apple 7 自测+android clean 零 warning；推送 d0c52df）
 - [x] **知识卡片喂 AI 健康分析** ✅（双端健康分析 AI 注入本机历史；android HealthAISheet[e628343]/apple diagnoseHealth[779c0dc]；闭环扩展到健康分析）

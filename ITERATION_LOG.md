@@ -6,6 +6,15 @@
 
 ---
 
+## docs/PRODUCT.md 微更新（近期增强反映）
+- **内容**：MVP 对照表刷新——SSH/SFTP 行加「批量删/批量下载」；状态面板加「负载/运行时长」；实用能力行细分为 命令收藏夹/快捷命令增删改+分组/连接批量编辑/最近使用、SSH config 导入(去重+反馈)/连接编辑色选器+校验/危险操作二次确认、AI 运维提示词库(25 条)/快捷追问/单条消息重发+存卡片。知识沉淀闭环六环「类型筛选」→「筛选检索(类型+关键词)」。
+- **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。
+- **改动**：`docs/PRODUCT.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 6ae4cff。
+- **意义**：产品文档同步近期一系列增强(SFTP 批量/状态面板字段/导入去重/AI 提示词/快捷命令/知识检索)，MVP 对照表准确反映当前能力。文档体系(README/CHANGELOG/ROADMAP/ITERATION_LOG/PARITY/PRODUCT)全套与功能持续同步。
+
+---
+
 ## 质量收口 · 运维数据链贯穿快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
 - **运维数据链（采集 → 展示 → AI 分析，双端贯穿）**：

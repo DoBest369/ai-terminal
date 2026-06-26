@@ -1888,7 +1888,7 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
 }
 
 /** A-SFTP：远程文件浏览（全屏 sheet：路径栏 + 列表 + 进入/上级） */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: JumpConfig?, onClose: () -> Unit) {
     val ctx = LocalContext.current
@@ -1907,6 +1907,9 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
     var sortMode by remember { mutableStateOf(0) }                           // 0=名称 1=大小 2=时间
     var filterOn by remember { mutableStateOf(false) }                       // A-SftpFilter 文件名过滤
     var filter by remember { mutableStateOf("") }
+    val selPaths = remember { mutableStateListOf<String>() }                 // SFTP 批量删除多选
+    var selMode by remember { mutableStateOf(false) }
+    var showBatchDel by remember { mutableStateOf(false) }
 
     fun load(p: String) {
         loading = true; error = null
@@ -1936,6 +1939,19 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
             SshClient.deletePath(conn.host, conn.port, conn.user, password, f.path, f.isDir, privateKey, jump)
                 .onSuccess { toast = "已删除 ${f.name}"; load(path) }
                 .onFailure { error = it.message; loading = false }
+        }
+    }
+    // SFTP 批量删除：依次删选中项，复用单删逻辑
+    fun batchDelete(targets: List<RemoteFile>) {
+        loading = true
+        scope.launch {
+            var ok = 0
+            for (f in targets) {
+                SshClient.deletePath(conn.host, conn.port, conn.user, password, f.path, f.isDir, privateKey, jump)
+                    .onSuccess { ok++ }.onFailure { error = it.message }
+            }
+            toast = "已删除 $ok/${targets.size} 项"
+            selMode = false; selPaths.clear(); load(path)
         }
     }
     // A-SftpRename：重命名（同目录新名）
@@ -2076,13 +2092,33 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                     else -> filtered.sortedWith(cmp.thenBy { it.name.lowercase() })
                 }
             }
+            // SFTP 批量删除操作栏（多选模式）
+            if (selMode) {
+                Row(Modifier.fillMaxWidth().background(Accent.copy(alpha = 0.1f)).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("已选 ${selPaths.size}", color = Accent, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { showBatchDel = true }, enabled = selPaths.isNotEmpty()) { Text("删除", color = Danger, fontSize = 13.sp) }
+                    TextButton(onClick = { selMode = false; selPaths.clear() }) { Text("取消", color = TextSecondary, fontSize = 13.sp) }
+                }
+            }
             LazyColumn(Modifier.weight(1f)) {
                 items(shownFiles.size) { i ->
                     val f = shownFiles[i]
+                    val sel = f.path in selPaths
                     Row(
-                        Modifier.fillMaxWidth().clickable { if (f.isDir) load(f.path) else openFile(f) }.padding(vertical = 10.dp),
+                        Modifier.fillMaxWidth()
+                            .combinedClickable(
+                                onClick = { if (selMode) { if (sel) selPaths.remove(f.path) else selPaths.add(f.path) } else if (f.isDir) load(f.path) else openFile(f) },
+                                onLongClick = { selMode = true; if (!sel) selPaths.add(f.path) }
+                            )
+                            .background(if (sel) Accent.copy(alpha = 0.12f) else Color.Transparent)
+                            .padding(vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        if (selMode) {
+                            Icon(if (sel) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked, null,
+                                tint = if (sel) Accent else TextSecondary, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(10.dp))
+                        }
                         Icon(if (f.isDir) Icons.Filled.Folder else Icons.Filled.Description, null,
                             tint = if (f.isDir) Accent else TextSecondary, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(12.dp))
@@ -2092,18 +2128,21 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                             if (f.timeLabel.isNotEmpty()) Text(f.timeLabel, color = TextSecondary.copy(alpha = 0.7f), fontSize = 10.sp)
                         }
                         Text(f.sizeLabel, color = TextSecondary, fontSize = 11.sp)
-                        if (!f.isDir) {
-                            IconButton(onClick = { download(f) }, modifier = Modifier.size(28.dp)) {
-                                Icon(Icons.Filled.Download, "下载", tint = Accent, modifier = Modifier.size(16.dp))
+                        // 多选模式隐藏单项操作图标（用批量栏）
+                        if (!selMode) {
+                            if (!f.isDir) {
+                                IconButton(onClick = { download(f) }, modifier = Modifier.size(28.dp)) {
+                                    Icon(Icons.Filled.Download, "下载", tint = Accent, modifier = Modifier.size(16.dp))
+                                }
                             }
-                        }
-                        // A-SftpRename：重命名
-                        IconButton(onClick = { pendingRename = f }, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Filled.DriveFileRenameOutline, "重命名", tint = TextSecondary, modifier = Modifier.size(15.dp))
-                        }
-                        // A-SftpEdit：删除（二次确认）
-                        IconButton(onClick = { pendingDelete = f }, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Filled.DeleteOutline, "删除", tint = Danger, modifier = Modifier.size(16.dp))
+                            // A-SftpRename：重命名
+                            IconButton(onClick = { pendingRename = f }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Filled.DriveFileRenameOutline, "重命名", tint = TextSecondary, modifier = Modifier.size(15.dp))
+                            }
+                            // A-SftpEdit：删除（二次确认）
+                            IconButton(onClick = { pendingDelete = f }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Filled.DeleteOutline, "删除", tint = Danger, modifier = Modifier.size(16.dp))
+                            }
                         }
                     }
                 }
@@ -2121,6 +2160,18 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                 colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent)) },
             confirmButton = { TextButton(onClick = { val t = p.trim(); if (t.isNotEmpty()) load(t); showGoto = false }) { Text("跳转", color = Accent) } },
             dismissButton = { TextButton(onClick = { showGoto = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+    // SFTP 批量删除二次确认
+    if (showBatchDel) {
+        AlertDialog(
+            onDismissRequest = { showBatchDel = false },
+            icon = { Icon(Icons.Filled.Warning, null, tint = Danger) },
+            title = { Text("删除 ${selPaths.size} 项？", color = TextPrimary) },
+            text = { Text("将删除选中的文件/空文件夹，此操作不可撤销。", color = TextSecondary) },
+            confirmButton = { TextButton(onClick = { batchDelete(files.filter { it.path in selPaths }); showBatchDel = false }) { Text("删除", color = Danger) } },
+            dismissButton = { TextButton(onClick = { showBatchDel = false }) { Text("取消", color = TextSecondary) } },
             containerColor = Surface
         )
     }

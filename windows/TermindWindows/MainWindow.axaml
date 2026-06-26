@@ -10,13 +10,26 @@
     <!-- Termind 智能 SSH 服务器运维工作台（Windows · Avalonia，三栏工作台对齐 apple/android）-->
     <Grid ColumnDefinitions="280,*,340">
 
-        <!-- ① 侧边栏：品牌 + 搜索 + 连接列表 -->
+        <!-- ① 侧边栏：品牌+工具栏 + 搜索 + 连接列表 -->
         <Border Grid.Column="0" Background="#16182A">
             <StackPanel>
-                <TextBlock Text="Termind" FontSize="20" FontWeight="Bold"
-                           Foreground="#FFFFFF" Margin="16,16,16,12"/>
-                <Border Background="#0D0E1A" CornerRadius="8" Margin="10,0,10,10" Padding="10,8">
-                    <TextBlock Text="🔍  搜索连接" Foreground="#6B7280" FontSize="13"/>
+                <!-- 品牌 + 工具栏（新建连接 / 设置） -->
+                <Grid ColumnDefinitions="*,Auto,Auto" Margin="16,16,10,12">
+                    <TextBlock Grid.Column="0" Text="Termind" FontSize="20" FontWeight="Bold"
+                               Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="6"
+                            ToolTip.Tip="新建连接">
+                        <TextBlock Text="＋" Foreground="#FF4B6E" FontSize="18"/>
+                    </Button>
+                    <Button Grid.Column="2" Background="Transparent" BorderThickness="0" Padding="6"
+                            ToolTip.Tip="设置">
+                        <TextBlock Text="⚙" Foreground="#8B92A8" FontSize="16"/>
+                    </Button>
+                </Grid>
+                <!-- 搜索框（可输入） -->
+                <Border Background="#0D0E1A" CornerRadius="8" Margin="10,0,10,10">
+                    <TextBox PlaceholderText="🔍  搜索连接" Background="Transparent" BorderThickness="0"
+                             Foreground="#C9D1D9" FontSize="13" Padding="10,8" CaretBrush="#FF4B6E"/>
                 </Border>
                 <TextBlock Text="SSH 连接 (3)" FontSize="11" FontWeight="SemiBold"
                            Foreground="#6B7280" Margin="16,6,16,6"/>

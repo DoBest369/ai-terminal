@@ -6,6 +6,15 @@
 
 ---
 
+## android 排障结论一键存为方案（知识沉淀闭环覆盖排障路径）
+- **审计**：apple `analyzeDiagnostic`→`runAICompletion`→排障 AI 结论显示在 **AI 对话区**(MessageBubble 已有「存为知识卡片」「存为方案」contextMenu + 快捷追问区「存为方案」)，**已覆盖**。android `runDiagnostic` 排障 AI 结论 append 到**终端输出区**(`output += 【AI 结论】`)，**无存方案入口** → android 排障路径未纳入知识沉淀闭环。
+- **android 补齐**：`runDiagnostic` 捕获 AI 结论(`conclusion = ai.getOrNull()`)→`diagSaveable` state；终端搜索框上方显「把排障结论存为方案」`AssistChip`(BookmarkAdd 绿)→`ServerNotebook.add(SOLUTION)` + Toast + 可忽略(×)。
+- **改动**：`MainActivity.kt`(diagSaveable 捕获 + 存方案 Chip)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 24s 零 deprecated；apple swift build + 8 自测全过。推送 5b0188e。
+- **意义**：知识沉淀闭环「AI 结论存方案」现完整覆盖**所有 AI 路径**(对话/解释/报错/排障/健康)。android 排障结论从「只在终端输出看一眼」升级为「可一键沉淀复用」。双端排障结论都能存方案(apple 经 AI 对话区/android 经终端区 Chip)。
+
+---
+
 ## CHANGELOG 阶段13 梳理（护城河场景库扩充与 AI 对话完善）
 - **内容**：CHANGELOG 加「阶段 13 — 护城河场景库扩充与 AI 对话完善」——Z4 排障 8→11(定时任务/日志异常/防火墙)、Z8 部署 8→11(MongoDB/Caddy 自动 HTTPS/Prometheus+Grafana 监控)、AI 消息时间戳(双端，android Pair→ChatMsg 重构)、18 项自测质量基线。当前状态刷新护城河场景库为 排障11/部署11，加 AI 消息时间戳/批量结果统计导出。
 - **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。

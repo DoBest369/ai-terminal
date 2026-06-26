@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **android 排障结论一键存方案** ✅（审计:apple 排障结论在 AI 对话区已有存方案入口/android 在终端区无→android 补 diagSaveable+「存为方案」Chip；排障路径纳入知识沉淀闭环；apple 8 自测+android clean 零 warning；推送 5b0188e）
 - [x] **CHANGELOG 阶段13·护城河场景库扩充与 AI 对话完善** ✅（Z4 8→11/Z8 8→11/AI 消息时间戳/18 项自测基线；当前状态刷新；推送 55a63b1）
 - [x] **质量收口·护城河场景库快照（Z4 11/Z8 11）** ✅（apple 8 自测+diag/template 数=11+android clean 零 warning；PARITY 🟡=0；排障/部署场景库均扩至 11；推送见下）
 - [x] **初始化模板 Z8 扩充双端** ✅（8→11：加 MongoDB/Caddy 反代+自动HTTPS/Prometheus+Grafana 监控；含密码占位；template 自测模板数=11；双端对齐；apple a5ace2d/android 4d255be）

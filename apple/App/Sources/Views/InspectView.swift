@@ -8,6 +8,7 @@ struct InspectView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var selected: Set<UUID> = []
+    @State private var onlyAlerts = false   // 仅看告警结果
 
     var body: some View {
         NavigationStack {
@@ -115,15 +116,25 @@ struct InspectView: View {
                 let warnN = model.inspectionResults.filter { $0.error == nil && $0.hasWarning }.count
                 let okN = model.inspectionResults.count - failN - warnN
                 HStack(spacing: 14) {
-                    if warnN > 0 { Text("⚠️ 告警 \(warnN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.danger) }
+                    if warnN > 0 {
+                        // 点告警数→切换「仅看告警」
+                        Button { onlyAlerts.toggle() } label: {
+                            Text("⚠️ 告警 \(warnN)").font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(onlyAlerts ? Color.white : Theme.danger)
+                                .padding(.horizontal, 8).padding(.vertical, 3)
+                                .background(onlyAlerts ? Theme.danger : Theme.danger.opacity(0.12))
+                                .clipShape(Capsule())
+                        }.buttonStyle(.plain)
+                    }
                     Text("✅ 正常 \(okN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.success)
                     if failN > 0 { Text("❌ 失败 \(failN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.textSecondary) }
                     Spacer()
+                    if onlyAlerts { Text("仅看告警").font(.system(size: 11)).foregroundStyle(Theme.textSecondary) }
                 }
                 .padding(.horizontal, 12).padding(.vertical, 6).background(Theme.surface)
             }
             List {
-                ForEach(model.inspectionResults) { r in
+                ForEach(model.inspectionResults.filter { !onlyAlerts || ($0.error == nil && $0.hasWarning) }) { r in
                     resultRow(r)
                 }
             }

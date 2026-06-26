@@ -42,8 +42,11 @@ struct ConnectionEditView: View {
                         #endif
                         .onChange(of: portText) { _, _ in testResult = .idle }
                     if !portValid {
-                        Text("端口需在 1–65535 之间")
-                            .font(.system(size: 11)).foregroundStyle(Theme.danger)
+                        HStack(spacing: 4) {
+                            Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 10))
+                            Text("端口需在 1–65535 之间")
+                        }
+                        .font(.system(size: 11)).foregroundStyle(Theme.danger)
                     }
                     TextField("用户名 *", text: $draft.username)
                         .autocorrectionDisabled()

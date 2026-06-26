@@ -6,6 +6,21 @@
 
 ---
 
+## 质量收口 · 知识沉淀闭环全景终极快照（护城河核心）
+- **质量门禁**：apple swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **🎯 知识沉淀闭环（差异化护城河核心，双端全链路·全路径覆盖）**：
+  - **录入（4 类 + 全 AI 路径）**：① 随手记(命令历史一键) ② 手动记录(问题/方案/笔记) ③ AI 结论存方案——覆盖**全 AI 路径**(对话/解释/报错/**排障**/健康) ④ 任意 AI 消息存卡片(右键/长按)
+  - **检索**：类型筛选(问题/方案/笔记) + 关键词搜索
+  - **喂 AI（全路径）**：对话/解释/报错/排障/健康 所有 AI 路径都注入本机历史记录
+  - **共享**：按类型分组导出 Markdown
+- **本批次补齐**：排障路径——android 排障结论从「只在终端看」到「一键存方案」，与 apple(AI 对话区)对齐，使「AI 结论存方案」全 AI 路径无遗漏。
+- **闭环价值**：通用 AI 只给教程；Termind 结合「这台机出过什么、怎么解决的」给针对性结论，且**任何 AI 路径的结论都能一键沉淀复用**——「AI + 真实环境 + 知识沉淀」核心差异化彻底贯通。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：知识沉淀闭环录入入口全覆盖(含全 AI 路径)、检索完整、喂 AI 全路径、可共享。护城河核心闭环极致完整，无路径遗漏。
+
+---
+
 ## android 排障结论一键存为方案（知识沉淀闭环覆盖排障路径）
 - **审计**：apple `analyzeDiagnostic`→`runAICompletion`→排障 AI 结论显示在 **AI 对话区**(MessageBubble 已有「存为知识卡片」「存为方案」contextMenu + 快捷追问区「存为方案」)，**已覆盖**。android `runDiagnostic` 排障 AI 结论 append 到**终端输出区**(`output += 【AI 结论】`)，**无存方案入口** → android 排障路径未纳入知识沉淀闭环。
 - **android 补齐**：`runDiagnostic` 捕获 AI 结论(`conclusion = ai.getOrNull()`)→`diagSaveable` state；终端搜索框上方显「把排障结论存为方案」`AssistChip`(BookmarkAdd 绿)→`ServerNotebook.add(SOLUTION)` + Toast + 可忽略(×)。

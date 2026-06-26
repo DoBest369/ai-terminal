@@ -6,6 +6,14 @@
 
 ---
 
+## CHANGELOG 阶段17 梳理（40 项 UI 现代化 · 五端设计语言高度一致）
+- **内容**：CHANGELOG 加「阶段 17 — 40 项 UI 现代化 · 五端设计语言高度一致」——五端对齐能力（状态进度条/服务状态点/快捷命令栏/终端滚动/连接搜索/分组/可达指示/AI 面板全套）+ 双端对齐（代码块复制 toast/SFTP 图标/键栏着色/空状态/端口校验）+ windows/linux 从骨架→功能完整工作台 + 质量基线无回归（PARITY 103）。
+- **改动**：`CHANGELOG.md`。
+- **验证**：apple swift build Build complete 抽查（build 通过后提交）。推送 c2027c1。
+- **意义**：文档体系反映 40 项 UI 现代化 + 五端 UI 高度一致里程碑。CHANGELOG 已至阶段 17，完整记录：基础→护城河→批量运维→知识卡片→导入导出→五端全平台→五端 UI 一致。
+
+---
+
 ## windows 连接卡片可达指示图标 → 可达指示五端全对齐
 - **内容**：windows `ConnItem` 加 `Reach`/`ReachColor` 字段；ItemTemplate 连接卡片右侧加可达指示（✓ 绿可达 / ✕ 灰不可达），对照 apple/android/linux。
 - **改动**：`MainWindow.axaml.cs`(ConnItem Reach 数据)、`MainWindow.axaml`(ItemTemplate 可达图标)。

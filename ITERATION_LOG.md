@@ -6,6 +6,16 @@
 
 ---
 
+## 质量收口 · SFTP 批量操作完整 + PARITY 🟡=0 快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **SFTP 批量操作（双端齐）**：批量删除(多选+二次确认) + 批量下载(android→Downloads / apple macOS NSOpenPanel 选目录、iOS 单文件)。平台差异处理得当(桌面选目录/移动端系统导出器)。
+- **近批次双端补齐路径**：审计→补齐(端口校验/清空确认/删除确认/色选器+必填) → 内容扩充(提示词 5×5) → SFTP 批量(删除+下载) → 文档审查(README 平台矩阵/能力清单)。PARITY 🟡 经 b591938 短暂出现 1 项(apple 批量下载)后由 2eb910e 补齐归零。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：SFTP 批量操作完整，PARITY 配对能力维持 🟡=0。连续多轮 SFTP/AI/连接/文档增强后质量稳健。Termind 各功能区完整、双端齐平、平台差异得当。
+
+---
+
 ## apple macOS SFTP 批量下载（PARITY 🟡=0 恢复）
 - **内容**：`FileBrowserView` macOS 批量操作栏(`#if os(macOS)`)加「下载」→`batchDownloadToFolder`：`NSOpenPanel`(canChooseDirectories)选目录→循环 `sftpDownload` 各选中文件 Data `write(to:)` 该目录(目录项跳过)，busy 显进度「已下载 N/M」。iOS 保持单文件经系统导出器(fileExporter 一次一文件，平台导出机制差异，合理)。`import AppKit`(#if os(macOS))。
 - **改动**：`FileBrowserView.swift`(batchDownloadToFolder + 下载按钮 + AppKit 导入)、`docs/PARITY.md`(SFTP 批量下载 🟡→✅✅)。

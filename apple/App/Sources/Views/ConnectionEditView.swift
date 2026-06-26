@@ -41,6 +41,10 @@ struct ConnectionEditView: View {
                         .keyboardType(.numberPad)
                         #endif
                         .onChange(of: portText) { _, _ in testResult = .idle }
+                    if !portValid {
+                        Text("端口需在 1–65535 之间")
+                            .font(.system(size: 11)).foregroundStyle(Theme.danger)
+                    }
                     TextField("用户名", text: $draft.username)
                         .autocorrectionDisabled()
                         #if os(iOS)
@@ -229,10 +233,19 @@ struct ConnectionEditView: View {
         }
     }
 
-    /// 可保存：主机与用户名去空白后非空
+    /// 端口有效：空（默认 22）或在 1–65535（对齐 android）
+    private var portValid: Bool {
+        let t = portText.trimmingCharacters(in: .whitespaces)
+        if t.isEmpty { return true }
+        guard let p = Int(t) else { return false }
+        return (1...65535).contains(p)
+    }
+
+    /// 可保存：主机与用户名去空白后非空，且端口有效
     private var canSave: Bool {
         !draft.host.trimmingCharacters(in: .whitespaces).isEmpty
         && !draft.username.trimmingCharacters(in: .whitespaces).isEmpty
+        && portValid
     }
 
     private func save() {
@@ -245,7 +258,8 @@ struct ConnectionEditView: View {
         draft.group = g.isEmpty ? nil : g
         let n = (draft.note ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         draft.note = n.isEmpty ? nil : n
-        draft.port = Int(portText) ?? 22
+        let p = Int(portText.trimmingCharacters(in: .whitespaces)) ?? 22
+        draft.port = (1...65535).contains(p) ? p : 22
         model.saveConnection(draft)
         dismiss()
     }

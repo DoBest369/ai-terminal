@@ -57,10 +57,14 @@ impl eframe::App for TermindApp {
             ui.add_space(4.0);
         });
 
-        // 连接列表（按分组）
-        egui::CentralPanel::default()
-            .frame(egui::Frame::default().fill(BG).inner_margin(12.0))
+        // ① 左侧栏：连接列表（按分组）—— 三栏工作台对齐 apple/windows
+        egui::SidePanel::left("connections")
+            .resizable(false)
+            .exact_width(280.0)
+            .frame(egui::Frame::default().fill(SURFACE).inner_margin(10.0))
             .show(ctx, |ui| {
+                ui.colored_label(TEXT_SECONDARY, "SSH 连接");
+                ui.add_space(6.0);
                 let mut last_group = "";
                 for (i, c) in self.conns.iter().enumerate() {
                     if c.group != last_group {
@@ -73,6 +77,47 @@ impl eframe::App for TermindApp {
                         self.selected = Some(i);
                     }
                 }
+            });
+
+        // ③ 右侧栏：AI 助手面板
+        egui::SidePanel::right("ai")
+            .resizable(false)
+            .exact_width(320.0)
+            .frame(egui::Frame::default().fill(SURFACE).inner_margin(12.0))
+            .show(ctx, |ui| {
+                ui.colored_label(ACCENT, egui::RichText::new("✦ AI 助手").strong());
+                ui.add_space(10.0);
+                egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
+                    .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, "怎么查看 Nginx 错误日志？"); });
+                ui.add_space(6.0);
+                egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0).show(ui, |ui| {
+                    ui.colored_label(TEXT_PRIMARY, "用下面的命令查看最近的错误日志：");
+                    ui.add_space(4.0);
+                    egui::Frame::default().fill(egui::Color32::BLACK).rounding(6.0).inner_margin(8.0).show(ui, |ui| {
+                        ui.colored_label(SUCCESS, egui::RichText::new("tail -n 50 /var/log/nginx/error.log").monospace());
+                    });
+                });
+            });
+
+        // ② 中间：终端区（状态条 + 输出）
+        egui::CentralPanel::default()
+            .frame(egui::Frame::default().fill(BG).inner_margin(12.0))
+            .show(ctx, |ui| {
+                ui.horizontal(|ui| {
+                    ui.colored_label(SUCCESS, "● 已连接");
+                    ui.colored_label(TEXT_SECONDARY, "prod-01");
+                    ui.colored_label(TEXT_SECONDARY, "CPU 47%");
+                    ui.colored_label(TEXT_SECONDARY, "内存 56%");
+                    ui.colored_label(TEXT_SECONDARY, "负载 0.82");
+                });
+                ui.add_space(8.0);
+                egui::Frame::default().fill(egui::Color32::from_rgb(0x0A, 0x0B, 0x14)).rounding(6.0).inner_margin(12.0)
+                    .show(ui, |ui| {
+                        ui.colored_label(TEXT_SECONDARY, egui::RichText::new("Last login: Sun Jun 22 19:00 on ttys001").monospace());
+                        ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ ls -la").monospace());
+                        ui.colored_label(SUCCESS, egui::RichText::new("-rwxr-xr-x 1 root root 1024 deploy.sh").monospace());
+                        ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ \u{2588}").monospace());
+                    });
             });
     }
 }
@@ -103,7 +148,7 @@ fn server_card(ui: &mut egui::Ui, c: &ServerConn, selected: bool) -> egui::Respo
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([420.0, 640.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([1200.0, 760.0]),
         ..Default::default()
     };
     eframe::run_native(

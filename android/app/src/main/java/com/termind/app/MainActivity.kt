@@ -592,10 +592,11 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
                 colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
             )
         }
-        // 输入栏
-        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        // 输入栏（A-Multiline：支持多行，粘贴报错日志/长指令）
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
-                input, { input = it }, placeholder = { Text("用自然语言描述运维任务…", color = TextSecondary) }, singleLine = true,
+                input, { input = it }, placeholder = { Text("用自然语言描述运维任务…（可多行）", color = TextSecondary) },
+                singleLine = false, minLines = 1, maxLines = 5,
                 colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
                 modifier = Modifier.weight(1f)
             )

@@ -260,8 +260,10 @@ impl eframe::App for TermindApp {
             });
 
         // ② 中间：终端区（状态条 + 输出）—— 状态条反映选中的连接
-        let (sel_host, sel_online) = self.selected.and_then(|i| self.conns.get(i))
-            .map(|c| (c.host, c.online)).unwrap_or(("prod-01", true));
+        let (sel_user, sel_host, sel_online) = self.selected.and_then(|i| self.conns.get(i))
+            .map(|c| (c.user, c.host, c.online)).unwrap_or(("root", "prod-01", true));
+        // 终端提示符联动选中连接（user@host:~$）
+        let prompt = format!("{}@{}:~$", sel_user, sel_host);
         egui::CentralPanel::default()
             .frame(egui::Frame::default().fill(BG).inner_margin(12.0))
             .show(ctx, |ui| {
@@ -288,16 +290,16 @@ impl eframe::App for TermindApp {
                         // 终端输出可滚动（对照 windows，输出多时查看历史）
                         egui::ScrollArea::vertical().auto_shrink([false, false]).max_height(360.0).show(ui, |ui| {
                             ui.colored_label(TEXT_SECONDARY, egui::RichText::new("Last login: Sun Jun 22 19:00 on ttys001").monospace());
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ ls -la").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} ls -la", prompt)).monospace());
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new("total 32").monospace());
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new("drwxr-xr-x  6 root root 4096 Jun 22 18:00 .").monospace());
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new("-rw-r--r--  1 root root  220 Jun 10 09:12 .bashrc").monospace());
                             ui.colored_label(SUCCESS, egui::RichText::new("-rwxr-xr-x  1 root root 1024 Jun 22 17:30 deploy.sh").monospace());
                             ui.colored_label(ACCENT, egui::RichText::new("drwxr-xr-x  4 root root 4096 Jun 22 18:00 projects").monospace());
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ systemctl status nginx").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} systemctl status nginx", prompt)).monospace());
                             ui.colored_label(SUCCESS, egui::RichText::new("● nginx.service - A high performance web server").monospace());
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new("   Active: active (running) since Mon 2026-06-22").monospace());
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ \u{2588}").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} \u{2588}", prompt)).monospace());
                         });
                     });
                 ui.add_space(8.0);

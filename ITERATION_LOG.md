@@ -6,6 +6,15 @@
 
 ---
 
+## 命令历史时间戳评估 + CLAUDE.md 自测清单补全
+- **命令历史时间戳评估**：双端 `CommandHistory` 存 `List<String>`(命令字符串，去重/置顶/限 50)。评估加时间戳：① 命令历史用于**快速复用**而非审计日志，时间价值有限 ② 去重语义(重跑命令置顶)与「执行时间」含义冲突(变成 last-used) ③ 改 data class 会破坏 history 自测(验证 String 列表)。**务实结论：不强做，保持 List<String> 设计**(与 AI 消息时间戳不同——消息是流水记录天然有时序，历史是去重复用集)。
+- **CLAUDE.md 自测清单补全**：发现 CLAUDE.md 只列 10 项自测，实际 main.swift 支持 18 项。补全缺的 8 项(history/risk/metrics/env-detect/batch/diag/rollback/template)+标注「全集 18，核心 8」。**全 18 项均验证通过**。
+- **改动**：`CLAUDE.md`(自测清单 10→18)。
+- **验证**：18 项自测全集逐一跑过(history/risk/metrics/env-detect/batch/diag/rollback/template + 原 10 项)。推送 524776e。
+- **意义**：① 务实评估区分「该做/不该做」——命令历史时间戳价值有限故不做(避免为对齐而对齐的低价值改动) ② 文档(CLAUDE.md 自测清单)与实际一致，后续迭代验证更全面(可跑 18 项而非 8 项核心)。
+
+---
+
 ## 质量收口 · AI 对话体验全景快照（消息重构后验证）
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测 + **ai-persist/ai-conv 自测全过**；android **clean assembleDebug 零 deprecated/warning**(消息 Pair→ChatMsg 重构全新编译无回归) + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **AI 对话体验（双端齐平，完整）**：

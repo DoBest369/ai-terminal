@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **快捷命令导出双端** ✅（按分组拼 Markdown；apple 工具栏「导出」复制[0e68a95]/android Chip「导出」分享 Intent[3e1d112]；备份/团队共享）
 - [x] **质量收口·知识卡片功能全景快照** ✅（apple 8 自测+android clean 零 warning+APK；PARITY 🟡=0；记录[类型+标签]/全入口录入/三维检索/喂AI/共享 完整；推送见下）
 - [x] **知识卡片标签筛选双端** ✅（filterTag+allTags 去重；#标签 Chip→按标签过滤；与类型筛选+关键词组合；多维筛选；notebook 自测过；推送 5d88fbf）
 - [x] **知识卡片自由标签双端** ✅（ServerNote 加 tags+持久化向后兼容[apple 自定义 init/android JSONArray]；NotebookView/Sheet 录入标签+卡片显 #标签；notebook 自测过；推送 5c5aca8）

@@ -6,6 +6,15 @@
 
 ---
 
+## 快捷命令导出双端 + 导出能力全覆盖
+- **快捷命令导出**：把快捷命令(默认+自定义)按分组拼成 Markdown(## 分组 + - **标题**：`命令`)导出。**apple** SnippetsView 工具栏加「导出快捷命令」→`Clipboard.copy`+toast；**android** 快捷命令 Chip 行加「导出」→`ACTION_SEND` 分享 Intent。备份/团队共享常用命令。
+- **导出能力全覆盖（双端，Markdown）**：① AI 对话(导出当前/全部) ② 批量群发结果 ③ 批量巡检报告 ④ 知识卡片(按类型分组) ⑤ 快捷命令(按分组) ⑥ 连接配置(JSON 不含密码)。运维记录/配置/经验都可结构化导出留存。
+- **改动**：`SnippetsView.swift`(exportSnippets)、`MainActivity.kt`(快捷命令导出 Chip)、`docs/PARITY.md`。
+- **验证**：apple swift build + 8 自测全过；android BUILD SUCCESSFUL 25s 零 deprecated。推送 apple 0e68a95/android 3e1d112。
+- **意义**：快捷命令可导出备份/团队共享。Termind 各类数据(对话/批量结果/知识卡片/快捷命令/连接配置)都有 Markdown/JSON 导出，运维资产可留存可共享。导出能力全覆盖双端齐。
+
+---
+
 ## 质量收口 · 知识卡片功能全景快照（护城河核心）
 - **质量门禁**：apple swift build Build complete；8 自测全 true 无回归(notebook 含 tags 改动验证)；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **服务器知识卡片（差异化护城河核心，双端全功能）**：

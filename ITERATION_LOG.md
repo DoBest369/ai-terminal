@@ -6,6 +6,15 @@
 
 ---
 
+## 质量收口 · PARITY 98 项快照（连接管理全功能后）
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **98 项 ✅✅，🟡=0**。
+- **连接管理维度（双端全功能）**：增/删/改 · 分组/折叠 · 颜色标签 · 端口校验(1-65535) · 必填校验 · 批量编辑(分组/色/删) · 多选 · 最近使用排序 · 克隆 · 配置导入导出(JSON 脱敏+去重) · SSH config 导入 · 分享二维码 · 复制配置 · 复制 ssh 连接串 · 可达性探测(TCP) · 知识卡片入口 · 启动命令 · 跳板机。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：连接管理作为 SSH 工作台的基础入口，能力达 18+ 维度全覆盖双端齐。PARITY 配对能力增至 98 项全对齐，质量基线稳。
+
+---
+
 ## 连接快速复制连接串双端 + 连接管理全功能
 - **内容**：连接卡片菜单加「复制连接串」——复制 `ssh user@host -p port`(默认端口 22 省 `-p`)到剪贴板，方便粘贴到其他终端/文档。apple `AppModel.copyConnectionString`+SidebarView contextMenu；android ServerCard DropdownMenu + ClipboardManager + Toast。
 - **修复**：android `Context.CLIPBOARD_SERVICE` → `android.content.Context.CLIPBOARD_SERVICE`(全限定，Context 未导入)。

@@ -53,6 +53,7 @@ swift run Shots --ai-md-all-test                     # 全部对话导出 Markdo
 swift run Shots --ai-persist-test                    # AI 对话持久化往返
 swift run Shots --ai-conv-test                       # AI 多对话 保存/加载/删除/迁移
 swift run Shots --reach-test                         # 连接可达性探测（TCP）
+swift run Shots --inspect-test                        # N-Cron 批量巡检（告警置顶排序 + AI 素材拼接）
 
 # Electron 版（src/，Windows/Linux/macOS）：webpack 打包 + 主进程语法
 npm run build

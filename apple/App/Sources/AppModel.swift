@@ -199,8 +199,9 @@ final class AppModel: ObservableObject {
                 for await r in group { acc.append(r) }
                 return acc
             }
-            // 异常置顶，其余按名称
-            inspectionResults = results.sorted { ($0.hasWarning ? 0 : 1, $0.name) < ($1.hasWarning ? 0 : 1, $1.name) }
+            // 异常置顶，其余按名称（复用 Core 纯逻辑）
+            let items = HealthInspection.sorted(results.map { HealthInspectionItem(name: $0.name, info: $0.info, error: $0.error) })
+            inspectionResults = items.map { InspectionResult(name: $0.name, info: $0.info, error: $0.error) }
             inspectionRunning = false
         }
     }
@@ -211,11 +212,8 @@ final class AppModel: ObservableObject {
             toast = inspectionResults.isEmpty ? "请先巡检" : "请先配置 API Key"
             return
         }
-        let material = inspectionResults.map { r -> String in
-            if let info = r.info { return "【\(r.name)】\(info.healthSummary)" }
-            return "【\(r.name)】采集失败：\(r.error ?? "未知")"
-        }.joined(separator: "\n")
-        aiMessages.append(ChatMessage(role: .user, content: "以下是一批服务器的健康巡检结果：\n\(material)"))
+        let material = HealthInspection.composeForAI(inspectionResults.map { HealthInspectionItem(name: $0.name, info: $0.info, error: $0.error) })
+        aiMessages.append(ChatMessage(role: .user, content: material))
         runAICompletion(systemPrompt: "你是运维助手。这是一批服务器的健康巡检，请：① 总览(正常/告警台数) ② 需优先处理的机器及原因 ③ 共性风险 ④ 处理建议。精炼中文。")
     }
 

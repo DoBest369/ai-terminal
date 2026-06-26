@@ -130,6 +130,35 @@ public enum RemoteSystemMonitor {
     }
 }
 
+/// 批量健康巡检（N-Cron）的一条结果：成功带 SystemInfo，失败带 error。
+public struct HealthInspectionItem: Sendable, Equatable {
+    public let name: String
+    public let info: SystemInfo?
+    public let error: String?
+    public init(name: String, info: SystemInfo?, error: String?) {
+        self.name = name; self.info = info; self.error = error
+    }
+    /// 采集失败也视为需关注
+    public var hasWarning: Bool { info?.hasWarning ?? true }
+}
+
+/// 批量巡检纯逻辑：排序（告警置顶）+ AI 总结素材拼接。与 UI/网络解耦，便于自测。
+public enum HealthInspection {
+    /// 告警置顶，其余按名称升序。
+    public static func sorted(_ items: [HealthInspectionItem]) -> [HealthInspectionItem] {
+        items.sorted { ($0.hasWarning ? 0 : 1, $0.name) < ($1.hasWarning ? 0 : 1, $1.name) }
+    }
+
+    /// 拼接成给 AI 的总结素材（各机健康摘要 / 采集失败原因）。
+    public static func composeForAI(_ items: [HealthInspectionItem]) -> String {
+        let lines = items.map { it -> String in
+            if let info = it.info { return "【\(it.name)】\(info.healthSummary)" }
+            return "【\(it.name)】采集失败：\(it.error ?? "未知")"
+        }
+        return "以下是一批服务器的健康巡检结果：\n" + lines.joined(separator: "\n")
+    }
+}
+
 /// 字节数格式化
 public func formatBytes(_ bytes: UInt64) -> String {
     guard bytes > 0 else { return "0 B" }

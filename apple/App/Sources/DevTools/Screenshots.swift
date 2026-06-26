@@ -250,6 +250,23 @@ public enum AppScreenshots {
         return "统计 成功\(ok)/失败\(fail)=\(statOk)；AI 素材正确=\(materialOk)"
     }
 
+    /// 批量健康巡检自测（N-Cron）：告警置顶排序 + AI 素材含各机摘要
+    public static func inspectTest() -> String {
+        var warn = SystemInfo(); warn.cpuSeen = true; warn.cpuUsage = 92; warn.memTotal = 100; warn.memUsed = 50; warn.diskTotal = 100; warn.diskUsed = 30   // CPU>85 告警
+        var ok = SystemInfo(); ok.cpuSeen = true; ok.cpuUsage = 20; ok.memTotal = 100; ok.memUsed = 40; ok.diskTotal = 100; ok.diskUsed = 30           // 正常
+        let items = [
+            HealthInspectionItem(name: "b-normal", info: ok, error: nil),
+            HealthInspectionItem(name: "a-warn", info: warn, error: nil),
+            HealthInspectionItem(name: "c-fail", info: nil, error: "连接超时"),
+        ]
+        let sorted = HealthInspection.sorted(items)
+        // 告警(a-warn)与失败(c-fail，hasWarning=true)置顶，正常(b-normal)在后
+        let sortOk = sorted.first?.hasWarning == true && sorted.last?.name == "b-normal" && sorted.prefix(2).allSatisfy { $0.hasWarning }
+        let material = HealthInspection.composeForAI(items)
+        let materialOk = material.contains("【a-warn】") && material.contains("CPU 92%") && material.contains("【c-fail】采集失败：连接超时")
+        return "告警置顶排序=\(sortOk)；AI 素材正确=\(materialOk)"
+    }
+
     /// 命令历史自测（N-History）：去重/置顶/限长
     public static func historyTest() -> String {
         var h: [String] = []

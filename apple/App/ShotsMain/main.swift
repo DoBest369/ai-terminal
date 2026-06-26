@@ -39,6 +39,8 @@ MainActor.assumeIsolated {
         print(out)
     } else if firstArg == "--batch-test" {
         print(AppScreenshots.batchTest())
+    } else if firstArg == "--inspect-test" {
+        print(AppScreenshots.inspectTest())
     } else {
         AppScreenshots.renderAll(to: firstArg)
     }

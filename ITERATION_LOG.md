@@ -6,6 +6,13 @@
 
 ---
 
+## 质量基线收口 + linux SFTP 文件浏览窗口
+- **质量基线**（45 项 UI 迭代后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo build Finished；windows dotnet build 0 警告 0 错误；PARITY **103 项 ✅✅**。五端 build 全绿，核心逻辑无回归。
+- **linux SFTP 窗口**：顶栏加 📁 SFTP 按钮 → `egui::Window` 文件浏览占位（路径栏 + 文件夹/文件 + 类型图标[脚本⌨/压缩🗜/文档📄/配置⚙] + 大小），对照 apple/android SFTP。cargo build 0 error/warning（build 通过后提交）。推送 fad80ab。
+- **意义**：质量基线扎实（五端 build 全绿，apple 8 自测无回归）；linux 端补 SFTP 文件浏览（对照 apple/android）。linux 端功能更完整（主工作台 + 设置窗口 + SFTP 窗口）。下一步 windows SFTP 占位对齐。
+
+---
+
 ## linux egui 设置窗口（设置页五端对齐）
 - **内容**：linux `TermindApp` 加 `show_settings`/`api_key` 字段；顶栏 ⚙ 点击切换；`egui::Window::new("设置").open(&mut open)` 弹设置面板——配色主题（午夜/Dracula/Nord）+ AI 服务商（Anthropic Claude/OpenAI）+ API Key（password TextEdit）+ 模型（claude-opus-4-8），对照 apple/windows SettingsView。
 - **改动**：`linux/src/main.rs`(show_settings 状态 + egui::Window 设置面板)。

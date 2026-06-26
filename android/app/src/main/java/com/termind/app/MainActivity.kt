@@ -194,7 +194,12 @@ fun TermindApp() {
                         detail = c
                     },
                     onEdit = { editing = it; showEditor = true },
-                    onDelete = { conns.remove(it); persist() }
+                    onDelete = { conns.remove(it); persist() },
+                    // A-Clone：复制连接（新 id + 名称加副本），立即打开编辑
+                    onClone = { c ->
+                        val copy = c.copy(id = java.util.UUID.randomUUID().toString(), name = "${c.name} 副本", lastUsed = 0L)
+                        conns.add(copy); persist(); editing = copy; showEditor = true
+                    }
                 )
                 Tab.AI -> AIAssistantScreen(onGoSettings = { tab = Tab.Settings }, profile = activeProfile)
                 Tab.Settings -> SettingsScreen()
@@ -234,7 +239,8 @@ fun ServerListScreen(
     onImport: (List<ServerConn>) -> Unit,
     onOpen: (ServerConn) -> Unit,
     onEdit: (ServerConn) -> Unit,
-    onDelete: (ServerConn) -> Unit
+    onDelete: (ServerConn) -> Unit,
+    onClone: (ServerConn) -> Unit = {}
 ) {
     val ctxLocal = LocalContext.current
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -338,7 +344,7 @@ fun ServerListScreen(
                 }
                 if (group !in collapsedGroups) {
                     items(list, key = { it.id }) { conn ->
-                        ServerCard(conn, reachMap[conn.id], probing, onClick = { onOpen(conn) }, onEdit = { onEdit(conn) }, onDelete = { onDelete(conn) })
+                        ServerCard(conn, reachMap[conn.id], probing, onClick = { onOpen(conn) }, onEdit = { onEdit(conn) }, onDelete = { onDelete(conn) }, onClone = { onClone(conn) })
                     }
                 }
             }
@@ -348,7 +354,7 @@ fun ServerListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
+fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit, onClone: () -> Unit = {}) {
     var menu by remember { mutableStateOf(false) }
     // A-Reach：在线绿 / 离线灰 / 探测中黄
     val dotColor = when {
@@ -385,6 +391,7 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
                 IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "更多", tint = TextSecondary) }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text("编辑") }, onClick = { menu = false; onEdit() })
+                    DropdownMenuItem(text = { Text("复制") }, onClick = { menu = false; onClone() })
                     DropdownMenuItem(text = { Text("删除") }, onClick = { menu = false; onDelete() })
                 }
             }

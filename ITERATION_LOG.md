@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 设置窗口（设置页五端对齐）
+- **内容**：linux `TermindApp` 加 `show_settings`/`api_key` 字段；顶栏 ⚙ 点击切换；`egui::Window::new("设置").open(&mut open)` 弹设置面板——配色主题（午夜/Dracula/Nord）+ AI 服务商（Anthropic Claude/OpenAI）+ API Key（password TextEdit）+ 模型（claude-opus-4-8），对照 apple/windows SettingsView。
+- **改动**：`linux/src/main.rs`(show_settings 状态 + egui::Window 设置面板)。
+- **验证**：`cargo build` **0 error/warning**（0.62s 增量，带 proxy，build 通过后提交）。推送 fa3e1ed。
+- **🎯 设置页 apple/windows/linux 对齐**（android 内嵌设置/iOS 同 apple）：主题 + AI 服务商 + API Key + 模型。linux 端工作台进一步完整（主工作台 + 设置窗口）。
+
+---
+
 ## windows 设置面板 Flyout（对照 apple SettingsView）
 - **内容**：windows ⚙设置按钮加 `Flyout` 设置面板——配色主题（午夜/Dracula/Nord chips）+ AI 服务商（Anthropic Claude/OpenAI）+ API Key（密码框 PasswordChar）+ 模型（claude-opus-4-8），对照 apple SettingsView。点⚙弹出。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(设置按钮 Button.Flyout)。

@@ -6,6 +6,17 @@
 
 ---
 
+## A-Multiline + A-Version + 质量收口 · AI 多行输入 + 动态版本号
+- **A-Multiline**（AI 多行输入）：AIAssistantScreen 输入框 `singleLine=false`+`minLines=1`+`maxLines=5`，Row 对齐 Bottom。粘贴报错日志/配置/多行指令更顺手。构建 22s，推送 bf4a664。
+- **A-Version**（动态版本号）：`build.gradle.kts` `buildFeatures{ buildConfig=true }`(原仅 compose)；SettingsScreen 关于行版本从写死 v1.0 改 `BuildConfig.VERSION_NAME`。版本信息单一来源(versionName)。构建 28s(BuildConfig 生成)，推送 98be4c7。
+- **质量收口**：apple `AITerminalCore`+`App` swift build Build complete；6 自测全 true 无回归；android clean assembleDebug **零 deprecated**。
+- **近期安卓打磨总览（细节精致化）**：连接(克隆/分组折叠/上次使用时间/颜色标签/搜索/排序/测试/校验/启动命令/跳板机)、终端(连接时长/搜索/自动滚动/控制键/字号/复制清屏/命令补全/keepalive)、SFTP(浏览/查看/下载/上传/新建/删除/重命名/路径跳转/时间/排序/过滤)、AI(多行/清空/头像/提示词库/模型选择/停止/重生成/代码块/消息复制/多对话)、设置(主题/Key/模型/巡检/关于动态版本)。
+- **改动**：`build.gradle.kts`(buildConfig)、`MainActivity.kt`(多行+版本)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL clean 零 warning；apple swift build + 6 自测全过。
+- **意义**：AI 长输入顺手 + 版本信息规范。双端成熟产品打磨到细节，质量稳健。
+
+---
+
 ## A-Clone + A-Duration + 质量收口 · 连接克隆 + 连接时长
 - **A-Clone**（连接克隆）：ServerCard 更多菜单加「复制」→onClone 回调链(ServerCard→ServerListScreen→TermindApp)；TermindApp 用 `conn.copy(id=新 UUID, name=+副本, lastUsed=0)` 插入 conns+persist+`editing=copy;showEditor=true` 立即编辑。快速建相似连接。构建 22s，推送 87dc681。
 - **A-Duration**（连接时长）：ServerWorkspace `connectedAt`(连接成功 System.currentTimeMillis()/断开清 0)+`durTick`；状态条已连接时 `LaunchedEffect(connectedAt){ while(true){ delay(1000); durTick++ } }` 每秒刷新+显 `formatDuration(now-connectedAt)`(mm:ss/HH:mm:ss)。长会话知道连了多久。构建 22s，推送 34370d2。

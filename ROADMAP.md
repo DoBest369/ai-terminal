@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **A-Version** 关于页版本号动态 ✅（build.gradle buildConfig=true；关于行 BuildConfig.VERSION_NAME；构建 28s 无 warning；推送 98be4c7）
 - [x] **A-Multiline** AI 输入框支持多行 ✅（singleLine=false+maxLines 5；粘贴报错日志/长指令；构建 22s 无 warning；推送 bf4a664）
 - [x] **A-Clone** 连接复制/克隆 ✅（ServerCard 复制菜单→conn.copy[新 id+名称加副本]插入+立即编辑；构建 22s 无 warning；推送 87dc681）
 - [x] **A-LastUsed** 连接卡片上次使用相对时间 ✅（relativeTime helper[刚刚/N分钟/小时/天前/日期]；ServerCard lastUsed>0 显「上次使用 · X」对齐 apple；构建 22s 无 warning；推送 435a5a2）

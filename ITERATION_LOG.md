@@ -6,6 +6,15 @@
 
 ---
 
+## 知识卡片喂 AI 排障（知识沉淀闭环双端完成）
+- **android**：`ServerWorkspace.runDiagnostic` AI 总结时，`ServerNotebook.composeForAI(load(ctx, conn.id))` 非空则拼进 system prompt(+「请结合以上历史运维记录给出针对性结论」)，终端提示「📓 已结合本机知识卡片」。构建 22s，推送 2f6c29f。
+- **apple**：`AppModel.analyzeDiagnostic` 同理——连接 id 从 `activeSession?.connection?.id.uuidString`，`ServerNotebook.composeForAI(load(connectionID:))` 注入 `runAICompletion` 的 systemPrompt。推送 3e0c3b8。
+- **改动**：`MainActivity.kt`(runDiagnostic 注入)、`AppModel.swift`(analyzeDiagnostic 注入)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 7 自测全过。
+- **意义**：🎯 **知识沉淀闭环双端完成**——记录(知识卡片)→喂 AI(排障时注入本机历史)→针对性排障(AI 结合这台机出过的问题/方案给结论)。这是 PRODUCT 护城河「AI + 真实环境 + 知识沉淀」的核心差异化价值落地：AI 不再只给通用教程，而是「记得」这台机的历史。
+
+---
+
 ## apple 服务器知识卡片 UI（NotebookView，双端知识卡片完成）
 - **内容**：新建 `NotebookView.swift`(sheet)——顶部新增区 `Picker(.segmented)` 类型(问题/方案/笔记)+`TextField(axis:.vertical)`+加号按钮→`ServerNotebook.add(_, connectionID:)`；`List` 记录(kind 着色标签+文本)+`.onDelete`→`ServerNotebook.remove`；空态 book.closed 引导。`AppModel.notebookConnection: Connection?`；`ContentView .sheet(item: $model.notebookConnection)`；`SidebarView` 连接 contextMenu 加「知识卡片」(book.closed)入口。`Showcase.NotebookShowcase`+渲染 24-notebook(问题红/方案绿/笔记蓝)。
 - **改动**：`NotebookView.swift`(新)、`AppModel.swift`(notebookConnection)、`ContentView.swift`(sheet)、`SidebarView.swift`(入口)、`Showcase.swift`+`Screenshots.swift`(NotebookShowcase)、`apple/screenshots/24-notebook.png`。

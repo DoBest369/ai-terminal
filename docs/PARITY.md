@@ -90,7 +90,8 @@
 
 | 能力 | apple | android | 说明 |
 |------|:---:|:---:|------|
-| 服务器知识卡片 | ✅ | ✅ | 双端（每台机沉淀 问题/方案/笔记 + 持久化 + composeForAI 喂 AI 排障）；apple NotebookView / android NotebookSheet |
+| 服务器知识卡片 | ✅ | ✅ | 双端（每台机沉淀 问题/方案/笔记 + 持久化）；apple NotebookView / android NotebookSheet |
+| 知识卡片喂 AI 排障（闭环） | ✅ | ✅ | 双端排障 AI 总结注入本机历史记录，给针对性结论 |
 
 ## 安全 / 其它
 

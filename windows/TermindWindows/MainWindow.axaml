@@ -138,7 +138,18 @@
             </Border>
             <ScrollViewer Grid.Row="1" Margin="12,0">
                 <StackPanel Spacing="8">
-                    <!-- 用户消息：角色标签 + 气泡（对照 apple/android/linux） -->
+                    <!-- 第一轮对话 -->
+                    <TextBlock Text="你" Foreground="#8B92A8" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right"/>
+                    <Border Background="#3B82F6" CornerRadius="10" Padding="12,9" HorizontalAlignment="Right" MaxWidth="260">
+                        <TextBlock Text="这台机器装了什么服务？" Foreground="#FFFFFF" FontSize="13" TextWrapping="Wrap"/>
+                    </Border>
+                    <TextBlock Foreground="#8B92A8" FontSize="10" FontWeight="Bold" HorizontalAlignment="Left">
+                        <Run Text="✦" Foreground="#FF4B6E"/><Run Text=" AI"/>
+                    </TextBlock>
+                    <Border Background="#0D0E1A" CornerRadius="10" Padding="12,9" HorizontalAlignment="Left" MaxWidth="290">
+                        <TextBlock Text="检测到 nginx(运行)、docker(运行)、mysql(运行)、redis(未运行)。需要我帮你启动 redis 吗？" Foreground="#C9D1D9" FontSize="13" TextWrapping="Wrap"/>
+                    </Border>
+                    <!-- 第二轮对话：角色标签 + 气泡（对照 apple/android/linux） -->
                     <TextBlock Text="你" Foreground="#8B92A8" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right"/>
                     <Border Background="#3B82F6" CornerRadius="10" Padding="12,9" HorizontalAlignment="Right" MaxWidth="260">
                         <TextBlock Text="怎么查看 Nginx 错误日志？" Foreground="#FFFFFF" FontSize="13" TextWrapping="Wrap"/>

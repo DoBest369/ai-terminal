@@ -510,13 +510,8 @@ final class AppModel: ObservableObject {
             return
         }
         aiMessages.append(ChatMessage(role: .user, content: workflow.composeForAI(outputs: outputs)))
-        // 知识卡片注入：结合这台机的历史问题/方案排障（知识沉淀闭环，对齐 android）
-        var sys = workflow.summaryPrompt
-        if let connID = activeSession?.connection?.id.uuidString {
-            let notebook = ServerNotebook.composeForAI(ServerNotebook.load(connectionID: connID))
-            if !notebook.isEmpty { sys += "\n\n\(notebook)\n请结合以上历史运维记录给出针对性结论。" }
-        }
-        runAICompletion(systemPrompt: sys)
+        // 知识卡片由 runAICompletion 中心化注入（覆盖所有 AI 路径）
+        runAICompletion(systemPrompt: workflow.summaryPrompt)
     }
 
     // MARK: - 连接管理
@@ -750,13 +745,8 @@ final class AppModel: ObservableObject {
         if !info.uptime.isEmpty { detail += "\n运行时长：\(info.uptime)" }
         if info.cpuCores > 0 { detail += "\nCPU 核数：\(info.cpuCores)" }
         aiMessages.append(ChatMessage(role: .user, content: "这台服务器当前状态如下，请分析有无异常并给排查/优化建议：\n\(detail)"))
-        // 知识卡片注入：结合这台机历史给健康建议（知识沉淀闭环扩展到健康分析，对齐 android）
-        var sys = healthAnalysisPrompt
-        if let connID = activeSession?.connection?.id.uuidString {
-            let notebook = ServerNotebook.composeForAI(ServerNotebook.load(connectionID: connID))
-            if !notebook.isEmpty { sys += "\n\n\(notebook)\n请结合以上历史运维记录分析。" }
-        }
-        runAICompletion(systemPrompt: sys)
+        // 知识卡片由 runAICompletion 中心化注入（覆盖所有 AI 路径）
+        runAICompletion(systemPrompt: healthAnalysisPrompt)
     }
 
     /// 公共流式生成：假定用户消息已在 aiMessages 末尾，追加占位 assistant 并流式填充。
@@ -771,6 +761,11 @@ final class AppModel: ObservableObject {
         var sys = systemPrompt ?? agentSystemPrompt
         if let summary = serverProfile?.aiSummary, !summary.isEmpty {
             sys += "\n\n\(summary)\n请结合以上真实服务器环境给出针对性、可直接执行的回答。"
+        }
+        // 知识卡片注入（中心化）：所有 AI 路径（对话/解释/报错/排障/健康）都结合这台机历史记录
+        if let connID = activeSession?.connection?.id.uuidString {
+            let notebook = ServerNotebook.composeForAI(ServerNotebook.load(connectionID: connID))
+            if !notebook.isEmpty { sys += "\n\n\(notebook)\n如与本次问题相关，请结合上述历史运维记录。" }
         }
         let conversation: [ChatMessage] = [ChatMessage(role: .system, content: sys)] + recent
 

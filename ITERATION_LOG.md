@@ -6,6 +6,14 @@
 
 ---
 
+## windows 终端输出区可滚动 + 扩充 mock 输出
+- **内容**：windows 终端输出 StackPanel 包进 `ScrollViewer`（垂直/水平滚动条 Auto）；扩充 mock 输出行（ls -la 详细列表 + 目录粉红/脚本绿着色 + systemctl status nginx 服务状态绿点），更接近真实终端。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(终端输出 ScrollViewer)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图。推送 9cdb48c。
+- **意义**：windows 终端区可滚动（输出多时可查看历史），更接近真实终端体验。windows 端工作台持续完整化。
+
+---
+
 ## android AI 对话空状态加图标+醒目标题（双端 AI 空状态对齐）
 - **内容**：android AI 对话空状态原本只有引导文字 + 分类提示词。加 `AutoAwesome` AI 图标 + bold 标题「用自然语言操作终端」（对齐 apple emptyHint 的 .bold() 标题），引导文字「让 AI 结合服务器真实环境帮你运维」保留。两端空状态都是「图标/标题 + 分类提示词 chips + 示例问题」。
 - **改动**：`MainActivity.kt`(AI 空状态标题行)。

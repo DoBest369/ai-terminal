@@ -6,6 +6,14 @@
 
 ---
 
+## android 连接列表空状态升级（双端空状态一致）
+- **内容**：android 主连接列表无连接时从「Dns 图标 + 单行文字」→ 升级为「Dns 图标 + 「还没有连接」标题(bold) + 「点右下角「+」添加第一台服务器，开始智能 SSH 运维」引导」两层结构，对照 apple SidebarView 空状态。
+- **改动**：`MainActivity.kt`(连接列表空状态)。
+- **验证**：android BUILD SUCCESSFUL 27s **零 deprecated**。推送 38d5627。
+- **意义**：**双端连接列表空状态一致**（apple/android 同图标+标题+引导风格）。结合批量群发/巡检空状态，**双端空状态体系统一**（连接列表/群发/巡检都现代图标+引导）。
+
+---
+
 ## apple 连接列表空状态现代化（图标+引导）
 - **内容**：SidebarView 无连接时从纯文字「暂无保存的连接」→ 现代空状态（`server.rack` 图标 + 「还没有连接」标题 + 「点上方「＋」添加第一台服务器，开始智能 SSH 运维」引导），与上轮 BatchView/InspectView 空状态风格一致。
 - **改动**：`SidebarView.swift`(空状态 VStack 图标+引导)。

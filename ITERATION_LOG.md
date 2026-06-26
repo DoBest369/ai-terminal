@@ -6,6 +6,15 @@
 
 ---
 
+## UI 现代化双端对齐：android SFTP 文件类型图标
+- **内容**：上轮 apple SFTP 加了按扩展名语义化图标，本轮 android 同步对齐。`sftpFileIcon(name)` 按后缀返回 Material 图标：脚本→Terminal · 压缩→FolderZip · 图片→Image · 代码→Code · 文档/配置→Article(AutoMirrored) · 默认→Description。
+- **修复**：① Edit 误把 SftpBrowser 的 `@OptIn/@Composable` 注解错位到新函数 → 重排修正；② `Article` 图标 deprecated → 改 `Icons.AutoMirrored.Filled.Article`（零 deprecated 政策）。
+- **改动**：`MainActivity.kt`(import + sftpFileIcon + 调用)、`docs/PARITY.md`。
+- **验证**：android 重建 BUILD SUCCESSFUL 26s **零 deprecated**。推送 d839725。
+- **意义**：SFTP 文件类型图标双端对齐（apple/android 一致语义图标）。同期 dotnet Azure CDN install 脚本 curl --retry 20 下载 .NET SDK 中（Windows Avalonia 前提，前几种镜像都因 ghcr.io HTTP/2 失败）。
+
+---
+
 ## UI 现代化：SFTP 文件按类型语义化图标（截图驱动）
 - **内容**：截图审视 SFTP 文件浏览，发现所有文件用同一通用 `doc` 图标 → 现代文件管理器按扩展名显示语义图标。`FileBrowserView.fileIcon(name)` 按后缀返回：脚本(.sh/.bash)→terminal · 压缩(.tar/.gz/.zip)→archivebox · 文档(.md/.txt)→doc.text · 日志(.log)→放大镜 · 配置(.json/.yml/.conf/dotfile)→gearshape · 图片→photo · 代码(.py/.js/.go/.rs…)→</> · pdf/数据库/lock 等。
 - **改动**：`FileBrowserView.swift`(fileIcon)、`Showcase.swift`(同步引用)。

@@ -26,6 +26,7 @@
 | 终端 ANSI 颜色渲染 | ✅ | ✅ | android AnsiParser→AnnotatedString |
 | TOFU 主机密钥校验 | ✅ | ✅ | android KnownHosts 指纹首次信任+比对（防 MITM） |
 | SFTP 浏览 | ✅ | ✅ | |
+| SFTP 文件类型图标 | ✅ | ✅ | 双端按扩展名语义化图标（脚本/压缩/文档/配置/代码/图片，一眼识别类型） |
 | SFTP 查看文件内容 | ✅ | ✅ | |
 | SFTP 下载 / 上传 | ✅ | ✅ | android sftp.get/put + 文件选择器 |
 | SFTP 新建文件夹 / 删除 | ✅ | ✅ | 双端（apple Citadel createDirectory/rmdir/remove；android sftp.mkdir/rm/rmdir）+ 二次确认 |

@@ -421,10 +421,13 @@ fun ServerListScreen(
             )
         }
         if (conns.isEmpty()) {
-            Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Icon(Icons.Filled.Dns, null, tint = TextSecondary, modifier = Modifier.size(48.dp))
                 Spacer(Modifier.height(12.dp))
-                Text("还没有连接，点右下角 + 新建", color = TextSecondary, fontSize = 14.sp)
+                Text("还没有连接", color = TextPrimary, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(6.dp))
+                Text("点右下角「+」添加第一台服务器，\n开始智能 SSH 运维。",
+                    color = TextSecondary, fontSize = 13.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             }
             return
         }

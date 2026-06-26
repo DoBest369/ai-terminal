@@ -896,7 +896,10 @@ private fun ChatBubble(role: String, content: String, time: Long = 0L, connId: S
                                 Icon(Icons.Filled.ContentCopy, "复制",
                                     tint = TextSecondary,
                                     modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(16.dp)
-                                        .clickable { clipboard.setText(androidx.compose.ui.text.AnnotatedString(code.trim())) })
+                                        .clickable {
+                                            clipboard.setText(androidx.compose.ui.text.AnnotatedString(code.trim()))
+                                            android.widget.Toast.makeText(ctx, "已复制命令", android.widget.Toast.LENGTH_SHORT).show()
+                                        })
                             }
                         }
                     } else if (part.isNotBlank()) {

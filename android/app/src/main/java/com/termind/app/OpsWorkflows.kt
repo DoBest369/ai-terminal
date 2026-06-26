@@ -265,6 +265,36 @@ data class SetupTemplate(
                     SetupStep("装常用依赖（按需改）", listOf("/opt/app/venv/bin/pip install --upgrade pip", "/opt/app/venv/bin/pip install gunicorn")),
                     SetupStep("验证", listOf("python3 --version", "/opt/app/venv/bin/pip --version"))
                 )
+            ),
+            SetupTemplate(
+                "mongodb", "MongoDB 数据库",
+                "安装 MongoDB、启用自启、创建管理员（请改密码）",
+                listOf(
+                    SetupStep("安装 MongoDB", listOf("apt update", "apt install -y mongodb || apt install -y mongodb-org")),
+                    SetupStep("启用并自启", listOf("systemctl enable --now mongod || systemctl enable --now mongodb")),
+                    SetupStep("创建管理员（请改 YOUR_PASSWORD）", listOf("mongosh --eval \"db.getSiblingDB('admin').createUser({user:'admin',pwd:'YOUR_PASSWORD',roles:['root']})\" || mongo --eval \"db.getSiblingDB('admin').createUser({user:'admin',pwd:'YOUR_PASSWORD',roles:['root']})\"")),
+                    SetupStep("验证", listOf("mongod --version | head -1"))
+                )
+            ),
+            SetupTemplate(
+                "caddy", "Caddy 反代（自动 HTTPS）",
+                "安装 Caddy、写反代站点、自动申请 Let's Encrypt 证书",
+                listOf(
+                    SetupStep("安装 Caddy", listOf("apt install -y debian-keyring debian-archive-keyring apt-transport-https", "curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg", "curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list", "apt update && apt install -y caddy")),
+                    SetupStep("写反代站点（请改域名/后端）", listOf("# 编辑 /etc/caddy/Caddyfile：\n# example.com {\n#   reverse_proxy 127.0.0.1:8080\n# }")),
+                    SetupStep("重载并自启", listOf("systemctl enable --now caddy", "systemctl reload caddy")),
+                    SetupStep("验证", listOf("caddy version", "systemctl status caddy --no-pager | head -5"))
+                )
+            ),
+            SetupTemplate(
+                "monitoring", "Prometheus + Grafana 监控",
+                "Docker 起 Prometheus + Grafana 监控栈（请改 Grafana 密码）",
+                listOf(
+                    SetupStep("确保 Docker 就绪", listOf("docker --version || curl -fsSL https://get.docker.com | sh")),
+                    SetupStep("启动 Prometheus", listOf("docker run -d --name prometheus -p 9090:9090 --restart unless-stopped prom/prometheus")),
+                    SetupStep("启动 Grafana（请改 YOUR_PASSWORD）", listOf("docker run -d --name grafana -p 3000:3000 --restart unless-stopped -e GF_SECURITY_ADMIN_PASSWORD=YOUR_PASSWORD grafana/grafana")),
+                    SetupStep("验证", listOf("docker ps --filter name=prometheus --filter name=grafana"))
+                )
             )
         )
     }

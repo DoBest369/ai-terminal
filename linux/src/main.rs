@@ -45,11 +45,13 @@ struct TermindApp {
     selected: Option<usize>,
     search: String,
     ai_input: String,
+    show_settings: bool,
+    api_key: String,
 }
 
 impl Default for TermindApp {
     fn default() -> Self {
-        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new() }
+        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new() }
     }
 }
 
@@ -64,12 +66,47 @@ impl eframe::App for TermindApp {
                 ui.colored_label(TEXT_SECONDARY, "智能 SSH 运维");
                 // 右侧工具栏：新建连接 / 设置（对照 windows 顶部工具栏）
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    let _ = ui.add(egui::Button::new(egui::RichText::new("⚙").size(15.0).color(TEXT_SECONDARY)).frame(false));
+                    if ui.add(egui::Button::new(egui::RichText::new("⚙").size(15.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
+                        self.show_settings = !self.show_settings;
+                    }
                     let _ = ui.add(egui::Button::new(egui::RichText::new("＋").size(16.0).color(ACCENT)).frame(false));
                 });
             });
             ui.add_space(4.0);
         });
+
+        // 设置窗口（对照 apple/windows SettingsView）
+        let mut open = self.show_settings;
+        egui::Window::new("设置")
+            .open(&mut open)
+            .resizable(false)
+            .default_width(300.0)
+            .show(ctx, |ui| {
+                ui.colored_label(TEXT_SECONDARY, "配色主题");
+                ui.horizontal(|ui| {
+                    for (name, sel) in [("午夜", true), ("Dracula", false), ("Nord", false)] {
+                        let _ = ui.add(egui::Button::new(egui::RichText::new(name).size(12.0)
+                            .color(if sel { ACCENT } else { TEXT_SECONDARY }))
+                            .fill(if sel { ACCENT.linear_multiply(0.15) } else { SURFACE }).rounding(6.0));
+                    }
+                });
+                ui.add_space(8.0);
+                ui.colored_label(TEXT_SECONDARY, "AI 服务商");
+                ui.horizontal(|ui| {
+                    let _ = ui.add(egui::Button::new(egui::RichText::new("Anthropic Claude").size(12.0).color(ACCENT))
+                        .fill(ACCENT.linear_multiply(0.15)).rounding(6.0));
+                    let _ = ui.add(egui::Button::new(egui::RichText::new("OpenAI").size(12.0).color(TEXT_SECONDARY))
+                        .fill(SURFACE).rounding(6.0));
+                });
+                ui.add_space(8.0);
+                ui.colored_label(TEXT_SECONDARY, "API Key");
+                ui.add(egui::TextEdit::singleline(&mut self.api_key).password(true)
+                    .hint_text("sk-ant-…").desired_width(f32::INFINITY));
+                ui.add_space(8.0);
+                ui.colored_label(TEXT_SECONDARY, "模型");
+                ui.colored_label(TEXT_PRIMARY, egui::RichText::new("claude-opus-4-8").monospace());
+            });
+        self.show_settings = open;
 
         // ① 左侧栏：连接列表（按分组）—— 三栏工作台对齐 apple/windows
         egui::SidePanel::left("connections")

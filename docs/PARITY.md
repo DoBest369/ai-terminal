@@ -82,6 +82,7 @@
 | Z4 排障工作流（真执行+AI 总结） | ✅ | ✅ | 11 内置工作流双端（网站/磁盘/SSL/Nginx/Docker/内存/端口/服务/定时任务/日志异常/防火墙） |
 | Z5 操作回滚（备份+时间线） | ✅ | ✅ | OpRollback 双端 |
 | Z6 服务器状态面板 | ✅ | ✅ | CPU/内存/磁盘/负载/运行时长 + 关键服务(nginx/docker/mysql/redis/sshd)运行状态 → 健康摘要+告警 |
+| 状态面板占用进度条 | ✅ | ✅ | 双端 CPU/内存(/磁盘) mini 进度条，绿<60/橙60-80/红>80 三档，一眼看占用 |
 | Z7 风险分级 + 脱敏 | ✅ | ✅ | CommandRisk 四级 + Redactor 双端 |
 | Z8 初始化模板（真执行） | ✅ | ✅ | 11 内置模板双端（Ubuntu Web/Docker/Node/静态站/LNMP/Redis/PostgreSQL/Python/MongoDB/Caddy/监控） |
 

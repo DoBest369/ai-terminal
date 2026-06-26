@@ -6,6 +6,14 @@
 
 ---
 
+## UI 现代化双端对齐：android 状态面板 CPU/内存/磁盘 mini 进度条
+- **内容**：上轮 apple 状态面板加了 CPU/内存进度条，本轮 android 对齐。`StatCell` 从 value 字符串正则提取百分比（"47%" / "9.0 GB / 16.0 GB (56%)"）→ 画 mini 进度条（Box + fillMaxWidth 比例），**绿<60 / 橙60-80 / 红>80 三档**着色。CPU/内存/磁盘三个 StatCell 都有进度条。
+- **改动**：`MainActivity.kt`(StatCell + 进度条)。
+- **验证**：android BUILD SUCCESSFUL 26s **零 deprecated**。推送 a00a76b。
+- **意义**：双端状态面板 CPU/内存进度条对齐（apple 上轮/android 本轮），运维一眼看负载程度。UI 现代化双端一致。
+
+---
+
 ## UI 现代化：apple 终端键盘栏功能分组着色（截图驱动）
 - **内容**：iOS 终端辅助键栏所有键原本统一白色。改 `TerminalKeyBar.keyColor`：**中断键 ^C 红色文字 + 红底**（危险/中断警示）· **方向键 ↑↓←→ accent 粉红**（导航高亮）· 其他默认白。功能分组着色，一眼定位危险键与导航键。
 - **改动**：`TerminalKeyBar.swift`(keyColor + ^C 红底)、`Showcase.swift`(同步)。

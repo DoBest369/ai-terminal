@@ -6,6 +6,14 @@
 
 ---
 
+## android 终端键栏功能分组着色（双端键栏着色对齐）
+- **内容**：android 终端控制键栏原本全 accent 色。对齐 apple：**Ctrl+C 红色 + 红底**（中断警示）· **方向键 ↑↓←→ accent**（导航）· 其他默认白。功能区分一眼定位危险键/导航键。
+- **改动**：`MainActivity.kt`(键栏 AssistChip 着色)。
+- **验证**：android BUILD SUCCESSFUL 26s **零 deprecated**。推送 83c2f8a。
+- **意义**：双端终端键栏功能着色对齐（apple TerminalKeyBar / android 控制键栏）。运维高频的中断键/方向键快速定位，好用好看。
+
+---
+
 ## windows 命令/AI 输入框改可输入 TextBox（占位→可交互）
 - **内容**：windows 终端命令输入 + AI 指令输入从 `TextBlock` 占位文字 → 真实 `TextBox`（`PlaceholderText` 提示 + `CaretBrush` 粉红光标，可真实输入）；AI 发送按钮 `Border` → `Button`（可点击）。
 - **修复**：`TextBox.Watermark` deprecated → `PlaceholderText`（零 deprecated/warning 政策；首构建 2 警告→修复后 0 警告）。

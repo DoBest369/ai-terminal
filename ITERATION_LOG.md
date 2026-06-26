@@ -6,6 +6,14 @@
 
 ---
 
+## windows 终端区快捷命令 chip 横栏（对照 apple/android）
+- **内容**：windows 终端区命令输入框上方加快捷命令横滑 chip 栏（ScrollViewer + StackPanel）：ls -la / df -h / free -h / top（粉红）+ systemctl status nginx（橙色风险）。点击填入设计。终端区 Grid 从 3 行→4 行（状态条/输出/快捷命令/输入）。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图验证 chip 栏。推送 7ff0271。
+- **意义**：windows 端终端区对照 apple/android 加快捷命令栏，工作台更完整。windows 端逐步从骨架→功能完整（三栏 + ListBox 连接 + 状态进度条 + 输入框 + 快捷命令栏）。
+
+---
+
 ## android 终端键栏功能分组着色（双端键栏着色对齐）
 - **内容**：android 终端控制键栏原本全 accent 色。对齐 apple：**Ctrl+C 红色 + 红底**（中断警示）· **方向键 ↑↓←→ accent**（导航）· 其他默认白。功能区分一眼定位危险键/导航键。
 - **改动**：`MainActivity.kt`(键栏 AssistChip 着色)。

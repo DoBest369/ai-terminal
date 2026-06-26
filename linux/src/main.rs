@@ -29,13 +29,14 @@ struct ServerConn {
     group: &'static str,
     online: bool,
     note: &'static str,
+    last_used: &'static str,
 }
 
 fn demo_conns() -> Vec<ServerConn> {
     vec![
-        ServerConn { name: "生产 Web 01", host: "web01.example.com", user: "deploy", port: 22, group: "生产环境", online: true, note: "官网 + API" },
-        ServerConn { name: "数据库主机", host: "db.internal.net", user: "admin", port: 22, group: "生产环境", online: true, note: "MySQL 主库" },
-        ServerConn { name: "开发机", host: "dev.example.com", user: "deploy", port: 2222, group: "开发环境", online: false, note: "" },
+        ServerConn { name: "生产 Web 01", host: "web01.example.com", user: "deploy", port: 22, group: "生产环境", online: true, note: "官网 + API", last_used: "5 分钟前" },
+        ServerConn { name: "数据库主机", host: "db.internal.net", user: "admin", port: 22, group: "生产环境", online: true, note: "MySQL 主库", last_used: "1 小时前" },
+        ServerConn { name: "开发机", host: "dev.example.com", user: "deploy", port: 2222, group: "开发环境", online: false, note: "", last_used: "" },
     ]
 }
 
@@ -246,6 +247,9 @@ fn server_card(ui: &mut egui::Ui, c: &ServerConn, selected: bool) -> egui::Respo
                     ui.colored_label(TEXT_SECONDARY, format!("{}@{}:{}", c.user, c.host, c.port));
                     if !c.note.is_empty() {
                         ui.colored_label(TEXT_SECONDARY, format!("📝 {}", c.note));
+                    }
+                    if !c.last_used.is_empty() {
+                        ui.colored_label(TEXT_SECONDARY.linear_multiply(0.8), format!("上次使用 · {}", c.last_used));
                     }
                 });
                 // 右侧可达指示（对照 apple/android wifi/wifi.slash）

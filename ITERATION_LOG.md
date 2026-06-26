@@ -6,6 +6,13 @@
 
 ---
 
+## windows Avalonia 三栏工作台 UI（对照 apple 功能对齐）
+- **内容**：Windows 端 MainWindow 从两栏欢迎占位 → 完整**三栏工作台**，对照 apple main-overview：① 侧边栏（Termind 品牌 + 搜索 + 连接列表卡片，含颜色色条/状态点/名称/user@host:port，选中态高亮）② 终端区（状态条「已连接·prod-01·CPU 47%·内存 56%·负载」+ 终端输出 mono 文本[含绿色脚本] + 命令输入框）③ AI 面板（用户蓝气泡 + AI 深色气泡含代码块[绿 mono+黑底] + 快捷追问 chips[重新生成/存为方案] + 输入框带粉红发送按钮）。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图，Read 看图确认三栏布局渲染（左连接/中终端/右AI 对齐 apple）。推送 cecd9cd。
+- **意义**：Windows 端从「能编译的空壳」→「对齐 apple/android 设计的三栏工作台」。全平台 UI 设计语言统一（深色 + accent 粉红 + 卡片化 + 三栏布局）。一点点对照实现推进中。
+
+---
+
 ## 🏆🏆 五端全平台本机编译全部打通（里程碑）
 - **Windows 端 Avalonia 落地（最后一端）**：dotnet 9.0.315(代理+Azure)装好 → `dotnet new install Avalonia.Templates` + `dotnet new avalonia.app -o windows/TermindWindows` 建脚手架 → `MainWindow.axaml` 改 **Termind 深色 UI**(侧边栏品牌「Termind」+搜索框+SSH 连接列表卡片[开发机/数据库主机/生产服务器,状态点+名称+user@host:port] / 主区域品牌+定位「智能 SSH 服务器运维工作台」+护城河标语+按钮),对齐 apple/android 设计语言。
 - **修复**：Avalonia 新模板默认 `net10.0` 但 SDK 是 9.0.315 → 改 csproj `TargetFramework=net9.0`。

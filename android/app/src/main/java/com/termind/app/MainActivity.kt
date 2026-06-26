@@ -252,6 +252,7 @@ fun ServerListScreen(
         }
     }
     var overflow by remember { mutableStateOf(false) }
+    var showConfigImport by remember { mutableStateOf(false) }   // SSH config 文本导入
     var searchActive by remember { mutableStateOf(false) }   // A-Filter
     var search by remember { mutableStateOf("") }
     var sortMenu by remember { mutableStateOf(false) }       // A-Sort
@@ -285,6 +286,7 @@ fun ServerListScreen(
                     DropdownMenu(expanded = overflow, onDismissRequest = { overflow = false }) {
                         DropdownMenuItem(text = { Text("📤 导出连接") }, onClick = { overflow = false; onExport() })
                         DropdownMenuItem(text = { Text("📥 导入连接") }, onClick = { overflow = false; importPicker.launch("application/json") })
+                        DropdownMenuItem(text = { Text("📋 从 SSH config 导入") }, onClick = { overflow = false; showConfigImport = true })
                     }
                 }
                 IconButton(onClick = onInspect, enabled = conns.isNotEmpty()) {
@@ -298,6 +300,28 @@ fun ServerListScreen(
                     else Icon(Icons.Filled.Refresh, "刷新在线状态", tint = TextSecondary, modifier = Modifier.size(18.dp))
                 }
             }
+        }
+        // SSH config 文本导入对话框（粘贴 ~/.ssh/config 内容→解析批量添加连接）
+        if (showConfigImport) {
+            var cfgText by remember { mutableStateOf("") }
+            AlertDialog(
+                onDismissRequest = { showConfigImport = false },
+                title = { Text("从 SSH config 导入", color = TextPrimary) },
+                text = {
+                    Column {
+                        Text("粘贴 ~/.ssh/config 内容，自动解析为连接（密码认证）。", color = TextSecondary, fontSize = 12.sp)
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(cfgText, { cfgText = it }, placeholder = { Text("Host myserver\n  HostName 1.2.3.4\n  User root\n  Port 22", color = TextSecondary) },
+                            minLines = 4, maxLines = 8,
+                            textStyle = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Monospace, fontSize = 12.sp),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                            modifier = Modifier.fillMaxWidth())
+                    }
+                },
+                confirmButton = { TextButton(onClick = { val parsed = SshConfigParser.parse(cfgText); if (parsed.isNotEmpty()) onImport(parsed); showConfigImport = false }) { Text("导入", color = Accent) } },
+                dismissButton = { TextButton(onClick = { showConfigImport = false }) { Text("取消", color = TextSecondary) } },
+                containerColor = Surface
+            )
         }
         // A-Filter：搜索框
         if (searchActive) {

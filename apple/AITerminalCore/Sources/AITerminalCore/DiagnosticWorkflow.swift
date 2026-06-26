@@ -113,6 +113,37 @@ public struct DiagnosticWorkflow: Identifiable, Codable, Sendable, Equatable {
                 "for s in $(systemctl --failed --no-legend --plain | awk '{print $1}'); do echo \"== $s ==\"; systemctl status $s --no-pager -l | tail -15; done"
             ],
             summaryPrompt: "你是运维排障助手。根据上述失败服务输出，给出：① 哪些服务启动失败 ② 各自的失败原因线索（从状态/日志）③ 具体修复建议（配置/依赖/权限等）。精炼中文。"
+        ),
+        DiagnosticWorkflow(
+            id: "cron-check", name: "定时任务排查", icon: "clock.badge",
+            description: "查看 crontab、systemd timer、最近定时任务执行情况",
+            commands: [
+                "crontab -l 2>/dev/null",
+                "ls -l /etc/cron.d/ /etc/cron.daily/ 2>/dev/null",
+                "systemctl list-timers --all --no-pager 2>/dev/null | head -20",
+                "grep -i cron /var/log/syslog 2>/dev/null | tail -15 || journalctl -u cron -n 15 --no-pager 2>/dev/null"
+            ],
+            summaryPrompt: "你是运维排障助手。根据上述定时任务输出，给出：① 配置了哪些 cron/timer 任务 ② 有无异常或未按时执行 ③ 可疑/失败任务的排查建议。精炼中文。"
+        ),
+        DiagnosticWorkflow(
+            id: "log-scan", name: "日志异常扫描", icon: "doc.text.magnifyingglass",
+            description: "扫描系统日志中的错误/警告，快速定位异常",
+            commands: [
+                "journalctl -p err -n 40 --no-pager 2>/dev/null",
+                "dmesg --level=err,warn 2>/dev/null | tail -20",
+                "tail -30 /var/log/syslog 2>/dev/null | grep -iE 'error|fail|warn' || true"
+            ],
+            summaryPrompt: "你是运维排障助手。根据上述日志输出，给出：① 出现了哪些错误/警告 ② 按严重程度归类 ③ 最值得关注的异常及排查方向。精炼中文。"
+        ),
+        DiagnosticWorkflow(
+            id: "firewall-check", name: "防火墙规则检查", icon: "shield.lefthalf.filled",
+            description: "查看 iptables/ufw/firewalld 规则与放行端口",
+            commands: [
+                "ufw status verbose 2>/dev/null || echo 'ufw 未安装/未启用'",
+                "iptables -L -n --line-numbers 2>/dev/null | head -40",
+                "firewall-cmd --list-all 2>/dev/null || true"
+            ],
+            summaryPrompt: "你是运维排障助手。根据上述防火墙输出，给出：① 当前放行/拦截的端口与规则 ② 有无安全隐患（如过度放行）③ 加固或调整建议（标注风险）。精炼中文。"
         )
     ]
 }

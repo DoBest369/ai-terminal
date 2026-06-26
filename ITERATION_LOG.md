@@ -6,6 +6,15 @@
 
 ---
 
+## 知识卡片随手记双端（命令历史一键沉淀，强化闭环）
+- **android**：命令历史 sheet 每行加「存为知识卡片」书签图标(BookmarkAdd)→快速记录对话框(NoteKind FilterChip 着色+预填命令+多行编辑)→`ServerNotebook.add(ctx, conn.id, ...)`。构建 24s，推送 b3d7c8a。
+- **apple**：`SnippetsView` 命令历史行 `.contextMenu`「存为知识卡片」→`.alert` 快速记录→`ServerNotebook.add(connectionID: activeSession.connection.id.uuidString)`。无活动会话提示。推送 67415a5。
+- **改动**：`MainActivity.kt`(随手记对话框)、`SnippetsView.swift`(contextMenu+alert)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build 通过。
+- **意义**：知识沉淀闭环再强化——运维过程中(命令历史)随手把命令/经验记入知识卡片，降低记录门槛。让「记录」更顺手，闭环(记录→喂AI→共享)的入口更自然。双端随手记✅。
+
+---
+
 ## 质量收口 · 护城河能力库快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；7 自测(history/batch/risk/metrics/env-detect/inspect/notebook)全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~20.9MB)。
 - **护城河能力库全景（截至本轮，双端共用 Core）**：

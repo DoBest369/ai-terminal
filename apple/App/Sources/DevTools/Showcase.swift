@@ -1145,9 +1145,9 @@ struct KeyBarShowcase: View {
             ForEach(Array(keys.enumerated()), id: \.offset) { _, k in
                 Text(k)
                     .font(.system(size: 14, weight: .medium, design: .monospaced))
-                    .foregroundStyle(Theme.textPrimary)
+                    .foregroundStyle(TerminalKeyBar.keyColor(k))
                     .frame(minWidth: k.count > 1 ? 44 : 34, minHeight: 34)
-                    .background(Theme.surfaceLight)
+                    .background(k == "^C" ? Theme.danger.opacity(0.15) : Theme.surfaceLight)
                     .clipShape(RoundedRectangle(cornerRadius: 7))
             }
             Spacer()

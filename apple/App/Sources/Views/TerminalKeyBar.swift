@@ -34,6 +34,13 @@ struct TerminalKeyBar: View {
         Key(label: "$", bytes: Array("$".utf8))
     ]
 
+    /// 按键功能分组着色：中断键 ^C 红色警示、方向键 accent 强调、其他默认
+    static func keyColor(_ label: String) -> Color {
+        if label == "^C" { return Theme.danger }
+        if ["↑", "↓", "←", "→"].contains(label) { return Theme.accent }
+        return Theme.textPrimary
+    }
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
@@ -46,9 +53,9 @@ struct TerminalKeyBar: View {
                     } label: {
                         Text(key.label)
                             .font(.system(size: 14, weight: .medium, design: .monospaced))
-                            .foregroundStyle(Theme.textPrimary)
+                            .foregroundStyle(Self.keyColor(key.label))
                             .frame(minWidth: key.wide ? 46 : 34, minHeight: 34)
-                            .background(Theme.surfaceLight)
+                            .background(key.label == "^C" ? Theme.danger.opacity(0.15) : Theme.surfaceLight)
                             .clipShape(RoundedRectangle(cornerRadius: 7))
                     }
                     .buttonStyle(.plain)

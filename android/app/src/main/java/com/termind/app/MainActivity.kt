@@ -94,6 +94,7 @@ fun TermindApp() {
     var editing by remember { mutableStateOf<ServerConn?>(null) }   // 当前编辑中的连接
     var showEditor by remember { mutableStateOf(false) }
     var activeProfile by remember { mutableStateOf<ServerProfile?>(null) }  // A-Env：当前连接的环境画像，喂给 AI
+    var activeConnId by remember { mutableStateOf("") }                     // 当前关联连接 id（喂知识卡片给 AI）
     var showBatch by remember { mutableStateOf(false) }  // N-Multi 批量群发
     var showInspect by remember { mutableStateOf(false) }  // N-Cron 批量巡检
     // A-Reach：可达性探测结果 id→可达(true/false)；不在 map=探测中/未探测
@@ -115,7 +116,7 @@ fun TermindApp() {
 
     // 连接详情「工作区」覆盖在最上层
     detail?.let { conn ->
-        ServerWorkspace(conn, onBack = { detail = null }, onProfile = { activeProfile = it })
+        ServerWorkspace(conn, onBack = { detail = null }, onProfile = { activeProfile = it; activeConnId = conn.id })
         return
     }
     // N-Multi 批量群发覆盖
@@ -202,7 +203,7 @@ fun TermindApp() {
                         conns.add(copy); persist(); editing = copy; showEditor = true
                     }
                 )
-                Tab.AI -> AIAssistantScreen(onGoSettings = { tab = Tab.Settings }, profile = activeProfile)
+                Tab.AI -> AIAssistantScreen(onGoSettings = { tab = Tab.Settings }, profile = activeProfile, connId = activeConnId)
                 Tab.Settings -> SettingsScreen()
             }
         }
@@ -425,7 +426,7 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
 }
 
 @Composable
-fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) {
+fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, connId: String = "") {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     // A-Convos / A-ConvoPersist：多对话（从 store 加载，变更后持久化）
@@ -482,9 +483,14 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
         lastSent = t to basePrompt   // A-Regen 记录
         messages.add("user" to t); input = ""; sending = true
         // A-Env：把当前服务器环境摘要注入系统提示，让 AI 结合真实环境回答（对齐 apple Z3）
-        val sys = profile?.aiSummary?.takeIf { it.isNotEmpty() }?.let {
+        var sys = profile?.aiSummary?.takeIf { it.isNotEmpty() }?.let {
             "$basePrompt\n\n$it\n请结合以上真实服务器环境给出针对性、可直接执行的回答。"
         } ?: basePrompt
+        // 知识卡片注入：AI 对话(含报错分析)也结合这台机历史记录（知识沉淀闭环扩展到对话/报错路径）
+        if (connId.isNotEmpty()) {
+            val notebook = ServerNotebook.composeForAI(ServerNotebook.load(ctx, connId))
+            if (notebook.isNotEmpty()) sys += "\n\n$notebook\n如与本次问题相关，请结合上述历史运维记录。"
+        }
         // A-Stream：流式逐字显示。先放一个空 assistant 消息，delta 时追加到它
         val history = messages.toList()
         val aiIndex = messages.size

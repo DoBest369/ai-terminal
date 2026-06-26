@@ -6,6 +6,17 @@
 
 ---
 
+## A-SftpTime + A-SftpSort + 质量收口 · SFTP 时间显示 + 排序
+- **A-SftpTime**（修改时间）：`RemoteFile` 加 `mtime: Long`(秒，sshj `FileAttributes.getMtime()` javap 确认) + `timeLabel`(今年 MM-dd HH:mm/往年 yyyy-MM-dd，SimpleDateFormat)；`listDir` 填充 `info.attributes.mtime`；SftpBrowser 行名称下显时间。构建 22s，推送 559689f。
+- **A-SftpSort**（文件排序）：SftpBrowser 顶栏排序 DropdownMenu(名称/大小/时间)；`remember(files, sortMode)` 计算 shownFiles——文件夹优先(compareByDescending isDir)+组内 名称升/大小降/mtime 降。文件多时找得快。构建 21s，推送 b9e7421。
+- **质量收口**：apple `AITerminalCore`+`App` swift build Build complete；6 自测(history/batch/risk/metrics/env-detect/inspect)全 true 无回归；android 零 deprecated。
+- **SFTP 文件管理现极完善**：浏览/查看/下载/上传/新建/删除/重命名/路径跳转/修改时间/排序。
+- **改动**：`SshClient.kt`(mtime+timeLabel)、`MainActivity.kt`(SftpBrowser 时间+排序)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 6 自测全过。
+- **意义**：SFTP 文件管理体验贴近桌面文件管理器(时间/排序)，运维找文件更高效。双端成熟产品持续打磨。
+
+---
+
 ## A-Avatar + A-AutoScroll + 质量收口 · AI 头像 + 终端自动滚动
 - **A-Avatar**（AI 头像）：ChatBubble Row 加 verticalAlignment=Top；assistant 消息左侧加 26dp 小圆(Accent 0.2 底)+AutoAwesome 图标(Accent 15dp)；user 不加(右对齐)；气泡宽 user 0.85/assistant 0.78。对话角色一眼区分。构建 20s，推送 de27d65。
 - **A-AutoScroll**（终端自动滚动）：终端输出区 verticalScroll 提取具名 `termScroll`+`LaunchedEffect(output.length){ if(!termSearchOn) termScroll.scrollTo(maxValue) }`。新输出自动滚到底，搜索激活时不强制滚(让用户查看)。构建 21s，推送 1121efd。

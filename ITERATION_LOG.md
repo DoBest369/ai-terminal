@@ -6,6 +6,15 @@
 
 ---
 
+## AI 对话快捷追问双端（提升对话流畅度）
+- **android**：AIAssistantScreen 末条 assistant 且未生成中时，「重新生成」Chip 同行加快捷追问 Chip(给我具体命令/换个思路/解释原理/有什么风险)横滑→点击 `send(q)`(走现有 send，自动带环境+知识卡片上下文)。构建 22s，推送 e9626fa。
+- **apple**：AIAgentView messages 与 inputBar 间，末条 assistant 且 !aiProcessing 时加横滑快捷追问 Button→`input=q; send()`。推送 e8abe06。
+- **改动**：`MainActivity.kt`(快捷追问 Chip)、`AIAgentView.swift`(快捷追问 Button)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 8 自测全过。
+- **意义**：AI 回复后一键追问(要命令/换思路/解释/问风险)，降低再输入门槛，对话更顺手。追问自动带环境+知识卡片上下文(走统一 send/runAICompletion)。双端 AI 对话体验完善。
+
+---
+
 ## 命令收藏夹自测 + 质量收口（自测 7→8 项）
 - **自测**：`Screenshots.favoritesTest` + main `--favorites-test`——验证 `CommandFavorites.toggled`：空列表加 ls/df-h 后 ["df-h","ls"](置顶最新)、再 toggle ls 取消→["df-h"]、空字符串忽略。输出「置顶加入=true；取消=true；去空=true」。CLAUDE.md 自测清单加 --favorites-test。
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；**8 自测**(history/batch/risk/metrics/env-detect/inspect/notebook/favorites)全 true 无回归；android clean assembleDebug **零 deprecated**。

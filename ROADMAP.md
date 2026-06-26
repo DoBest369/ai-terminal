@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **AI 对话快捷追问双端** ✅（末条 assistant 后 给我命令/换思路/解释/风险 快捷 Chip→send；android e9626fa/apple e8abe06；提升对话流畅度）
 - [x] **命令收藏夹自测 + 质量收口** ✅（--favorites-test「置顶加入/取消/去空=true」自测 7→8 项；apple 8 自测+android clean 零 warning；推送 d15529f）
 - [x] **命令收藏夹双端** ✅（CommandFavorites 持久化[Core/Kotlin 对齐]；命令历史星标收藏+收藏命令置顶快捷 Chip/Section；android dac2a90/apple 7d31e36；常用命令跨连接快捷）
 - [x] **知识卡片喂 AI 全路径双端** ✅（android AIAssistantScreen connId+send 注入[2c3c6d1]/apple runAICompletion 中心化注入[03242b9]；知识沉淀闭环覆盖 对话/解释/报错/排障/健康 全 AI 路径）

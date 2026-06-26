@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **apple 最近使用快速访问对齐** ✅（SidebarView「最近使用」横滑区 lastUsedAt 倒序前 5→openSession；双端最近使用对齐；8 自测全过；推送 fa88c20）
 - [x] **android 最近使用快速访问 + 质量收口** ✅（连接列表顶部「最近使用」横滑前 5；apple 8 自测+android clean 零 warning；推送 a307bda）
 - [x] **android 批量编辑扩展** ✅（操作栏加 批量颜色标签[颜色选择]+批量删除[二次确认]；onBatchColor/onBatchDelete；构建 24s 无 warning；推送 b34e523）
 - [x] **android 连接批量编辑** ✅（ServerCard 多选模式[combinedClickable 长按+勾选]+批量改分组对话框→批量 copy；apple 8 自测+android clean 零 warning；推送 1f4cfc7）

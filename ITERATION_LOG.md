@@ -6,6 +6,14 @@
 
 ---
 
+## apple 最近使用快速访问对齐（双端对齐）
+- **内容**：`SidebarView` 连接列表(SSH 连接 Section 之前)加「最近使用」Section——横滑 `recentConns`(model.connections.filter{lastUsedAt != nil}.sorted{倒序}.prefix(5))，Capsule 小卡显 clock 图标+名称→点击 `model.openSession(for:)` 直接打开。非搜索时显。对齐 android。
+- **改动**：`SidebarView.swift`(recentConns 计算属性 + 最近使用 Section)。
+- **验证**：App swift build Build complete；8 自测全过。推送 fa88c20。
+- **意义**：apple 补齐最近使用快速访问，双端对齐(PARITY 该项 🟡→✅✅)。常用机器快速访问双端一致。
+
+---
+
 ## android 批量编辑扩展 + 最近使用快速访问 + 质量收口
 - **批量编辑扩展**：多选操作栏在 改分组 基础上加 **批量颜色标签**(ColorTag 颜色圆点选择→批量 copy colorTag)+**批量删除**(Warning 图标二次确认→conns.removeAll{id in ids})。onBatchColor/onBatchDelete 回调。
 - **最近使用快速访问**：连接列表顶部(非多选/非搜索时)加「最近使用」横滑小卡区——`conns.filter{lastUsed>0}.sortedByDescending{lastUsed}.take(5)`，小卡显在线点+名称→点击直接 onOpen。

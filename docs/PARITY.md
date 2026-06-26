@@ -37,7 +37,7 @@
 | 连接复制（克隆） | ✅ | ✅ | 双端（apple cloneConnection 插到原连接后；android 一键克隆） |
 | 终端连接时长 | ✅ | ✅ | 双端显示连接时长（apple StatusBar TimelineView） |
 | 连接上次使用相对时间 | ✅ | ✅ | 双端「上次使用 · N 分钟前」 |
-| 最近使用快速访问 | 🟡 | ✅ | android 连接列表顶部「最近使用」横滑快速访问 |
+| 最近使用快速访问 | ✅ | ✅ | 双端连接列表顶部「最近使用」横滑快速访问 |
 | 终端输出搜索 | ✅ | ✅ | apple SwiftTerm 内置搜索（高亮+上/下导航+定位）；android 高亮+匹配计数 |
 | 终端控制键栏（Tab/Ctrl/方向键） | ✅ | ✅ | 双端；apple TerminalKeyBar（iOS SSH 会话，18 键含 ^R/^U/管道符）+ macOS 物理键盘 |
 | AI 代码块渲染 | ✅ | ✅ | 双端按 ``` 拆等宽深色框（apple MessageBubble + 渲染验证） |

@@ -6,6 +6,15 @@
 
 ---
 
+## 质量基线 · 全 18 项自测完整回归（知识卡片增强后）
+- **全 18 项自测逐一通过**(知识卡片 tags+导入改动后完整回归)：ssh-config(解析正确)/portability(往返正确)/ai-md/ai-md-all(导出)/ai-persist/ai-conv(对话持久化往返)/reach(可达=false 符合预期)/history(去重置顶限长)/risk(分级)/metrics(指标解析)/env-detect(环境探测)/batch(群发聚合)/**diag(工作流数=11)**/rollback(回滚)/**template(模板数=11)**/inspect(巡检)/notebook(知识卡片，tags 向后兼容)/favorites(收藏夹)。
+- **构建**：apple `AITerminalCore`+`App` swift build Build complete；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **97 项 ✅✅，🟡=0**。
+- **改动**：`ITERATION_LOG.md`(质量基线)。
+- **验证**：18 项自测全集逐一跑过；diag/template 数量验证场景库扩充(11/11)完好。
+- **意义**：经知识卡片 tags+导入(ServerNote 模型改动)后，以 18 项自测全集做完整质量基线回归，核心逻辑(连接/AI/持久化/巡检/排障11/模板11/回滚/风险/指标/收藏/知识卡片)全无回归。Termind 质量基线持续扎实。
+
+---
+
 ## 知识卡片导入双端（与导出对称，团队共享）+ 导入导出全景
 - **解析器**：apple `ServerNotebook.parseImport`(Core) + android `ServerNotebook.parseImport`——`## 问题/方案/笔记` 设当前类型 + `- 内容` 为一条卡片(对称 exportMarkdown)，逻辑对齐。
 - **UI**：apple NotebookView 工具栏「导入」→ alert 粘贴；android NotebookSheet 标题栏导入图标 → AlertDialog 粘贴。解析后按 text 去重 + 数量反馈。

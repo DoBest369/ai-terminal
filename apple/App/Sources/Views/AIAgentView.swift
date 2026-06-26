@@ -531,6 +531,12 @@ private struct MessageBubble: View {
                         } label: {
                             Label("复制", systemImage: "doc.on.doc")
                         }
+                        // 用户消息：重发该问题
+                        if message.role == .user && !model.aiProcessing {
+                            Button {
+                                model.sendAIMessage(message.content)
+                            } label: { Label("重发", systemImage: "paperplane") }
+                        }
                         if message.role == .assistant {
                             Button {
                                 Self.copyToClipboard(displayText)

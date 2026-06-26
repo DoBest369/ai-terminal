@@ -6,6 +6,14 @@
 
 ---
 
+## apple ConnectionEditShowcase 补颜色标签截图（截图与功能同步）
+- **内容**：`ConnectionEditShowcase` 加「颜色标签」SectionCard(6 色圆点 none/红/橙/绿/蓝/紫，选中 accent 描边环)+主机/用户名 MockField 标「*」，与上轮真实 ConnectionEditView 同步。`swift run Shots` 渲染 `04-connection-edit.png`，Read 看图核对：颜色标签 6 色圆点(绿色选中带描边)、必填 * 标识、各 Section 布局/配色(Theme) 均无误，拷 `apple/screenshots/04-connection-edit.png`。
+- **改动**：`Showcase.swift`(颜色标签卡片+必填标识)、`apple/screenshots/04-connection-edit.png`。
+- **验证**：App swift build Build complete；ImageRenderer 渲染核对；8 自测全过。推送 b065187。
+- **意义**：连接编辑器新 UI(色选器+必填标识)进截图，保持截图与功能同步。截图文档反映当前真实界面。
+
+---
+
 ## 质量收口 · 审计补齐成果快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **近批次「系统性审计→补齐单端落后」成果**：

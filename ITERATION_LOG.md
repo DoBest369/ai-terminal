@@ -6,6 +6,13 @@
 
 ---
 
+## 质量基线收口 + linux AI 多轮气泡
+- **质量基线**（多轮 UI 迭代后收口）：apple `App` swift build Build complete；**8 自测全 true 无回归**（history/batch/risk/metrics/env-detect/inspect/notebook/favorites）；linux cargo build Finished；PARITY **103 项 ✅✅**。30+ 轮 UI 现代化未伤核心逻辑。
+- **linux AI 多轮气泡**：AI 面板加一轮对话（用户问「装了什么服务」+ AI 答 nginx/docker/mysql 运行/redis 未运行），对照 windows，两轮展示连续性 + AI 结合真实环境护城河。cargo build 0 error/warning（build 通过后提交）。推送 05b0eac。
+- **意义**：质量基线扎实（核心逻辑无回归），同时 UI 持续打磨（linux/windows AI 对话多轮对照）。五端 AI 对话面板内容丰富度趋于一致。
+
+---
+
 ## windows AI 对话区多轮气泡（展示对话连续性）
 - **内容**：windows AI 面板前加一轮对话（用户问「这台机器装了什么服务？」+ AI 答「nginx/docker/mysql 运行、redis 未运行，需要启动 redis 吗？」，体现 AI 结合服务器真实环境）。现为两轮对话，展示对话连续性 + 护城河（AI+真实环境）。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(AI 对话多轮气泡)。

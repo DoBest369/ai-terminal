@@ -6,6 +6,14 @@
 
 ---
 
+## windows 连接列表 SelectionChanged → 终端状态条反映（真实交互）
+- **内容**：windows `ConnList` 加 `SelectionChanged=OnConnSelected`；code-behind 解析选中连接地址（user@host:port → host）+ 在线状态（Reach ✓），更新终端状态条 `StatusHost`（主机名）/ `StatusDot`（已连接绿/离线灰）。点连接列表 → 终端区实时反映，对照 linux 真实交互。
+- **改动**：`MainWindow.axaml`(SelectionChanged + StatusDot/StatusHost x:Name)、`MainWindow.axaml.cs`(OnConnSelected 处理)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）；`dotnet run` 截图（状态条显「主机 db.internal.net」= 默认选中数据库主机）。推送 1d5b686。
+- **意义**：windows 从「静态展示」→「真实交互」（点连接→终端状态条反映），对照 linux。windows/linux 双端真实交互（连接选中联动终端区）。
+
+---
+
 ## linux 终端状态条反映选中连接（真实交互第一步）
 - **内容**：linux 终端区状态条从固定 mock「prod-01」→ 根据 `self.selected` 显示选中连接的 host + 在线状态（已连接绿 ●/离线灰 ○）。点击侧边栏连接列表 → 终端区状态条实时反映选中连接。在 CentralPanel 前取 `(sel_host, sel_online)` 避开 borrow 冲突。
 - **改动**：`linux/src/main.rs`(终端状态条用 selected 连接)。

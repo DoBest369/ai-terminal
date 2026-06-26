@@ -121,6 +121,7 @@ struct SidebarShowcase: View {
             // 分组（组内按最近使用排序）
             ForEach(groupNames, id: \.self) { g in
                 HStack(spacing: 6) {
+                    Image(systemName: "chevron.down").font(.system(size: 9)).foregroundStyle(Theme.textSecondary)
                     Image(systemName: "folder").font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
                     Text(g).font(.system(size: 11, weight: .semibold)).foregroundStyle(Theme.textSecondary)
                 }.padding(.horizontal, 16).padding(.top, 12).padding(.bottom, 4)

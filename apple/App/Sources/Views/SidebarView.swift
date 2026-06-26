@@ -23,6 +23,7 @@ enum ConnSortMode: String, CaseIterable {
 struct SidebarView: View {
     @EnvironmentObject var model: AppModel
     @State private var search = ""
+    @State private var collapsedGroups: Set<String> = []   // 折叠的分组（对齐 android A-GroupFold）
     @AppStorage("conn_sort_mode") private var sortModeRaw = ConnSortMode.recent.rawValue
 
     private var sortMode: ConnSortMode { ConnSortMode(rawValue: sortModeRaw) ?? .recent }
@@ -143,14 +144,26 @@ struct SidebarView: View {
                     }
                 }
 
-                // 分组
+                // 分组（标题可点折叠/展开，对齐 android A-GroupFold）
                 ForEach(groups, id: \.name) { grp in
                     Section {
-                        ForEach(grp.conns) { conn in
-                            ConnectionRow(connection: conn)
+                        if !collapsedGroups.contains(grp.name) {
+                            ForEach(grp.conns) { conn in
+                                ConnectionRow(connection: conn)
+                            }
                         }
                     } header: {
-                        Label(grp.name, systemImage: "folder")
+                        Button {
+                            if collapsedGroups.contains(grp.name) { collapsedGroups.remove(grp.name) }
+                            else { collapsedGroups.insert(grp.name) }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: collapsedGroups.contains(grp.name) ? "chevron.right" : "chevron.down")
+                                    .font(.system(size: 9))
+                                Label("\(grp.name) (\(grp.conns.count))", systemImage: "folder")
+                            }
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }

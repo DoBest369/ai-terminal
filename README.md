@@ -7,9 +7,12 @@
 **智能 SSH 服务器运维工作台** —— 不是又一个本地终端，而是以 SSH 为入口、AI 为助手、服务器管理为核心的运维工作台。对标 Xshell / Termius / FinalShell，护城河是 **AI + 真实服务器状态 + 安全执行 + 可回滚**。
 
 [![Platform](https://img.shields.io/badge/原生-macOS%20·%20iOS%20·%20Android-blue)](#平台矩阵)
+[![Parity](https://img.shields.io/badge/双端配对能力-100%20项全对齐-success)](docs/MATURITY.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 </div>
+
+> 📊 **成熟度一览**：双端（apple/android）配对能力 **100 项全对齐** · 护城河 **Z1–Z8**（排障 11 场景 / 部署 11 模板）· 批量运维 · 知识沉淀闭环 · 导入导出对称 · **18 项自测**质量基线。完整能力图谱与边界见 [`docs/MATURITY.md`](docs/MATURITY.md)。
 
 ## 定位
 

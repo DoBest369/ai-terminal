@@ -1,6 +1,9 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import AITerminalCore
+#if os(macOS)
+import AppKit
+#endif
 
 /// 一个可导出的二进制文档，用于把下载内容交给系统保存面板
 struct DataDocument: FileDocument {
@@ -231,6 +234,11 @@ struct FileBrowserView: View {
                     HStack(spacing: 12) {
                         Text("已选 \(selectedPaths.count)").font(.system(size: 12)).foregroundStyle(Theme.accent)
                         Spacer()
+                        #if os(macOS)
+                        // macOS：选目录批量下载选中文件（iOS 受 fileExporter 一次一文件限制，用单文件导出）
+                        Button { batchDownloadToFolder() } label: { Text("下载").font(.system(size: 13)) }
+                            .disabled(selectedPaths.isEmpty)
+                        #endif
                         Button(role: .destructive) { showBatchDelete = true } label: { Text("删除").font(.system(size: 13)) }
                             .disabled(selectedPaths.isEmpty)
                         Button("取消") { multiSelect = false; selectedPaths.removeAll() }.font(.system(size: 13))
@@ -300,6 +308,33 @@ struct FileBrowserView: View {
         do { try await session.sftpRemove(entry.path, isDirectory: entry.isDirectory); deleteTarget = nil; await load(path) }
         catch let e { self.error = (e as? SSHFriendlyError)?.message ?? "\(e)" }
     }
+
+    #if os(macOS)
+    /// macOS：NSOpenPanel 选目录 → 批量下载选中文件到该目录（目录项跳过）
+    private func batchDownloadToFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        panel.prompt = "下载到此文件夹"
+        guard panel.runModal() == .OK, let folder = panel.url else { return }
+        let targets = entries.filter { selectedPaths.contains($0.path) && !$0.isDirectory }
+        Task {
+            busy = "下载中…"; defer { busy = nil }
+            var ok = 0
+            for entry in targets {
+                do {
+                    let data = try await session.sftpDownload(entry.path)
+                    try data.write(to: folder.appendingPathComponent(entry.name))
+                    ok += 1
+                } catch let e { self.error = (e as? SSHFriendlyError)?.message ?? "\(e)" }
+            }
+            error = nil
+            busy = "已下载 \(ok)/\(targets.count) 个到 \(folder.lastPathComponent)"
+            multiSelect = false; selectedPaths.removeAll()
+        }
+    }
+    #endif
 
     /// 批量删除选中项（复用 sftpRemove 循环，对齐 android）
     private func batchRemove() async {

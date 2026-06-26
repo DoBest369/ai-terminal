@@ -6,6 +6,14 @@
 
 ---
 
+## apple 服务器知识卡片 UI（NotebookView，双端知识卡片完成）
+- **内容**：新建 `NotebookView.swift`(sheet)——顶部新增区 `Picker(.segmented)` 类型(问题/方案/笔记)+`TextField(axis:.vertical)`+加号按钮→`ServerNotebook.add(_, connectionID:)`；`List` 记录(kind 着色标签+文本)+`.onDelete`→`ServerNotebook.remove`；空态 book.closed 引导。`AppModel.notebookConnection: Connection?`；`ContentView .sheet(item: $model.notebookConnection)`；`SidebarView` 连接 contextMenu 加「知识卡片」(book.closed)入口。`Showcase.NotebookShowcase`+渲染 24-notebook(问题红/方案绿/笔记蓝)。
+- **改动**：`NotebookView.swift`(新)、`AppModel.swift`(notebookConnection)、`ContentView.swift`(sheet)、`SidebarView.swift`(入口)、`Showcase.swift`+`Screenshots.swift`(NotebookShowcase)、`apple/screenshots/24-notebook.png`。
+- **验证**：Core+App swift build Build complete；swift run Shots 渲染 24-notebook 核对——类型选择+三条记录着色清晰。推送 b10a51f。
+- **意义**：**服务器知识卡片双端完成**(apple NotebookView + android NotebookSheet，Core 共用 ServerNotebook)！PRODUCT 护城河「运维经验沉淀」从构想→双端落地。每台机记下问题/方案/笔记，下一步可在 AI 排障时注入 composeForAI 上下文，让 AI 结合这台机历史给建议。
+
+---
+
 ## android 服务器知识卡片（Kotlin 化 + UI，差异化深化落地）
 - **Core Kotlin 化**：新建 `ServerNotebook.kt` 对齐 apple——`NoteKind`(ISSUE/SOLUTION/NOTE+label)+`ServerNote`(id/kind/text/createdAt)+`object ServerNotebook`：按连接 id SharedPreferences 存 JSON(load/save/add[置顶,空忽略]/remove)+`composeForAI`(拼历史运维记录给 AI)。
 - **UI**：ServerWorkspace 工具栏加「知识卡片」入口(MenuBook)+`NotebookSheet`(ModalBottomSheet)——类型 FilterChip(问题红/方案绿/笔记蓝)+多行文本+添加按钮；列表按类型着色标签+文本+删除；空态引导文案。

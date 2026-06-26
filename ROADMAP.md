@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **apple 服务器知识卡片 UI** ✅（NotebookView 类型 Picker+列表着色+swipe 删除；AppModel.notebookConnection+ContentView sheet+SidebarView 入口；Showcase 渲染 24-notebook；服务器知识卡片**双端✅**；推送 b10a51f）
 - [x] **android 服务器知识卡片**（Kotlin化+UI）✅（ServerNotebook.kt 对齐 apple+NotebookSheet 类型选择/列表/新增/删除；MenuBook 修 AutoMirrored；构建 21s；推送 88efa3c→5982b02）
 - [x] **服务器知识卡片 Core**（差异化新方向）✅（ServerNotebook：ServerNote[问题/方案/笔记]+按连接持久化+composeForAI；--notebook-test 自测 6→7 项；推送 5c0b94b）；UI 待接
 - [x] **apple 终端连接时长对齐** ✅（TerminalSessionVM.connectedAt；StatusBarView TimelineView 每秒显时长；**双端配对能力完全对齐**！推送 8573667）

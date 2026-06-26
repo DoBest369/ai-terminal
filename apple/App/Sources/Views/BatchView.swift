@@ -36,6 +36,11 @@ struct BatchView: View {
                         Button { model.batchResults = [] } label: { Label("重来", systemImage: "arrow.counterclockwise") }
                     }
                 }
+                if !model.batchResults.isEmpty && !model.batchRunning {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button { exportResults() } label: { Label("导出", systemImage: "square.and.arrow.up") }
+                    }
+                }
             }
             .alert("\(risk.label)命令", isPresented: $confirmHighRisk) {
                 Button("取消", role: .cancel) {}
@@ -53,6 +58,17 @@ struct BatchView: View {
     private func doRun() {
         let targets = model.connections.filter { selected.contains($0.id) }
         model.runBatch(targets, command: command)
+    }
+
+    /// 把群发结果拼成 Markdown 复制到剪贴板（运维记录留存，对齐 android 分享）
+    private func exportResults() {
+        let okN = model.batchResults.filter { $0.ok }.count
+        var md = "# 批量群发结果\n\n命令：`\(command)`\n\n成功 \(okN) · 失败 \(model.batchResults.count - okN) · 共 \(model.batchResults.count) 台\n"
+        for o in model.batchResults {
+            md += "\n## \(o.ok ? "✅" : "❌") \(o.name)\n```\n\(o.output.trimmingCharacters(in: .whitespacesAndNewlines))\n```\n"
+        }
+        Clipboard.copy(md)
+        model.toast = "群发结果已复制（Markdown）"
     }
 
     // MARK: 选择 + 命令

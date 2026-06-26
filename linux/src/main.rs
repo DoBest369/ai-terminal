@@ -147,9 +147,20 @@ impl eframe::App for TermindApp {
                         .fill(SUCCESS.linear_multiply(0.12)).rounding(14.0));
                 });
                 ui.add_space(8.0);
-                // AI 输入框
-                ui.add(egui::TextEdit::singleline(&mut self.ai_input)
-                    .hint_text("输入指令…").desired_width(f32::INFINITY));
+                // AI 输入框 + 发送按钮（对照 apple/windows）
+                ui.horizontal(|ui| {
+                    let send = ui.add_sized(
+                        [28.0, 28.0],
+                        egui::Button::new(egui::RichText::new("↑").size(15.0).color(TEXT_PRIMARY))
+                            .fill(ACCENT).rounding(14.0));
+                    let _ = ui.add_sized(
+                        [ui.available_width(), 28.0],
+                        egui::TextEdit::singleline(&mut self.ai_input).hint_text("输入指令…"));
+                    if send.clicked() {
+                        // 发送逻辑占位（后续接 AI）：清空输入
+                        self.ai_input.clear();
+                    }
+                });
             });
 
         // ② 中间：终端区（状态条 + 输出）

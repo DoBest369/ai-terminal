@@ -6,6 +6,21 @@
 
 ---
 
+## 质量收口 · 审计驱动双端对齐成果总览
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **「系统性审计 → 补齐单端落后」累计成果（本阶段方法论核心）**：
+  | 发现落后端 | 补齐项 |
+  |---|---|
+  | apple | 端口范围校验 · 颜色标签色选器 · 主机/用户名必填标识 · macOS SFTP 批量下载 |
+  | android | AI 清空对话确认 · 删除连接/对话确认 · 快捷命令分组显示 · 状态面板负载/运行时长 |
+  | 双端同步新增 | 命令收藏夹 · 快捷追问 · 单条消息存卡片/重发 · 知识卡片搜索 · 连接批量编辑 · 最近使用 · SFTP 批量删除 · AI 提示词 25 · 快捷命令编辑 |
+- **方法论价值**：grep 双端同类功能逐项对比 → 发现差异 → 补齐，使「配对能力 🟡=0」从功能层扩展到字段/校验/确认/交互全维度。
+- **改动**：`ITERATION_LOG.md`(总览)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：审计驱动的双端对齐成果累积可观，Termind 双端不仅功能对齐，连状态面板字段/表单校验/危险确认/平台导出 都一致。成熟度扎实，质量稳健。
+
+---
+
 ## 服务器状态面板评估 + android 加负载/运行时长
 - **审计**：grep 双端状态面板字段。apple `SystemInfo` 有 hostname/cpu/cpuCores/mem/**loadavg(负载 1/5/15)**/**uptime(运行时长)**/disk/services/healthSummary/hasWarning，StatusBar 显示负载+运行时长。android `ServerStatus`(OpsCore) 仅 cpu/mem/disk/healthSummary，**缺 loadavg/uptime** → android 落后。
 - **android 补齐**：`SshClient.fetchStatus` 命令尾加 `uptime`；`ServerStatus` 加 `load`/`uptime` 字段 + parse 正则(load average: x,y,z / up ... user)；healthSummary 含负载/运行；状态面板 Row→Column 加第二行显「负载 x/y/z · 运行 N」。对齐 apple StatusBar。

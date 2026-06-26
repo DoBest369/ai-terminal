@@ -20,6 +20,11 @@ import androidx.compose.foundation.verticalScroll
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.FolderZip
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.automirrored.filled.AltRoute
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -2085,6 +2090,21 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
     }
 }
 
+/** 按扩展名返回语义化文件图标（对齐 apple FileBrowserView.fileIcon）。 */
+private fun sftpFileIcon(name: String): androidx.compose.ui.graphics.vector.ImageVector {
+    val n = name.lowercase()
+    fun ends(vararg e: String) = e.any { n.endsWith(it) }
+    return when {
+        ends(".sh", ".bash", ".zsh", ".fish") -> Icons.Filled.Terminal
+        ends(".tar", ".gz", ".tgz", ".zip", ".xz", ".bz2", ".7z", ".rar") -> Icons.Filled.FolderZip
+        ends(".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".bmp") -> Icons.Filled.Image
+        ends(".py", ".js", ".ts", ".go", ".rs", ".c", ".cpp", ".h", ".java", ".kt", ".swift", ".rb", ".php") -> Icons.Filled.Code
+        ends(".md", ".txt", ".rst", ".log", ".json", ".yml", ".yaml", ".conf", ".cfg", ".ini", ".env", ".toml") -> Icons.AutoMirrored.Filled.Article
+        n.startsWith(".") -> Icons.AutoMirrored.Filled.Article
+        else -> Icons.Filled.Description
+    }
+}
+
 /** A-SFTP：远程文件浏览（全屏 sheet：路径栏 + 列表 + 进入/上级） */
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
@@ -2334,7 +2354,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                                 tint = if (sel) Accent else TextSecondary, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(10.dp))
                         }
-                        Icon(if (f.isDir) Icons.Filled.Folder else Icons.Filled.Description, null,
+                        Icon(if (f.isDir) Icons.Filled.Folder else sftpFileIcon(f.name), null,
                             tint = if (f.isDir) Accent else TextSecondary, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(12.dp))
                         // A-SftpTime：名称 + 修改时间

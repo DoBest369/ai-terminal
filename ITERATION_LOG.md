@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 连接卡片最近使用时间（对照 apple/android）
+- **内容**：linux `ServerConn` 加 `last_used` 字段；`server_card` 在备注后显「上次使用 · 5 分钟前」（非空时，淡化色），对照 apple/android 连接卡片的 lastUsed 显示。
+- **改动**：`linux/src/main.rs`(ServerConn last_used + server_card 显示)。
+- **验证**：`cargo build` **0 error/warning**（0.54s 增量，带 proxy，build 通过后提交）。推送 ea78c9d。
+- **意义**：linux 连接卡片对照 apple/android 显最近使用时间（辅助识别活跃服务器）。windows 端最近使用待加（下轮），让连接卡片信息五端更全。
+
+---
+
 ## windows 连接卡片备注显示 → 连接卡片备注五端对齐
 - **内容**：windows `ConnItem` 加 `Note`/`HasNote` 字段；ItemTemplate 地址下加备注行（📝 MySQL 主库），`HasNote` false 时 IsVisible 隐藏。对照 apple/android/linux 连接卡片备注（补 windows 缺口）。
 - **改动**：`MainWindow.axaml.cs`(ConnItem Note 数据)、`MainWindow.axaml`(ItemTemplate 备注行)。

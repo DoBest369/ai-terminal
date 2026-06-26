@@ -6,6 +6,15 @@
 
 ---
 
+## SFTP 大小显示评估 + apple 连接端口范围校验
+- **SFTP 文件大小评估**：双端**已友好显示**——android `RemoteFile.sizeLabel`(B/KB/MB/GB 计算属性)、apple `formatBytes(entry.size)`。无需改，如实记录已完成。
+- **apple 连接端口校验对齐**：发现 android `EditConnectionScreen` 早有完整端口校验(portOk 1–65535+isError+红字提示+数字过滤)，apple `ConnectionEditView` 仅 `Int(portText) ?? 22` 无范围校验/提示 → apple 落后。补：`portValid`(空或 1–65535)计算属性、无效时红字「端口需在 1–65535 之间」、`canSave` 含 portValid(禁用保存)、save 钳制到有效范围(越界回退 22)。
+- **改动**：`ConnectionEditView.swift`(端口校验)、`docs/PARITY.md`。
+- **验证**：apple App swift build + 8 自测全过。推送 397f31b。
+- **意义**：连接端口范围校验双端齐(android 早有/apple 补齐)，防误填非法端口。又一处经评估发现 apple 落后→补齐的双端对齐。
+
+---
+
 ## 质量收口 · 快捷命令 + 连接管理体验快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
 - **快捷命令体验（本批次完善后全齐）**：默认库(分组) · 自定义增/删/**改**(名称/命令/分组) · 分组显示 · 风险着色 · 一键填入 · 命令收藏夹(星标置顶跨连接) · 命令历史(去重/补全/随手记)。

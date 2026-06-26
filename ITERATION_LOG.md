@@ -6,6 +6,15 @@
 
 ---
 
+## README 成熟度徽章 + 指向 MATURITY.md
+- **内容**：README 顶部加 `双端配对能力-100 项全对齐` 徽章(指向 docs/MATURITY.md) + 「📊 成熟度一览」一句话(双端 100 项/护城河 Z1-Z8/排障11部署11/批量运维/知识沉淀闭环/导入导出对称/18 自测)指向成熟度总览。让仓库访客一眼看全能力规模。
+- **如实**：徽章/一览不夸大(未称 iOS 已出包)；边界见 MATURITY.md。
+- **改动**：`README.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 d9d6dd6。
+- **意义**：仓库门面(README)反映成熟度里程碑(100 项对齐)，访客经徽章/一览/链接快速了解 Termind 能力与边界。文档门面完善。
+
+---
+
 ## 产品成熟度总览 docs/MATURITY.md（PARITY 100 项里程碑沉淀）
 - **内容**：新建 `docs/MATURITY.md`，7 维盘点 Termind 当前完整能力图谱：① 平台覆盖(apple 可构建未出包/android 出 APK 零 warning/linux🟡 骨架/windows⬜) ② 主线(SSH/终端/SFTP/AI 对话/连接管理 18+维度) ③ 护城河 Z1-Z8(排障 11 场景/部署 11 模板等) ④ 批量运维(群发/巡检/告警筛选/定时) ⑤ 知识沉淀闭环(录入全入口/三维检索/喂AI全路径/导入导出对称) ⑥ 质量(双端 100 项🟡=0/18 自测基线) ⑦ 已知边界(本机无 Xcode 未出 iOS 包/linux 无 Rust/windows 待建/relay 自托管/密钥不持久化)。
 - **如实**：明确边界(不谎称 iOS 已出包/linux 已完成)。

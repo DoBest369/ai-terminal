@@ -6,6 +6,21 @@
 
 ---
 
+## 质量收口 · AI 对话体验全景快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **AI 对话体验全景（双端齐平）**：
+  - 流式输出 · 停止生成 · 多对话(新建/切换/删除/清空/持久化/搜索/导出)
+  - **快捷追问**(给我命令/换思路/解释/风险) · **重新生成上一条** · **单条 user 消息重发**
+  - **存为方案**(末条) · **AI 单条消息存知识卡片**(任意条 笔记/方案)
+  - 命令解释/报错分析快捷入口 · 运维提示词库(5 类) · 模型选择(Opus/Sonnet/Haiku)
+  - 代码块渲染/复制 · 消息复制 · 多行输入 · 角色头像 · 自动滚动
+  - **喂 AI 全路径**注入本机知识卡片(对话/解释/报错/排障/健康)
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：AI 对话从输入到生成到操作到沉淀全链路体验丰富双端齐。连续多轮 AI 对话+知识卡片+快捷命令增强后质量稳健确认。
+
+---
+
 ## AI 单条 user 消息重发双端
 - **apple**：`MessageBubble` user 气泡 contextMenu(已有复制)加「重发」→`model.sendAIMessage(message.content)` 重新发该问题(未生成中可用)。推送 a0fc4d4。
 - **android**：`ChatBubble` 加 `onResend:(String)->Unit` 回调；user 消息长按改为弹菜单(复制/重发)→onResend→`send(content)`。AI 消息菜单(复制/存笔记/存方案)不变。推送 18f26ff。

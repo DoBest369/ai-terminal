@@ -6,6 +6,15 @@
 
 ---
 
+## Doc · PARITY 校正——apple 连接复制实为✅（文档滞后纠正）
+- **发现**：拟给 apple 补连接克隆时发现 `AppModel.cloneConnection(_)` **早已存在**(553 行：copy.id=UUID()+name 加「副本」+插到原连接之后 connections.insert+saveConnections+toast)，`SidebarView` contextMenu 也已有「复制」按钮调用它。我误加的重复声明触发 `invalid redeclaration` 编译错误→删除恢复。
+- **校正**：PARITY 连接复制（克隆）apple 🟡→✅(双端，apple cloneConnection 插到原连接后)。又一处文档滞后纠正。
+- **改动**：`docs/PARITY.md`(无代码净变更，误加重复已删)。
+- **验证**：apple App swift build Build complete(删重复后)。
+- **意义**：apple 连接管理比 PARITY 记录的更全(复制已有)。提醒：标 android 独有前应先核查 apple 源码，避免文档滞后。剩余 apple 真缺：连接分组折叠、终端连接时长、SFTP 时间/排序/过滤(确认 apple 无)。
+
+---
+
 ## A-Paste + apple AI 气泡头像对齐
 - **A-Paste**（命令粘贴）：ServerWorkspace 命令行历史按钮旁加粘贴 IconButton(ContentPaste)→`LocalClipboardManager.getText()?.text` 填入 command。移动端粘贴长命令无需手动长按。构建 23s，推送 3382537。
 - **apple AI 气泡头像**（轮换 apple，对齐 android A-Avatar）：`MessageBubble` 角色标签从单 Text 改 HStack——assistant 加 `Image(systemName:"sparkles")`(Accent 9pt)头像图标 + 「AI」文字；user 仅「你」。`Showcase.AIPanelShowcase.bubble` 同步。渲染 03-ai-panel 核对——AI 标签前带 ✦ sparkles 图标。构建通过，推送 b7003ab。

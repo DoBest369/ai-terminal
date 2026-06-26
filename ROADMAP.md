@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **PARITY 校正·连接复制** ✅（核查发现 apple 早有 cloneConnection[插原连接后+toast]+SidebarView contextMenu 已接→连接复制 apple🟡→✅；文档滞后纠正）
 - [x] **apple AI 气泡头像对齐** ✅（MessageBubble AI 标签加 sparkles 图标对齐 android A-Avatar；Showcase 同步+渲染 03-ai-panel；推送 b7003ab）
 - [x] **A-Paste** 终端命令框粘贴按钮 ✅（命令行加 ContentPaste 按钮→clipboard 填入 command；构建 23s 无 warning；推送 3382537）
 - [x] **A-Version** 关于页版本号动态 ✅（build.gradle buildConfig=true；关于行 BuildConfig.VERSION_NAME；构建 28s 无 warning；推送 98be4c7）

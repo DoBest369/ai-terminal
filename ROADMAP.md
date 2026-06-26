@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **批量群发结果成功/失败统计双端** ✅（审计双端群发结果无汇总统计→双端同步加「✅成功N·❌失败M·共K台」统计行；batch 自测过；apple a8d1240/android ef5be14）
 - [x] **docs/PRODUCT.md 微更新** ✅（SFTP 批量删/下载、状态面板负载/运行时长、快捷命令增删改分组、导入去重反馈、色选器校验、AI 提示词25+快捷追问、知识闭环筛选检索；apple build 抽查；推送 6ae4cff）
 - [x] **质量收口·运维数据链贯穿快照** ✅（apple 8 自测+android clean 零 warning；PARITY 🟡=0；采集→面板→巡检→健康→沉淀 数据链贯穿；推送见下）
 - [x] **批量巡检 AI 素材加负载/运行时长** ✅（审计:状态面板加了 load/uptime 但巡检素材未含→android 巡检 material 补/apple healthSummary 补 uptime；巡检 AI 分析覆盖更全；inspect/metrics 自测过；android 8e33ced/apple 5bd9a55）

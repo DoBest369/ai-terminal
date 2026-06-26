@@ -6,6 +6,15 @@
 
 ---
 
+## 批量群发结果成功/失败统计（双端同步新增）
+- **审计**：双端批量群发结果展示。android `BatchScreen` + apple `BatchView` 都显每台 ok/fail 图标+名称+输出，但**都无成功/失败汇总统计**（双端同缺，非单端落后）→ 适合双端同步新增。
+- **双端新增**：结果列表上方加统计行「✅ 成功 N · ❌ 失败 M · 共 K 台」(完成项统计，运行中不计)。android Row + apple HStack，配色 Success/Danger/TextSecondary。
+- **改动**：`BatchScreen.kt`(android 统计行)、`BatchView.swift`(apple 统计行)、`docs/PARITY.md`。
+- **验证**：apple swift build + batch/inspect 自测过；android BUILD SUCCESSFUL 16s 零 deprecated。推送 apple a8d1240/android ef5be14。
+- **意义**：批量群发结果一眼看总览(成功/失败台数)，多机群发时快速判断整体情况，无需逐条数。双端同步补齐(审计也发现双端同缺的改进点，不止单端落后)。
+
+---
+
 ## docs/PRODUCT.md 微更新（近期增强反映）
 - **内容**：MVP 对照表刷新——SSH/SFTP 行加「批量删/批量下载」；状态面板加「负载/运行时长」；实用能力行细分为 命令收藏夹/快捷命令增删改+分组/连接批量编辑/最近使用、SSH config 导入(去重+反馈)/连接编辑色选器+校验/危险操作二次确认、AI 运维提示词库(25 条)/快捷追问/单条消息重发+存卡片。知识沉淀闭环六环「类型筛选」→「筛选检索(类型+关键词)」。
 - **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。

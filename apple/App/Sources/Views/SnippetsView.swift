@@ -14,6 +14,7 @@ struct SnippetsView: View {
     @State private var previewTemplate: SetupTemplate?  // U-Z8 初始化模板预览
     @State private var showImport = false               // 快捷命令导入粘贴
     @State private var importText = ""
+    @State private var historySearch = ""               // 命令历史搜索
     @State private var quickNoteCmd: String?            // 随手记：把命令存为知识卡片
     @State private var quickNoteText = ""
     @State private var quickNoteKind: ServerNote.Kind = .note
@@ -89,7 +90,14 @@ struct SnippetsView: View {
                 // N-History：命令历史（点击注入重用）
                 if !model.commandHistory.isEmpty {
                     Section("命令历史") {
-                        ForEach(model.commandHistory.prefix(10), id: \.self) { cmd in
+                        if model.commandHistory.count > 5 {
+                            TextField("搜索历史命令…", text: $historySearch)
+                                .textFieldStyle(.roundedBorder).font(.system(size: 12))
+                        }
+                        let shownHistory = historySearch.trimmingCharacters(in: .whitespaces).isEmpty
+                            ? Array(model.commandHistory.prefix(10))
+                            : model.commandHistory.filter { $0.localizedCaseInsensitiveContains(historySearch.trimmingCharacters(in: .whitespaces)) }
+                        ForEach(shownHistory, id: \.self) { cmd in
                             Button {
                                 if let inject = model.activeSession?.injectCommand {
                                     inject(cmd); model.recordCommand(cmd); dismiss()

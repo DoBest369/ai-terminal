@@ -120,7 +120,19 @@ impl eframe::App for TermindApp {
             .show(ctx, |ui| {
                 ui.colored_label(ACCENT, egui::RichText::new("✦ AI 助手").strong());
                 ui.add_space(10.0);
-                // 用户消息：角色标签 + 气泡（对照 apple/android）
+                // 第一轮对话（展示连续性 + AI 结合真实环境）
+                ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());
+                egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
+                    .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, "这台机器装了什么服务？"); });
+                ui.add_space(6.0);
+                ui.horizontal(|ui| {
+                    ui.colored_label(ACCENT, egui::RichText::new("✦").size(10.0));
+                    ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
+                });
+                egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0)
+                    .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, "检测到 nginx(运行)、docker(运行)、mysql(运行)、redis(未运行)。需要我帮你启动 redis 吗？"); });
+                ui.add_space(8.0);
+                // 第二轮对话：角色标签 + 气泡（对照 apple/android）
                 ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());
                 egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
                     .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, "怎么查看 Nginx 错误日志？"); });

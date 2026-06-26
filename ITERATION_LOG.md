@@ -6,6 +6,14 @@
 
 ---
 
+## windows AI 气泡角色标签 → AI 角色标签五端对齐
+- **内容**：windows AI 面板用户气泡前加「你」（右对齐）、AI 气泡前加「✦ AI」（粉红 ✦ + AI）标签，对照 apple/android/linux。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(AI 气泡角色标签，用 Run 内联粉红 ✦)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图。推送 b690d4f。
+- **🎯 AI 对话角色标签五端全对齐**：apple/android/linux/windows（iOS 同 apple）AI 气泡都有「你」/「✦ AI」角色标签。五端 AI 对话面板（角色标签 + 气泡 + 代码块 + 快捷追问 + 输入框）设计语言完全一致。
+
+---
+
 ## linux egui AI 气泡角色标签（对照 apple/android）
 - **内容**：linux AI 面板用户气泡前加「你」标签、AI 气泡前加「✦ AI」标签（10pt strong），对照 apple/android MessageBubble 的角色标签。
 - **改动**：`linux/src/main.rs`(AI 气泡角色标签)。

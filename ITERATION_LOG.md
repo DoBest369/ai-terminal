@@ -6,6 +6,16 @@
 
 ---
 
+## A-Avatar + A-AutoScroll + 质量收口 · AI 头像 + 终端自动滚动
+- **A-Avatar**（AI 头像）：ChatBubble Row 加 verticalAlignment=Top；assistant 消息左侧加 26dp 小圆(Accent 0.2 底)+AutoAwesome 图标(Accent 15dp)；user 不加(右对齐)；气泡宽 user 0.85/assistant 0.78。对话角色一眼区分。构建 20s，推送 de27d65。
+- **A-AutoScroll**（终端自动滚动）：终端输出区 verticalScroll 提取具名 `termScroll`+`LaunchedEffect(output.length){ if(!termSearchOn) termScroll.scrollTo(maxValue) }`。新输出自动滚到底，搜索激活时不强制滚(让用户查看)。构建 21s，推送 1121efd。
+- **质量收口**：apple `AITerminalCore`+`App` swift build Build complete；6 自测(history/batch/risk/metrics/env-detect/inspect)全 true 无回归；android 零 deprecated。
+- **改动**：`MainActivity.kt`(ChatBubble 头像+终端自动滚动)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 6 自测全过。
+- **意义**：AI 对话角色清晰 + 终端长会话自动跟随最新输出，体验细节精致。双端成熟产品持续打磨。
+
+---
+
 ## apple 批量巡检自测（--inspect-test，巡检纯逻辑解耦+质量巩固）
 - **内容**：把巡检的排序/AI 素材逻辑从 AppModel(@MainActor) 提取到 Core 纯逻辑——`SystemMonitor.swift` 加 `HealthInspectionItem`(name/info/error/hasWarning) + `enum HealthInspection { sorted(告警置顶) / composeForAI(各机 healthSummary 或失败原因) }`。AppModel.runHealthInspection 用 `HealthInspection.sorted`、summarizeInspection 用 `composeForAI`(去重复逻辑)。`Screenshots.inspectTest`：构造 告警(CPU92%)/正常/采集失败 三 item，验证 sorted 告警+失败置顶/正常垫底 + composeForAI 含「CPU 92%」「c-fail 采集失败：连接超时」。main 加 `--inspect-test`。
 - **改动**：`SystemMonitor.swift`(HealthInspectionItem+HealthInspection)、`AppModel.swift`(复用)、`Screenshots.swift`(inspectTest)、`ShotsMain/main.swift`(子命令)、`CLAUDE.md`(自测清单)。

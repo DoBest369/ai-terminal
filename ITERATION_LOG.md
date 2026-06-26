@@ -6,6 +6,14 @@
 
 ---
 
+## apple 批量群发/巡检无连接空状态引导（UI 现代化）
+- **内容**：BatchView/InspectView 当 `model.connections.isEmpty`（一个 SSH 连接都没有）时，显**空状态引导**（`server.rack` 图标 + 「还没有 SSH 连接」标题 + 「批量群发/巡检需要先添加服务器连接，在侧边栏「+」新建后再来」引导文案），而非空白表单。
+- **改动**：`BatchView.swift`/`InspectView.swift`(emptyConnectionsState)。
+- **验证**：swift build Build complete（SourceKit「No such module」为 IDE 缓存警告，build 始终通过）。推送 8260b0c。
+- **意义**：现代 App 空状态标配——无数据时给图标 + 引导而非空白，首次体验友好。批量运维面板（群发/巡检）无连接时引导用户先建连接。
+
+---
+
 ## linux egui 终端区快捷命令栏（五端终端区对齐）
 - **内容**：linux 终端区终端输出下加快捷命令 `Button` chips：ls -la / df -h / free -h / top（accent 粉红）+ systemctl status nginx（橙色风险），点击填入设计。对照 windows/apple/android 终端区快捷命令。
 - **改动**：`linux/src/main.rs`。

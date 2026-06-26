@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui AI 面板快捷追问 chips + 输入框（对照 apple/windows）
+- **内容**：linux AI 面板在 AI 气泡（含代码块）下加快捷追问 `Button` chips（重新生成 蓝 / 存为方案 绿）+ 底部 AI 输入 `TextEdit`（`ai_input` 字段，hint「输入指令…」）。对照 apple/windows AI 面板的快捷追问区 + 输入框。
+- **改动**：`linux/src/main.rs`(struct ai_input + chips + 输入框)。
+- **验证**：`cargo build` **0 error/warning**（0.66s 增量，带 proxy）。mac 上不运行（icrate 兼容）。推送 1005e42。
+- **意义**：linux AI 面板对照 apple/windows 更完整（对话气泡 + 代码块 + 快捷追问 + 输入框）。五端 AI 面板设计语言趋于一致。linux 端从静态展示→可交互（搜索框 + AI 输入框）。
+
+---
+
 ## android 连接列表空状态升级（双端空状态一致）
 - **内容**：android 主连接列表无连接时从「Dns 图标 + 单行文字」→ 升级为「Dns 图标 + 「还没有连接」标题(bold) + 「点右下角「+」添加第一台服务器，开始智能 SSH 运维」引导」两层结构，对照 apple SidebarView 空状态。
 - **改动**：`MainActivity.kt`(连接列表空状态)。

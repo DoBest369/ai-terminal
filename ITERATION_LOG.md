@@ -6,6 +6,20 @@
 
 ---
 
+## 质量收口 · 近期进展快照（差异化深化阶段）
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；7 自测(history/batch/risk/metrics/env-detect/inspect/notebook)全 true 无回归；android clean assembleDebug **零 deprecated**。
+- **PARITY 状态**：配对能力 🟡=0（全 ✅✅），仅余 2 项各自独有特性（android 定时后台巡检 / apple 分屏录制）。
+- **差异化深化阶段进展（近期）**：
+  - **🎯 服务器知识卡片闭环（护城河核心）**：随手记(命令历史一键)→记录(问题/方案/笔记)→喂 AI(排障+健康分析注入本机历史)→导出共享(Markdown)，双端全链路
+  - **护城河场景库扩充**：Z4 排障 5→8(加 内存/端口/服务启动)；Z8 部署 5→8(加 Redis/PostgreSQL/Python)
+  - **批量运维高效**：双端批量群发/巡检 全选/清空/按分组快速选目标
+  - **实用能力**：SSH config 导入(apple 读文件/android 粘贴文本)
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 7 自测全过；android clean 零 warning。
+- **意义**：连续多轮差异化深化(知识卡片闭环+场景库扩充+批量效率)后质量稳健确认。Termind 从「双端对齐」演进到「差异化深化」，护城河价值落地丰满，质量持续稳健。
+
+---
+
 ## apple 批量群发/巡检分组全选（双端批量选目标对齐）
 - **内容**：`BatchView`+`InspectView` 连接选择 List 上方加横滑快速选择条——「全选」(selected=Set(connections.map id))/「清空」+各分组按钮(`groupNames` 去重排序，点击 `selected.formUnion(该组 ids)`)。对齐 android BatchScreen 分组全选。InspectView 用 VStack 包裹选择条+List。
 - **改动**：`BatchView.swift`(groupNames+快速选择条)、`InspectView.swift`(同)。

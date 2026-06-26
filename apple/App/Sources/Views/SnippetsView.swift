@@ -204,6 +204,7 @@ struct SnippetsView: View {
                     } label: {
                         Label("初始化模板", systemImage: "square.stack.3d.up")
                     }
+                    Button { exportSnippets() } label: { Label("导出快捷命令", systemImage: "square.and.arrow.up") }
                     Button("恢复默认") { model.resetSnippets() }
                 }
             }
@@ -298,6 +299,19 @@ struct SnippetsView: View {
             }
             .tint(Theme.accent)
         }
+    }
+
+    /// 把快捷命令（默认+自定义）按分组拼成 Markdown 复制（备份/共享）
+    private func exportSnippets() {
+        let all = CommandSnippet.defaults + model.snippets
+        let grouped = Dictionary(grouping: all) { $0.groupName.isEmpty ? "其他" : $0.groupName }
+        var md = "# Termind 快捷命令\n"
+        for (group, items) in grouped.sorted(by: { $0.key < $1.key }) {
+            md += "\n## \(group)\n"
+            for s in items { md += "- **\(s.title)**：`\(s.command)`\n" }
+        }
+        Clipboard.copy(md)
+        model.toast = "快捷命令已复制（Markdown）"
     }
 
     private func addSnippet() {

@@ -162,6 +162,15 @@ struct SidebarView: View {
                             .buttonStyle(.plain)
                             .foregroundStyle(Theme.textSecondary)
                             .help("刷新全部可达性")
+                            // 连接批量编辑：多选开关
+                            Button {
+                                if model.multiSelectMode { model.exitMultiSelect() } else { model.multiSelectMode = true }
+                            } label: {
+                                Image(systemName: model.multiSelectMode ? "checkmark.circle.fill" : "checkmark.circle")
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(model.multiSelectMode ? Theme.accent : Theme.textSecondary)
+                            .help("批量编辑")
                         }
                         Button {
                             model.editingConnection = Connection()
@@ -198,9 +207,44 @@ struct SidebarView: View {
             }
             .listStyle(.sidebar)
             .scrollContentBackground(.hidden)
+            if model.multiSelectMode { batchBar }
         }
         .glassPanel(Theme.surface, opacity: 0.55)
         .navigationTitle("Termind")
+    }
+
+    /// 批量编辑操作栏（多选模式底部）
+    private var batchBar: some View {
+        HStack(spacing: 12) {
+            Text("已选 \(model.selectedConnectionIDs.count)").font(.system(size: 12)).foregroundStyle(Theme.accent)
+            Spacer()
+            // 改分组
+            Menu {
+                ForEach(groupOptions, id: \.self) { g in Button(g.isEmpty ? "（无分组）" : g) { model.batchSetGroup(g) } }
+            } label: { Text("分组").font(.system(size: 12)) }
+                .disabled(model.selectedConnectionIDs.isEmpty)
+            // 改颜色标签
+            Menu {
+                ForEach(ColorTag.allCases, id: \.self) { tag in Button(colorLabel(tag)) { model.batchSetColor(tag) } }
+            } label: { Text("标签").font(.system(size: 12)) }
+                .disabled(model.selectedConnectionIDs.isEmpty)
+            Button(role: .destructive) { model.batchDelete() } label: { Text("删除").font(.system(size: 12)) }
+                .disabled(model.selectedConnectionIDs.isEmpty)
+        }
+        .padding(.horizontal, 12).padding(.vertical, 8)
+        .background(Theme.accent.opacity(0.1))
+    }
+
+    /// 现有分组名（去重排序）+ 空分组项
+    private var groupOptions: [String] {
+        ([""] + Array(Set(model.connections.map { $0.groupName }.filter { !$0.isEmpty })).sorted())
+    }
+
+    private func colorLabel(_ tag: ColorTag) -> String {
+        switch tag {
+        case .none: return "无标签"; case .red: return "红"; case .orange: return "橙"
+        case .green: return "绿"; case .blue: return "蓝"; case .purple: return "紫"
+        }
     }
 
     private var searchField: some View {
@@ -261,6 +305,11 @@ private struct ConnectionRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
+            // 批量编辑：多选勾选框
+            if model.multiSelectMode {
+                Image(systemName: model.selectedConnectionIDs.contains(connection.id) ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(model.selectedConnectionIDs.contains(connection.id) ? Theme.accent : Theme.textSecondary)
+            }
             Circle()
                 .fill(statusColor(model.status(for: connection)))
                 .frame(width: 8, height: 8)
@@ -294,7 +343,12 @@ private struct ConnectionRow: View {
         .contentShape(Rectangle())
         .help(connection.noteText)
         .onTapGesture {
-            model.openSession(for: connection)
+            if model.multiSelectMode {
+                if model.selectedConnectionIDs.contains(connection.id) { model.selectedConnectionIDs.remove(connection.id) }
+                else { model.selectedConnectionIDs.insert(connection.id) }
+            } else {
+                model.openSession(for: connection)
+            }
         }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {

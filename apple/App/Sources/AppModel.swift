@@ -240,6 +240,8 @@ final class AppModel: ObservableObject {
     @Published var showPortForward = false
     @Published var showInspect = false   // N-Cron 批量巡检面板
     @Published var showBatch = false     // N-Multi 批量群发面板
+    @Published var multiSelectMode = false           // 连接批量编辑：多选模式
+    @Published var selectedConnectionIDs: Set<UUID> = []
     @Published var notebookConnection: Connection?   // 服务器知识卡片：当前查看的连接
     @Published var searchActive = false
     @Published var editingConnection: Connection?
@@ -529,6 +531,37 @@ final class AppModel: ObservableObject {
         connections.removeAll { $0.id == connection.id }
         store.deleteConnectionSecrets(id: connection.id)
         store.saveConnections(connections)
+    }
+
+    // MARK: - 连接批量编辑（对齐 android）
+
+    func exitMultiSelect() { multiSelectMode = false; selectedConnectionIDs.removeAll() }
+
+    func batchSetGroup(_ group: String) {
+        for i in connections.indices where selectedConnectionIDs.contains(connections[i].id) {
+            connections[i].group = group.isEmpty ? nil : group
+        }
+        store.saveConnections(connections)
+        toast = "已为 \(selectedConnectionIDs.count) 个连接改分组"
+        exitMultiSelect()
+    }
+
+    func batchSetColor(_ tag: ColorTag) {
+        for i in connections.indices where selectedConnectionIDs.contains(connections[i].id) {
+            connections[i].colorTag = tag
+        }
+        store.saveConnections(connections)
+        toast = "已为 \(selectedConnectionIDs.count) 个连接改颜色标签"
+        exitMultiSelect()
+    }
+
+    func batchDelete() {
+        let ids = selectedConnectionIDs
+        for id in ids { store.deleteConnectionSecrets(id: id) }
+        connections.removeAll { ids.contains($0.id) }
+        store.saveConnections(connections)
+        toast = "已删除 \(ids.count) 个连接"
+        exitMultiSelect()
     }
 
     /// 把连接的非敏感配置 JSON 复制到剪贴板（不含密码）

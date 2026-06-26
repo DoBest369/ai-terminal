@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.AltRoute
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -1142,7 +1143,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     }
                     // 知识卡片：每台机沉淀历史问题/方案/笔记
                     IconButton(onClick = { showNotebook = true }) {
-                        Icon(Icons.Filled.MenuBook, "知识卡片", tint = TextSecondary)
+                        Icon(Icons.AutoMirrored.Filled.MenuBook, "知识卡片", tint = TextSecondary)
                     }
                     // A-SFTP：文件浏览（仅已连接可用）
                     IconButton(onClick = { if (state == ConnState.CONNECTED) showFiles = true }, enabled = state == ConnState.CONNECTED) {
@@ -1491,7 +1492,7 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onClose, containerColor = Bg) {
         Column(Modifier.fillMaxWidth().padding(16.dp).heightIn(min = 300.dp, max = 560.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.MenuBook, null, tint = Accent)
+                Icon(Icons.AutoMirrored.Filled.MenuBook, null, tint = Accent)
                 Spacer(Modifier.width(8.dp))
                 Text("知识卡片", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                 Text("沉淀这台机的运维经验", color = TextSecondary, fontSize = 11.sp)

@@ -6,6 +6,24 @@
 
 ---
 
+## 质量收口 · 运维数据维度全景快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
+- **运维数据维度（采集→面板→巡检→健康→AI，双端齐全贯穿）**：
+  | 维度 | 采集 | 展示/告警 | 喂 AI |
+  |---|---|---|---|
+  | CPU | top/proc | 面板+巡检 | ✅ |
+  | 内存 | free/meminfo | 面板+巡检 | ✅ |
+  | 磁盘 | df | 面板+巡检(>85%告警) | ✅ |
+  | 负载(1/5/15) | uptime/loadavg | 面板第二行 | ✅ |
+  | 运行时长 | uptime | 面板第二行 | ✅ |
+  | 关键服务(nginx/docker/mysql/redis/sshd) | systemctl is-active | 健康摘要「未运行X」+告警 | ✅ |
+- **本阶段数据维度补齐**：负载/运行时长(android 补) + 关键服务状态(android 补)，使双端运维数据采集完全一致。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：运维状态数据 6 维度双端齐全采集，全部贯穿到 展示/告警/AI 分析。Termind「真实服务器状态 + AI 洞察」数据基础扎实完整。
+
+---
+
 ## 服务状态显示评估 + android 状态采集加关键服务
 - **审计**：apple `RemoteSystemMonitor.probe` 采集关键服务(nginx/docker/mysql/redis/sshd via `systemctl is-active`)→SystemInfo.services→healthSummary「未运行 X」+hasWarning。android `fetchStatus`(top/free/df/uptime) **不采集服务**→ServerStatus 无服务状态。android 落后(EnvDetector 有 services 但仅环境感知，状态面板/巡检/健康分析不含)。
 - **android 补齐**：`fetchStatus` 命令加 `for s in nginx docker mysql redis sshd; systemctl is-active`；`ServerStatus` 加 `services`/`stoppedServices`；parse SVC@@ 行(unknown=未安装不计)；`healthSummary` 含「未运行 X」；`hasWarning` 含服务停。状态面板/巡检/健康分析 AI 素材(都经 healthSummary)同步受益。

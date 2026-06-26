@@ -6,6 +6,15 @@
 
 ---
 
+## 产品成熟度总览 docs/MATURITY.md（PARITY 100 项里程碑沉淀）
+- **内容**：新建 `docs/MATURITY.md`，7 维盘点 Termind 当前完整能力图谱：① 平台覆盖(apple 可构建未出包/android 出 APK 零 warning/linux🟡 骨架/windows⬜) ② 主线(SSH/终端/SFTP/AI 对话/连接管理 18+维度) ③ 护城河 Z1-Z8(排障 11 场景/部署 11 模板等) ④ 批量运维(群发/巡检/告警筛选/定时) ⑤ 知识沉淀闭环(录入全入口/三维检索/喂AI全路径/导入导出对称) ⑥ 质量(双端 100 项🟡=0/18 自测基线) ⑦ 已知边界(本机无 Xcode 未出 iOS 包/linux 无 Rust/windows 待建/relay 自托管/密钥不持久化)。
+- **如实**：明确边界(不谎称 iOS 已出包/linux 已完成)。
+- **改动**：`docs/MATURITY.md`(新建)。
+- **验证**：apple App swift build Build complete 抽查。推送 a4daeb3。
+- **意义**：PARITY 100 项里程碑沉淀为产品成熟度总览，一文看全 Termind 能力与边界。docs 体系：PRODUCT(定位)/MATURITY(成熟度)/PARITY(配对明细)/connection-format(格式)。
+
+---
+
 ## 🎉 AI 对话全局搜索双端 → PARITY 100 项里程碑
 - **评估**：双端 AI 对话搜索原本**仅搜当前对话**(apple aiSearch filter aiMessages / android messages.filter)，跨对话定位是空白。
 - **全局搜索**：搜索激活且有词时，**对话切换器**标注每个对话的匹配条数 `🔍N`，点击跳转该对话。apple `conversationLabel` 计算 conv.messages 匹配数；android convoMenu 各项计算 c.count{content.contains}。低侵入(复用现有搜索词 + 切换器)，跨对话定位历史内容。

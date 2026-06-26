@@ -78,25 +78,33 @@ impl eframe::App for TermindApp {
                 ui.colored_label(TEXT_SECONDARY, "SSH 连接");
                 ui.add_space(6.0);
                 let q = self.search.trim().to_lowercase();
-                let mut last_group = "";
+                // 按分组聚合（过滤后），分组用 CollapsingHeader 可折叠（对照 apple/android）
+                let mut groups: Vec<(String, Vec<usize>)> = vec![];
                 for (i, c) in self.conns.iter().enumerate() {
-                    // 关键词过滤（名称/host/user）
                     if !q.is_empty()
                         && !c.name.to_lowercase().contains(&q)
                         && !c.host.to_lowercase().contains(&q)
                         && !c.user.to_lowercase().contains(&q) {
                         continue;
                     }
-                    if c.group != last_group {
-                        ui.add_space(8.0);
-                        ui.colored_label(TEXT_SECONDARY, c.group);
-                        last_group = c.group;
-                    }
-                    let resp = server_card(ui, c, self.selected == Some(i));
-                    if resp.clicked() {
-                        self.selected = Some(i);
+                    if let Some(g) = groups.iter_mut().find(|(name, _)| name == c.group) {
+                        g.1.push(i);
+                    } else {
+                        groups.push((c.group.to_string(), vec![i]));
                     }
                 }
+                let mut clicked: Option<usize> = None;
+                for (group, indices) in &groups {
+                    egui::CollapsingHeader::new(egui::RichText::new(group).color(TEXT_SECONDARY))
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            for &i in indices {
+                                let resp = server_card(ui, &self.conns[i], self.selected == Some(i));
+                                if resp.clicked() { clicked = Some(i); }
+                            }
+                        });
+                }
+                if let Some(i) = clicked { self.selected = Some(i); }
             });
 
         // ③ 右侧栏：AI 助手面板

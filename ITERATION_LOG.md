@@ -6,6 +6,14 @@
 
 ---
 
+## windows 状态条服务状态点 → 服务状态五端全对齐
+- **内容**：windows 状态条负载后加分隔线 + nginx/docker（绿点运行）/redis（灰点未运行）服务状态点，对照 apple/android/linux Z6 状态面板服务状态。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(服务状态点)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图。推送 4ffe6f3。
+- **🎯 服务状态显示五端全对齐**：apple/android/linux/windows（iOS 同 apple）状态面板都显关键服务运行状态点（Z6 护城河特性）。五端 UI 一致性再进一步。
+
+---
+
 ## linux egui 状态条关键服务状态点（对照 apple/android Z6）
 - **内容**：linux 状态条负载后加关键服务运行状态点（nginx/docker/mysql/redis/sshd），运行=绿点+白字、未运行=灰点+灰字（mock：redis 未运行示意）。对照 apple/android Z6 状态面板的服务状态。
 - **改动**：`linux/src/main.rs`(状态条服务状态点循环)。

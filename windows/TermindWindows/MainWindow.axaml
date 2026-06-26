@@ -73,6 +73,20 @@
                         </Border>
                     </StackPanel>
                     <TextBlock Text="负载 0.82" Foreground="#8B92A8" FontSize="12" VerticalAlignment="Center"/>
+                    <!-- 关键服务状态点（对照 apple/android/linux Z6） -->
+                    <Border Width="1" Height="16" Background="#2A2D3E" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+                        <TextBlock Text="●" Foreground="#3FB950" FontSize="11" VerticalAlignment="Center"/>
+                        <TextBlock Text="nginx" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+                        <TextBlock Text="●" Foreground="#3FB950" FontSize="11" VerticalAlignment="Center"/>
+                        <TextBlock Text="docker" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+                        <TextBlock Text="●" Foreground="#6B7280" FontSize="11" VerticalAlignment="Center"/>
+                        <TextBlock Text="redis" Foreground="#8B92A8" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
                 </StackPanel>
             </Border>
             <!-- 终端输出（可滚动） -->

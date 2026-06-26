@@ -26,6 +26,21 @@ struct AIAgentView: View {
                 Divider().overlay(Theme.surfaceLight)
             }
             messages
+            // 快捷追问（末条 assistant 且未处理中，对齐 android）
+            if model.aiMessages.last?.role == .assistant && !model.aiProcessing {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(["给我具体命令", "换个思路", "解释原理", "有什么风险"], id: \.self) { q in
+                            Button { input = q; send() } label: {
+                                Text(q).font(.system(size: 12)).padding(.horizontal, 10).padding(.vertical, 5)
+                                    .background(Theme.surfaceLight).foregroundStyle(Theme.textSecondary).clipShape(Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 6)
+                }
+            }
             Divider().overlay(Theme.surfaceLight)
             inputBar
         }

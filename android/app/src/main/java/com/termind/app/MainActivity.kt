@@ -981,7 +981,7 @@ private fun SettingRow(icon: ImageVector, title: String, value: String, onClick:
 enum class ConnState { DISCONNECTED, CONNECTING, CONNECTED, ERROR }
 
 /** 连接后「工作区」：交互式 PTY shell + 终端输出 + 状态面板 + AI 入口（A1b） */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProfile) -> Unit = {}) {
     val ctx = LocalContext.current

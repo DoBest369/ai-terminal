@@ -160,6 +160,16 @@
 - **质量基线**：18 项自测全集（连接/AI/持久化/巡检/排障11/模板11/回滚/风险/指标/收藏/知识卡片）逐一回归，知识卡片模型增强（tags+导入）后核心逻辑全无回归。
 - **双端对齐规模**：PARITY 配对能力达 **97 项双端共有全 ✅✅**，🟡=0。
 
+## 阶段 16 — 五端全平台本机编译打通 + UI 设计语言统一（2026-06-27）
+
+里程碑级突破：从「双端原生」扩展到**五端全平台本机编译打通**，并统一 UI 设计语言。
+
+- **🔑 工具链钥匙 = 系统代理 + 国外官方源**：本机系统代理端口 1082 走国外，命令行设 `https_proxy/http_proxy/all_proxy=http://127.0.0.1:1082` + 用国外官方源（国内镜像在代理下反而 TLS 失败）。装齐 Xcode 26.4 / Rust 1.96 / .NET 9.0.315。
+- **🏆 五端本机编译全打通**：macOS（xcodebuild 出 .app 运行）· iOS（同 xcodeproj scheme）· Linux（cargo build termind 15MB）· Android（gradle APK 零 deprecated）· **Windows（新建 Avalonia C#/.NET9，dotnet build 0 错 + dotnet run mac 上运行真界面）**。
+- **五端 UI 设计语言统一**：apple/windows/linux 三栏工作台（连接列表 + 终端区 + AI 面板），android 移动单页；统一深色 + accent 粉红 + 卡片化。
+- **UI 现代化 26 项（多数双端/五端对齐）**：状态面板 CPU/内存进度条（五端）· 终端区快捷命令栏（五端）· 连接搜索（五端）· 终端可滚动（五端）· AI 代码块复制+toast（双端）· SFTP 文件类型图标（双端）· 终端键栏功能着色（双端）· 空状态体系（连接/群发/巡检/AI 对话，双端）· 品牌名 Termind · windows/linux 从骨架→可交互工作台。
+- **CI**：workflow 覆盖五端真编译，待 workflow scope 授权激活。
+
 ## 当前状态
 
 - **双端原生可构建**：apple（Swift，swift build + 自测齐全 + 截图渲染验证）+ android（Kotlin，gradle 出 APK，零 deprecated warning）。

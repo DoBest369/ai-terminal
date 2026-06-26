@@ -6,6 +6,19 @@
 
 ---
 
+## 排障工作流 Z4 扩充（8→11 场景，双端）
+- **内容**：`DiagnosticWorkflow.builtins` 从 8 增至 11，新增：
+  - **定时任务排查**(cron-check)：crontab -l / cron.d/daily / systemctl list-timers / cron 日志
+  - **日志异常扫描**(log-scan)：journalctl -p err / dmesg --level=err,warn / syslog grep error
+  - **防火墙规则检查**(firewall-check)：ufw status / iptables -L / firewall-cmd --list-all
+  每个含 name+icon+description+只读诊断命令序列+summaryPrompt。
+- **双端对齐**：apple `DiagnosticWorkflow.swift`(Swift)+android `OpsWorkflows.kt`(Kotlin) builtins 内容一致。
+- **改动**：`DiagnosticWorkflow.swift`、`OpsWorkflows.kt`、`docs/PARITY.md`。
+- **验证**：apple Core swift build + diag 自测「内置工作流数=11；composeForAI 格式正确=true」；android BUILD SUCCESSFUL 13s 零 deprecated。推送 apple 60c14ba/android 9969b10。
+- **意义**：护城河 Z4 排障场景库再扩充(8→11)——覆盖 定时任务/日志异常/防火墙 三类常见运维排查。一键诊断+AI 结合本机知识卡片(已有闭环)给针对性结论。命令均只读，安全。
+
+---
+
 ## 质量基线 · 全 18 项自测完整回归
 - **全 18 项自测逐一通过**（用补全后的 CLAUDE.md 完整清单一次性全跑）：
   - ssh-config(config 解析正确) · portability(连接往返 group/启动命令/字号/备注 正确) · ai-md(当前对话导出 MD) · ai-md-all(全部对话导出) · ai-persist(对话持久化往返) · ai-conv(多对话保存/加载/删除/迁移)

@@ -6,6 +6,15 @@
 
 ---
 
+## 知识卡片类型筛选双端（记录多时按类型找）
+- **android**：`NotebookSheet` 列表上方加类型筛选 `FilterChip`(全部/问题/方案/笔记，着色)→`filterKind` state；`shownNotes = if(null) notes else notes.filter{kind}`，列表用 shownNotes。
+- **apple**：`NotebookView` 列表上方加 segmented `Picker`(全部/问题/方案/笔记)→`filterKind: ServerNote.Kind?`+`shownNotes` 计算属性；删除用 shownNotes 索引。
+- **改动**：`MainActivity.kt`(NotebookSheet 筛选)、`NotebookView.swift`(Picker 筛选)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 23s 无 warning；apple swift build 通过。
+- **意义**：知识卡片记录多时，按 问题/方案/笔记 类型快速筛选定位，体验更好。双端知识卡片体验持续完善。
+
+---
+
 ## AI 对话快捷追问双端（提升对话流畅度）
 - **android**：AIAssistantScreen 末条 assistant 且未生成中时，「重新生成」Chip 同行加快捷追问 Chip(给我具体命令/换个思路/解释原理/有什么风险)横滑→点击 `send(q)`(走现有 send，自动带环境+知识卡片上下文)。构建 22s，推送 e9626fa。
 - **apple**：AIAgentView messages 与 inputBar 间，末条 assistant 且 !aiProcessing 时加横滑快捷追问 Button→`input=q; send()`。推送 e8abe06。

@@ -1053,6 +1053,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     val opTimeline = remember { mutableStateListOf<OpTimelineEntry>() }  // A-Rollback 操作时间线
     var showTimeline by remember { mutableStateOf(false) }
     var showHealthAI by remember { mutableStateOf(false) }  // A-HealthAI 状态↔AI 联动
+    var diagSaveable by remember { mutableStateOf<String?>(null) }  // 排障结论可存为方案
     var showForward by remember { mutableStateOf(false) }   // A-Forward 端口转发对话框
     var forwardHandle by remember { mutableStateOf<PortForwardHandle?>(null) }
     var forwardLabel by remember { mutableStateOf<String?>(null) }
@@ -1165,7 +1166,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     if (notebook.isNotEmpty()) output += "📓 已结合本机知识卡片\n"
                     val ai = AiClient.chat(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
                         listOf("user" to wf.composeForAI(outs)), sys)
-                    output += "【AI 结论】\n" + ai.getOrElse { "⚠️ ${it.message}" } + "\n"
+                    val conclusion = ai.getOrNull()
+                    output += "【AI 结论】\n" + (conclusion ?: "⚠️ ${ai.exceptionOrNull()?.message}") + "\n"
+                    // 排障结论可一键存为方案卡片（知识沉淀闭环覆盖排障路径）
+                    if (!conclusion.isNullOrBlank()) diagSaveable = "排障「${wf.name}」结论：\n$conclusion"
                 } else {
                     output += "（配置 API Key 后可由 AI 自动总结结论）\n"
                 }
@@ -1566,6 +1570,20 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                         colors = termColors, modifier = Modifier.fillMaxWidth()
                     )
                 }
+            }
+            // 排障结论一键存为方案卡片（知识沉淀闭环覆盖排障路径）
+            diagSaveable?.let { conclusion ->
+                AssistChip(
+                    onClick = {
+                        ServerNotebook.add(ctx, conn.id, ServerNote(kind = NoteKind.SOLUTION, text = conclusion))
+                        android.widget.Toast.makeText(ctx, "排障结论已存为方案", android.widget.Toast.LENGTH_SHORT).show()
+                        diagSaveable = null
+                    },
+                    label = { Text("把排障结论存为方案", fontSize = 12.sp) },
+                    leadingIcon = { Icon(Icons.Filled.BookmarkAdd, null, tint = Success, modifier = Modifier.size(16.dp)) },
+                    trailingIcon = { Icon(Icons.Filled.Close, "忽略", tint = TextSecondary, modifier = Modifier.size(14.dp).clickable { diagSaveable = null }) },
+                    colors = AssistChipDefaults.assistChipColors(containerColor = Success.copy(alpha = 0.12f), labelColor = Success)
+                )
             }
             // A-TermSearch：终端搜索框（toggle 显示）
             if (termSearchOn) {

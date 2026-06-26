@@ -6,6 +6,20 @@
 
 ---
 
+## 知识卡片导出 Markdown + 质量收口 · 知识卡片能力全景
+- **导出 Markdown**：Core `ServerNotebook.exportMarkdown(notes, serverName:)`(双端 Swift/Kotlin 逻辑一致——# 标题 + 按 问题/方案/笔记 ## 分组 + - 列表)。`--notebook-test` 加导出 MD 校验(# 知识卡片/## 问题/## 方案)→「导出 MD=true」。apple NotebookView 工具栏导出按钮→`Clipboard.copy`；android NotebookSheet 导出按钮→`Intent.ACTION_SEND` text/plain 分享。
+- **质量收口**：apple swift build + 7 自测(含 notebook 导出 MD)全过；android clean assembleDebug 零 deprecated。
+- **服务器知识卡片能力全景（差异化护城河 知识沉淀）**：
+  - **记录**：双端 NotebookView/NotebookSheet——问题/方案/笔记 三类，按连接持久化
+  - **喂 AI**：排障(runDiagnostic/analyzeDiagnostic)+健康分析(HealthAISheet/diagnoseHealth)注入本机历史→AI 结合「这台机出过什么」给针对性结论
+  - **共享**：导出 Markdown(复制/分享)——团队共享运维经验
+  - 闭环：记录 → 喂 AI（排障+健康）→ 导出共享
+- **改动**：`ServerNotebook.swift/.kt`(exportMarkdown)、`NotebookView.swift`/`MainActivity.kt`(导出按钮)、`Screenshots.swift`(notebookTest)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL clean 零 warning；apple swift build + 7 自测全过。
+- **意义**：服务器知识卡片差异化能力完整成型——记录/喂AI/共享 全链路双端。PRODUCT 护城河「AI + 真实环境 + 知识沉淀」深度落地。
+
+---
+
 ## 知识卡片喂 AI 健康分析（知识沉淀闭环扩展到健康分析，双端）
 - **android**：`HealthAISheet` 加 `connId` 参数；AI 健康分析 system prompt 注入 `ServerNotebook.composeForAI(load(ctx, connId))`(连接有记录时)；ServerWorkspace 调用处传 `conn.id`。构建 22s，推送 e628343。
 - **apple**：`AppModel.diagnoseHealth` 同理——连接 id 从 `activeSession?.connection?.id.uuidString`，注入 `runAICompletion` systemPrompt(类比 analyzeDiagnostic)。推送 779c0dc。

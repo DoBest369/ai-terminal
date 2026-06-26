@@ -124,6 +124,33 @@ public struct SetupTemplate: Identifiable, Codable, Sendable, Equatable {
                 SetupStep("创建应用目录与虚拟环境", ["mkdir -p /opt/app && cd /opt/app", "python3 -m venv /opt/app/venv"]),
                 SetupStep("装常用依赖（按需改）", ["/opt/app/venv/bin/pip install --upgrade pip", "/opt/app/venv/bin/pip install gunicorn"]),
                 SetupStep("验证", ["python3 --version", "/opt/app/venv/bin/pip --version"])
+            ]),
+        SetupTemplate(
+            id: "mongodb", name: "MongoDB 数据库", icon: "leaf",
+            description: "安装 MongoDB、启用自启、创建管理员（请改密码）",
+            steps: [
+                SetupStep("安装 MongoDB", ["apt update", "apt install -y mongodb || apt install -y mongodb-org"]),
+                SetupStep("启用并自启", ["systemctl enable --now mongod || systemctl enable --now mongodb"]),
+                SetupStep("创建管理员（请改 YOUR_PASSWORD）", ["mongosh --eval \"db.getSiblingDB('admin').createUser({user:'admin',pwd:'YOUR_PASSWORD',roles:['root']})\" || mongo --eval \"db.getSiblingDB('admin').createUser({user:'admin',pwd:'YOUR_PASSWORD',roles:['root']})\""]),
+                SetupStep("验证", ["mongod --version | head -1"])
+            ]),
+        SetupTemplate(
+            id: "caddy", name: "Caddy 反代（自动 HTTPS）", icon: "lock.shield",
+            description: "安装 Caddy、写反代站点、自动申请 Let's Encrypt 证书",
+            steps: [
+                SetupStep("安装 Caddy", ["apt install -y debian-keyring debian-archive-keyring apt-transport-https", "curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg", "curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list", "apt update && apt install -y caddy"]),
+                SetupStep("写反代站点（请改域名/后端）", ["# 编辑 /etc/caddy/Caddyfile：\n# example.com {\n#   reverse_proxy 127.0.0.1:8080\n# }"]),
+                SetupStep("重载并自启", ["systemctl enable --now caddy", "systemctl reload caddy"]),
+                SetupStep("验证", ["caddy version", "systemctl status caddy --no-pager | head -5"])
+            ]),
+        SetupTemplate(
+            id: "monitoring", name: "Prometheus + Grafana 监控", icon: "chart.xyaxis.line",
+            description: "Docker 起 Prometheus + Grafana 监控栈（请改 Grafana 密码）",
+            steps: [
+                SetupStep("确保 Docker 就绪", ["docker --version || curl -fsSL https://get.docker.com | sh"]),
+                SetupStep("启动 Prometheus", ["docker run -d --name prometheus -p 9090:9090 --restart unless-stopped prom/prometheus"]),
+                SetupStep("启动 Grafana（请改 YOUR_PASSWORD）", ["docker run -d --name grafana -p 3000:3000 --restart unless-stopped -e GF_SECURITY_ADMIN_PASSWORD=YOUR_PASSWORD grafana/grafana"]),
+                SetupStep("验证", ["docker ps --filter name=prometheus --filter name=grafana"])
             ])
     ]
 }

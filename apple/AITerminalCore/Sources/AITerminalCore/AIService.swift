@@ -14,11 +14,14 @@ public struct ChatMessage: Identifiable, Codable, Sendable, Equatable {
     public var id: UUID
     public var role: ChatRole
     public var content: String
+    /// 发送时间（可选；旧持久化数据缺失解码为 nil，向后兼容）。仅用于展示，不参与 API 请求。
+    public var createdAt: Date?
 
-    public init(id: UUID = UUID(), role: ChatRole, content: String) {
+    public init(id: UUID = UUID(), role: ChatRole, content: String, createdAt: Date? = nil) {
         self.id = id
         self.role = role
         self.content = content
+        self.createdAt = createdAt
     }
 }
 

@@ -504,6 +504,10 @@ private struct MessageBubble: View {
     @EnvironmentObject var model: AppModel
     let message: ChatMessage
 
+    static let timeFormatter: DateFormatter = {
+        let f = DateFormatter(); f.dateFormat = "HH:mm"; return f
+    }()
+
     var body: some View {
         let isUser = message.role == .user
         HStack {
@@ -519,6 +523,12 @@ private struct MessageBubble: View {
                     Text(isUser ? "你" : "AI")
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(Theme.textSecondary)
+                    // 发送时间（有 createdAt 时显 HH:mm）
+                    if let t = message.createdAt {
+                        Text(Self.timeFormatter.string(from: t))
+                            .font(.system(size: 9))
+                            .foregroundStyle(Theme.textSecondary.opacity(0.7))
+                    }
                 }
                 bubbleContent
                     .padding(10)

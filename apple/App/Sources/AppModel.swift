@@ -511,7 +511,7 @@ final class AppModel: ObservableObject {
             showSettings = true
             return
         }
-        aiMessages.append(ChatMessage(role: .user, content: workflow.composeForAI(outputs: outputs)))
+        aiMessages.append(ChatMessage(role: .user, content: workflow.composeForAI(outputs: outputs), createdAt: Date()))
         // 知识卡片由 runAICompletion 中心化注入（覆盖所有 AI 路径）
         runAICompletion(systemPrompt: workflow.summaryPrompt)
     }
@@ -715,7 +715,7 @@ final class AppModel: ObservableObject {
             return
         }
 
-        aiMessages.append(ChatMessage(role: .user, content: trimmed))
+        aiMessages.append(ChatMessage(role: .user, content: trimmed, createdAt: Date()))
         runAICompletion()
     }
 
@@ -744,7 +744,7 @@ final class AppModel: ObservableObject {
         }
         // 本地规则先判一道安全等级（即使没网/AI 也有基础提示）
         let danger = AIService.isDangerous(cmd) ? "（本地规则判定：⚠️ 高危命令）" : ""
-        aiMessages.append(ChatMessage(role: .user, content: "解释这条命令\(danger)：\n```\n\(cmd)\n```"))
+        aiMessages.append(ChatMessage(role: .user, content: "解释这条命令\(danger)：\n```\n\(cmd)\n```", createdAt: Date()))
         runAICompletion(systemPrompt: commandExplainPrompt)
     }
 
@@ -757,7 +757,7 @@ final class AppModel: ObservableObject {
             showSettings = true
             return
         }
-        aiMessages.append(ChatMessage(role: .user, content: "分析这段报错并给修复：\n```\n\(t)\n```"))
+        aiMessages.append(ChatMessage(role: .user, content: "分析这段报错并给修复：\n```\n\(t)\n```", createdAt: Date()))
         runAICompletion(systemPrompt: errorAnalysisPrompt)
     }
 
@@ -777,7 +777,7 @@ final class AppModel: ObservableObject {
         var detail = info.healthSummary
         if !info.uptime.isEmpty { detail += "\n运行时长：\(info.uptime)" }
         if info.cpuCores > 0 { detail += "\nCPU 核数：\(info.cpuCores)" }
-        aiMessages.append(ChatMessage(role: .user, content: "这台服务器当前状态如下，请分析有无异常并给排查/优化建议：\n\(detail)"))
+        aiMessages.append(ChatMessage(role: .user, content: "这台服务器当前状态如下，请分析有无异常并给排查/优化建议：\n\(detail)", createdAt: Date()))
         // 知识卡片由 runAICompletion 中心化注入（覆盖所有 AI 路径）
         runAICompletion(systemPrompt: healthAnalysisPrompt)
     }
@@ -803,7 +803,7 @@ final class AppModel: ObservableObject {
         let conversation: [ChatMessage] = [ChatMessage(role: .system, content: sys)] + recent
 
         // 流式输出：先放一条空的 assistant 占位，按 token 追加
-        let assistant = ChatMessage(role: .assistant, content: "")
+        let assistant = ChatMessage(role: .assistant, content: "", createdAt: Date())
         aiMessages.append(assistant)
         let aid = assistant.id
 

@@ -267,6 +267,21 @@ public enum AppScreenshots {
         return "告警置顶排序=\(sortOk)；AI 素材正确=\(materialOk)"
     }
 
+    /// 服务器知识卡片自测（ServerNotebook）：新增置顶/删除/AI 素材拼接
+    public static func notebookTest() -> String {
+        var notes: [ServerNote] = []
+        notes = ServerNotebook.adding(notes, ServerNote(kind: .issue, text: "磁盘曾被日志写满"))
+        notes = ServerNotebook.adding(notes, ServerNote(kind: .solution, text: "配置 logrotate 限制 nginx 日志"))
+        notes = ServerNotebook.adding(notes, ServerNote(kind: .note, text: "  "))   // 空→忽略
+        let addOk = notes.count == 2 && notes.first?.kind == .solution   // 最新置顶
+        let target = notes.last!.id
+        let afterDel = ServerNotebook.removing(notes, id: target)
+        let delOk = afterDel.count == 1 && afterDel.first?.kind == .solution
+        let material = ServerNotebook.composeForAI(notes)
+        let materialOk = material.contains("[问题] 磁盘曾被日志写满") && material.contains("[方案] 配置 logrotate")
+        return "新增置顶=\(addOk)；删除=\(delOk)；AI 素材正确=\(materialOk)"
+    }
+
     /// 命令历史自测（N-History）：去重/置顶/限长
     public static func historyTest() -> String {
         var h: [String] = []

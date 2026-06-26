@@ -61,7 +61,7 @@ object SnippetStore {
             val line = raw.trim()
             when {
                 line.startsWith("## ") -> group = line.removePrefix("## ").trim()
-                line.startsWith("# ") || line.isEmpty -> {}
+                line.startsWith("# ") || line.isEmpty() -> {}
                 else -> {
                     val m = mdRe.find(line)
                     if (m != null) out.add(CommandSnippet(m.groupValues[1], m.groupValues[2], group))

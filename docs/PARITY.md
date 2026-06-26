@@ -102,7 +102,7 @@
 | 凭据安全存储 | ✅ | ✅ | apple Keychain / android EncryptedSharedPreferences |
 | 快捷命令片段（风险着色 + 自定义增删） | ✅ | ✅ | |
 | 命令历史（去重/置顶/限长/调出） | ✅ | ✅ | N-History 双端 UI 接入 |
-| 批量群发命令（多服务器同命令） | ✅ | ✅ | 双端完整 UI（apple BatchView + BatchShowcase 渲染） |
+| 批量群发命令（多服务器同命令） | ✅ | ✅ | 双端完整 UI + 全选/清空/按分组快速选目标 |
 | 群发结果 AI 汇总 | ✅ | ✅ | apple summarizeBatch + composeForAI；android 完整 |
 | 多主题配色 | ✅ | ✅ | 双端 5 套（午夜/One Dark/Dracula/Solarized/Nord） |
 | 连接配置导出/导入 | ✅ | ✅ | JSON（不含密码）；apple ConnectionPortability / android 分享Intent |

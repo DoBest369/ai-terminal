@@ -6,6 +6,14 @@
 
 ---
 
+## apple 批量群发/巡检分组全选（双端批量选目标对齐）
+- **内容**：`BatchView`+`InspectView` 连接选择 List 上方加横滑快速选择条——「全选」(selected=Set(connections.map id))/「清空」+各分组按钮(`groupNames` 去重排序，点击 `selected.formUnion(该组 ids)`)。对齐 android BatchScreen 分组全选。InspectView 用 VStack 包裹选择条+List。
+- **改动**：`BatchView.swift`(groupNames+快速选择条)、`InspectView.swift`(同)。
+- **验证**：App swift build Build complete；7 自测全过。推送 9a860eb。
+- **意义**：双端批量运维选目标对齐——全选/清空/按分组一键圈选，连接多时高效。批量群发/巡检体验双端一致。
+
+---
+
 ## android 批量群发分组全选（批量运维效率）
 - **内容**：`BatchScreen` 连接选择上方加横滑 Chip 行——「全选」(选所有连接)/「清空」+各分组 Chip(Folder 图标，点击选中该组所有连接 selected.add)；标题显选择计数「N/总数」。连接多、分组多时快速圈选目标，无需逐个点。InspectScreen 默认巡检全部，无需分组选。
 - **修复**：首构建 `horizontalScroll` 未导入→加 `import androidx.compose.foundation.horizontalScroll`。

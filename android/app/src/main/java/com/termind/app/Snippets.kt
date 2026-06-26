@@ -51,6 +51,30 @@ object SnippetStore {
     fun add(ctx: Context, s: CommandSnippet): List<CommandSnippet> {
         val list = ArrayList(load(ctx)); list.add(s); save(ctx, list); return list
     }
+
+    /** 解析导出的 Markdown/宽松文本→快捷命令（与导出对称，对齐 apple parseImport）。 */
+    fun parseImport(text: String): List<CommandSnippet> {
+        val out = ArrayList<CommandSnippet>()
+        var group = ""
+        val mdRe = Regex("^-\\s*\\*\\*(.+?)\\*\\*\\s*[:：]\\s*`(.+)`\\s*$")
+        text.split("\n").forEach { raw ->
+            val line = raw.trim()
+            when {
+                line.startsWith("## ") -> group = line.removePrefix("## ").trim()
+                line.startsWith("# ") || line.isEmpty -> {}
+                else -> {
+                    val m = mdRe.find(line)
+                    if (m != null) out.add(CommandSnippet(m.groupValues[1], m.groupValues[2], group))
+                    else for (sep in listOf("|", "=")) if (line.contains(sep)) {
+                        val p = line.split(sep, limit = 2).map { it.trim() }
+                        if (p.size == 2 && p[0].isNotEmpty() && p[1].isNotEmpty()) out.add(CommandSnippet(p[0], p[1], group))
+                        break
+                    }
+                }
+            }
+        }
+        return out
+    }
     fun remove(ctx: Context, s: CommandSnippet): List<CommandSnippet> {
         val list = ArrayList(load(ctx)); list.remove(s); save(ctx, list); return list
     }

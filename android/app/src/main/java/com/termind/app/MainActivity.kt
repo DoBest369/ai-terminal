@@ -1070,6 +1070,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     val favorites = remember { mutableStateListOf<String>().apply { addAll(CommandFavorites.load(ctx)) } }  // 命令收藏夹
     var showNewSnippet by remember { mutableStateOf(false) }
     var editingSnippet by remember { mutableStateOf<CommandSnippet?>(null) }   // 正在编辑的自定义片段
+    var showSnippetImport by remember { mutableStateOf(false) }   // 快捷命令导入粘贴
 
     // 采集服务器状态（CPU/内存/磁盘）
     fun refreshStatus() {
@@ -1372,6 +1373,33 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 showNewSnippet = false
             }) { Text("保存", color = Accent) } },
             dismissButton = { TextButton(onClick = { showNewSnippet = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+    // 快捷命令导入（粘贴导出的 Markdown/宽松文本→解析+去重）
+    if (showSnippetImport) {
+        var imp by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { showSnippetImport = false },
+            title = { Text("导入快捷命令", color = TextPrimary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("粘贴导出的内容（Markdown）或每行「标题|命令」。", color = TextSecondary, fontSize = 12.sp)
+                    OutlinedTextField(imp, { imp = it }, placeholder = { Text("- **磁盘**：`df -h`\n或 磁盘|df -h", color = TextSecondary) },
+                        minLines = 3, maxLines = 8,
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                        modifier = Modifier.fillMaxWidth())
+                }
+            },
+            confirmButton = { TextButton(onClick = {
+                val parsed = SnippetStore.parseImport(imp)
+                val existing = customSnippets.map { "${it.title}|${it.command}" }.toSet()
+                val fresh = parsed.filter { "${it.title}|${it.command}" !in existing }
+                fresh.forEach { customSnippets.clear(); customSnippets.addAll(SnippetStore.add(ctx, it)) }
+                android.widget.Toast.makeText(ctx, if (fresh.isEmpty()) "无新快捷命令" else "已导入 ${fresh.size} 条", android.widget.Toast.LENGTH_SHORT).show()
+                showSnippetImport = false
+            }) { Text("导入", color = Accent) } },
+            dismissButton = { TextButton(onClick = { showSnippetImport = false }) { Text("取消", color = TextSecondary) } },
             containerColor = Surface
         )
     }
@@ -1701,6 +1729,9 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                                 .putExtra(android.content.Intent.EXTRA_TEXT, md), "导出快捷命令"))
                     }, label = { Text("导出", fontSize = 11.sp) },
                         leadingIcon = { Icon(Icons.Filled.Share, null, tint = TextSecondary, modifier = Modifier.size(12.dp)) },
+                        colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextSecondary))
+                    AssistChip(onClick = { showSnippetImport = true }, label = { Text("导入", fontSize = 11.sp) },
+                        leadingIcon = { Icon(Icons.Filled.FileDownload, null, tint = TextSecondary, modifier = Modifier.size(12.dp)) },
                         colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextSecondary))
                 }
             }

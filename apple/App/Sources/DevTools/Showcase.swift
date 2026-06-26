@@ -636,6 +636,45 @@ struct BatchShowcase: View {
     }
 }
 
+// MARK: 服务器知识卡片
+
+struct NotebookShowcase: View {
+    // (kind, color, text)
+    let rows: [(String, Color, String)]
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "book.closed").foregroundStyle(Theme.accent)
+                Text("知识卡片 · 生产服务器").font(.headline).foregroundStyle(Theme.textPrimary)
+                Spacer()
+            }
+            // 新增区
+            HStack(spacing: 8) {
+                ForEach(["问题", "方案", "笔记"], id: \.self) { k in
+                    Text(k).font(.system(size: 12))
+                        .padding(.horizontal, 12).padding(.vertical, 5)
+                        .background(k == "笔记" ? Theme.accent.opacity(0.25) : Theme.surfaceLight)
+                        .foregroundStyle(k == "笔记" ? Theme.accent : Theme.textSecondary)
+                        .clipShape(Capsule())
+                }
+                Spacer()
+                Image(systemName: "plus.circle.fill").font(.system(size: 22)).foregroundStyle(Theme.accent)
+            }
+            Text("沉淀这台机的运维经验，AI 排障时可参考").font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
+            // 记录列表
+            ForEach(Array(rows.enumerated()), id: \.offset) { _, r in
+                HStack(alignment: .top, spacing: 10) {
+                    Text(r.0).font(.system(size: 11, weight: .medium)).foregroundStyle(r.1)
+                    Text(r.2).font(.system(size: 13)).foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                }
+                .padding(10).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+        }
+        .padding(16).background(Theme.background)
+    }
+}
+
 // MARK: 批量健康巡检（N-Cron）
 
 struct InspectShowcase: View {

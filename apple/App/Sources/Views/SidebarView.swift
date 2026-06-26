@@ -317,6 +317,11 @@ private struct ConnectionRow: View {
                 Label("复制", systemImage: "doc.on.doc")
             }
             Button {
+                model.notebookConnection = connection
+            } label: {
+                Label("知识卡片", systemImage: "book.closed")
+            }
+            Button {
                 model.checkReachability(connection)
             } label: {
                 Label("测试可达性", systemImage: "wifi")

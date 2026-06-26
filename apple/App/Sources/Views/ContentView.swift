@@ -36,6 +36,9 @@ struct ContentView: View {
         .sheet(isPresented: $model.showBatch) {
             BatchView()
         }
+        .sheet(item: $model.notebookConnection) { conn in
+            NotebookView(connection: conn)
+        }
         .sheet(item: $model.qrConnection) { conn in
             ConnectionQRView(connection: conn)
         }

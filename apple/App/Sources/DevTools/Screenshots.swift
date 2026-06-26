@@ -41,6 +41,12 @@ public enum AppScreenshots {
             ("生产 Web 01", 23, 61, 45, false, nil),
             ("开发机", 0, 0, 0, true, "连接超时")
         ]).frame(width: 440, height: 460), dir, "23-inspect")
+        // 服务器知识卡片
+        render(NotebookShowcase(rows: [
+            ("问题", Theme.danger, "磁盘曾被 nginx 日志写满导致 502"),
+            ("方案", Theme.success, "配置 logrotate 限制日志大小 + 定时清理"),
+            ("笔记", Theme.accent, "该机跑了 3 个 Docker 容器，重启需先停 compose")
+        ]).frame(width: 440, height: 420), dir, "24-notebook")
         render(AIPanelShowcase(messages: model.aiMessages)
             .frame(width: 380, height: 520), dir, "03-ai-panel")
         render(AIPanelShowcase(messages: Array(model.aiMessages.prefix(1)), processing: true)

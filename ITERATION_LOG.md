@@ -6,6 +6,15 @@
 
 ---
 
+## UI 现代化：apple 终端键盘栏功能分组着色（截图驱动）
+- **内容**：iOS 终端辅助键栏所有键原本统一白色。改 `TerminalKeyBar.keyColor`：**中断键 ^C 红色文字 + 红底**（危险/中断警示）· **方向键 ↑↓←→ accent 粉红**（导航高亮）· 其他默认白。功能分组着色，一眼定位危险键与导航键。
+- **改动**：`TerminalKeyBar.swift`(keyColor + ^C 红底)、`Showcase.swift`(同步)。
+- **验证**：swift build Build complete；`swift run Shots` 渲染 06-keybar，Read 看图确认 ^C 红色/方向键粉红/其他白。推送 825138d。
+- **意义**：终端键盘栏好用（快速定位 ^C 中断 + 方向键）+ 好看（功能色彩层次）。UI 现代化第 8 项。
+- **UI 现代化进度（8 项，截图驱动）**：品牌名 Termind · AI 代码块复制(双端) · 状态面板 CPU/内存进度条 · SFTP 文件类型图标(双端) · 代码块 toast(双端) · windows 三栏工作台 · linux 三栏工作台 · 键盘栏功能着色。
+
+---
+
 ## 文档 + CI 反映五端全平台编译打通
 - **MATURITY.md**：平台矩阵 linux🟡骨架/windows⬜待建 → **五端全 ✅ 本机编译**（macOS xcodebuild .app/iOS scheme/linux cargo 15MB/android gradle APK/windows Avalonia dotnet）；边界更新（编译全打通，windows/linux 为对齐设计的 UI 骨架待接真实 SSH/AI 逻辑；工具链依赖代理 1082+国外源）。
 - **README.md**：加「五端全平台-本机编译打通」徽章 + Platform 徽章加 Linux/Windows + 平台矩阵表 linux/windows 改 ✅（cargo build/dotnet build+run）。

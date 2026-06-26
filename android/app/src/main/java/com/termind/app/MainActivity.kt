@@ -698,7 +698,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
             val shown = if (q.isEmpty()) messages.toList() else messages.filter { it.second.contains(q, ignoreCase = true) }
             LazyColumn(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (q.isNotEmpty()) item { Text("${shown.size} 条匹配", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.padding(4.dp)) }
-                items(shown.size) { i -> ChatBubble(shown[i].first, shown[i].second) }
+                items(shown.size) { i -> ChatBubble(shown[i].first, shown[i].second, connId) }
                 if (sending && q.isEmpty()) item { Text("AI 思考中…", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(8.dp)) }
             }
         }
@@ -762,10 +762,11 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-private fun ChatBubble(role: String, content: String) {
+private fun ChatBubble(role: String, content: String, connId: String = "") {
     val isUser = role == "user"
     val clipboard = LocalClipboardManager.current
     val ctx = LocalContext.current
+    var menu by remember { mutableStateOf(false) }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start, verticalAlignment = Alignment.Top) {
         // A-Avatar：AI 角色头像（assistant 消息左侧小圆图标，一眼区分角色）
         if (!isUser) {
@@ -773,14 +774,19 @@ private fun ChatBubble(role: String, content: String) {
                 Icon(Icons.Filled.AutoAwesome, "AI", tint = Accent, modifier = Modifier.size(15.dp))
             }
         }
+        Box {
         Surface(
             color = if (isUser) Accent.copy(alpha = 0.25f) else SurfaceLight.copy(alpha = 0.5f),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth(if (isUser) 0.85f else 0.78f).combinedClickable(
                 onClick = {},
                 onLongClick = {
-                    clipboard.setText(androidx.compose.ui.text.AnnotatedString(content))
-                    android.widget.Toast.makeText(ctx, "已复制整条消息", android.widget.Toast.LENGTH_SHORT).show()
+                    // AI 消息且有关联连接：弹菜单（复制/存为笔记/存为方案）；否则直接复制
+                    if (!isUser && connId.isNotEmpty()) menu = true
+                    else {
+                        clipboard.setText(androidx.compose.ui.text.AnnotatedString(content))
+                        android.widget.Toast.makeText(ctx, "已复制整条消息", android.widget.Toast.LENGTH_SHORT).show()
+                    }
                 }
             )
         ) {
@@ -807,6 +813,22 @@ private fun ChatBubble(role: String, content: String) {
                     }
                 }
             }
+        }
+        // AI 消息长按菜单：复制 / 存为笔记 / 存为方案（知识沉淀入口）
+        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, modifier = Modifier.background(Surface)) {
+            DropdownMenuItem(text = { Text("复制", color = TextPrimary) }, onClick = {
+                menu = false; clipboard.setText(androidx.compose.ui.text.AnnotatedString(content))
+                android.widget.Toast.makeText(ctx, "已复制整条消息", android.widget.Toast.LENGTH_SHORT).show()
+            })
+            DropdownMenuItem(text = { Text("存为笔记", color = TextPrimary) }, onClick = {
+                menu = false; ServerNotebook.add(ctx, connId, ServerNote(kind = NoteKind.NOTE, text = content.trim()))
+                android.widget.Toast.makeText(ctx, "已存为知识卡片（笔记）", android.widget.Toast.LENGTH_SHORT).show()
+            })
+            DropdownMenuItem(text = { Text("存为方案", color = Success) }, onClick = {
+                menu = false; ServerNotebook.add(ctx, connId, ServerNote(kind = NoteKind.SOLUTION, text = content.trim()))
+                android.widget.Toast.makeText(ctx, "已存为方案", android.widget.Toast.LENGTH_SHORT).show()
+            })
+        }
         }
     }
 }

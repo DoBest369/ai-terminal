@@ -6,6 +6,14 @@
 
 ---
 
+## windows 连接卡片可达指示图标 → 可达指示五端全对齐
+- **内容**：windows `ConnItem` 加 `Reach`/`ReachColor` 字段；ItemTemplate 连接卡片右侧加可达指示（✓ 绿可达 / ✕ 灰不可达），对照 apple/android/linux。
+- **改动**：`MainWindow.axaml.cs`(ConnItem Reach 数据)、`MainWindow.axaml`(ItemTemplate 可达图标)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）；`dotnet run` 截图。推送 6af7caf。
+- **🎯 连接卡片可达指示五端全对齐**：apple/android（wifi/wifi.slash）/ linux（✓/✕）/ windows（✓/✕）/ iOS（同 apple）连接卡片都显可达指示。又一项五端对齐。
+
+---
+
 ## linux egui 连接卡片可达指示图标（对照 apple/android）
 - **内容**：linux `server_card` 右侧加可达指示——online 显 ✓（绿）/ offline 显 ✕（灰），对照 apple/android 连接卡片的 wifi/wifi.slash 可达图标。
 - **改动**：`linux/src/main.rs`(server_card 右侧 with_layout 可达图标)。

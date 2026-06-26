@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 状态条关键服务状态点（对照 apple/android Z6）
+- **内容**：linux 状态条负载后加关键服务运行状态点（nginx/docker/mysql/redis/sshd），运行=绿点+白字、未运行=灰点+灰字（mock：redis 未运行示意）。对照 apple/android Z6 状态面板的服务状态。
+- **改动**：`linux/src/main.rs`(状态条服务状态点循环)。
+- **验证**：`cargo build` **0 error/warning**（0.47s 增量，带 proxy）。mac 上不运行（icrate 兼容）。推送 9b3d923。
+- **意义**：linux 状态条对照 apple/android Z6 显关键服务运行状态（运维一眼看服务是否在跑）。**服务状态显示 apple/android/linux 三端对齐**（Z6 护城河特性）。
+
+---
+
 ## CHANGELOG 阶段16 梳理（五端全平台编译打通 + UI 设计语言统一里程碑）
 - **内容**：CHANGELOG 加「阶段 16 — 五端全平台本机编译打通 + UI 设计语言统一」——代理 1082+国外源装齐工具链；五端本机编译（macOS xcodebuild .app/iOS/linux cargo/android gradle/windows Avalonia）；三栏工作台 UI 统一；26 项 UI 现代化（多数双端/五端对齐）；CI 覆盖五端。
 - **改动**：`CHANGELOG.md`。

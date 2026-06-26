@@ -1021,7 +1021,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
 
     // A-HealthAI：状态↔AI 联动 sheet（流式分析当前服务器状态）
     if (showHealthAI) {
-        HealthAISheet(status, onClose = { showHealthAI = false })
+        HealthAISheet(status, conn.id, onClose = { showHealthAI = false })
     }
 
     // A-Forward：端口转发对话框
@@ -1447,7 +1447,7 @@ fun PortForwardDialog(existing: String?, onClose: () -> Unit, onStop: () -> Unit
 /** A-HealthAI：状态↔AI 联动——把当前状态摘要发给 AI 流式分析（对齐 apple Z6b） */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HealthAISheet(status: ServerStatus, onClose: () -> Unit) {
+fun HealthAISheet(status: ServerStatus, connId: String = "", onClose: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var content by remember { mutableStateOf("") }
@@ -1456,8 +1456,11 @@ fun HealthAISheet(status: ServerStatus, onClose: () -> Unit) {
     LaunchedEffect(Unit) {
         if (!SettingsStore.isConfigured(ctx)) { content = "请先在设置中配置 API Key。"; done = true; return@LaunchedEffect }
         val msg = "${status.healthSummary}\n请分析有无异常并给排查/优化建议。"
+        // 知识卡片注入：结合这台机历史给健康建议（知识沉淀闭环扩展到健康分析）
+        val notebook = if (connId.isNotEmpty()) ServerNotebook.composeForAI(ServerNotebook.load(ctx, connId)) else ""
+        val sys = if (notebook.isNotEmpty()) "${AiClient.HEALTH_PROMPT}\n\n$notebook\n请结合以上历史运维记录分析。" else AiClient.HEALTH_PROMPT
         AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
-            listOf("user" to msg), AiClient.HEALTH_PROMPT) { delta -> content += delta }
+            listOf("user" to msg), sys) { delta -> content += delta }
             .onFailure { content = "⚠️ ${it.message}" }
         done = true
     }

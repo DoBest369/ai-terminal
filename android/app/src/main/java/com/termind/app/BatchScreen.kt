@@ -184,6 +184,16 @@ fun BatchScreen(conns: List<ServerConn>, onBack: () -> Unit) {
                     Spacer(Modifier.width(8.dp)); Text("AI 汇总这批结果", color = Accent, fontSize = 13.sp)
                 }
             }
+            // 成功/失败统计（结果完成后显）
+            val doneResults = results.filter { !it.running }
+            if (doneResults.isNotEmpty()) {
+                val okN = doneResults.count { it.ok }
+                Row(Modifier.padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Text("✅ 成功 $okN", color = Success, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    if (doneResults.size - okN > 0) Text("❌ 失败 ${doneResults.size - okN}", color = Danger, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Text("共 ${results.size} 台", color = TextSecondary, fontSize = 12.sp)
+                }
+            }
             // 结果
             LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(results.size) { i ->

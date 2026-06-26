@@ -6,6 +6,15 @@
 
 ---
 
+## CHANGELOG 阶段13 梳理（护城河场景库扩充与 AI 对话完善）
+- **内容**：CHANGELOG 加「阶段 13 — 护城河场景库扩充与 AI 对话完善」——Z4 排障 8→11(定时任务/日志异常/防火墙)、Z8 部署 8→11(MongoDB/Caddy 自动 HTTPS/Prometheus+Grafana 监控)、AI 消息时间戳(双端，android Pair→ChatMsg 重构)、18 项自测质量基线。当前状态刷新护城河场景库为 排障11/部署11，加 AI 消息时间戳/批量结果统计导出。
+- **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。
+- **改动**：`CHANGELOG.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 55a63b1。
+- **意义**：文档体系反映 Termind 护城河场景库扩充(11/11)+AI 对话完善里程碑。CHANGELOG 已至阶段 13，记录产品从基础到差异化到批量运维到护城河场景库深化的完整演进。
+
+---
+
 ## 质量收口 · 护城河场景库快照（Z4 排障 11 / Z8 部署 11）
 - **质量门禁**：apple swift build Build complete；核心 8 自测全过 + **diag 工作流数=11 / template 模板数=11**(验证扩充)；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
 - **Z4 排障工作流（11，双端 builtins，真执行只读诊断+AI 总结）**：

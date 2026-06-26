@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **AI 单条 user 消息重发双端** ✅（user 消息 右键/长按菜单「重发」→重新发该问题；apple MessageBubble[a0fc4d4]/android ChatBubble onResend[18f26ff]）
 - [x] **android 快捷命令分组显示** ✅（横滑行按 group 分组+分组标签，对齐 apple SnippetsView 早有分组；构建 27s 无 warning；推送 7ca4dec）
 - [x] **质量收口·知识沉淀入口全覆盖快照** ✅（apple 8 自测+android clean 零 warning；PARITY 🟡=0；录入四入口 随手记/手动/AI结论/任意消息 全覆盖；推送见下）
 - [x] **AI 单条消息存为知识卡片双端** ✅（任意 AI 回复 右键/长按菜单存为 笔记/方案；apple MessageBubble contextMenu[a48f793]/android ChatBubble 长按菜单[d8c0a53]；知识沉淀入口更灵活）

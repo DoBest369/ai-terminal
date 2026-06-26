@@ -6,6 +6,15 @@
 
 ---
 
+## AI 单条 user 消息重发双端
+- **apple**：`MessageBubble` user 气泡 contextMenu(已有复制)加「重发」→`model.sendAIMessage(message.content)` 重新发该问题(未生成中可用)。推送 a0fc4d4。
+- **android**：`ChatBubble` 加 `onResend:(String)->Unit` 回调；user 消息长按改为弹菜单(复制/重发)→onResend→`send(content)`。AI 消息菜单(复制/存笔记/存方案)不变。推送 18f26ff。
+- **改动**：`AIAgentView.swift`(MessageBubble user 重发)、`MainActivity.kt`(ChatBubble onResend+user 菜单)、`docs/PARITY.md`。
+- **验证**：apple swift build + 抽测过；android BUILD SUCCESSFUL 25s 零 deprecated。
+- **意义**：AI 对话操作更灵活——任意历史 user 提问可一键重发(换个回答/AI 之前出错时)，比只能「重新生成上一条」更自由。双端一致。
+
+---
+
 ## android 快捷命令分组显示（对齐 apple 早有的分组）
 - **评估**：CommandSnippet 双端都有 `group` 字段，defaults 都已分组(系统/网络/服务/Docker/日志/安全等)。apple `SnippetsView` 早已按 group 分 Section 显示；android 快捷命令是 ServerWorkspace 平铺横滑 Chip 行，未体现分组。
 - **android 改进**：横滑 Chip 行改为 `groupBy { group }`，每组前显分组标签(TextSecondary 小字)，命令多时分类清晰。无分组归「其他」，自定义命令按其 group 归类。

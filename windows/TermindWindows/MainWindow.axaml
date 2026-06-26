@@ -47,6 +47,7 @@
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="{Binding Name}" Foreground="#FFFFFF" FontSize="13" FontWeight="Medium"/>
                                         <TextBlock Text="{Binding Addr}" Foreground="#8B92A8" FontSize="11"/>
+                                        <TextBlock Text="{Binding Note}" IsVisible="{Binding HasNote}" Foreground="#6B7280" FontSize="10"/>
                                     </StackPanel>
                                     <!-- 可达指示（对照 apple/android/linux wifi） -->
                                     <TextBlock Grid.Column="3" Text="{Binding Reach}" Foreground="{Binding ReachColor}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" Margin="6,0"/>

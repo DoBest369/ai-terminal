@@ -127,6 +127,19 @@ impl eframe::App for TermindApp {
                         ui.colored_label(SUCCESS, egui::RichText::new("-rwxr-xr-x 1 root root 1024 deploy.sh").monospace());
                         ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ \u{2588}").monospace());
                     });
+                ui.add_space(8.0);
+                // 快捷命令栏（对照 windows/apple/android 终端区，点击填入命令）
+                ui.horizontal(|ui| {
+                    for cmd in ["ls -la", "df -h", "free -h", "top"] {
+                        let _ = ui.add(egui::Button::new(
+                            egui::RichText::new(cmd).monospace().size(11.0).color(ACCENT))
+                            .fill(ACCENT.linear_multiply(0.12)).rounding(14.0));
+                    }
+                    // 高风险命令橙色
+                    let _ = ui.add(egui::Button::new(
+                        egui::RichText::new("systemctl status nginx").monospace().size(11.0).color(WARNING))
+                        .fill(WARNING.linear_multiply(0.12)).rounding(14.0));
+                });
             });
     }
 }

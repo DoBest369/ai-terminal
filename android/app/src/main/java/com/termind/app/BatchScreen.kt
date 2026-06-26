@@ -177,11 +177,27 @@ fun BatchScreen(conns: List<ServerConn>, onBack: () -> Unit) {
                 if (running) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
                 else Text("群发执行（${selected.size} 台）", color = Color.White)
             }
-            // N-Multi-AI：全部完成后可一键 AI 汇总
+            // N-Multi-AI：全部完成后可一键 AI 汇总 + 导出分享
             if (allDone) {
-                OutlinedButton(onClick = { summarize() }, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(8.dp)); Text("AI 汇总这批结果", color = Accent, fontSize = 13.sp)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { summarize() }, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp)); Text("AI 汇总", color = Accent, fontSize = 13.sp)
+                    }
+                    OutlinedButton(onClick = {
+                        val md = buildString {
+                            append("# 批量群发结果\n\n命令：`$command`\n\n")
+                            val okN = results.count { it.ok }
+                            append("成功 $okN · 失败 ${results.size - okN} · 共 ${results.size} 台\n")
+                            results.forEach { append("\n## ${if (it.ok) "✅" else "❌"} ${it.conn.name}\n```\n${it.output.trim()}\n```\n") }
+                        }
+                        ctx.startActivity(android.content.Intent.createChooser(
+                            android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain")
+                                .putExtra(android.content.Intent.EXTRA_TEXT, md), "导出群发结果"))
+                    }, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Filled.Share, null, tint = Accent, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp)); Text("导出分享", color = Accent, fontSize = 13.sp)
+                    }
                 }
             }
             // 成功/失败统计（结果完成后显）

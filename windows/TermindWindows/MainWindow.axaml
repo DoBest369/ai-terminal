@@ -72,9 +72,11 @@
                     <TextBlock Text="root@prod-01:~$ █" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
-            <!-- 命令输入 -->
-            <Border Grid.Row="2" Background="#16182A" CornerRadius="8" Margin="10,0,10,10" Padding="12,9">
-                <TextBlock Text="输入命令…" Foreground="#6B7280" FontFamily="Consolas,monospace" FontSize="13"/>
+            <!-- 命令输入（可真实输入） -->
+            <Border Grid.Row="2" Background="#16182A" CornerRadius="8" Margin="10,0,10,10">
+                <TextBox PlaceholderText="输入命令…" Background="Transparent" BorderThickness="0"
+                         Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="13"
+                         Padding="12,9" CaretBrush="#FF4B6E"/>
             </Border>
         </Grid>
 
@@ -105,13 +107,15 @@
                 <Border Background="#1A3B82F6" CornerRadius="14" Padding="10,5"><TextBlock Text="重新生成" Foreground="#3B82F6" FontSize="11"/></Border>
                 <Border Background="#1A3FB950" CornerRadius="14" Padding="10,5"><TextBlock Text="存为方案" Foreground="#3FB950" FontSize="11"/></Border>
             </StackPanel>
-            <!-- AI 输入 -->
-            <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="12,0,12,12" Padding="12,9">
+            <!-- AI 输入（可真实输入） -->
+            <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="12,0,12,12" Padding="4,2">
                 <Grid ColumnDefinitions="*,Auto">
-                    <TextBlock Grid.Column="0" Text="输入指令…" Foreground="#6B7280" FontSize="13" VerticalAlignment="Center"/>
-                    <Border Grid.Column="1" Background="#FF4B6E" CornerRadius="14" Width="28" Height="28">
+                    <TextBox Grid.Column="0" PlaceholderText="输入指令…" Background="Transparent" BorderThickness="0"
+                             Foreground="#C9D1D9" FontSize="13" VerticalAlignment="Center" Padding="8,7" CaretBrush="#FF4B6E"/>
+                    <Button Grid.Column="1" Background="#FF4B6E" CornerRadius="14" Width="28" Height="28" Padding="0"
+                            VerticalAlignment="Center" Margin="4,0">
                         <TextBlock Text="↑" Foreground="#FFFFFF" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
+                    </Button>
                 </Grid>
             </Border>
         </Grid>

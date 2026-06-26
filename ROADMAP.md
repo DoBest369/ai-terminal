@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **质量收口·AI 辅助能力快照** ✅（apple 8 自测+android clean 零 warning；PARITY 🟡=0；AI 从解释/对话到结合本机历史给结论到真执行+沉淀 全链路双端齐；推送见下）
 - [x] **AI 运维提示词库扩充双端** ✅（5 类×3→5 条；加 数据库排查/端口定位/Nginx反代/systemd自启/防火墙/进程CPU/磁盘IO/日志归类 等；apple 1e482ff/android 4aa22c7）
 - [x] **apple ConnectionEditShowcase 补色选器截图** ✅（Showcase 加颜色标签卡片+必填标识；渲染 04-connection-edit.png 核对+拷 screenshots；截图与功能同步；8 自测全过；推送 b065187）
 - [x] **质量收口·审计补齐成果快照** ✅（apple 8 自测+android clean 零 warning+APK；PARITY 🟡=0；近批次审计补齐 端口校验/清空确认/删除确认/色选器+必填 全双端齐；推送见下）

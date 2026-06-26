@@ -47,7 +47,12 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
             items.forEach { i ->
                 append("\n【${i.conn.name}】")
                 if (i.error != null) append("巡检失败：${i.error}")
-                else i.status?.let { append("CPU ${it.cpu} 内存 ${it.mem} 磁盘 ${it.disk}${if (it.hasWarning) " ⚠️资源偏高" else ""}") }
+                else i.status?.let {
+                    append("CPU ${it.cpu} 内存 ${it.mem} 磁盘 ${it.disk}")
+                    if (it.load != "—") append(" 负载 ${it.load}")
+                    if (it.uptime != "—") append(" 运行 ${it.uptime}")
+                    if (it.hasWarning) append(" ⚠️资源偏高")
+                }
             }
         }
         scope.launch {

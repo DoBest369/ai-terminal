@@ -750,7 +750,13 @@ final class AppModel: ObservableObject {
         if !info.uptime.isEmpty { detail += "\n运行时长：\(info.uptime)" }
         if info.cpuCores > 0 { detail += "\nCPU 核数：\(info.cpuCores)" }
         aiMessages.append(ChatMessage(role: .user, content: "这台服务器当前状态如下，请分析有无异常并给排查/优化建议：\n\(detail)"))
-        runAICompletion(systemPrompt: healthAnalysisPrompt)
+        // 知识卡片注入：结合这台机历史给健康建议（知识沉淀闭环扩展到健康分析，对齐 android）
+        var sys = healthAnalysisPrompt
+        if let connID = activeSession?.connection?.id.uuidString {
+            let notebook = ServerNotebook.composeForAI(ServerNotebook.load(connectionID: connID))
+            if !notebook.isEmpty { sys += "\n\n\(notebook)\n请结合以上历史运维记录分析。" }
+        }
+        runAICompletion(systemPrompt: sys)
     }
 
     /// 公共流式生成：假定用户消息已在 aiMessages 末尾，追加占位 assistant 并流式填充。

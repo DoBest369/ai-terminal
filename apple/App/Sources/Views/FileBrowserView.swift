@@ -72,6 +72,25 @@ struct FileBrowserView: View {
         return fmt.string(from: date)
     }
 
+    /// 按扩展名返回语义化文件图标（现代文件管理器一眼识别类型）
+    static func fileIcon(_ name: String) -> String {
+        let n = name.lowercased()
+        func ends(_ exts: [String]) -> Bool { exts.contains { n.hasSuffix($0) } }
+        if ends([".sh", ".bash", ".zsh", ".fish"]) { return "terminal" }
+        if ends([".tar", ".gz", ".tgz", ".zip", ".xz", ".bz2", ".7z", ".rar"]) { return "archivebox" }
+        if ends([".md", ".txt", ".rst", ".rtf"]) { return "doc.text" }
+        if ends([".log"]) { return "doc.text.magnifyingglass" }
+        if ends([".json", ".yml", ".yaml", ".toml", ".ini", ".conf", ".cfg", ".env", ".plist"]) { return "gearshape" }
+        if ends([".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".bmp", ".ico"]) { return "photo" }
+        if ends([".py", ".js", ".ts", ".go", ".rs", ".c", ".cpp", ".h", ".java", ".kt", ".swift", ".rb", ".php"]) { return "chevron.left.forwardslash.chevron.right" }
+        if ends([".pdf"]) { return "doc.richtext" }
+        if ends([".sql", ".db", ".sqlite"]) { return "cylinder.split.1x2" }
+        if ends([".lock"]) { return "lock" }
+        // 隐藏的 dotfile 配置（.bashrc/.profile/.gitconfig 等）
+        if n.hasPrefix(".") { return "gearshape" }
+        return "doc"
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -265,7 +284,7 @@ struct FileBrowserView: View {
                     Image(systemName: selectedPaths.contains(entry.path) ? "checkmark.circle.fill" : "circle")
                         .foregroundStyle(selectedPaths.contains(entry.path) ? Theme.accent : Theme.textSecondary)
                 }
-                Image(systemName: entry.isDirectory ? "folder.fill" : "doc")
+                Image(systemName: entry.isDirectory ? "folder.fill" : Self.fileIcon(entry.name))
                     .foregroundStyle(entry.isDirectory ? Theme.accent : Theme.textSecondary)
                     .frame(width: 20)
                 VStack(alignment: .leading, spacing: 1) {

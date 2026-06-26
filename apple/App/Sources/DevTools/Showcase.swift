@@ -1099,7 +1099,7 @@ struct SFTPShowcase: View {
             VStack(spacing: 0) {
                 ForEach(Array(items.enumerated()), id: \.offset) { _, it in
                     HStack(spacing: 10) {
-                        Image(systemName: it.dir ? "folder.fill" : "doc")
+                        Image(systemName: it.dir ? "folder.fill" : FileBrowserView.fileIcon(it.name))
                             .foregroundStyle(it.dir ? Theme.accent : Theme.textSecondary)
                             .frame(width: 20)
                         Text(it.name).font(.system(size: 13)).foregroundStyle(Theme.textPrimary)

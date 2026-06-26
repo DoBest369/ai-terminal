@@ -129,8 +129,21 @@ fun BatchScreen(conns: List<ServerConn>, onBack: () -> Unit) {
         }
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            // 选服务器（横向 chips）
-            Text("选择服务器", color = TextSecondary, fontSize = 12.sp)
+            // 选服务器（按分组快速全选 + 全选/清空）
+            Text("选择服务器（${selected.size}/${conns.size}）", color = TextSecondary, fontSize = 12.sp)
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                AssistChip(onClick = { selected.clear(); selected.addAll(conns.map { it.id }) }, label = { Text("全选", fontSize = 11.sp) },
+                    colors = AssistChipDefaults.assistChipColors(containerColor = Accent.copy(alpha = 0.2f), labelColor = Accent))
+                AssistChip(onClick = { selected.clear() }, label = { Text("清空", fontSize = 11.sp) },
+                    colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextSecondary))
+                // 按分组全选（点击选中该组所有连接）
+                conns.map { it.group }.filter { it.isNotEmpty() }.distinct().forEach { g ->
+                    AssistChip(onClick = { conns.filter { it.group == g }.forEach { if (!selected.contains(it.id)) selected.add(it.id) } },
+                        label = { Text(g, fontSize = 11.sp) },
+                        leadingIcon = { Icon(Icons.Filled.Folder, null, tint = TextSecondary, modifier = Modifier.size(12.dp)) },
+                        colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary))
+                }
+            }
             Column(Modifier.heightIn(max = 160.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 conns.forEach { c ->
                     val on = selected.contains(c.id)

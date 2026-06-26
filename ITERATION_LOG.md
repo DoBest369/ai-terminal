@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 连接卡片可达指示图标（对照 apple/android）
+- **内容**：linux `server_card` 右侧加可达指示——online 显 ✓（绿）/ offline 显 ✕（灰），对照 apple/android 连接卡片的 wifi/wifi.slash 可达图标。
+- **改动**：`linux/src/main.rs`(server_card 右侧 with_layout 可达图标)。
+- **验证**：`cargo build` **0 error/warning**（0.45s 增量，带 proxy，build 通过后提交）。推送 3dc6f54。
+- **意义**：linux 连接卡片对照 apple/android 显可达指示（一眼看连接是否可达）。连接卡片可达指示对齐 apple/android/linux。
+
+---
+
 ## 质量基线收口 + linux AI 多轮气泡
 - **质量基线**（多轮 UI 迭代后收口）：apple `App` swift build Build complete；**8 自测全 true 无回归**（history/batch/risk/metrics/env-detect/inspect/notebook/favorites）；linux cargo build Finished；PARITY **103 项 ✅✅**。30+ 轮 UI 现代化未伤核心逻辑。
 - **linux AI 多轮气泡**：AI 面板加一轮对话（用户问「装了什么服务」+ AI 答 nginx/docker/mysql 运行/redis 未运行），对照 windows，两轮展示连续性 + AI 结合真实环境护城河。cargo build 0 error/warning（build 通过后提交）。推送 05b0eac。

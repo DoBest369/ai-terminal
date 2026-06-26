@@ -6,6 +6,14 @@
 
 ---
 
+## windows 连接列表分组标题 → 连接分组五端对齐
+- **内容**：windows `ConnItem` 加 `GroupName`/`ShowHeader` 字段；`ItemTemplate` 组内第一个连接上方显分组标题（生产环境 / 开发环境）；连接按组聚合排列。
+- **改动**：`MainWindow.axaml.cs`(ConnItem 分组数据)、`MainWindow.axaml`(ItemTemplate 分组标题)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图验证分组标题。推送 bc20bf6。
+- **🎯 连接列表分组五端全对齐**：apple/android（分组+折叠）/ linux（CollapsingHeader 折叠）/ windows（分组标题）/ iOS（同 apple）连接列表都按分组组织。五端连接管理设计语言一致。
+
+---
+
 ## linux egui 连接列表分组可折叠（对照 apple/android）
 - **内容**：linux 连接列表从平铺分组标题 → 按分组聚合（过滤后），用 egui `CollapsingHeader`（default_open）可点击折叠/展开分组。`clicked` 局部变量收集点击索引，循环后设 `self.selected`，避开 borrow checker 冲突（self.conns 不可变借用 + self.selected 可变）。
 - **改动**：`linux/src/main.rs`(分组聚合 + CollapsingHeader)。

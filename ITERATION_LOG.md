@@ -6,6 +6,15 @@
 
 ---
 
+## CHANGELOG 阶段9 梳理（细节打磨与双端一致性）
+- **内容**：CHANGELOG 加「阶段 9 — 细节打磨与双端一致性」——梳理差异化护城河成型后的高频操作打磨与双端交互一致里程碑：知识沉淀入口全覆盖、知识卡片检索(类型筛选+关键词)、AI 对话体验(快捷追问/单条重发/存卡片)、命令体验(收藏夹/增删改分组)、连接管理(批量编辑/最近使用/端口校验)、防误操作(破坏性操作二次确认双端齐)、方法论(审计发现单端落后→补齐保 🟡=0)、linux 端评估(backlog)。当前状态刷新到细节打磨成熟度。
+- **边界保留**：本机无 Xcode→apple 未出包/未真机实测；linux 无 Rust 工具链。
+- **改动**：`CHANGELOG.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 01783be。
+- **意义**：文档体系(README/CHANGELOG/ROADMAP/ITERATION_LOG/PARITY/PRODUCT)反映 Termind 从「差异化深化」迈入「细节打磨与双端一致性」阶段，成熟度新台阶。
+
+---
+
 ## 质量收口 · 防误操作 + 双端一致性快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
 - **防误操作（破坏性操作二次确认，双端齐）**：删除连接 · 删除对话 · 清空对话 · SFTP 删除文件/目录 · 批量删除连接 —— 均二次确认。

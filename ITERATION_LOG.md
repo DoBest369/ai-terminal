@@ -6,6 +6,19 @@
 
 ---
 
+## 深化排障工作流 Z4（内置 5→8 场景，双端）
+- **内容**：`DiagnosticWorkflow.builtins` 从 5 个(网站打不开/磁盘清理/SSL/Nginx/Docker)增至 8 个，新增：
+  - **内存占用排查**(mem-pressure)：free -m / ps aux --sort=-%mem / meminfo / dmesg OOM 记录
+  - **端口占用排查**(port-usage)：ss -tlnp / ss -s / netstat
+  - **服务启动失败排查**(service-failed)：systemctl --failed / list-units failed / 各失败服务 status 日志
+  每个含 name+只读诊断命令序列+summaryPrompt(让 AI 据输出给结论/根因/建议)。
+- **双端对齐**：apple `DiagnosticWorkflow.swift`(Swift)+android `OpsWorkflows.kt`(Kotlin) builtins 一致。
+- **改动**：`DiagnosticWorkflow.swift`、`OpsWorkflows.kt`。
+- **验证**：apple Core+App swift build Build complete；android BUILD SUCCESSFUL 13s 零 deprecated。推送 642392e。
+- **意义**：护城河 Z4 排障能力深化——覆盖更多常见运维故障场景(内存泄漏/端口冲突/服务起不来)，一键诊断+AI 结合本机知识卡片(已有闭环)给针对性结论。命令均只读，安全。
+
+---
+
 ## 质量收口 + README 门面刷新
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；7 自测(history/batch/risk/metrics/env-detect/inspect/notebook)全 true 无回归；android clean assembleDebug **零 deprecated**。
 - **README 更新**：加「📓 服务器知识卡片」护城河区(记录→喂AI→共享 闭环);界面预览加第二行截图(知识卡片 24-notebook/批量巡检 23-inspect/批量群发 22-batch，文件已确认存在);智能运维能力表补 服务器知识卡片/批量运维/SSH config 导入 三行双端✅。批量运维段说明更新(群发+巡检双端完整 UI)。

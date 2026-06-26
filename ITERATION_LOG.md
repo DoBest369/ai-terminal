@@ -6,6 +6,14 @@
 
 ---
 
+## MATURITY 更新 windows/linux 功能完整度（骨架→完整工作台 UI）
+- **内容**：docs/MATURITY.md 边界描述更新——windows/linux 从「对齐设计的 UI 骨架（三栏 + 连接列表）」→「对齐 apple/android **全功能区** UI」（连接列表全信息 + 状态面板进度条/服务状态 + 终端区快捷命令/可滚动 + AI 面板全套 + 设置页 + SFTP 文件浏览）。明确「完整 UI + mock 数据，真实 SSH/AI 逻辑待接入」。反映 47+ 项 UI 现代化五端对齐真实进展。
+- **改动**：`docs/MATURITY.md`。
+- **验证**：apple swift build Build complete 抽查（build 通过后提交）。推送 cf1c7e6。
+- **意义**：文档准确反映 windows/linux 已从「能编译的骨架」打磨到「全功能区 UI 对齐 apple/android」的真实进展（区分 UI 完整 vs 逻辑待接，诚实）。
+
+---
+
 ## windows SFTP 文件浏览 Flyout → SFTP 五端对齐
 - **内容**：windows 侧边栏工具栏加 📁 SFTP 按钮 → `Flyout` 文件列表（路径栏 ↑ /home/deploy + 文件夹/文件 + 类型图标[脚本⌨/压缩🗜/文档📄/配置⚙] + 大小），对照 apple/android/linux SFTP。工具栏 Grid 改 4 列（品牌/SFTP/新建/设置）。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(SFTP Flyout + 设置按钮列号)。

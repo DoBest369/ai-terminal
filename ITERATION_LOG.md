@@ -6,6 +6,16 @@
 
 ---
 
+## 服务状态显示评估 + android 状态采集加关键服务
+- **审计**：apple `RemoteSystemMonitor.probe` 采集关键服务(nginx/docker/mysql/redis/sshd via `systemctl is-active`)→SystemInfo.services→healthSummary「未运行 X」+hasWarning。android `fetchStatus`(top/free/df/uptime) **不采集服务**→ServerStatus 无服务状态。android 落后(EnvDetector 有 services 但仅环境感知，状态面板/巡检/健康分析不含)。
+- **android 补齐**：`fetchStatus` 命令加 `for s in nginx docker mysql redis sshd; systemctl is-active`；`ServerStatus` 加 `services`/`stoppedServices`；parse SVC@@ 行(unknown=未安装不计)；`healthSummary` 含「未运行 X」；`hasWarning` 含服务停。状态面板/巡检/健康分析 AI 素材(都经 healthSummary)同步受益。
+- **UI 评估**：apple StatusBarView **不单独显示服务**(服务仅经 healthSummary+告警体现)，android 同理。双端服务状态都经 健康摘要+告警+AI 素材体现，无需额外 UI 元素，行为一致。
+- **改动**：`SshClient.kt`(命令)、`OpsCore.kt`(services+解析+摘要+告警)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 28s 零 deprecated；apple swift build + metrics/inspect 自测过。推送 7aec186。
+- **意义**：服务状态采集双端对齐，android 状态面板/巡检/健康分析现都能感知 关键服务是否运行(停了的服务告警+喂 AI)。运维数据维度(服务)双端一致。
+
+---
+
 ## CHANGELOG 阶段11 梳理（批量运维统计与数据贯穿）
 - **内容**：CHANGELOG 加「阶段 11 — 批量运维统计与数据贯穿」——批量群发结果统计(成功/失败)、批量巡检结果统计(告警/正常/失败)、运维数据贯穿(状态面板负载/运行时长→巡检/健康 AI 素材)、连接导入去重+数量反馈、审计方法论三类(单端落后补齐/双端同缺新增/数据增强下游同步)。阶段 N 批量运维条目刷新含统计。
 - **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。

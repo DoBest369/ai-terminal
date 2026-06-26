@@ -259,13 +259,16 @@ impl eframe::App for TermindApp {
                 });
             });
 
-        // ② 中间：终端区（状态条 + 输出）
+        // ② 中间：终端区（状态条 + 输出）—— 状态条反映选中的连接
+        let (sel_host, sel_online) = self.selected.and_then(|i| self.conns.get(i))
+            .map(|c| (c.host, c.online)).unwrap_or(("prod-01", true));
         egui::CentralPanel::default()
             .frame(egui::Frame::default().fill(BG).inner_margin(12.0))
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
-                    ui.colored_label(SUCCESS, "● 已连接");
-                    ui.colored_label(TEXT_SECONDARY, "prod-01");
+                    ui.colored_label(if sel_online { SUCCESS } else { TEXT_SECONDARY },
+                        if sel_online { "● 已连接" } else { "○ 离线" });
+                    ui.colored_label(TEXT_SECONDARY, sel_host);
                     // CPU/内存 mini 进度条（绿<60/橙60-80/红>80 三档，对齐 apple/android）
                     ui.colored_label(TEXT_SECONDARY, "CPU");
                     ui.add(egui::ProgressBar::new(0.47).desired_width(54.0).text("47%").fill(usage_color(47)));

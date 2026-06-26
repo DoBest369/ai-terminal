@@ -458,9 +458,9 @@ struct ConnectionEditShowcase: View {
             SectionCard(title: "基本信息") {
                 MockField(label: "名称（可选）", value: conn.name)
                 MockField(label: "分组（可选）", value: conn.groupName)
-                MockField(label: "主机地址", value: conn.host)
+                MockField(label: "主机地址 *", value: conn.host)
                 MockField(label: "端口", value: String(conn.port))
-                MockField(label: "用户名", value: conn.username)
+                MockField(label: "用户名 *", value: conn.username)
                 HStack {
                     Label("测试连接", systemImage: "dot.radiowaves.left.and.right").foregroundStyle(Theme.accent)
                     Spacer()
@@ -482,6 +482,20 @@ struct ConnectionEditShowcase: View {
                 MockField(label: "跳板主机", value: "bastion.example.com")
                 MockField(label: "跳板用户名", value: "jump")
                 MockField(label: "跳板密码", value: "secret", secure: true)
+            }
+            SectionCard(title: "颜色标签") {
+                HStack(spacing: 12) {
+                    ForEach(ColorTag.allCases, id: \.self) { tag in
+                        let isSel = (conn.colorTag ?? .none) == tag
+                        Circle()
+                            .fill(tag.hex.map { Color(hex: $0) } ?? Theme.surfaceLight)
+                            .frame(width: 26, height: 26)
+                            .overlay {
+                                if tag == .none { Image(systemName: "nosign").font(.system(size: 12)).foregroundStyle(Theme.textSecondary) }
+                                if isSel { Circle().strokeBorder(Theme.accent, lineWidth: 2).frame(width: 32, height: 32) }
+                            }
+                    }
+                }
             }
             SectionCard(title: "启动命令（可选）") {
                 VStack(alignment: .leading, spacing: 4) {

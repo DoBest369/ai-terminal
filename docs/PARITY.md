@@ -92,6 +92,7 @@
 | 群发结果 AI 汇总 | ✅ | ✅ | 双端（apple summarizeBatch；android 完整） |
 | 群发结果导出 | ✅ | ✅ | 双端导出 Markdown（apple 复制 / android 分享 Intent） |
 | 批量健康巡检 | ✅ | ✅ | 双端多选+采集+告警置顶+统计(告警/正常/失败)；apple InspectView / android InspectScreen |
+| 批量巡检告警筛选 | ✅ | ✅ | 双端「仅告警」切换（apple 点告警数 toggle / android FilterChip），巡检多台快速定位问题机 |
 | 巡检结果 AI 总结 | ✅ | ✅ | 双端 AI 素材含 CPU/内存/磁盘/负载/运行时长/服务/告警 |
 | 巡检结果导出 | ✅ | ✅ | 双端导出巡检报告 Markdown（apple 复制 / android 分享 Intent） |
 | 定时后台巡检 + 通知 | ⬜ | ✅ | android WorkManager（主动运维，离线推通知） |

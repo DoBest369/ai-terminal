@@ -6,6 +6,15 @@
 
 ---
 
+## 批量巡检告警筛选双端（护城河批量运维增强）+ 批量运维全景
+- **内容**：批量巡检结果加「仅看告警」筛选——巡检多台机器时只显告警/失败的，快速定位问题机。apple `InspectView` onlyAlerts(点告警数 toggle，胶囊高亮)；android `InspectScreen`「仅告警」FilterChip。复用已有告警分类(status.hasWarning/error)。
+- **批量运维（护城河，双端全功能）**：命令历史(去重/置顶/收藏) · 批量群发命令(并发+结果+成功/失败统计+导出+AI 汇总) · 批量健康巡检(并发采集+告警置顶+告警/正常/失败统计+**仅告警筛选**+导出+AI 总结) · 定时后台巡检(android WorkManager 可达性通知)。
+- **改动**：`InspectView.swift`(onlyAlerts)、`InspectScreen.kt`(onlyAlerts+FilterChip)、`docs/PARITY.md`。
+- **验证**：apple swift build + 8 自测全过(inspect 告警置顶)；android BUILD SUCCESSFUL 14s 零 deprecated。PARITY 99 项 ✅✅，🟡=0。推送 apple 12416b3/android faa0fc2。
+- **意义**：批量巡检告警筛选——运维巡检几十台机器时一键过滤出有问题的，护城河批量运维(单连接工具做不到)再增强。批量运维能力全面。
+
+---
+
 ## 质量收口 · PARITY 98 项快照（连接管理全功能后）
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **98 项 ✅✅，🟡=0**。
 - **连接管理维度（双端全功能）**：增/删/改 · 分组/折叠 · 颜色标签 · 端口校验(1-65535) · 必填校验 · 批量编辑(分组/色/删) · 多选 · 最近使用排序 · 克隆 · 配置导入导出(JSON 脱敏+去重) · SSH config 导入 · 分享二维码 · 复制配置 · 复制 ssh 连接串 · 可达性探测(TCP) · 知识卡片入口 · 启动命令 · 跳板机。

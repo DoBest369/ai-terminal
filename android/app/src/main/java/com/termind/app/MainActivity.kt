@@ -1548,21 +1548,27 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     }
                 }
             }
-            // A-Snippets+CRUD：快捷命令横滑 Chip（默认+自定义，点击填入；末尾「+」新建，长按自定义项删除）
+            // A-Snippets+CRUD：快捷命令横滑 Chip（按分组显示分组标签，点击填入；末尾「+」新建，长按自定义项删除）
             if (state == ConnState.CONNECTED) {
-                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    (CommandSnippet.defaults + customSnippets).forEach { sn ->
-                        val custom = sn in customSnippets
-                        AssistChip(
-                            onClick = { command = sn.command },
-                            label = { Text(sn.title, fontSize = 11.sp) },
-                            leadingIcon = { Icon(Icons.Filled.Circle, null, tint = sn.risk.color, modifier = Modifier.size(8.dp)) },
-                            trailingIcon = if (custom) { {
-                                Icon(Icons.Filled.Close, "删除", tint = TextSecondary,
-                                    modifier = Modifier.size(14.dp).clickable { customSnippets.clear(); customSnippets.addAll(SnippetStore.remove(ctx, sn)) })
-                            } } else null,
-                            colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
-                        )
+                // 按 group 分组（无分组的归「其他」），保序：默认在前自定义在后
+                val grouped = (CommandSnippet.defaults + customSnippets).groupBy { it.group.ifEmpty { "其他" } }
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    grouped.forEach { (group, list) ->
+                        // 分组标签（对齐 apple SnippetsView 分组）
+                        Text(group, color = TextSecondary, fontSize = 10.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(start = 2.dp))
+                        list.forEach { sn ->
+                            val custom = sn in customSnippets
+                            AssistChip(
+                                onClick = { command = sn.command },
+                                label = { Text(sn.title, fontSize = 11.sp) },
+                                leadingIcon = { Icon(Icons.Filled.Circle, null, tint = sn.risk.color, modifier = Modifier.size(8.dp)) },
+                                trailingIcon = if (custom) { {
+                                    Icon(Icons.Filled.Close, "删除", tint = TextSecondary,
+                                        modifier = Modifier.size(14.dp).clickable { customSnippets.clear(); customSnippets.addAll(SnippetStore.remove(ctx, sn)) })
+                                } } else null,
+                                colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary)
+                            )
+                        }
                     }
                     AssistChip(onClick = { showNewSnippet = true }, label = { Text("+ 新建", fontSize = 11.sp) },
                         colors = AssistChipDefaults.assistChipColors(containerColor = Accent.copy(alpha = 0.2f), labelColor = Accent))

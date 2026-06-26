@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **apple 连接分组折叠对齐** ✅（SidebarView 分组 header 可点折叠+chevron+数量；collapsedGroups Set；Showcase 渲染；PARITY 分组折叠 apple✅；推送 5dfe5e9）
 - [x] **质量收口·双端对齐里程碑** ✅（apple 6 自测全过+android clean 零 warning；SFTP 完全对齐+阶段N UI双端+AI 全对齐；PARITY 剩 4 项单端特性；推送见下）
 - [x] **apple SFTP 文件名过滤对齐** ✅（FileBrowserView .searchable+sortedEntries 过滤；双端 SFTP 完全对齐；推送 8dc91e6）
 - [x] **apple SFTP 时间+排序对齐** ✅（SFTPEntry.modifiedAt[Citadel accessModificationTime]；FileBrowserView 行显时间+排序 Menu 名称/大小/时间；Showcase 渲染；PARITY SFTP 时间/排序 apple✅；推送 4edb21f）

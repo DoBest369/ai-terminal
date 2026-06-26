@@ -6,6 +6,14 @@
 
 ---
 
+## apple 连接分组折叠对齐（对齐 android A-GroupFold）
+- **内容**：`SidebarView` 分组 `Section` 的 header 从 `Label` 改可点 `Button`(chevron.right/down 箭头+`folder`+「组名 (数量)」)→toggle `@State collapsedGroups: Set<String>`；Section content `if !collapsedGroups.contains(grp.name)` 时才渲染连接行。`Showcase.SidebarShowcase` 分组标题加 chevron.down 图标，渲染 01-sidebar。
+- **改动**：`SidebarView.swift`(collapsedGroups+折叠 header)、`Showcase.swift`(chevron)、`apple/screenshots/01-sidebar.png`。
+- **验证**：Core+App swift build Build complete；swift run Shots 渲染 01-sidebar。推送 5dfe5e9。
+- **意义**：apple 连接分组折叠 PARITY 🟡→✅。剩 apple🟡 仅 1 项(终端连接时长)+android 独有定时巡检+apple 独有分屏录制。双端对齐度进一步逼近完整。
+
+---
+
 ## 质量收口 · 双端对齐里程碑快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；6 自测(history/batch/risk/metrics/env-detect/inspect)全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~20.9MB)。
 - **双端对齐里程碑（截至本轮）**：

@@ -6,6 +6,15 @@
 
 ---
 
+## 批量巡检 AI 素材加负载/运行时长（延续状态面板增强）
+- **审计**：上轮状态面板加了 load/uptime(ServerStatus)，但巡检 AI 素材未跟上：① android `InspectScreen.summarize` material 只拼 CPU/内存/磁盘 ② apple 巡检 `composeForAI` 用 `healthSummary`(含负载，但缺 uptime)。巡检数据已含 load/uptime(复用 fetchStatus)，AI 素材未充分利用。
+- **补齐**：① android 巡检 material 加 `负载/运行时长`(status 已有) ② apple `healthSummary` 加 `运行 uptime`(巡检 composeForAI + 健康分析 AI 素材都受益)。双端巡检 AI 素材一致(CPU/内存/磁盘/负载/运行/告警)。
+- **改动**：`InspectScreen.kt`(material)、`SystemMonitor.swift`(healthSummary uptime)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 15s 零 deprecated；apple swift build + inspect/metrics 自测过。推送 android 8e33ced/apple 5bd9a55。
+- **意义**：状态面板增强(load/uptime)贯穿到巡检+健康分析 AI 素材，AI 巡检分析能看到负载/运行时长，结论更全面。数据增强后下游 AI 路径同步利用。
+
+---
+
 ## 质量收口 · 连接管理完整度快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **连接管理能力（双端齐平，完整）**：增删改 · 分组 · 折叠 · 颜色标签(色选器) · 备注 · 启动命令 · 终端字号 · 跳板机 · 私钥/密码认证 · 测试连通 · 端口范围校验 · 必填校验 · 搜索 · 排序 · 克隆 · 批量编辑(分组/颜色/删除) · 最近使用快速访问 · 导出导入(JSON) · SSH config 导入 · 导入去重+数量反馈 · 删除二次确认。

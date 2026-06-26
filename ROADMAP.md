@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **批量巡检 AI 素材加负载/运行时长** ✅（审计:状态面板加了 load/uptime 但巡检素材未含→android 巡检 material 补/apple healthSummary 补 uptime；巡检 AI 分析覆盖更全；inspect/metrics 自测过；android 8e33ced/apple 5bd9a55）
 - [x] **质量收口·连接管理完整度快照** ✅（apple 8 自测+android clean 零 warning+APK；PARITY 🟡=0；连接管理 增删改/分组/标签/校验/批量/最近/导入去重反馈 双端完整；推送见下）
 - [x] **android 连接导入数量反馈** ✅（审计发现 apple 早有去重+反馈，android 已去重缺反馈→补 Toast「已导入 N/跳过 M」；JSON+SSH config 统一；导入去重+反馈双端齐；apple 8 自测+android clean 零 warning；推送 deac041）
 - [x] **质量收口·审计驱动双端对齐成果总览** ✅（apple 8 自测+android clean 零 warning+APK；PARITY 🟡=0；审计补齐累计 apple 4 项/android 4 项+双端同步多项；推送见下）

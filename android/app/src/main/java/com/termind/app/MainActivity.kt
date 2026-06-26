@@ -188,8 +188,14 @@ fun TermindApp() {
                     },
                     onImport = { imported ->
                         val existing = conns.map { "${it.user}@${it.host}:${it.port}" }.toSet()
-                        imported.filter { "${it.user}@${it.host}:${it.port}" !in existing }.forEach { conns.add(it) }
+                        val fresh = imported.filter { "${it.user}@${it.host}:${it.port}" !in existing }
+                        fresh.forEach { conns.add(it) }
                         persist()
+                        // 导入数量反馈（对齐 apple）
+                        val skipped = imported.size - fresh.size
+                        val msg = if (fresh.isEmpty()) "无新连接（${imported.size} 个已存在或为空）"
+                                  else "已导入 ${fresh.size} 个连接" + if (skipped > 0) "（跳过 $skipped 个已存在）" else ""
+                        android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_SHORT).show()
                     },
                     onOpen = { c ->
                         val i = conns.indexOfFirst { it.id == c.id }; if (i >= 0) { conns[i] = conns[i].copy(lastUsed = System.currentTimeMillis()); persist() }

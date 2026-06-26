@@ -6,6 +6,15 @@
 
 ---
 
+## 文档 + CI 反映五端全平台编译打通
+- **MATURITY.md**：平台矩阵 linux🟡骨架/windows⬜待建 → **五端全 ✅ 本机编译**（macOS xcodebuild .app/iOS scheme/linux cargo 15MB/android gradle APK/windows Avalonia dotnet）；边界更新（编译全打通，windows/linux 为对齐设计的 UI 骨架待接真实 SSH/AI 逻辑；工具链依赖代理 1082+国外源）。
+- **README.md**：加「五端全平台-本机编译打通」徽章 + Platform 徽章加 Linux/Windows + 平台矩阵表 linux/windows 改 ✅（cargo build/dotnet build+run）。
+- **CI workflow**：启用 windows job（`windows-latest` + setup-dotnet 9.0.x + `dotnet build` windows/TermindWindows），CI 现覆盖五端真编译（apple swift+自测/android gradle+APK/linux cargo/windows dotnet）。仍待 `gh auth refresh -s workflow` 授权移到 `.github/workflows/`。
+- **改动**：`docs/MATURITY.md`、`README.md`、`ci/github-actions-ci.yml`。推送 a61fad2。
+- **意义**：文档如实反映五端编译打通里程碑（不再有"无 Xcode/无 Rust/windows 待建"的过时说法），CI 配置覆盖五端。下一步按用户计划：功能对齐 → 打节点 → 每 100 迭代 CI。
+
+---
+
 ## linux egui 三栏工作台 UI（五端 UI 设计语言统一）
 - **内容**：linux 端 `main.rs` 从单栏（仅连接列表）→ **三栏工作台**对齐 apple/windows：① `SidePanel::left`(280px) 连接列表（分组 + server_card 卡片，状态点/名称/user@host:port/备注）② `CentralPanel` 终端区（状态条 ● 已连接/prod-01/CPU 47%/内存 56%/负载 + 终端输出 mono[绿色脚本]）③ `SidePanel::right`(320px) AI 面板（用户蓝气泡 + AI 气泡含代码块[绿 mono+黑底]）。窗口 420x640→1200x760。
 - **验证**：`cargo build` **编译成功 0 error/warning**（0.70s 增量，带 proxy）。注：mac 上 `cargo run` 因 egui icrate 0.0.4 对 macOS 26 NSScreen 兼容 bug 不运行，**编译验证已达成**，真 UI 留 CI/真 Linux。推送 46f66ae。

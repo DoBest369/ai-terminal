@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 连接列表分组可折叠（对照 apple/android）
+- **内容**：linux 连接列表从平铺分组标题 → 按分组聚合（过滤后），用 egui `CollapsingHeader`（default_open）可点击折叠/展开分组。`clicked` 局部变量收集点击索引，循环后设 `self.selected`，避开 borrow checker 冲突（self.conns 不可变借用 + self.selected 可变）。
+- **改动**：`linux/src/main.rs`(分组聚合 + CollapsingHeader)。
+- **验证**：`cargo build` **0 error/warning**（0.62s 增量，带 proxy，borrow 通过）。mac 上不运行（icrate 兼容）。推送 10fd49b。
+- **意义**：linux 连接列表分组可折叠，对照 apple/android（分组折叠管理多连接）。linux 端连接管理更完整。
+
+---
+
 ## 🎯 UI 现代化 30 项总结快照 + 质量基线
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归（多轮 UI 改动后）；PARITY 配对能力 **103 项 ✅✅**。
 - **🏆 五端对齐能力（设计语言完全一致）**：① 状态面板 CPU/内存进度条（绿/橙/红三档）② 终端区快捷命令栏 ③ 连接搜索 ④ 终端可滚动 ⑤ 关键服务状态点（Z6）⑥ AI 对话面板（角色标签「你」/「✦ AI」+ 气泡 + 代码块 + 快捷追问 chips + 输入框）⑦ 三栏工作台布局（apple/windows/linux）。

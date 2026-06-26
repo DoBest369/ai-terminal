@@ -43,11 +43,12 @@ struct TermindApp {
     conns: Vec<ServerConn>,
     selected: Option<usize>,
     search: String,
+    ai_input: String,
 }
 
 impl Default for TermindApp {
     fn default() -> Self {
-        Self { conns: demo_conns(), selected: None, search: String::new() }
+        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new() }
     }
 }
 
@@ -116,6 +117,19 @@ impl eframe::App for TermindApp {
                         ui.colored_label(SUCCESS, egui::RichText::new("tail -n 50 /var/log/nginx/error.log").monospace());
                     });
                 });
+                ui.add_space(10.0);
+                // 快捷追问 chips（对照 apple/windows AI 面板）
+                ui.horizontal(|ui| {
+                    let blue = egui::Color32::from_rgb(0x3B, 0x82, 0xF6);
+                    let _ = ui.add(egui::Button::new(egui::RichText::new("重新生成").size(11.0).color(blue))
+                        .fill(blue.linear_multiply(0.12)).rounding(14.0));
+                    let _ = ui.add(egui::Button::new(egui::RichText::new("存为方案").size(11.0).color(SUCCESS))
+                        .fill(SUCCESS.linear_multiply(0.12)).rounding(14.0));
+                });
+                ui.add_space(8.0);
+                // AI 输入框
+                ui.add(egui::TextEdit::singleline(&mut self.ai_input)
+                    .hint_text("输入指令…").desired_width(f32::INFINITY));
             });
 
         // ② 中间：终端区（状态条 + 输出）

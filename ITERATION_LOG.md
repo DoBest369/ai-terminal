@@ -6,6 +6,14 @@
 
 ---
 
+## apple SFTP 文件名过滤对齐（双端 SFTP 完全对齐）
+- **内容**：`FileBrowserView` 加 `@State filter` + `.searchable(text:$filter, prompt:"过滤文件名")`；`sortedEntries` 先 `localizedCaseInsensitiveContains(filter)` 过滤再排序(与上轮时间/排序联动)。对齐 android A-SftpFilter。
+- **改动**：`FileBrowserView.swift`(filter+searchable)。
+- **验证**：App swift build Build complete。推送 8dc91e6。
+- **意义**：**双端 SFTP 文件管理完全对齐**(浏览/查看/下载/上传/新建/删除/重命名/路径跳转/时间/排序/过滤)。PARITY 剩 apple🟡 仅 2 项 android 独有(连接分组折叠、终端连接时长)。
+
+---
+
 ## apple SFTP 修改时间 + 排序对齐（对齐 android A-SftpTime/A-SftpSort）
 - **Citadel API**：`.build/checkouts/Citadel/.../SFTPFileFlags.swift` 确认 `attributes.accessModificationTime?.modificationTime: Date`(可空)。
 - **实现**：Core `SFTPEntry` 加 `modifiedAt: Date?`；`sftpList` 填 `c.attributes.accessModificationTime?.modificationTime`。`FileBrowserView`：行名下显修改时间(`timeLabel`——今年 MM-dd HH:mm/往年 yyyy-MM-dd)+工具栏排序 Menu(Picker 名称/大小/时间)+`sortedEntries`(文件夹优先+组内按选定方式)。`Showcase.SFTPShowcase` 顶栏加排序图标，渲染 09-sftp。

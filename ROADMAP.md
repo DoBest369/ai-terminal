@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **CHANGELOG 阶段10·功能完整化与平台差异处理** ✅（SFTP 批量操作/AI 提示词 25/连接编辑色选器校验/危险操作审计/快捷命令编辑分组/终端完整度评估/文档审查/linux 评估；方法论审计补齐保 🟡=0；推送 0123303）
 - [x] **质量收口·SFTP 批量操作完整+PARITY 🟡=0 快照** ✅（apple 8 自测+android clean 零 warning+APK；SFTP 批量删除+下载双端齐；推送见下）
 - [x] **apple macOS SFTP 批量下载（PARITY 🟡=0 恢复）** ✅（NSOpenPanel 选目录批量 sftpDownload 写入；iOS 单文件导出[平台差异]；8 自测全过；推送 2eb910e）
 - [x] **android SFTP 批量下载** ✅（多选→批量下载到 Downloads，复用单下载循环；构建 25s 无 warning；推送 b591938）

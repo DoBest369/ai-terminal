@@ -6,6 +6,15 @@
 
 ---
 
+## CHANGELOG 阶段10 梳理（功能完整化与平台差异处理）
+- **内容**：CHANGELOG 加「阶段 10 — 功能完整化与平台差异处理」——梳理细节打磨延续的里程碑：SFTP 批量操作(删除+下载，桌面 NSOpenPanel/移动系统导出器)、AI 提示词库扩充(5×5=25)、连接编辑完整化(色选器+必填+端口校验)、危险操作二次确认审计、快捷命令增删改+分组、终端区完整度评估(无缺口)、文档审查(README 平台矩阵/能力清单)、方法论延续(审计→补齐保 🟡=0)、linux 端如实评估(backlog)。当前状态刷新到功能完整化成熟度。
+- **边界保留**：本机无 Xcode→apple 未出包/未真机实测；linux 无 Rust 工具链。
+- **改动**：`CHANGELOG.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 0123303。
+- **意义**：文档体系反映 Termind 从「细节打磨」延伸到「功能完整化与平台差异处理」——各功能区补到完整、平台差异用各自惯例处理。成熟度持续提升，文档同步。
+
+---
+
 ## 质量收口 · SFTP 批量操作完整 + PARITY 🟡=0 快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **SFTP 批量操作（双端齐）**：批量删除(多选+二次确认) + 批量下载(android→Downloads / apple macOS NSOpenPanel 选目录、iOS 单文件)。平台差异处理得当(桌面选目录/移动端系统导出器)。

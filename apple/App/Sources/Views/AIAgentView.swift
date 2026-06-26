@@ -480,9 +480,17 @@ private struct MessageBubble: View {
         HStack {
             if isUser { Spacer(minLength: 24) }
             VStack(alignment: isUser ? .trailing : .leading, spacing: 4) {
-                Text(isUser ? "你" : "AI")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(Theme.textSecondary)
+                // 角色标签（AI 带小头像图标，对齐 android A-Avatar）
+                HStack(spacing: 4) {
+                    if !isUser {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 9))
+                            .foregroundStyle(Theme.accent)
+                    }
+                    Text(isUser ? "你" : "AI")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(Theme.textSecondary)
+                }
                 bubbleContent
                     .padding(10)
                     .background(isUser ? Theme.surfaceLight : Theme.background)

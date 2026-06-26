@@ -30,7 +30,8 @@
 | SFTP 新建文件夹 / 删除 | ✅ | ✅ | 双端（apple Citadel createDirectory/rmdir/remove；android sftp.mkdir/rm/rmdir）+ 二次确认 |
 | SFTP 文件重命名 | ✅ | ✅ | 双端 sftp.rename（apple 右键菜单 / android 行图标） |
 | SFTP 路径直接跳转 | ✅ | ✅ | 双端输路径直达深目录 |
-| SFTP 修改时间 / 排序 / 过滤 | 🟡 | ✅ | android 行显时间 + 名称/大小/时间排序 + 文件名过滤 |
+| SFTP 修改时间 / 排序 | ✅ | ✅ | 双端行显时间 + 名称/大小/时间排序 |
+| SFTP 文件名过滤 | 🟡 | ✅ | android 当前目录过滤 |
 | 连接列表分组折叠 | 🟡 | ✅ | android 分组标题可折叠 |
 | 连接复制（克隆） | ✅ | ✅ | 双端（apple cloneConnection 插到原连接后；android 一键克隆） |
 | 终端连接时长 | 🟡 | ✅ | android 状态条显时长 |

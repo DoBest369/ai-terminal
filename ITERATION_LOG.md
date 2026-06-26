@@ -6,6 +6,15 @@
 
 ---
 
+## apple SFTP 修改时间 + 排序对齐（对齐 android A-SftpTime/A-SftpSort）
+- **Citadel API**：`.build/checkouts/Citadel/.../SFTPFileFlags.swift` 确认 `attributes.accessModificationTime?.modificationTime: Date`(可空)。
+- **实现**：Core `SFTPEntry` 加 `modifiedAt: Date?`；`sftpList` 填 `c.attributes.accessModificationTime?.modificationTime`。`FileBrowserView`：行名下显修改时间(`timeLabel`——今年 MM-dd HH:mm/往年 yyyy-MM-dd)+工具栏排序 Menu(Picker 名称/大小/时间)+`sortedEntries`(文件夹优先+组内按选定方式)。`Showcase.SFTPShowcase` 顶栏加排序图标，渲染 09-sftp。
+- **改动**：`SSHService.swift`(SFTPEntry.modifiedAt+sftpList)、`FileBrowserView.swift`(时间+排序)、`Showcase.swift`(排序图标)、`apple/screenshots/09-sftp.png`。
+- **验证**：Core+App swift build Build complete；swift run Shots 渲染 09-sftp。推送 4edb21f。未真机实测(需真服务器)。
+- **意义**：apple SFTP 补齐修改时间+排序，PARITY SFTP 时间/排序 apple🟡→✅。剩 apple🟡 仅 SFTP 文件名过滤(android 独有)+连接分组折叠+终端连接时长。
+
+---
+
 ## Doc · PARITY 校正——apple 连接复制实为✅（文档滞后纠正）
 - **发现**：拟给 apple 补连接克隆时发现 `AppModel.cloneConnection(_)` **早已存在**(553 行：copy.id=UUID()+name 加「副本」+插到原连接之后 connections.insert+saveConnections+toast)，`SidebarView` contextMenu 也已有「复制」按钮调用它。我误加的重复声明触发 `invalid redeclaration` 编译错误→删除恢复。
 - **校正**：PARITY 连接复制（克隆）apple 🟡→✅(双端，apple cloneConnection 插到原连接后)。又一处文档滞后纠正。

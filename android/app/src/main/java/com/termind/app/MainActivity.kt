@@ -1688,6 +1688,20 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     }
                     AssistChip(onClick = { showNewSnippet = true }, label = { Text("+ 新建", fontSize = 11.sp) },
                         colors = AssistChipDefaults.assistChipColors(containerColor = Accent.copy(alpha = 0.2f), labelColor = Accent))
+                    // 快捷命令导出分享（备份/团队共享）
+                    AssistChip(onClick = {
+                        val md = buildString {
+                            append("# Termind 快捷命令\n")
+                            (CommandSnippet.defaults + customSnippets).groupBy { it.group.ifEmpty { "其他" } }.forEach { (g, list) ->
+                                append("\n## $g\n"); list.forEach { append("- **${it.title}**：`${it.command}`\n") }
+                            }
+                        }
+                        ctx.startActivity(android.content.Intent.createChooser(
+                            android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain")
+                                .putExtra(android.content.Intent.EXTRA_TEXT, md), "导出快捷命令"))
+                    }, label = { Text("导出", fontSize = 11.sp) },
+                        leadingIcon = { Icon(Icons.Filled.Share, null, tint = TextSecondary, modifier = Modifier.size(12.dp)) },
+                        colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextSecondary))
                 }
             }
             // A3：命令实时风险徽章

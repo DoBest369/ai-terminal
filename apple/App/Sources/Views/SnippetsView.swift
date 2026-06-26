@@ -9,6 +9,7 @@ struct SnippetsView: View {
     @State private var newTitle = ""
     @State private var newCommand = ""
     @State private var newGroup = ""
+    @State private var editingID: UUID?   // 正在编辑的片段 id（nil=新建）
     @State private var search = ""
     @State private var previewTemplate: SetupTemplate?  // U-Z8 初始化模板预览
     @State private var quickNoteCmd: String?            // 随手记：把命令存为知识卡片
@@ -145,7 +146,7 @@ struct SnippetsView: View {
                     }
                 }
 
-                Section("新建片段") {
+                Section(editingID == nil ? "新建片段" : "编辑片段") {
                     TextField("名称", text: $newTitle)
                     TextField("分组（可选）", text: $newGroup)
                         .autocorrectionDisabled()
@@ -161,10 +162,15 @@ struct SnippetsView: View {
                     Button {
                         addSnippet()
                     } label: {
-                        Label("添加", systemImage: "plus.circle.fill")
+                        Label(editingID == nil ? "添加" : "保存修改", systemImage: editingID == nil ? "plus.circle.fill" : "checkmark.circle.fill")
                     }
                     .disabled(newTitle.trimmingCharacters(in: .whitespaces).isEmpty
                               || newCommand.trimmingCharacters(in: .whitespaces).isEmpty)
+                    if editingID != nil {
+                        Button(role: .cancel) {
+                            editingID = nil; newTitle = ""; newCommand = ""; newGroup = ""
+                        } label: { Label("取消编辑", systemImage: "xmark.circle") }
+                    }
                 }
             }
             .formStyle(.grouped)
@@ -281,6 +287,16 @@ struct SnippetsView: View {
             } label: {
                 Label("删除", systemImage: "trash")
             }
+            Button {
+                // 载入到表单编辑（保留 id，保存时 upsert 覆盖原片段）
+                editingID = snippet.id
+                newTitle = snippet.title
+                newCommand = snippet.command
+                newGroup = snippet.group ?? ""
+            } label: {
+                Label("编辑", systemImage: "pencil")
+            }
+            .tint(Theme.accent)
         }
     }
 
@@ -289,9 +305,13 @@ struct SnippetsView: View {
         let command = newCommand.trimmingCharacters(in: .whitespacesAndNewlines)
         let group = newGroup.trimmingCharacters(in: .whitespaces)
         guard !title.isEmpty, !command.isEmpty else { return }
-        model.saveSnippet(CommandSnippet(title: title, command: command, group: group.isEmpty ? nil : group))
+        // 编辑时保留原 id（saveSnippet 按 id upsert）；新建则生成新 id
+        let snippet = editingID.map { CommandSnippet(id: $0, title: title, command: command, group: group.isEmpty ? nil : group) }
+            ?? CommandSnippet(title: title, command: command, group: group.isEmpty ? nil : group)
+        model.saveSnippet(snippet)
         newTitle = ""
         newCommand = ""
         newGroup = ""
+        editingID = nil
     }
 }

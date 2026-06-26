@@ -38,8 +38,8 @@
             </StackPanel>
         </Border>
 
-        <!-- ② 终端区：状态条 + 输出 + 输入 -->
-        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto" Background="#0D0E1A">
+        <!-- ② 终端区：状态条 + 输出 + 快捷命令 + 输入 -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto,Auto" Background="#0D0E1A">
             <!-- 状态条（CPU/内存 mini 进度条，绿/橙/红三档，对齐 apple/android/linux） -->
             <Border Grid.Row="0" Background="#16182A" Padding="14,8">
                 <StackPanel Orientation="Horizontal" Spacing="16">
@@ -72,8 +72,18 @@
                     <TextBlock Text="root@prod-01:~$ █" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
+            <!-- 快捷命令 chip 横栏（点击填入，对照 apple/android） -->
+            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="10,0,10,6">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Border Background="#1AFF4B6E" CornerRadius="14" Padding="10,5"><TextBlock Text="ls -la" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/></Border>
+                    <Border Background="#1AFF4B6E" CornerRadius="14" Padding="10,5"><TextBlock Text="df -h" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/></Border>
+                    <Border Background="#1AFF4B6E" CornerRadius="14" Padding="10,5"><TextBlock Text="free -h" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/></Border>
+                    <Border Background="#1AFF4B6E" CornerRadius="14" Padding="10,5"><TextBlock Text="top" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/></Border>
+                    <Border Background="#1AF59E0B" CornerRadius="14" Padding="10,5"><TextBlock Text="systemctl status nginx" Foreground="#F59E0B" FontFamily="Consolas,monospace" FontSize="11"/></Border>
+                </StackPanel>
+            </ScrollViewer>
             <!-- 命令输入（可真实输入） -->
-            <Border Grid.Row="2" Background="#16182A" CornerRadius="8" Margin="10,0,10,10">
+            <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="10,0,10,10">
                 <TextBox PlaceholderText="输入命令…" Background="Transparent" BorderThickness="0"
                          Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="13"
                          Padding="12,9" CaretBrush="#FF4B6E"/>

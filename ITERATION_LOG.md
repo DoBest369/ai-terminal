@@ -6,6 +6,14 @@
 
 ---
 
+## CHANGELOG 阶段16 梳理（五端全平台编译打通 + UI 设计语言统一里程碑）
+- **内容**：CHANGELOG 加「阶段 16 — 五端全平台本机编译打通 + UI 设计语言统一」——代理 1082+国外源装齐工具链；五端本机编译（macOS xcodebuild .app/iOS/linux cargo/android gradle/windows Avalonia）；三栏工作台 UI 统一；26 项 UI 现代化（多数双端/五端对齐）；CI 覆盖五端。
+- **改动**：`CHANGELOG.md`。
+- **验证**：apple swift build Build complete 抽查。推送 a001206。
+- **意义**：文档体系反映从「双端原生」→「五端全平台」的里程碑。CHANGELOG 已至阶段 16，完整记录产品演进：基础→护城河→批量运维→知识卡片→导入导出→**五端全平台 + UI 统一**。
+
+---
+
 ## linux egui 终端区可滚动 + 扩充输出（对照 windows）
 - **内容**：linux 终端输出包进 egui `ScrollArea::vertical`（max_height 360, auto_shrink false）；扩充 mock 输出行（ls -la 详细 + 目录 accent/脚本绿着色 + systemctl status nginx 服务状态绿），对照 windows 终端区。
 - **改动**：`linux/src/main.rs`(ScrollArea + 扩充输出)。

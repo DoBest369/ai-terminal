@@ -6,6 +6,14 @@
 
 ---
 
+## apple macOS SFTP 批量下载（PARITY 🟡=0 恢复）
+- **内容**：`FileBrowserView` macOS 批量操作栏(`#if os(macOS)`)加「下载」→`batchDownloadToFolder`：`NSOpenPanel`(canChooseDirectories)选目录→循环 `sftpDownload` 各选中文件 Data `write(to:)` 该目录(目录项跳过)，busy 显进度「已下载 N/M」。iOS 保持单文件经系统导出器(fileExporter 一次一文件，平台导出机制差异，合理)。`import AppKit`(#if os(macOS))。
+- **改动**：`FileBrowserView.swift`(batchDownloadToFolder + 下载按钮 + AppKit 导入)、`docs/PARITY.md`(SFTP 批量下载 🟡→✅✅)。
+- **验证**：apple App swift build Build complete；8 自测全过。推送 2eb910e。
+- **意义**：apple macOS 批量下载补齐，**PARITY 配对能力 🟡 重归 0**。SFTP 批量删除+批量下载双端齐（apple macOS 用原生 NSOpenPanel，符合桌面惯例；iOS 单文件符合移动端惯例）。务实落地，平台差异处理得当。
+
+---
+
 ## android SFTP 批量下载 + apple 批量下载边界评估
 - **android**：SFTP 多选操作栏(上轮批量删除)加「下载」→`batchDownload` 循环 `downloadFile` 到 `getExternalFilesDir("Downloads")`(目录在调用处过滤跳过)。下载直存 app 外部 Downloads 目录，无需逐个 SAF 选择器，批量天然顺畅。构建 25s，推送 b591938。
 - **apple 评估**：`FileBrowserView` 共用 macOS+iOS，单文件下载经 `fileExporter`(系统导出器，一次一文件)。批量下载需 ① iOS 无文件夹选择器 ② macOS 可 NSOpenPanel 选目录但与 iOS 不一致。**如实记录**：apple 单文件下载经系统导出器是平台惯例，批量下载受 fileExporter 一次一文件限制，**暂记 backlog**，不强行做 N 次弹窗的差 UX 方案。

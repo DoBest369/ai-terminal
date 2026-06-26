@@ -6,6 +6,14 @@
 
 ---
 
+## UI 现代化：apple AI 代码块一键复制按钮（截图驱动）
+- **内容**：用 Showcase 截图审视 AI 对话面板，发现 apple 代码块只能选中、**无复制按钮**（android 有点击复制）→ 现代化缺口 + 双端不对齐。给 apple AIAgentView 代码块右上角加复制按钮（`doc.on.doc` 图标，深色圆角）→ `Clipboard.copy` 纯命令 + `model.toast`。Showcase 同步，**截图验证按钮显示**（代码块右上角）。
+- **改动**：`AIAgentView.swift`(代码块 overlay 复制按钮)、`Showcase.swift`(同步)。
+- **验证**：swift build Build complete；`swift run Shots` 渲染 03-ai-panel 截图，Read 看图确认复制按钮在代码块右上角。推送 eb7b253。
+- **意义**：运维高频复制命令体验提升；双端代码块复制对齐；截图驱动的 UI 现代化（用户要求 UI 好看现代化 + 自行截图测试）。同期工具链：dotnet 国内 brew 镜像装中（Windows Avalonia 前提），rust 待装（linux）。
+
+---
+
 ## 全平台工具链打通 + 品牌名统一（2026-06-27 重大基础设施）
 - **纠正认知**：本机实测**有完整 Xcode 26.4**（`/Applications/Xcode.app` + iOS/macOS SDK 26.4 + xcodegen），之前长期误判「无完整 Xcode」。`xcode-select` 默认指 CommandLineTools，用 `sudo xcode-select -s .../Xcode.app/Contents/Developer`（已永久切）或 `DEVELOPER_DIR` 启用 `xcodebuild`。已验证 `xcodegen generate` + `xcodebuild` 编译 macOS app（`.app` 生成，差 Metal Toolchain 组件）。**本机能出 macOS/iOS 包**。
 - **Windows 方案 = Avalonia（C#/.NET）**：本机装 .NET SDK 即可 `dotnet build` 编译、`dotnet run` 在 mac 跑起来看 UI、`dotnet publish -r win-x64` 交叉编译出 Windows `.exe`，全程不离开 mac（WinUI3 被否，Windows-only 无法本机验证）。

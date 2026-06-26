@@ -68,7 +68,7 @@
 | AI 消息时间戳 | ✅ | ✅ | 双端消息显 HH:mm（apple ChatMessage.createdAt / android ChatMsg.time，持久化向后兼容） |
 | AI 模型选择 | ✅ | ✅ | Opus 4.8 / Sonnet 4.6 / Haiku 4.5 |
 | AI 运维提示词库 | ✅ | ✅ | 双端 5 类(排障/部署/安全/性能/日志)×5 条分类提示词 |
-| AI 代码块渲染 | ✅ | ✅ | 双端等宽深色框；复制 android(代码块点击)/apple(气泡右键) |
+| AI 代码块渲染 | ✅ | ✅ | 双端等宽深色框；代码块右上角一键复制（apple doc.on.doc 按钮 / android 点击复制） |
 | AI 消息复制整条 | ✅ | ✅ | apple 气泡右键「复制」/ android 长按复制 |
 
 ## 智能运维护城河（阶段 Z）

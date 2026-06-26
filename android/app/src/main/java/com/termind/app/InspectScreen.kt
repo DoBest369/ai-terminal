@@ -130,8 +130,16 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
                         Icon(if (warnCount > 0) Icons.Filled.Warning else Icons.Filled.CheckCircle, null,
                             tint = if (warnCount > 0) Danger else Success)
                         Spacer(Modifier.width(8.dp))
-                        Text(if (warnCount > 0) "$warnCount 台需关注" else "全部正常",
-                            color = if (warnCount > 0) Danger else Success, fontWeight = FontWeight.Medium)
+                        // 告警/正常/失败 明细统计（对齐群发统计）
+                        val failN = items.count { it.error != null }
+                        val alertN = items.count { it.error == null && it.status?.hasWarning == true }
+                        val okN = items.size - failN - alertN
+                        val statTxt = buildList {
+                            if (alertN > 0) add("⚠️告警 $alertN")
+                            add("✅正常 $okN")
+                            if (failN > 0) add("❌失败 $failN")
+                        }.joinToString(" · ")
+                        Text(statTxt, color = if (warnCount > 0) Danger else Success, fontWeight = FontWeight.Medium, fontSize = 13.sp)
                         Spacer(Modifier.weight(1f))
                         TextButton(onClick = { summarize() }) {
                             Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(14.dp))

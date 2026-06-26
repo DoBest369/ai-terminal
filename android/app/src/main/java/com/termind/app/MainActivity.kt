@@ -541,6 +541,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
     var curIdx by remember { mutableStateOf(0) }
     val messages = convos[curIdx.coerceIn(0, convos.size - 1)]
     var convoMenu by remember { mutableStateOf(false) }
+    var showClearConfirm by remember { mutableStateOf(false) }   // 清空消息二次确认
     fun persistConvos() = ConvoStore.save(ctx, convos.map { it.toList() })
     fun convoTitle(c: List<Pair<String, String>>, i: Int) =
         c.firstOrNull { it.first == "user" }?.second?.take(16) ?: "新对话 ${i + 1}"
@@ -641,9 +642,9 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text("📤 导出当前(Markdown)", color = TextPrimary) },
                             onClick = { convoMenu = false; exportConvo() })
-                        // A-AIClear：清空当前对话消息（保留对话）
+                        // A-AIClear：清空当前对话消息（保留对话）——二次确认防误删
                         if (messages.isNotEmpty()) DropdownMenuItem(text = { Text("🧹 清空当前消息", color = TextPrimary) },
-                            onClick = { messages.clear(); lastSent = null; convoMenu = false; persistConvos() })
+                            onClick = { convoMenu = false; showClearConfirm = true })
                         DropdownMenuItem(text = { Text("➕ 新建对话", color = Accent) },
                             onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; convoMenu = false; persistConvos() })
                         if (convos.size > 1) DropdownMenuItem(text = { Text("🗑 删除当前", color = Danger) },
@@ -652,6 +653,17 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                 }
                 if (profile?.aiSummary?.isNotEmpty() == true) {
                     Spacer(Modifier.width(8.dp)); Text("已感知环境", fontSize = 12.sp, color = TextSecondary)
+                }
+                // 清空当前消息二次确认（对齐 apple）
+                if (showClearConfirm) {
+                    AlertDialog(
+                        onDismissRequest = { showClearConfirm = false },
+                        title = { Text("清空当前对话？", color = TextPrimary) },
+                        text = { Text("将清除当前对话的所有消息（保留对话本身），此操作不可撤销。", color = TextSecondary) },
+                        confirmButton = { TextButton(onClick = { messages.clear(); lastSent = null; persistConvos(); showClearConfirm = false }) { Text("清空", color = Danger) } },
+                        dismissButton = { TextButton(onClick = { showClearConfirm = false }) { Text("取消", color = TextSecondary) } },
+                        containerColor = Surface
+                    )
                 }
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { searchActive = !searchActive; if (!searchActive) search = "" }, enabled = messages.isNotEmpty()) {

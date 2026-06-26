@@ -2491,9 +2491,19 @@ private fun highlightMatches(text: String, query: String): androidx.compose.ui.t
 
 @Composable
 private fun RowScope.StatCell(label: String, value: String, color: Color) {
-    Column(Modifier.weight(1f)) {
+    // 从 value 提取百分比（如 "47%" / "9.0 GB / 16.0 GB (56%)"）画 mini 进度条（对齐 apple）
+    val pct = Regex("(\\d+)%").find(value)?.groupValues?.get(1)?.toIntOrNull()
+    Column(Modifier.weight(1f).padding(end = 8.dp)) {
         Text(label, color = TextSecondary, fontSize = 11.sp)
-        Text(value, color = color, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        Text(value, color = color, fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+        if (pct != null) {
+            val barColor = if (pct > 80) Danger else if (pct > 60) Warning else Success
+            Box(Modifier.fillMaxWidth().height(4.dp).padding(top = 3.dp)
+                .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(2.dp))) {
+                Box(Modifier.fillMaxWidth(pct.coerceIn(0, 100) / 100f).fillMaxHeight()
+                    .background(barColor, RoundedCornerShape(2.dp)))
+            }
+        }
     }
 }
 

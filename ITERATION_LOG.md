@@ -6,6 +6,15 @@
 
 ---
 
+## 🎯 apple 终端连接时长对齐——双端配对能力完全对齐！
+- **内容**：`TerminalSessionVM` 加 `@Published connectedAt: Date?`(连接成功 `Date()`/handleClose+disconnect 清 nil)。`StatusBarView` 状态栏加「时长」项——`TimelineView(.periodic(from: start, by: 1))` 每秒刷新显 `durationLabel`(mm:ss/HH:mm:ss)。对齐 android A-Duration。
+- **改动**：`TerminalSessionVM.swift`(connectedAt)、`StatusBarView.swift`(时长项+durationLabel)。
+- **验证**：Core+App swift build Build complete。推送 8573667。
+- **里程碑**：**apple↔android 配对能力完全对齐！** 所有共有能力均 ✅✅，无一方缺失的配对项。仅余各自独有特性(android 定时后台巡检 / apple 分屏录制)，因平台定位不同，非缺陷。
+- **回顾**：从「android 从零起步」→连续数十轮双端互补打磨→多轮源码核查纠正文档滞后→双端配对能力 100% 对齐。Termind 成为真正双端原生、能力全对齐、质量稳健(apple 6 自测+android 零 warning)的智能 SSH 运维工作台。
+
+---
+
 ## apple 连接分组折叠对齐（对齐 android A-GroupFold）
 - **内容**：`SidebarView` 分组 `Section` 的 header 从 `Label` 改可点 `Button`(chevron.right/down 箭头+`folder`+「组名 (数量)」)→toggle `@State collapsedGroups: Set<String>`；Section content `if !collapsedGroups.contains(grp.name)` 时才渲染连接行。`Showcase.SidebarShowcase` 分组标题加 chevron.down 图标，渲染 01-sidebar。
 - **改动**：`SidebarView.swift`(collapsedGroups+折叠 header)、`Showcase.swift`(chevron)、`apple/screenshots/01-sidebar.png`。

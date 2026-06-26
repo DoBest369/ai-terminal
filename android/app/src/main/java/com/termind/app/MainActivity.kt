@@ -378,6 +378,8 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
                 }
                 Text("${conn.user}@${conn.host}:${conn.port}", color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
                 if (conn.note.isNotEmpty()) Text("📝 ${conn.note}", color = TextSecondary.copy(alpha = 0.85f), fontSize = 11.sp)
+                // A-LastUsed：上次使用相对时间
+                if (conn.lastUsed > 0) Text("上次使用 · ${relativeTime(conn.lastUsed)}", color = TextSecondary.copy(alpha = 0.7f), fontSize = 10.sp)
             }
             Box {
                 IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "更多", tint = TextSecondary) }
@@ -1711,6 +1713,18 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
             dismissButton = { TextButton(onClick = { pendingDelete = null }) { Text("取消", color = TextSecondary) } },
             containerColor = Surface
         )
+    }
+}
+
+/** A-LastUsed：毫秒时间戳 → 相对时间（刚刚/N分钟前/N小时前/N天前/日期）。 */
+private fun relativeTime(ms: Long): String {
+    val diff = System.currentTimeMillis() - ms
+    return when {
+        diff < 60_000 -> "刚刚"
+        diff < 3_600_000 -> "${diff / 60_000} 分钟前"
+        diff < 86_400_000 -> "${diff / 3_600_000} 小时前"
+        diff < 7 * 86_400_000L -> "${diff / 86_400_000} 天前"
+        else -> java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date(ms))
     }
 }
 

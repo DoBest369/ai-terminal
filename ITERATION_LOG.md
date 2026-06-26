@@ -6,6 +6,16 @@
 
 ---
 
+## 质量收口 · 防误操作 + 双端一致性快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
+- **防误操作（破坏性操作二次确认，双端齐）**：删除连接 · 删除对话 · 清空对话 · SFTP 删除文件/目录 · 批量删除连接 —— 均二次确认。
+- **近批次双端一致性打磨（多为 评估发现单端落后→补齐）**：连接端口范围校验(apple 补) · AI 清空确认(android 补) · 删除连接/对话确认(android 补) · 快捷命令编辑/分组 · AI 消息重发/存卡片。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：通过系统性审计补齐双端一致性细节(校验/确认/编辑)，破坏性操作防误删完整。Termind 不仅功能对齐，交互安全与细节也双端一致，成熟度持续提升。
+
+---
+
 ## 危险操作二次确认审计对齐（系统性防误删）
 - **审计**：grep 双端所有删除/破坏性操作的确认现状：
   | 操作 | apple | android(原) |

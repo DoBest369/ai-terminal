@@ -118,9 +118,15 @@ struct SidebarView: View {
 
                 Section {
                     if model.connections.isEmpty {
-                        Text("暂无保存的连接")
-                            .font(.footnote)
-                            .foregroundStyle(Theme.textSecondary)
+                        VStack(spacing: 8) {
+                            Image(systemName: "server.rack")
+                                .font(.system(size: 30)).foregroundStyle(Theme.textSecondary)
+                            Text("还没有连接").font(.subheadline).foregroundStyle(Theme.textPrimary)
+                            Text("点上方「＋」添加第一台服务器，\n开始智能 SSH 运维。")
+                                .font(.caption).foregroundStyle(Theme.textSecondary).multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
                     } else if filtered.isEmpty {
                         Text("无匹配「\(search)」的连接")
                             .font(.footnote)

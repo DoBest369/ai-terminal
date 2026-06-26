@@ -542,7 +542,7 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
                     DropdownMenuItem(text = { Text("复制连接串") }, onClick = {
                         menu = false
                         val s = if (conn.port == 22) "ssh ${conn.user}@${conn.host}" else "ssh ${conn.user}@${conn.host} -p ${conn.port}"
-                        val cm = cardCtx.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        val cm = cardCtx.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                         cm.setPrimaryClip(android.content.ClipData.newPlainText("ssh", s))
                         android.widget.Toast.makeText(cardCtx, "已复制连接串", android.widget.Toast.LENGTH_SHORT).show()
                     })

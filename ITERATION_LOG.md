@@ -6,6 +6,15 @@
 
 ---
 
+## 命令历史搜索双端（搜索能力全覆盖）
+- **内容**：命令历史 >5 条时显搜索框，按关键词过滤。apple SnippetsView 命令历史 Section + historySearch；android history sheet + histQuery。
+- **搜索能力全覆盖（双端）**：知识卡片三维检索(类型+标签+关键词) · AI 对话内搜索 + 全局搜索(跨对话匹配数) · 命令历史搜索 · 终端输出搜索。各处可检索的内容都能按词定位。
+- **改动**：`SnippetsView.swift`(historySearch)、`MainActivity.kt`(histQuery)、`docs/PARITY.md`。
+- **验证**：apple swift build + 8 自测全过(history 去重)；android BUILD SUCCESSFUL 31s 零 deprecated。PARITY 101 项 ✅✅，🟡=0。推送 apple 6c18b1c/android 81c599f。
+- **意义**：命令历史搜索补齐，Termind 搜索能力全覆盖(知识卡片/对话/命令历史/终端输出)。
+
+---
+
 ## README 成熟度徽章 + 指向 MATURITY.md
 - **内容**：README 顶部加 `双端配对能力-100 项全对齐` 徽章(指向 docs/MATURITY.md) + 「📊 成熟度一览」一句话(双端 100 项/护城河 Z1-Z8/排障11部署11/批量运维/知识沉淀闭环/导入导出对称/18 自测)指向成熟度总览。让仓库访客一眼看全能力规模。
 - **如实**：徽章/一览不夸大(未称 iOS 已出包)；边界见 MATURITY.md。

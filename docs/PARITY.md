@@ -129,6 +129,7 @@
 | 快捷命令导出 | ✅ | ✅ | 双端按分组导出 Markdown（apple 复制 / android 分享 Intent） |
 | 快捷命令导入 | ✅ | ✅ | 双端粘贴解析（Markdown/标题|命令）+去重，对齐导出 |
 | 命令历史（去重/置顶/限长/调出） | ✅ | ✅ | N-History 双端 UI 接入 |
+| 命令历史搜索 | ✅ | ✅ | 双端 >5 条显搜索框按关键词过滤历史命令 |
 | 批量群发命令（多服务器同命令） | ✅ | ✅ | 双端完整 UI + 全选/清空/按分组快速选目标 + 成功/失败统计 |
 | 群发结果 AI 汇总 | ✅ | ✅ | apple summarizeBatch + composeForAI；android 完整 |
 | 多主题配色 | ✅ | ✅ | 双端 5 套（午夜/One Dark/Dracula/Solarized/Nord） |

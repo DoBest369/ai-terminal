@@ -119,6 +119,18 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
         }
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // 空状态：无 SSH 连接→引导（对齐 apple InspectView）
+            if (conns.isEmpty()) {
+                Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                    Icon(Icons.Filled.Dns, null, tint = TextSecondary, modifier = Modifier.size(44.dp))
+                    Spacer(Modifier.height(12.dp))
+                    Text("还没有 SSH 连接", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(6.dp))
+                    Text("批量巡检需要先添加服务器连接，\n返回连接列表新建后再来一键巡检。",
+                        color = TextSecondary, fontSize = 13.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                }
+                return@Column
+            }
             OutlinedTextField(password, { password = it }, label = { Text("统一 SSH 密码") }, singleLine = true,
                 visualTransformation = PasswordVisualTransformation(), colors = fieldColors, modifier = Modifier.fillMaxWidth())
             Button(onClick = { inspect() }, enabled = !running && password.isNotBlank(),

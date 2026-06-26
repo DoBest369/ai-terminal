@@ -6,6 +6,14 @@
 
 ---
 
+## windows 侧边栏顶部工具栏 + 搜索框可输入
+- **内容**：windows 侧边栏品牌「Termind」旁加工具栏——＋新建连接（粉红）/ ⚙设置 图标 `Button`（带 ToolTip）；搜索框从 `TextBlock` 占位 → 可输入 `TextBox`（PlaceholderText + 粉红光标）。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(侧边栏头部 Grid 工具栏 + 搜索 TextBox)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图验证工具栏 + 搜索框。推送 ec342c5。
+- **意义**：windows 端侧边栏更完整（品牌 + 工具栏 + 可输入搜索 + ListBox 连接列表），对照 apple/android 侧边栏。windows 端工作台持续完整化（三栏 + 侧边栏工具栏 + 状态进度条 + 输入框 + 快捷命令栏）。
+
+---
+
 ## android 批量群发/巡检无连接空状态（双端空状态对齐）
 - **内容**：android BatchScreen/InspectScreen 当 `conns.isEmpty()` 时显空状态（`Icons.Filled.Dns` 图标 + 「还没有 SSH 连接」+ 「批量群发/巡检需要先添加服务器连接，返回连接列表新建后再来」引导），而非空白表单。对齐 apple BatchView/InspectView 上轮加的空状态。
 - **改动**：`BatchScreen.kt`/`InspectScreen.kt`(conns.isEmpty 空状态 + return@Column)。

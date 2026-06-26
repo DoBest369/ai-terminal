@@ -571,6 +571,13 @@ final class AppModel: ObservableObject {
         toast = "已复制连接配置（不含密码）"
     }
 
+    /// 复制 ssh 连接串到剪贴板（方便粘贴到其他终端/文档）。默认端口 22 省略 -p。
+    func copyConnectionString(_ connection: Connection) {
+        let base = "ssh \(connection.username)@\(connection.host)"
+        Clipboard.copy(connection.port == 22 ? base : "\(base) -p \(connection.port)")
+        toast = "已复制连接串"
+    }
+
     /// 复制一条连接为副本。换新 UUID（Identifiable/Equatable 以 id 区分），name 加「副本」后缀。
     /// 敏感字段一并复制：内存里的 connection 已从 Keychain 回填了密码/口令/私钥/跳板密码，
     /// saveConnections 会按新 id 写入各自的 Keychain 项（同一设备，安全等价）。

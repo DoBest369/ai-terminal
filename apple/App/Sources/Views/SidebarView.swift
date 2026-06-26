@@ -415,6 +415,11 @@ private struct ConnectionRow: View {
                 Label("分享二维码", systemImage: "qrcode")
             }
             Button {
+                model.copyConnectionString(connection)
+            } label: {
+                Label("复制连接串", systemImage: "terminal")
+            }
+            Button {
                 model.copyConnectionConfig(connection)
             } label: {
                 Label("复制配置", systemImage: "doc.on.clipboard")

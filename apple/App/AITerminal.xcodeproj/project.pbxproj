@@ -8,44 +8,73 @@
 
 /* Begin PBXBuildFile section */
 		03BC793F67E181E301381E75 /* AITerminalCore in Frameworks */ = {isa = PBXBuildFile; productRef = AAEA151646130A1192840479 /* AITerminalCore */; };
+		07A42F48E1BC9AF98C7DBB1E /* KnownHostsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98D22B7E953B6EB1FCC11D5 /* KnownHostsView.swift */; };
 		08E54540A68E8F6E7C7BF4D3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348CBCA513E7D86D587F86A7 /* ContentView.swift */; };
 		0A29D0B96538D6FDCB6952BF /* TerminalContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8183D44872F7F9F04654042 /* TerminalContainer.swift */; };
 		0CACD89BA97BB9EE828F45AE /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D2962C85AE355BBA1CB822 /* AppModel.swift */; };
+		17A5509FDEBEA0FDCE9CBA9A /* KnownHostsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98D22B7E953B6EB1FCC11D5 /* KnownHostsView.swift */; };
 		1A3B41D39851413410359DAF /* AITerminalCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4FCD2D192B183E159C31A2EB /* AITerminalCore */; };
 		1BFD3770E9714113106DF9E9 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24695F22C1F36F3E5808D72C /* StatusBarView.swift */; };
+		2426CCB95D69FA34163DA12E /* SnippetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD125874428BF585343C7364 /* SnippetsView.swift */; };
+		25F84231B3B6938E7F512396 /* AppColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A64FCE07172E9BCF771707A /* AppColorScheme.swift */; };
 		2917BF7D30D59FC68D317A1B /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3791F506DDABD456A9322F64 /* Platform.swift */; };
 		2A9A63F8A94FD5A330E92814 /* TerminalTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4012A18D1127E312CD35AB /* TerminalTheme.swift */; };
+		36C9426118A5CAF0268FF8B3 /* InspectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC698AB21A918D9CF3E6848 /* InspectView.swift */; };
+		37ECD283B1393B7C5C486963 /* ThemeThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BF842671D11BF05552ADBE7 /* ThemeThumbnail.swift */; };
+		3C30ED2AED3B3725A3E0008A /* BatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFEA8A1223A970B0D72A22CD /* BatchView.swift */; };
 		426D4A4D3765AD4ABF7DEB32 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 2EF9901F3265C14F75CCA92D /* SwiftTerm */; };
+		49C3200656D8CA92C3FCA3DB /* ThemeThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BF842671D11BF05552ADBE7 /* ThemeThumbnail.swift */; };
+		50CC8F43CA245A28E7755D81 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45B9925788BD17897BF9083 /* Clipboard.swift */; };
+		5EF30C0D0B6C2E3186A824A0 /* QRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CAB128F6E1243FCE770700B /* QRCode.swift */; };
+		614BFA6B246F5297CF0F7211 /* TerminalSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0687E36C9DD3DA81F9580E16 /* TerminalSearchBar.swift */; };
 		6BA39D4C186504BC976883C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 102412AE726021867B872659 /* Assets.xcassets */; };
 		6D0826A553588997511AC3D9 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C415D00A3CB4A921A4A40AC /* SidebarView.swift */; };
 		70BB1511AD0792C43EA4CB4B /* ConnectionEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D417850D0F917D1685FF76 /* ConnectionEditView.swift */; };
+		82662D926FCAD89BC59AB74F /* NotebookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDA6B06D6E29A6B2DC8A00C /* NotebookView.swift */; };
+		848BB9257427D3764416CA3D /* RelativeTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = C953A4FA2437517DE3B0FF31 /* RelativeTime.swift */; };
 		86312DF33AEA8400A4BEE7EF /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C415D00A3CB4A921A4A40AC /* SidebarView.swift */; };
 		8A955D87B40A780D445AC3C1 /* LocalSystemMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201BE29CAB8A5F32922BDEA3 /* LocalSystemMonitor.swift */; };
+		9ED39CF396282DED0E1B3962 /* InspectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC698AB21A918D9CF3E6848 /* InspectView.swift */; };
+		9F5AB9AB1024CDBE701DF56B /* PortForwardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB31D54BC8827FC93C0E398 /* PortForwardView.swift */; };
+		A0CF4B676C8E26B1CA0D2FA5 /* FileBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1980947BE947F0877204FC6 /* FileBrowserView.swift */; };
+		A49046DA00F6E3167F6FF948 /* TerminalSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0687E36C9DD3DA81F9580E16 /* TerminalSearchBar.swift */; };
 		A4CC88B00D216722563FDCA8 /* TerminalSessionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588B0606ECC79EE54E4DCA0C /* TerminalSessionVM.swift */; };
 		A68163CBB2138124E5A70322 /* TerminalPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB3CB4884EF1A304033ABB4 /* TerminalPane.swift */; };
 		A6EC511310D250A2504BDEA0 /* AITerminalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A4C5206702236B1A56B760 /* AITerminalApp.swift */; };
+		A7384CF7E26B9A1FC8872219 /* ConnectionQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72BF059549AA123013A4EF28 /* ConnectionQRView.swift */; };
 		A9F08EF6D07132D4FD2A9471 /* AIAgentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66D7DA8FA3A3D9A9F7835D2B /* AIAgentView.swift */; };
 		B433A891D3933A0BA2D5BF86 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348CBCA513E7D86D587F86A7 /* ContentView.swift */; };
 		B61369EE343B14C7AE0F0F33 /* AIAgentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66D7DA8FA3A3D9A9F7835D2B /* AIAgentView.swift */; };
+		BD7B472EA4A94881C6E55E52 /* RelativeTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = C953A4FA2437517DE3B0FF31 /* RelativeTime.swift */; };
 		BE225ECB65556EFE4E41CAD4 /* TerminalTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4012A18D1127E312CD35AB /* TerminalTheme.swift */; };
 		BE6FE5707ADDC1B6F5B2DBC4 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D2962C85AE355BBA1CB822 /* AppModel.swift */; };
+		C139D2577F4F224E85E5F307 /* SnippetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD125874428BF585343C7364 /* SnippetsView.swift */; };
+		C99B8F5373199172BA1D32A5 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45B9925788BD17897BF9083 /* Clipboard.swift */; };
+		C9AC6730AACB9936C9D30DAB /* BatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFEA8A1223A970B0D72A22CD /* BatchView.swift */; };
 		CAC1EF1D1D63251F7F33A568 /* TerminalPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB3CB4884EF1A304033ABB4 /* TerminalPane.swift */; };
 		CFD123C52EA66187633EF86F /* TerminalKeyBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162BB60CE16162887A594F41 /* TerminalKeyBar.swift */; };
 		D188D91AA56DFA33BB7EC53E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 102412AE726021867B872659 /* Assets.xcassets */; };
 		DAC45FB2B8EB35FB1698178E /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3791F506DDABD456A9322F64 /* Platform.swift */; };
 		DAFEF025AFCE0C0725D711CA /* ConnectionEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D417850D0F917D1685FF76 /* ConnectionEditView.swift */; };
 		DC2B4D04CF888962F938EA0C /* AITerminalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A4C5206702236B1A56B760 /* AITerminalApp.swift */; };
+		DC7FAC74BDA754E433E76142 /* PortForwardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB31D54BC8827FC93C0E398 /* PortForwardView.swift */; };
 		DEC22396534FA15569116B05 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 41AA86963501D91F4F514B2D /* SwiftTerm */; };
 		E3C136DBD693AFABFDC4FA8F /* TerminalSessionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588B0606ECC79EE54E4DCA0C /* TerminalSessionVM.swift */; };
 		E4A211F5FFBDDD1CA697898C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25722034C89CBA7CE9003A97 /* SettingsView.swift */; };
+		E75F3803065DEF9891CB5883 /* NotebookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDA6B06D6E29A6B2DC8A00C /* NotebookView.swift */; };
 		E8D6382A01686193D94AAC1B /* LocalSystemMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201BE29CAB8A5F32922BDEA3 /* LocalSystemMonitor.swift */; };
 		E92414D6586C5C46244713F9 /* TerminalContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8183D44872F7F9F04654042 /* TerminalContainer.swift */; };
+		E9F65F9446198342A6E4172C /* QRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CAB128F6E1243FCE770700B /* QRCode.swift */; };
+		EE24CE8248C4DCF4B6E18DD3 /* AppColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A64FCE07172E9BCF771707A /* AppColorScheme.swift */; };
+		F05148B512F8868A4CB9FBC7 /* FileBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1980947BE947F0877204FC6 /* FileBrowserView.swift */; };
 		F0BE68705C0498D2761BCFED /* TerminalKeyBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162BB60CE16162887A594F41 /* TerminalKeyBar.swift */; };
 		F4F8DD0F6DBF0B86A9087BEC /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24695F22C1F36F3E5808D72C /* StatusBarView.swift */; };
 		F6E25B52AF2A3BA9E3B05832 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25722034C89CBA7CE9003A97 /* SettingsView.swift */; };
+		F9F5779ABF19E80E05D936B1 /* ConnectionQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72BF059549AA123013A4EF28 /* ConnectionQRView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0687E36C9DD3DA81F9580E16 /* TerminalSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSearchBar.swift; sourceTree = "<group>"; };
 		102412AE726021867B872659 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		11BCD290B96E77971CC140AB /* AITerminal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AITerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		162BB60CE16162887A594F41 /* TerminalKeyBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalKeyBar.swift; sourceTree = "<group>"; };
@@ -55,16 +84,29 @@
 		31A4C5206702236B1A56B760 /* AITerminalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AITerminalApp.swift; sourceTree = "<group>"; };
 		348CBCA513E7D86D587F86A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		3791F506DDABD456A9322F64 /* Platform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Platform.swift; sourceTree = "<group>"; };
+		3BB31D54BC8827FC93C0E398 /* PortForwardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortForwardView.swift; sourceTree = "<group>"; };
+		3BF842671D11BF05552ADBE7 /* ThemeThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeThumbnail.swift; sourceTree = "<group>"; };
+		3CAB128F6E1243FCE770700B /* QRCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCode.swift; sourceTree = "<group>"; };
+		3CDA6B06D6E29A6B2DC8A00C /* NotebookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookView.swift; sourceTree = "<group>"; };
 		42BA56BC954BF371A43A2E9D /* AITerminal.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AITerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		588B0606ECC79EE54E4DCA0C /* TerminalSessionVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSessionVM.swift; sourceTree = "<group>"; };
 		66D7DA8FA3A3D9A9F7835D2B /* AIAgentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentView.swift; sourceTree = "<group>"; };
+		6A64FCE07172E9BCF771707A /* AppColorScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColorScheme.swift; sourceTree = "<group>"; };
+		72BF059549AA123013A4EF28 /* ConnectionQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionQRView.swift; sourceTree = "<group>"; };
+		7AC698AB21A918D9CF3E6848 /* InspectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectView.swift; sourceTree = "<group>"; };
 		98D2962C85AE355BBA1CB822 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		9B4012A18D1127E312CD35AB /* TerminalTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalTheme.swift; sourceTree = "<group>"; };
 		9C415D00A3CB4A921A4A40AC /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		A2D417850D0F917D1685FF76 /* ConnectionEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionEditView.swift; sourceTree = "<group>"; };
 		A8183D44872F7F9F04654042 /* TerminalContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalContainer.swift; sourceTree = "<group>"; };
+		AD125874428BF585343C7364 /* SnippetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetsView.swift; sourceTree = "<group>"; };
+		C1980947BE947F0877204FC6 /* FileBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserView.swift; sourceTree = "<group>"; };
+		C953A4FA2437517DE3B0FF31 /* RelativeTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeTime.swift; sourceTree = "<group>"; };
 		CDB3CB4884EF1A304033ABB4 /* TerminalPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalPane.swift; sourceTree = "<group>"; };
+		E45B9925788BD17897BF9083 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
 		F675EDFBA1835D3209EAD210 /* AITerminalCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AITerminalCore; path = ../AITerminalCore; sourceTree = SOURCE_ROOT; };
+		F98D22B7E953B6EB1FCC11D5 /* KnownHostsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnownHostsView.swift; sourceTree = "<group>"; };
+		FFEA8A1223A970B0D72A22CD /* BatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,9 +171,14 @@
 		CAA3173EA7CD1D4317EF41E0 /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				6A64FCE07172E9BCF771707A /* AppColorScheme.swift */,
+				E45B9925788BD17897BF9083 /* Clipboard.swift */,
 				201BE29CAB8A5F32922BDEA3 /* LocalSystemMonitor.swift */,
 				3791F506DDABD456A9322F64 /* Platform.swift */,
+				3CAB128F6E1243FCE770700B /* QRCode.swift */,
+				C953A4FA2437517DE3B0FF31 /* RelativeTime.swift */,
 				9B4012A18D1127E312CD35AB /* TerminalTheme.swift */,
+				3BF842671D11BF05552ADBE7 /* ThemeThumbnail.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -140,14 +187,23 @@
 			isa = PBXGroup;
 			children = (
 				66D7DA8FA3A3D9A9F7835D2B /* AIAgentView.swift */,
+				FFEA8A1223A970B0D72A22CD /* BatchView.swift */,
 				A2D417850D0F917D1685FF76 /* ConnectionEditView.swift */,
+				72BF059549AA123013A4EF28 /* ConnectionQRView.swift */,
 				348CBCA513E7D86D587F86A7 /* ContentView.swift */,
+				C1980947BE947F0877204FC6 /* FileBrowserView.swift */,
+				7AC698AB21A918D9CF3E6848 /* InspectView.swift */,
+				F98D22B7E953B6EB1FCC11D5 /* KnownHostsView.swift */,
+				3CDA6B06D6E29A6B2DC8A00C /* NotebookView.swift */,
+				3BB31D54BC8827FC93C0E398 /* PortForwardView.swift */,
 				25722034C89CBA7CE9003A97 /* SettingsView.swift */,
 				9C415D00A3CB4A921A4A40AC /* SidebarView.swift */,
+				AD125874428BF585343C7364 /* SnippetsView.swift */,
 				24695F22C1F36F3E5808D72C /* StatusBarView.swift */,
 				A8183D44872F7F9F04654042 /* TerminalContainer.swift */,
 				162BB60CE16162887A594F41 /* TerminalKeyBar.swift */,
 				CDB3CB4884EF1A304033ABB4 /* TerminalPane.swift */,
+				0687E36C9DD3DA81F9580E16 /* TerminalSearchBar.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -274,19 +330,33 @@
 			files = (
 				A9F08EF6D07132D4FD2A9471 /* AIAgentView.swift in Sources */,
 				DC2B4D04CF888962F938EA0C /* AITerminalApp.swift in Sources */,
+				25F84231B3B6938E7F512396 /* AppColorScheme.swift in Sources */,
 				BE6FE5707ADDC1B6F5B2DBC4 /* AppModel.swift in Sources */,
+				C9AC6730AACB9936C9D30DAB /* BatchView.swift in Sources */,
+				50CC8F43CA245A28E7755D81 /* Clipboard.swift in Sources */,
 				DAFEF025AFCE0C0725D711CA /* ConnectionEditView.swift in Sources */,
+				F9F5779ABF19E80E05D936B1 /* ConnectionQRView.swift in Sources */,
 				B433A891D3933A0BA2D5BF86 /* ContentView.swift in Sources */,
+				F05148B512F8868A4CB9FBC7 /* FileBrowserView.swift in Sources */,
+				9ED39CF396282DED0E1B3962 /* InspectView.swift in Sources */,
+				17A5509FDEBEA0FDCE9CBA9A /* KnownHostsView.swift in Sources */,
 				E8D6382A01686193D94AAC1B /* LocalSystemMonitor.swift in Sources */,
+				E75F3803065DEF9891CB5883 /* NotebookView.swift in Sources */,
 				DAC45FB2B8EB35FB1698178E /* Platform.swift in Sources */,
+				9F5AB9AB1024CDBE701DF56B /* PortForwardView.swift in Sources */,
+				5EF30C0D0B6C2E3186A824A0 /* QRCode.swift in Sources */,
+				BD7B472EA4A94881C6E55E52 /* RelativeTime.swift in Sources */,
 				F6E25B52AF2A3BA9E3B05832 /* SettingsView.swift in Sources */,
 				86312DF33AEA8400A4BEE7EF /* SidebarView.swift in Sources */,
+				2426CCB95D69FA34163DA12E /* SnippetsView.swift in Sources */,
 				F4F8DD0F6DBF0B86A9087BEC /* StatusBarView.swift in Sources */,
 				E92414D6586C5C46244713F9 /* TerminalContainer.swift in Sources */,
 				F0BE68705C0498D2761BCFED /* TerminalKeyBar.swift in Sources */,
 				CAC1EF1D1D63251F7F33A568 /* TerminalPane.swift in Sources */,
+				A49046DA00F6E3167F6FF948 /* TerminalSearchBar.swift in Sources */,
 				A4CC88B00D216722563FDCA8 /* TerminalSessionVM.swift in Sources */,
 				BE225ECB65556EFE4E41CAD4 /* TerminalTheme.swift in Sources */,
+				49C3200656D8CA92C3FCA3DB /* ThemeThumbnail.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -296,19 +366,33 @@
 			files = (
 				B61369EE343B14C7AE0F0F33 /* AIAgentView.swift in Sources */,
 				A6EC511310D250A2504BDEA0 /* AITerminalApp.swift in Sources */,
+				EE24CE8248C4DCF4B6E18DD3 /* AppColorScheme.swift in Sources */,
 				0CACD89BA97BB9EE828F45AE /* AppModel.swift in Sources */,
+				3C30ED2AED3B3725A3E0008A /* BatchView.swift in Sources */,
+				C99B8F5373199172BA1D32A5 /* Clipboard.swift in Sources */,
 				70BB1511AD0792C43EA4CB4B /* ConnectionEditView.swift in Sources */,
+				A7384CF7E26B9A1FC8872219 /* ConnectionQRView.swift in Sources */,
 				08E54540A68E8F6E7C7BF4D3 /* ContentView.swift in Sources */,
+				A0CF4B676C8E26B1CA0D2FA5 /* FileBrowserView.swift in Sources */,
+				36C9426118A5CAF0268FF8B3 /* InspectView.swift in Sources */,
+				07A42F48E1BC9AF98C7DBB1E /* KnownHostsView.swift in Sources */,
 				8A955D87B40A780D445AC3C1 /* LocalSystemMonitor.swift in Sources */,
+				82662D926FCAD89BC59AB74F /* NotebookView.swift in Sources */,
 				2917BF7D30D59FC68D317A1B /* Platform.swift in Sources */,
+				DC7FAC74BDA754E433E76142 /* PortForwardView.swift in Sources */,
+				E9F65F9446198342A6E4172C /* QRCode.swift in Sources */,
+				848BB9257427D3764416CA3D /* RelativeTime.swift in Sources */,
 				E4A211F5FFBDDD1CA697898C /* SettingsView.swift in Sources */,
 				6D0826A553588997511AC3D9 /* SidebarView.swift in Sources */,
+				C139D2577F4F224E85E5F307 /* SnippetsView.swift in Sources */,
 				1BFD3770E9714113106DF9E9 /* StatusBarView.swift in Sources */,
 				0A29D0B96538D6FDCB6952BF /* TerminalContainer.swift in Sources */,
 				CFD123C52EA66187633EF86F /* TerminalKeyBar.swift in Sources */,
 				A68163CBB2138124E5A70322 /* TerminalPane.swift in Sources */,
+				614BFA6B246F5297CF0F7211 /* TerminalSearchBar.swift in Sources */,
 				E3C136DBD693AFABFDC4FA8F /* TerminalSessionVM.swift in Sources */,
 				2A9A63F8A94FD5A330E92814 /* TerminalTheme.swift in Sources */,
+				37ECD283B1393B7C5C486963 /* ThemeThumbnail.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

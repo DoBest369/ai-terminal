@@ -6,6 +6,15 @@
 
 ---
 
+## windows 命令/AI 输入框改可输入 TextBox（占位→可交互）
+- **内容**：windows 终端命令输入 + AI 指令输入从 `TextBlock` 占位文字 → 真实 `TextBox`（`PlaceholderText` 提示 + `CaretBrush` 粉红光标，可真实输入）；AI 发送按钮 `Border` → `Button`（可点击）。
+- **修复**：`TextBox.Watermark` deprecated → `PlaceholderText`（零 deprecated/warning 政策；首构建 2 警告→修复后 0 警告）。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`。
+- **验证**：clean `dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图。推送 79a92c9。
+- **意义**：windows 端从「纯静态展示」→「可输入交互」（命令框/AI 框可打字、发送按钮可点）。一点点对照 apple/android 让占位变可用。
+
+---
+
 ## windows 状态条进度条 → 五端状态面板进度条全对齐
 - **内容**：windows 终端区状态条 CPU 47%/内存 56% 文字 → 加 Border 自绘 mini 进度条（底槽 `#1AFFFFFF` + 前景比例条按 % 宽度）。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(状态条进度条)。

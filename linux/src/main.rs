@@ -47,12 +47,27 @@ struct TermindApp {
     ai_input: String,
     show_settings: bool,
     api_key: String,
+    show_sftp: bool,
 }
 
 impl Default for TermindApp {
     fn default() -> Self {
-        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new() }
+        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false }
     }
+}
+
+/// SFTP 文件项（占位）：name/是否目录/大小/类型图标
+fn sftp_demo() -> Vec<(&'static str, bool, &'static str)> {
+    vec![
+        ("..", true, ""),
+        ("projects", true, ""),
+        (".ssh", true, ""),
+        ("logs", true, ""),
+        ("deploy.sh", false, "1.0 KB"),
+        (".bashrc", false, "220 B"),
+        ("backup.tar.gz", false, "48.2 MB"),
+        ("notes.md", false, "3.4 KB"),
+    ]
 }
 
 impl eframe::App for TermindApp {
@@ -64,10 +79,13 @@ impl eframe::App for TermindApp {
                 ui.colored_label(ACCENT, "⚡");
                 ui.heading(egui::RichText::new("Termind").color(TEXT_PRIMARY).strong());
                 ui.colored_label(TEXT_SECONDARY, "智能 SSH 运维");
-                // 右侧工具栏：新建连接 / 设置（对照 windows 顶部工具栏）
+                // 右侧工具栏：新建连接 / SFTP / 设置（对照 windows 顶部工具栏）
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if ui.add(egui::Button::new(egui::RichText::new("⚙").size(15.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
                         self.show_settings = !self.show_settings;
+                    }
+                    if ui.add(egui::Button::new(egui::RichText::new("📁").size(14.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
+                        self.show_sftp = !self.show_sftp;
                     }
                     let _ = ui.add(egui::Button::new(egui::RichText::new("＋").size(16.0).color(ACCENT)).frame(false));
                 });
@@ -107,6 +125,34 @@ impl eframe::App for TermindApp {
                 ui.colored_label(TEXT_PRIMARY, egui::RichText::new("claude-opus-4-8").monospace());
             });
         self.show_settings = open;
+
+        // SFTP 文件浏览窗口（占位，对照 apple/android SFTP）
+        let mut sftp_open = self.show_sftp;
+        egui::Window::new("SFTP 文件")
+            .open(&mut sftp_open)
+            .resizable(true)
+            .default_width(420.0)
+            .show(ctx, |ui| {
+                ui.colored_label(TEXT_SECONDARY, egui::RichText::new("↑ /home/deploy").monospace());
+                ui.separator();
+                for (name, is_dir, size) in sftp_demo() {
+                    ui.horizontal(|ui| {
+                        // 类型图标（对照 apple/android 文件类型图标）
+                        let icon = if is_dir { "📁" } else if name.ends_with(".sh") { "⌨" }
+                            else if name.ends_with(".gz") || name.ends_with(".zip") { "🗜" }
+                            else if name.ends_with(".md") || name.ends_with(".txt") { "📄" }
+                            else { "⚙" };
+                        ui.colored_label(if is_dir { ACCENT } else { TEXT_SECONDARY }, icon);
+                        ui.colored_label(TEXT_PRIMARY, name);
+                        if !size.is_empty() {
+                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                ui.colored_label(TEXT_SECONDARY, size);
+                            });
+                        }
+                    });
+                }
+            });
+        self.show_sftp = sftp_open;
 
         // ① 左侧栏：连接列表（按分组）—— 三栏工作台对齐 apple/windows
         egui::SidePanel::left("connections")

@@ -13,6 +13,12 @@ const ACCENT: egui::Color32 = egui::Color32::from_rgb(0xE9, 0x45, 0x60);
 const TEXT_PRIMARY: egui::Color32 = egui::Color32::from_rgb(0xEE, 0xEE, 0xEE);
 const TEXT_SECONDARY: egui::Color32 = egui::Color32::from_rgb(0xA0, 0xA0, 0xA0);
 const SUCCESS: egui::Color32 = egui::Color32::from_rgb(0x2E, 0xCC, 0x71);
+const WARNING: egui::Color32 = egui::Color32::from_rgb(0xF5, 0x9E, 0x0B);
+
+/// 占用率着色：绿<60 / 橙60-80 / 红>80（对齐 apple/android 状态面板进度条）
+fn usage_color(pct: u8) -> egui::Color32 {
+    if pct > 80 { ACCENT } else if pct > 60 { WARNING } else { SUCCESS }
+}
 
 /// SSH 连接（占位；后续接 ssh2 + 本地持久化）
 struct ServerConn {
@@ -106,8 +112,11 @@ impl eframe::App for TermindApp {
                 ui.horizontal(|ui| {
                     ui.colored_label(SUCCESS, "● 已连接");
                     ui.colored_label(TEXT_SECONDARY, "prod-01");
-                    ui.colored_label(TEXT_SECONDARY, "CPU 47%");
-                    ui.colored_label(TEXT_SECONDARY, "内存 56%");
+                    // CPU/内存 mini 进度条（绿<60/橙60-80/红>80 三档，对齐 apple/android）
+                    ui.colored_label(TEXT_SECONDARY, "CPU");
+                    ui.add(egui::ProgressBar::new(0.47).desired_width(54.0).text("47%").fill(usage_color(47)));
+                    ui.colored_label(TEXT_SECONDARY, "内存");
+                    ui.add(egui::ProgressBar::new(0.56).desired_width(54.0).text("56%").fill(usage_color(56)));
                     ui.colored_label(TEXT_SECONDARY, "负载 0.82");
                 });
                 ui.add_space(8.0);

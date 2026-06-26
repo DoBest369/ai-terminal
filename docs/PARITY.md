@@ -80,7 +80,7 @@
 | Z5 操作回滚（备份+时间线） | ✅ | ✅ | OpRollback 双端 |
 | Z6 服务器状态面板 | ✅ | ✅ | CPU/内存/磁盘/负载/运行时长 + 关键服务(nginx/docker/mysql/redis/sshd)运行状态 → 健康摘要+告警 |
 | Z7 风险分级 + 脱敏 | ✅ | ✅ | CommandRisk 四级 + Redactor 双端 |
-| Z8 初始化模板（真执行） | ✅ | ✅ | 8 内置模板双端（Ubuntu Web/Docker/Node/静态站/LNMP/Redis/PostgreSQL/Python） |
+| Z8 初始化模板（真执行） | ✅ | ✅ | 11 内置模板双端（Ubuntu Web/Docker/Node/静态站/LNMP/Redis/PostgreSQL/Python/MongoDB/Caddy/监控） |
 
 ## ✨ 阶段 N 创新（运维工作台杀手级能力）
 

@@ -6,6 +6,19 @@
 
 ---
 
+## 初始化模板 Z8 扩充（8→11，双端）
+- **内容**：`SetupTemplate.builtins` 从 8 增至 11，新增：
+  - **MongoDB 数据库**：安装+自启+创建管理员(YOUR_PASSWORD 占位)+验证
+  - **Caddy 反代（自动 HTTPS）**：装 Caddy+写反代站点+重载自启，自动申请 Let's Encrypt 证书
+  - **Prometheus + Grafana 监控**：Docker 起 Prometheus(9090)+Grafana(3000，密码占位)+验证
+  每个含 name+icon+description+steps(SetupStep)+risk(复用 Z7 分级)+previewText。
+- **双端对齐**：apple `SetupTemplate.swift`+android `OpsWorkflows.kt` builtins 内容一致。
+- **改动**：`SetupTemplate.swift`、`OpsWorkflows.kt`、`docs/PARITY.md`。
+- **验证**：apple Core swift build + template 自测「内置模板数=11；预览格式正确=true」；android BUILD SUCCESSFUL 11s 零 deprecated。推送 apple a5ace2d/android 4d255be。
+- **意义**：护城河 Z8 部署模板库再扩充(8→11)——覆盖 文档型数据库(MongoDB)/现代反代(Caddy 自动 HTTPS)/监控栈(Prometheus+Grafana)。一键初始化+执行前预览(风险标注)+真执行。配合 Z4 排障(11 场景)，部署与排障两大护城河场景库都达 11。
+
+---
+
 ## 排障工作流 Z4 扩充（8→11 场景，双端）
 - **内容**：`DiagnosticWorkflow.builtins` 从 8 增至 11，新增：
   - **定时任务排查**(cron-check)：crontab -l / cron.d/daily / systemctl list-timers / cron 日志

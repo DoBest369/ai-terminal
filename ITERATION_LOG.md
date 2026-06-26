@@ -6,6 +6,15 @@
 
 ---
 
+## apple 连接批量编辑对齐（双端对齐，PARITY 🟡=0 恢复）
+- **内容**：`AppModel` 加 `multiSelectMode`/`selectedConnectionIDs` published + `batchSetGroup`(改 connection.group 字段，空=nil)/`batchSetColor`(colorTag)/`batchDelete`(含删密钥)/`exitMultiSelect`。`SidebarView` SSH 连接头部加批量编辑开关(checkmark.circle)；`ConnectionRow` 多选时显勾选框+点击切换选中(而非 openSession)；底部 `batchBar`(已选 N + 分组 Menu[现有分组+无分组]/标签 Menu[6 色]/删除)。对齐 android 长按多选。
+- **修复**：`connection.groupName` 是只读计算属性→实际字段是 `group: String?`，batchSetGroup 改赋 `group`。
+- **改动**：`AppModel.swift`(多选 state+批量方法)、`SidebarView.swift`(开关+勾选+操作栏+groupOptions/colorLabel)。
+- **验证**：App swift build Build complete；8 自测全过。推送 aa57038。
+- **意义**：apple 补齐连接批量编辑，**双端配对能力 🟡 全部归零**——仅余 2 项各自独有特性(android 定时后台巡检 / apple 分屏录制)。连接批量整理双端一致。
+
+---
+
 ## apple 最近使用快速访问对齐（双端对齐）
 - **内容**：`SidebarView` 连接列表(SSH 连接 Section 之前)加「最近使用」Section——横滑 `recentConns`(model.connections.filter{lastUsedAt != nil}.sorted{倒序}.prefix(5))，Capsule 小卡显 clock 图标+名称→点击 `model.openSession(for:)` 直接打开。非搜索时显。对齐 android。
 - **改动**：`SidebarView.swift`(recentConns 计算属性 + 最近使用 Section)。

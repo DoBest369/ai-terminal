@@ -6,6 +6,15 @@
 
 ---
 
+## AI 结论一键存为方案双端（知识沉淀闭环再强化）
+- **android**：`AIAssistantScreen` 末条 assistant 且 connId 非空时，快捷追问行加「存为方案」Chip(BookmarkAdd 绿)→把末条 AI 回复存为 `ServerNote(SOLUTION)` 到当前连接知识卡片 + Toast。构建 23s，推送 7e3e4d9。
+- **apple**：`AIAgentView` 快捷追问区，末条 assistant 且 activeSession.connection 存在时加「存为方案」Button→`ServerNotebook.add(.solution, 回复内容, connectionID)` + toast。推送 2c6ac74。
+- **改动**：`MainActivity.kt`(存为方案 Chip)、`AIAgentView.swift`(存为方案 Button)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 8 自测全过。
+- **意义**：知识沉淀闭环再强化——AI 给出排障/健康/对话结论后一键沉淀为方案卡片，形成 **发现问题→AI 分析→沉淀方案** 的完整运维闭环。下次同类问题，AI 注入此方案直接复用。双端一致。
+
+---
+
 ## 质量收口 · 双端对齐 100% 恢复快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测(history/batch/risk/metrics/env-detect/inspect/notebook/favorites)全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。
 - **PARITY 状态**：配对能力 **🟡=0**（全 ✅✅），仅余 2 项各自独有特性（android 定时后台巡检 / apple 分屏录制）。

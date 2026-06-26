@@ -29,7 +29,7 @@ struct ConnectionEditView: View {
                         get: { draft.group ?? "" },
                         set: { draft.group = $0.isEmpty ? nil : $0 }
                     ))
-                    TextField("主机地址", text: $draft.host)
+                    TextField("主机地址 *", text: $draft.host)
                         .autocorrectionDisabled()
                         #if os(iOS)
                         .textInputAutocapitalization(.never)
@@ -45,7 +45,7 @@ struct ConnectionEditView: View {
                         Text("端口需在 1–65535 之间")
                             .font(.system(size: 11)).foregroundStyle(Theme.danger)
                     }
-                    TextField("用户名", text: $draft.username)
+                    TextField("用户名 *", text: $draft.username)
                         .autocorrectionDisabled()
                         #if os(iOS)
                         .textInputAutocapitalization(.never)
@@ -156,6 +156,24 @@ struct ConnectionEditView: View {
                     Text("终端字号（可选）")
                 } footer: {
                     Text("仅对该连接生效，范围 8–32；留空则使用全局字号。")
+                }
+
+                // 颜色标签（环境标识，对齐 android 编辑器色选器）
+                Section("颜色标签") {
+                    HStack(spacing: 12) {
+                        ForEach(ColorTag.allCases, id: \.self) { tag in
+                            let isSel = (draft.colorTag ?? .none) == tag
+                            Circle()
+                                .fill(tag.hex.map { Color(hex: $0) } ?? Theme.surfaceLight)
+                                .frame(width: 26, height: 26)
+                                .overlay {
+                                    if tag == .none { Image(systemName: "nosign").font(.system(size: 12)).foregroundStyle(Theme.textSecondary) }
+                                    if isSel { Circle().strokeBorder(Theme.accent, lineWidth: 2).frame(width: 32, height: 32) }
+                                }
+                                .onTapGesture { draft.colorTag = tag == .none ? nil : tag }
+                        }
+                    }
+                    .padding(.vertical, 2)
                 }
 
                 Section("备注（可选）") {

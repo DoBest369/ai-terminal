@@ -36,4 +36,36 @@ public struct CommandSnippet: Identifiable, Codable, Sendable, Equatable {
         CommandSnippet(title: "占用端口", command: "ss -tlnp || netstat -tlnp", group: "网络"),
         CommandSnippet(title: "Git 状态", command: "git status", group: "Git")
     ]
+
+    /// 解析导出的 Markdown / 宽松文本为快捷命令（与 exportSnippets 对称）。
+    /// 支持：`## 分组` 行设当前分组；`- **标题**：\`命令\`` 行；宽松 `标题|命令` / `标题=命令`。
+    public static func parseImport(_ text: String) -> [CommandSnippet] {
+        var result: [CommandSnippet] = []
+        var currentGroup = ""
+        for rawLine in text.split(separator: "\n", omittingEmptySubsequences: false) {
+            let line = rawLine.trimmingCharacters(in: .whitespaces)
+            if line.hasPrefix("## ") { currentGroup = String(line.dropFirst(3)).trimmingCharacters(in: .whitespaces); continue }
+            if line.hasPrefix("# ") || line.isEmpty { continue }
+            // - **标题**：`命令`
+            if let r = line.range(of: #"^-\s*\*\*(.+?)\*\*\s*[:：]\s*`(.+)`\s*$"#, options: .regularExpression) {
+                let m = String(line[r])
+                if let t = m.range(of: #"\*\*(.+?)\*\*"#, options: .regularExpression),
+                   let c = m.range(of: "`(.+)`", options: .regularExpression) {
+                    let title = String(m[t].dropFirst(2).dropLast(2))
+                    let cmd = String(m[c].dropFirst().dropLast())
+                    result.append(CommandSnippet(title: title, command: cmd, group: currentGroup.isEmpty ? nil : currentGroup))
+                }
+                continue
+            }
+            // 宽松：标题|命令 或 标题=命令
+            for sep in ["|", "="] where line.contains(sep) {
+                let parts = line.split(separator: Character(sep), maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
+                if parts.count == 2, !parts[0].isEmpty, !parts[1].isEmpty {
+                    result.append(CommandSnippet(title: parts[0], command: parts[1], group: currentGroup.isEmpty ? nil : currentGroup))
+                }
+                break
+            }
+        }
+        return result
+    }
 }

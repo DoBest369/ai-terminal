@@ -12,6 +12,8 @@ struct SnippetsView: View {
     @State private var editingID: UUID?   // 正在编辑的片段 id（nil=新建）
     @State private var search = ""
     @State private var previewTemplate: SetupTemplate?  // U-Z8 初始化模板预览
+    @State private var showImport = false               // 快捷命令导入粘贴
+    @State private var importText = ""
     @State private var quickNoteCmd: String?            // 随手记：把命令存为知识卡片
     @State private var quickNoteText = ""
     @State private var quickNoteKind: ServerNote.Kind = .note
@@ -187,6 +189,17 @@ struct SnippetsView: View {
                     quickNoteCmd = nil
                 }
             } message: { Text("把这条命令记入当前服务器的知识卡片（笔记）") }
+            .alert("导入快捷命令", isPresented: $showImport) {
+                TextField("粘贴导出的内容（Markdown 或 标题|命令）", text: $importText, axis: .vertical)
+                Button("取消", role: .cancel) {}
+                Button("导入") {
+                    let parsed = CommandSnippet.parseImport(importText)
+                    let existing = Set(model.snippets.map { "\($0.title)|\($0.command)" })
+                    var added = 0
+                    for s in parsed where !existing.contains("\(s.title)|\(s.command)") { model.saveSnippet(s); added += 1 }
+                    model.toast = added > 0 ? "已导入 \(added) 条快捷命令" : "无新快捷命令（已存在或解析为空）"
+                }
+            } message: { Text("支持导出的 Markdown 格式，或每行「标题|命令」") }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("完成") { dismiss() }
@@ -205,6 +218,7 @@ struct SnippetsView: View {
                         Label("初始化模板", systemImage: "square.stack.3d.up")
                     }
                     Button { exportSnippets() } label: { Label("导出快捷命令", systemImage: "square.and.arrow.up") }
+                    Button { importText = ""; showImport = true } label: { Label("导入快捷命令", systemImage: "square.and.arrow.down") }
                     Button("恢复默认") { model.resetSnippets() }
                 }
             }

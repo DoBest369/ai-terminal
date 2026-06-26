@@ -6,6 +6,16 @@
 
 ---
 
+## 批量群发结果导出双端（Markdown 留存）
+- **内容**：批量群发结果可导出为 Markdown 留存运维记录(对齐 AI 对话导出)。
+- **android**：`BatchScreen` AI 汇总按钮旁加「导出分享」→拼 Markdown(标题/命令/成功失败统计/各机 ✅❌+代码块输出)→`ACTION_SEND` 分享 Intent。
+- **apple**：`BatchView` 结果工具栏加「导出」→`exportResults` 同样拼 Markdown→`Clipboard.copy` 复制 + toast。
+- **改动**：`BatchScreen.kt`(导出分享按钮)、`BatchView.swift`(导出工具栏+exportResults)、`docs/PARITY.md`。
+- **验证**：apple swift build + batch/inspect 自测过；android BUILD SUCCESSFUL 29s 零 deprecated。推送 apple edc7648/android 06d8cf2。
+- **意义**：批量群发结果可一键导出/分享(运维记录、汇报、团队共享)。批量操作结果除 AI 汇总外可结构化留存。双端齐(apple 复制/android 分享，各端惯例)。后续巡检结果导出可类比。
+
+---
+
 ## 质量收口 · 运维数据维度全景快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
 - **运维数据维度（采集→面板→巡检→健康→AI，双端齐全贯穿）**：

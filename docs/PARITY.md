@@ -88,6 +88,7 @@
 | 命令历史（去重/调出/输入补全） | ✅ | ✅ | android 输入时匹配历史 Chip 补全 |
 | 批量群发命令 | ✅ | ✅ | 双端完整 UI（apple BatchView 多选+风险徽章+确认+runBatch；android BatchScreen） |
 | 群发结果 AI 汇总 | ✅ | ✅ | 双端（apple summarizeBatch；android 完整） |
+| 群发结果导出 | ✅ | ✅ | 双端导出 Markdown（apple 复制 / android 分享 Intent） |
 | 批量健康巡检 | ✅ | ✅ | 双端多选+采集+告警置顶+统计(告警/正常/失败)；apple InspectView / android InspectScreen |
 | 巡检结果 AI 总结 | ✅ | ✅ | 双端 AI 素材含 CPU/内存/磁盘/负载/运行时长/告警 |
 | 定时后台巡检 + 通知 | ⬜ | ✅ | android WorkManager（主动运维，离线推通知） |

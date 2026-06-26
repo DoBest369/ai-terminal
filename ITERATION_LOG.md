@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui AI 输入框旁发送按钮（对照 apple/windows）
+- **内容**：linux AI 输入区从单输入框 → 圆形 ↑ 发送按钮（accent）+ 输入框（`add_sized` 布局），点击发送清空（后续接 AI），对照 apple/windows AI 输入区的发送按钮。
+- **改动**：`linux/src/main.rs`(AI 输入框 + 发送按钮)。
+- **验证**：`cargo build` **0 error/warning**（0.46s 增量，带 proxy，build 通过后提交）。推送 fb04e2f。
+- **意义**：linux AI 输入区对照 apple/windows 加发送按钮，五端 AI 输入区趋于一致。linux 端 AI 面板（角色标签+气泡+代码块+快捷追问+输入框+发送按钮）与其他端高度对齐。
+
+---
+
 ## linux egui 顶栏新建/设置按钮（对照 windows 工具栏）
 - **内容**：linux 顶栏 Termind 品牌右侧用 `Layout::right_to_left` 加 ＋新建连接（accent）/ ⚙设置 无框 `Button`，对照 windows 侧边栏顶部工具栏。
 - **改动**：`linux/src/main.rs`(顶栏工具栏按钮)。

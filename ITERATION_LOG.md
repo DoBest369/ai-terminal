@@ -6,6 +6,15 @@
 
 ---
 
+## 质量收口 · 连接管理完整度快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **连接管理能力（双端齐平，完整）**：增删改 · 分组 · 折叠 · 颜色标签(色选器) · 备注 · 启动命令 · 终端字号 · 跳板机 · 私钥/密码认证 · 测试连通 · 端口范围校验 · 必填校验 · 搜索 · 排序 · 克隆 · 批量编辑(分组/颜色/删除) · 最近使用快速访问 · 导出导入(JSON) · SSH config 导入 · 导入去重+数量反馈 · 删除二次确认。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：连接管理作为 SSH 工具最高频入口，双端能力完整、交互一致、导入稳健。连续多轮审计补齐后连接管理这一核心模块打磨到位。
+
+---
+
 ## 连接导入冲突处理评估 + android 数量反馈
 - **审计**：双端连接导入(JSON / SSH config)去重现状。**apple** `importConnections`/`importFromSSHConfig` 早有按 host+username+port 去重 + 数量反馈 toast(「已导入 N 个」/「无新连接」)。**android** `onImport` 已按 user@host:port 去重，但**无数量反馈** → android 落后。
 - **android 补齐**：`onImport` 计算 fresh/skipped，加 `Toast`「已导入 N 个连接（跳过 M 个已存在）」/「无新连接（N 个已存在或为空）」。JSON 导入 + SSH config 导入(都经 onImport)统一覆盖。

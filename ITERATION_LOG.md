@@ -6,6 +6,15 @@
 
 ---
 
+## A-Paste + apple AI 气泡头像对齐
+- **A-Paste**（命令粘贴）：ServerWorkspace 命令行历史按钮旁加粘贴 IconButton(ContentPaste)→`LocalClipboardManager.getText()?.text` 填入 command。移动端粘贴长命令无需手动长按。构建 23s，推送 3382537。
+- **apple AI 气泡头像**（轮换 apple，对齐 android A-Avatar）：`MessageBubble` 角色标签从单 Text 改 HStack——assistant 加 `Image(systemName:"sparkles")`(Accent 9pt)头像图标 + 「AI」文字；user 仅「你」。`Showcase.AIPanelShowcase.bubble` 同步。渲染 03-ai-panel 核对——AI 标签前带 ✦ sparkles 图标。构建通过，推送 b7003ab。
+- **改动**：`MainActivity.kt`(命令粘贴)、`AIAgentView.swift`(头像)、`Showcase.swift`(同步)、`apple/screenshots/03-ai-panel.png`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build + 渲染验证。
+- **意义**：android 命令粘贴顺手 + apple AI 角色头像对齐 android。平衡双端打磨。
+
+---
+
 ## A-Multiline + A-Version + 质量收口 · AI 多行输入 + 动态版本号
 - **A-Multiline**（AI 多行输入）：AIAssistantScreen 输入框 `singleLine=false`+`minLines=1`+`maxLines=5`，Row 对齐 Bottom。粘贴报错日志/配置/多行指令更顺手。构建 22s，推送 bf4a664。
 - **A-Version**（动态版本号）：`build.gradle.kts` `buildFeatures{ buildConfig=true }`(原仅 compose)；SettingsScreen 关于行版本从写死 v1.0 改 `BuildConfig.VERSION_NAME`。版本信息单一来源(versionName)。构建 28s(BuildConfig 生成)，推送 98be4c7。

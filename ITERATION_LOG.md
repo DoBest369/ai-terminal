@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 终端区可滚动 + 扩充输出（对照 windows）
+- **内容**：linux 终端输出包进 egui `ScrollArea::vertical`（max_height 360, auto_shrink false）；扩充 mock 输出行（ls -la 详细 + 目录 accent/脚本绿着色 + systemctl status nginx 服务状态绿），对照 windows 终端区。
+- **改动**：`linux/src/main.rs`(ScrollArea + 扩充输出)。
+- **验证**：`cargo build` **0 error/warning**（0.46s 增量，带 proxy）。mac 上不运行（icrate 兼容）。推送 925d296。
+- **意义**：linux 终端区可滚动查看历史，对照 windows。**终端区可滚动 apple/android(原生终端)/windows/linux 对齐**。五端工作台细节趋于一致。
+
+---
+
 ## windows 终端输出区可滚动 + 扩充 mock 输出
 - **内容**：windows 终端输出 StackPanel 包进 `ScrollViewer`（垂直/水平滚动条 Auto）；扩充 mock 输出行（ls -la 详细列表 + 目录粉红/脚本绿着色 + systemctl status nginx 服务状态绿点），更接近真实终端。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(终端输出 ScrollViewer)。

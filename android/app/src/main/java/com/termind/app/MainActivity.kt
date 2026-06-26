@@ -1358,9 +1358,18 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     TextButton(onClick = { CommandHistory.clear(ctx); cmdHistory.clear(); showHistory = false }) { Text("清空", color = Danger, fontSize = 12.sp) }
                 }
                 Spacer(Modifier.height(8.dp))
+                // 命令历史搜索（历史多时按词找）
+                var histQuery by remember { mutableStateOf("") }
+                if (cmdHistory.size > 5) {
+                    OutlinedTextField(histQuery, { histQuery = it }, placeholder = { Text("搜索历史命令…", color = TextSecondary) }, singleLine = true,
+                        leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSecondary, modifier = Modifier.size(18.dp)) },
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp))
+                }
+                val shownHist = if (histQuery.isBlank()) cmdHistory.toList() else cmdHistory.filter { it.contains(histQuery.trim(), ignoreCase = true) }
                 LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    items(cmdHistory.size) { i ->
-                        val h = cmdHistory[i]
+                    items(shownHist.size) { i ->
+                        val h = shownHist[i]
                         val risk = CommandRisk.riskLevel(h)
                         Row(
                             Modifier.fillMaxWidth().clickable { command = h; showHistory = false }.padding(vertical = 8.dp),

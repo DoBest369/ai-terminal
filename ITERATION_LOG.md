@@ -6,6 +6,16 @@
 
 ---
 
+## 快捷命令编辑双端（已有增删基础上补编辑）
+- **apple**：`SnippetsView` snippetRow swipe 加「编辑」→载入表单(editingID 保留 id)，Section 标题/按钮切换编辑态(保存修改/取消编辑)；`model.saveSnippet` 本就按 id upsert，编辑天然覆盖原片段。推送 9cd48ca。
+- **android**：`SnippetStore.update(old,new)` 保位替换；自定义快捷命令 Chip 用 `combinedClickable` 包裹，长按→编辑对话框(预填 名称/命令/分组，比新建多 group 字段)→update。`ServerWorkspace` 加 `ExperimentalFoundationApi` OptIn(combinedClickable)。推送 41b7bec→修复 a6f7c90。
+- **修复**：首构建 combinedClickable 实验 API 报错→ServerWorkspace 函数加 OptIn。
+- **改动**：`SnippetsView.swift`(swipe 编辑+editingID)、`Snippets.kt`(update)、`MainActivity.kt`(长按编辑+对话框+OptIn)、`docs/PARITY.md`。
+- **验证**：apple swift build + 抽测过；android 重建 BUILD SUCCESSFUL 24s 零 deprecated。
+- **意义**：快捷命令从增/删扩展到改，自定义命令可调整 名称/命令/分组，无需删后重建。双端快捷命令管理完整(增删改+分组)。
+
+---
+
 ## linux 端现状评估（全平台第三端可行性）
 - **工具链**：本机 `cargo`/`rustc` **均缺失**（macOS 开发机只装了 Swift CLT + Android SDK）→ linux 端**无法在本机编译验证**。
 - **骨架完成度**：`linux/src/main.rs`（114 行，Rust + eframe 0.27）——窗口 + 顶栏(Termind 品牌) + 连接列表(分组 ServerCard：在线点/名称/user@host:port/备注) + 选中态。品牌配色(午夜深蓝 #1A1A2E + 珊瑚红 #E94560)与 apple/android 统一。`Cargo.toml` 依赖齐(eframe/egui/ssh2/ureq/serde)。`run_native` 闭包返回 `Box<dyn App>` 符合 eframe 0.27 API。

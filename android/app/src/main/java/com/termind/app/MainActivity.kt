@@ -1696,6 +1696,7 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
     var newKind by remember { mutableStateOf(NoteKind.NOTE) }
     var newText by remember { mutableStateOf("") }
     var filterKind by remember { mutableStateOf<NoteKind?>(null) }   // null=全部
+    var noteQuery by remember { mutableStateOf("") }                 // 关键词搜索
 
     fun kindColor(k: NoteKind) = when (k) { NoteKind.ISSUE -> Danger; NoteKind.SOLUTION -> Success; NoteKind.NOTE -> Accent }
 
@@ -1753,7 +1754,14 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
                     }
                 }
             }
-            val shownNotes = if (filterKind == null) notes.toList() else notes.filter { it.kind == filterKind }
+            // 关键词搜索框（记录多时按词找）
+            if (notes.size > 3) {
+                OutlinedTextField(noteQuery, { noteQuery = it }, placeholder = { Text("搜索记录…", color = TextSecondary) },
+                    singleLine = true, leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSecondary, modifier = Modifier.size(18.dp)) },
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp))
+            }
+            val shownNotes = notes.filter { (filterKind == null || it.kind == filterKind) && (noteQuery.isBlank() || it.text.contains(noteQuery.trim(), ignoreCase = true)) }
             if (notes.isEmpty()) {
                 Text("还没有记录。把这台机出过的问题、解决方案、注意事项记下来，AI 排障时可参考。", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(top = 12.dp))
             } else {

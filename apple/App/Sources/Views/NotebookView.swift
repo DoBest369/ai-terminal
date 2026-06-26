@@ -12,9 +12,16 @@ struct NotebookView: View {
     @State private var newKind: ServerNote.Kind = .note
     @State private var newText = ""
     @State private var filterKind: ServerNote.Kind?   // nil=全部
+    @State private var search = ""                    // 关键词搜索
 
     private var connID: String { connection.id.uuidString }
-    private var shownNotes: [ServerNote] { filterKind == nil ? notes : notes.filter { $0.kind == filterKind } }
+    private var shownNotes: [ServerNote] {
+        let q = search.trimmingCharacters(in: .whitespaces)
+        return notes.filter {
+            (filterKind == nil || $0.kind == filterKind) &&
+            (q.isEmpty || $0.text.localizedCaseInsensitiveContains(q))
+        }
+    }
 
     private func kindColor(_ k: ServerNote.Kind) -> Color {
         switch k {
@@ -88,6 +95,7 @@ struct NotebookView: View {
                 }
             }
             .background(Theme.background)
+            .searchable(text: $search, prompt: "搜索记录")
             .navigationTitle("知识卡片 · \(connection.title)")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("完成") { dismiss() } }

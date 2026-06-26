@@ -5,13 +5,15 @@
 
 ## ① 平台覆盖
 
+> 🏆 2026-06-27 更新：**五端全平台本机编译全部打通**（本机 Xcode 26.4 / Rust 1.96 / .NET 9.0.315 齐全，关键是系统代理端口 1082 走国外 + 用国外官方源）。
+
 | 平台 | 技术栈 | 状态 | 说明 |
 |------|--------|------|------|
-| macOS | Swift/SwiftUI + Citadel + SwiftTerm | ✅ 可构建 | `swift build` 通过 + 18 项自测全过；本机仅 CLT 无完整 Xcode，**未出 .app 包**（需用户装 Xcode） |
-| iOS/iPadOS | 同上 | ✅ 源码就绪 | 共用 apple/ 源码；**未出包/未上真机**（需完整 Xcode + 签名） |
+| macOS | Swift/SwiftUI + Citadel + SwiftTerm | ✅ **xcodebuild 出 .app** | `swift build` + 18 自测 + `xcodebuild` BUILD SUCCEEDED 出 `AITerminal.app` 并 `open` 运行成功 |
+| iOS/iPadOS | 同上 | ✅ 可构建 | 共用 apple/ 源码 + 同 xcodeproj（scheme `AITerminal (iOS)`）；真机需签名 |
 | Android | Kotlin/Compose + sshj + OkHttp | ✅ 出 APK | `gradle assembleDebug` 出 ~21MB APK，**零 deprecated/零 warning** |
-| Linux | Rust + egui | 🟡 骨架 | 本机无 Rust 工具链，**仅骨架未深化**（backlog） |
-| Windows | — | ⬜ 待建 | 旧 Electron 版 `src/` 保留参考 |
+| Linux | Rust + egui/eframe | ✅ **cargo 编译** | `cargo build` 出 `termind` 15MB 二进制；三栏工作台 UI；真机运行验证留 CI/真 Linux（egui icrate 在 macOS 26 有兼容 bug） |
+| Windows | C#/.NET 9 + Avalonia | ✅ **dotnet 编译+运行** | `dotnet build` 0 错误 + `dotnet run` 在 mac 上运行真界面（Avalonia 跨平台）；三栏工作台 UI |
 
 ## ② 主线能力（双端齐平）
 
@@ -57,8 +59,8 @@
 
 ## ⑦ 已知边界（如实）
 
-- 本机仅 Command Line Tools（Swift 6.x），**无完整 Xcode** → iOS/macOS 出包、模拟器、真机需用户自行装 Xcode。
-- Linux 端无 Rust 工具链 → 仅骨架，未深化（backlog）。
-- Windows 端待建。
+- 五端**编译**已全部本机打通；**功能完整度**仍以 apple/android 最高（护城河 Z1-Z8 + 批量运维 + 知识沉淀闭环全实现），windows/linux 端为**对齐设计的 UI 骨架**（三栏工作台 + 连接列表），真实 SSH/AI 逻辑待接入（对照 apple/android 逐步实现）。
+- iOS 真机/上架需 Apple 开发者签名；linux 端真机运行验证留 CI/真 Linux（egui 依赖 icrate 0.0.4 在 macOS 26 有 NSScreen 兼容 bug，仅影响 mac 上运行，不影响编译与真 Linux）。
+- 工具链下载依赖系统代理（端口 1082 走国外）+ 国外官方源；无代理或仅国内镜像时大文件下载会失败。
 - 移动/网页 SSH 中继（`relay/`）需自托管，仅可信网络。
 - 私钥/密码临时输入**不持久化**；导出**不含密码**；诊断命令**只读**。

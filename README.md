@@ -6,7 +6,8 @@
 
 **智能 SSH 服务器运维工作台** —— 不是又一个本地终端，而是以 SSH 为入口、AI 为助手、服务器管理为核心的运维工作台。对标 Xshell / Termius / FinalShell，护城河是 **AI + 真实服务器状态 + 安全执行 + 可回滚**。
 
-[![Platform](https://img.shields.io/badge/原生-macOS%20·%20iOS%20·%20Android-blue)](#平台矩阵)
+[![Platform](https://img.shields.io/badge/原生-macOS%20·%20iOS%20·%20Linux%20·%20Windows%20·%20Android-blue)](#平台矩阵)
+[![Build](https://img.shields.io/badge/五端全平台-本机编译打通-success)](docs/MATURITY.md)
 [![Parity](https://img.shields.io/badge/双端配对能力-100%20项全对齐-success)](docs/MATURITY.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -30,8 +31,8 @@
 |------|---------|------|------|
 | **macOS / iOS / iPadOS** | Swift + SwiftUI（Citadel SSH + SwiftTerm） | [`apple/`](apple/README.md) | ✅ 旗舰，智能运维 Z1–Z8 全完成 |
 | **Android** | Kotlin + Jetpack Compose（sshj + OkHttp） | [`android/`](android/) | ✅ 与 apple 全对齐，可构建 APK |
-| **Linux** | Rust + egui/eframe（ssh2 + ureq） | [`linux/`](linux/README.md) | 🟡 骨架（连接列表 UI；本机无 Rust 工具链，未编译验证） |
-| **Windows** | C# + WinUI 3 / .NET | `windows/` | ⬜ 待起（需 Windows 环境） |
+| **Linux** | Rust + egui/eframe | [`linux/`](linux/) | ✅ cargo build 编译（三栏工作台 UI；真机运行验证留 CI/真 Linux） |
+| **Windows** | C# + .NET 9 + Avalonia | [`windows/`](windows/) | ✅ dotnet build 编译 + dotnet run 运行（三栏工作台 UI，Avalonia 跨平台） |
 
 > 早期 Electron / Capacitor Web 方案已按「全平台原生」决策删除，git 历史保留。
 
@@ -153,7 +154,7 @@ ai-terminal/
 
 - apple 端：核心逻辑 + UI 均 `swift build` 通过、自测齐全；**出 iOS/macOS 安装包需完整 Xcode**（开发机仅 Command Line Tools，未出包）。
 - android 端：`gradle assembleDebug` 通过、产出可安装 APK；**真实连接/AI 对话需真机或模拟器 + 目标服务器 + API Key** 实测。
-- Linux 原生端（Rust + egui）：连接列表 UI 骨架已搭；开发机无 Rust 工具链，**未编译验证**，需 Linux + Rust 环境推进（ssh2/AI 待接）。
+- Linux 原生端（Rust + egui）：三栏工作台 UI（连接列表 + 终端区 + AI 面板）；`cargo build` 编译通过；真实 ssh2/AI 逻辑对照 apple/android 待接。
 - Windows 原生端：架构已定，待在 Windows 环境起步。
 
 ## 路线图与历程

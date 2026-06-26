@@ -70,11 +70,15 @@ jobs:
         run: cargo build --release
         working-directory: linux
 
-  # windows：待 windows/ 端建立后启用（.NET/WinUI）
-  # windows:
-  #   name: Windows (.NET)
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - run: dotnet build
-  #       working-directory: windows
+  # windows：Avalonia (C#/.NET 9) → dotnet build
+  windows:
+    name: Windows (Avalonia .NET9)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: 编译 Windows Avalonia
+        run: dotnet build -c Release
+        working-directory: windows/TermindWindows

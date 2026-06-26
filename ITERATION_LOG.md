@@ -6,6 +6,15 @@
 
 ---
 
+## CHANGELOG 阶段14 梳理（知识卡片增强与导出全覆盖）
+- **内容**：CHANGELOG 加「阶段 14 — 知识卡片增强与导出全覆盖」——知识卡片自由标签、三维检索(类型/标签/关键词)、排障结论存方案(闭环覆盖全 AI 路径)、快捷命令导出、导出能力全覆盖(对话/批量结果/卡片/快捷命令/配置)、PARITY 95 项双端对齐。当前状态刷新双端共有能力 95 项全 ✅✅。
+- **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。
+- **改动**：`CHANGELOG.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 184f42f。
+- **意义**：文档体系反映 Termind 知识卡片增强(多维归类检索)+导出全覆盖里程碑。CHANGELOG 已至阶段 14，完整记录产品从基础到护城河深化到批量运维到知识卡片增强的演进，双端共有能力 95 项全对齐。
+
+---
+
 ## 质量收口 · PARITY 能力规模快照（95 项 ✅✅）
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。
 - **PARITY 配对能力规模**：**95 项双端共有能力全 ✅✅**，🟡=0（仅余 2 项各自独有：android 定时后台巡检 / apple 分屏录制，平台定位差异非缺陷）。

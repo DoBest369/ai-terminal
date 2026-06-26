@@ -1721,10 +1721,16 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 )
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     keys.forEach { (label, seq) ->
+                        // 功能分组着色（对齐 apple）：中断键 Ctrl+C 红警示、方向键 accent、其他默认
+                        val isInterrupt = label == "Ctrl+C"
+                        val isArrow = label in listOf("↑", "↓", "←", "→")
+                        val keyColor = if (isInterrupt) Danger else if (isArrow) Accent else TextPrimary
                         AssistChip(
                             onClick = { shellSession?.write(seq) },
                             label = { Text(label, fontSize = 11.sp, fontFamily = FontFamily.Monospace) },
-                            colors = AssistChipDefaults.assistChipColors(containerColor = Surface, labelColor = Accent)
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = if (isInterrupt) Danger.copy(alpha = 0.12f) else Surface,
+                                labelColor = keyColor)
                         )
                     }
                 }

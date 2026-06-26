@@ -6,6 +6,14 @@
 
 ---
 
+## linux 命令输入框 + 快捷命令点击填入（真实交互，快捷命令可用）
+- **内容**：linux 终端区加命令输入框（提示符 `user@host:~$` + TextEdit，绑 `self.cmd_input`）；快捷命令栏 Button `clicked()` → 填入 `self.cmd_input`。快捷命令真正可用（点击→填入输入框，对照 windows/apple/android）。
+- **改动**：`linux/src/main.rs`(struct 加 cmd_input + 快捷命令 clicked 填入 + 命令输入框)。
+- **验证**：`cargo build` **0 error/warning**（0.51s 增量，带 proxy，borrow 通过，build 通过后提交）。推送 64ad5c2。
+- **意义**：深化 linux 真实交互——快捷命令从「纯展示」→「点击填入命令输入框」，命令输入框提示符也联动选中连接。终端区交互闭环（选连接→看上下文→点快捷命令→填入输入）。
+
+---
+
 ## linux 终端提示符联动选中连接（深化真实交互）
 - **内容**：linux 终端输出提示符从固定「root@prod-01:~$」→ `format!("{}@{}:~$", sel_user, sel_host)` 用选中连接的 user@host。3 处提示符（ls -la / systemctl / 光标行）联动。点连接列表 → 终端输出提示符反映该连接。
 - **改动**：`linux/src/main.rs`(CentralPanel 前取 sel_user + prompt 构造 + 3 处提示符)。

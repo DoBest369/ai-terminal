@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 侧边栏搜索框（对照其他端，连接列表实时过滤）
+- **内容**：linux `TermindApp` 加 `search: String` 字段；侧边栏顶部加 egui `TextEdit::singleline` 搜索框（hint「🔍 搜索连接」）→ 实时按 名称/host/user 关键词过滤连接列表（大小写不敏感）。对照 windows/apple 侧边栏搜索。
+- **改动**：`linux/src/main.rs`(search 字段 + TextEdit + 过滤逻辑)。
+- **验证**：`cargo build` **0 error/warning**（0.59s 增量，带 proxy）。mac 上不运行（icrate 兼容）。推送 a414013。
+- **意义**：linux 侧边栏对照其他端更完整（搜索框 + 连接列表 + 选中态）。**连接搜索五端对齐**（apple/android/linux/windows 侧边栏都有搜索）。linux 端从静态展示→可交互（搜索实时过滤）。
+
+---
+
 ## windows 侧边栏顶部工具栏 + 搜索框可输入
 - **内容**：windows 侧边栏品牌「Termind」旁加工具栏——＋新建连接（粉红）/ ⚙设置 图标 `Button`（带 ToolTip）；搜索框从 `TextBlock` 占位 → 可输入 `TextBox`（PlaceholderText + 粉红光标）。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(侧边栏头部 Grid 工具栏 + 搜索 TextBox)。

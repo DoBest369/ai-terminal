@@ -50,12 +50,22 @@ cd apple/App && swift run Shots --ssh-config-test    # ~/.ssh/config 解析
 swift run Shots --portability-test                   # 连接 JSON 导入导出往返（group/启动命令/字号/备注）
 swift run Shots --ai-md-test                         # 当前对话导出 Markdown
 swift run Shots --ai-md-all-test                     # 全部对话导出 Markdown
-swift run Shots --ai-persist-test                    # AI 对话持久化往返
+swift run Shots --ai-persist-test                    # AI 对话持久化往返（含消息 createdAt 向后兼容）
 swift run Shots --ai-conv-test                       # AI 多对话 保存/加载/删除/迁移
 swift run Shots --reach-test                         # 连接可达性探测（TCP）
+swift run Shots --history-test                        # 命令历史（去重/置顶/限长）
+swift run Shots --risk-test                           # 命令风险四级分级
+swift run Shots --metrics-test                        # 系统指标解析（CPU/内存/磁盘/负载/服务）
+swift run Shots --env-detect-test                     # 环境探测（OS/服务/项目类型）
+swift run Shots --batch-test                          # 批量群发结果聚合
 swift run Shots --inspect-test                        # N-Cron 批量巡检（告警置顶排序 + AI 素材拼接）
+swift run Shots --diag-test                           # 排障工作流命令拼接
+swift run Shots --rollback-test                       # 操作回滚（备份/时间线）
+swift run Shots --template-test                       # 初始化模板（步骤/风险/预览）
 swift run Shots --notebook-test                       # 服务器知识卡片（新增置顶/删除/AI 素材）
 swift run Shots --favorites-test                      # 命令收藏夹（toggled 置顶/取消/去空）
+
+# 全集 18 项；日常核心 8 项快速回归：history/batch/risk/metrics/env-detect/inspect/notebook/favorites
 
 # Electron 版（src/，Windows/Linux/macOS）：webpack 打包 + 主进程语法
 npm run build

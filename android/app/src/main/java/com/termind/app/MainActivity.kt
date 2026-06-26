@@ -487,6 +487,7 @@ fun ServerListScreen(
 fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit, onClone: () -> Unit = {}, selectMode: Boolean = false, selected: Boolean = false, onLongPress: () -> Unit = {}) {
     var menu by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }   // 删除连接二次确认
+    val cardCtx = androidx.compose.ui.platform.LocalContext.current
     if (confirmDelete) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
@@ -537,6 +538,14 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text("编辑") }, onClick = { menu = false; onEdit() })
                     DropdownMenuItem(text = { Text("复制") }, onClick = { menu = false; onClone() })
+                    // 复制 ssh 连接串（方便粘贴到其他终端/文档）。默认端口 22 省 -p
+                    DropdownMenuItem(text = { Text("复制连接串") }, onClick = {
+                        menu = false
+                        val s = if (conn.port == 22) "ssh ${conn.user}@${conn.host}" else "ssh ${conn.user}@${conn.host} -p ${conn.port}"
+                        val cm = cardCtx.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        cm.setPrimaryClip(android.content.ClipData.newPlainText("ssh", s))
+                        android.widget.Toast.makeText(cardCtx, "已复制连接串", android.widget.Toast.LENGTH_SHORT).show()
+                    })
                     DropdownMenuItem(text = { Text("删除", color = Danger) }, onClick = { menu = false; confirmDelete = true })
                 }
             }

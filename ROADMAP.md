@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **CHANGELOG 阶段12·批量运维闭环与结果留存** ✅（批量结果导出/服务状态采集补齐/批量运维完整闭环；审计方法论持续；推送 4f350ef）
 - [x] **质量收口·批量运维全功能快照** ✅（apple 8 自测+android clean 零 warning+APK；PARITY 🟡=0；批量运维 选目标→执行/采集→统计→AI洞察→导出留存 完整闭环双端齐；推送见下）
 - [x] **批量巡检结果导出双端** ✅（巡检报告 Markdown[统计+各机 healthSummary/error]；apple 复制+「导出」按钮/android 分享 Intent；批量结果导出完整群发+巡检；推送 2661a8c）
 - [x] **批量群发结果导出双端** ✅（结果拼 Markdown[命令+统计+各机ok/fail+输出]；apple 复制[edc7648]/android 分享 Intent[06d8cf2]；运维记录留存）

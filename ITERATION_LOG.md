@@ -6,6 +6,15 @@
 
 ---
 
+## CHANGELOG 阶段12 梳理（批量运维闭环与结果留存）
+- **内容**：CHANGELOG 加「阶段 12 — 批量运维闭环与结果留存」——批量群发/巡检结果导出(Markdown 留存)、服务状态采集补齐(android，运维数据 6 维度全)、批量运维完整闭环(选目标→执行/采集→统计→AI洞察→导出)、审计方法论持续(单端落后补齐/双端同缺新增/数据增强下游同步)。强调批量运维是 Termind 区别于单连接 SSH 工具的核心差异化。
+- **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。
+- **改动**：`CHANGELOG.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 4f350ef。
+- **意义**：文档体系反映 Termind 批量运维核心差异化完整成型(选目标→批量操作→智能洞察→结果留存完整工作流)。CHANGELOG 已至阶段 12，记录产品从基础到差异化深化到细节打磨到功能完整化到批量运维闭环的完整演进。
+
+---
+
 ## 质量收口 · 批量运维全功能快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **批量运维全功能（双端齐，杀手级差异化闭环）**：

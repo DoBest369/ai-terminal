@@ -6,6 +6,20 @@
 
 ---
 
+## 🏆🏆 五端全平台本机编译全部打通（里程碑）
+- **Windows 端 Avalonia 落地（最后一端）**：dotnet 9.0.315(代理+Azure)装好 → `dotnet new install Avalonia.Templates` + `dotnet new avalonia.app -o windows/TermindWindows` 建脚手架 → `MainWindow.axaml` 改 **Termind 深色 UI**(侧边栏品牌「Termind」+搜索框+SSH 连接列表卡片[开发机/数据库主机/生产服务器,状态点+名称+user@host:port] / 主区域品牌+定位「智能 SSH 服务器运维工作台」+护城河标语+按钮),对齐 apple/android 设计语言。
+- **修复**：Avalonia 新模板默认 `net10.0` 但 SDK 是 9.0.315 → 改 csproj `TargetFramework=net9.0`。
+- **验证**：`dotnet build` **已成功生成 0 警告 0 错误**(3m06s,含 Avalonia NuGet restore);`dotnet run` 在 mac 上**运行真界面成功**(Avalonia 跨平台 cocoa 后端,截图见 Termind 侧边栏+连接列表+主区域,菜单栏+网络弹窗证明真 app)。推送 404b04a。
+- **🏆 五端全平台编译状态(全 ✅)**：
+  - 🍎 macOS — xcodebuild BUILD SUCCEEDED 出 .app 并运行
+  - 📱 iOS — 同 xcodeproj，scheme 就绪
+  - 🐧 Linux — cargo build termind 15MB 二进制
+  - 🤖 Android — gradle assembleDebug APK 零 deprecated
+  - 🪟 Windows — Avalonia dotnet build 0 错误 + dotnet run 真界面
+- **意义**：用户「全平台都开发对齐」的目标——**五端本机编译全部打通**。代理 1082 + 国外官方源是全程钥匙。Windows 端从「本机无环境不可能」变为「Avalonia 本机编译+运行真界面」。这是「全平台对齐节点」的基础设施达成,下一步可按用户计划:对齐功能 → 打节点 → 每 100 迭代 CI。
+
+---
+
 ## 🎉 全平台本地编译打通（代理 1082 + 国外源 = 工具链钥匙）
 - **根因揭晓**：本机**开了网络代理走国外**（系统代理 HTTP/HTTPS 端口 1082），但命令行无 proxy 环境变量 → 之前直连国外失败、用国内镜像也因代理被导向国外而 TLS eof。**正解：设 `https_proxy/http_proxy/all_proxy=http://127.0.0.1:1082` + 用国外官方源**（不是国内镜像）。
 - **rust**：代理 + rustup 官方源装 `rustc 1.96.0` 成功（之前损坏 toolchain 修复）；cargo config 恢复官方 crates.io。

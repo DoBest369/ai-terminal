@@ -6,7 +6,8 @@
 
 ## 🏆 里程碑（截至最新迭代）
 
-- **全平台原生双端可构建**：apple（Swift/SwiftUI，swift build + 自测齐全）+ android（Kotlin/Compose，gradle 出 APK ~26MB）；linux🟡(Rust+egui 骨架) windows⬜
+- **🏆 五端全平台本机编译全部打通**（2026-06-27，代理1082+国外源）：macOS✅(xcodebuild .app运行) · iOS✅(scheme) · Linux✅(cargo 15MB二进制) · Android✅(gradle APK) · Windows✅(Avalonia C#/.NET9 dotnet build 0错+dotnet run真界面)。本机 Xcode 26.4/Rust 1.96/.NET 9.0.315 齐全。
+- **全平台原生可构建**：apple（Swift/SwiftUI，swift build + xcodebuild 出包 + 18 自测）+ android（Kotlin/Compose，gradle APK）+ linux（Rust+egui，cargo build）+ windows（Avalonia，dotnet build）
 - **智能运维护城河 Z1–Z8 双端完全对齐**：命令解释 · 报错分析 · 环境感知 · 排障工作流 · 操作回滚 · 状态面板 · 风险分级/脱敏 · 初始化模板
 - **SSH/SFTP/AI/安全主线双端齐平**：密码+私钥认证 · 交互式彩色 PTY 终端 · SFTP 浏览/查看/下载/上传 · AI 对话流式+多对话+解释/报错/健康分析 · Keychain/加密存储 · TOFU · 端口转发 · 可达性探测 · 多主题
 - **阶段 N 批量运维创新（运维工作台杀手级，单连接工具做不到）**：命令历史 · 批量群发命令 · 群发结果 AI 汇总 · 批量健康巡检 · 巡检 AI 总结 · **定时后台巡检+通知（主动运维）**

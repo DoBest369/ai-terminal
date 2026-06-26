@@ -16,7 +16,9 @@ struct BatchView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if model.batchResults.isEmpty && !model.batchRunning {
+                if model.connections.isEmpty {
+                    emptyConnectionsState
+                } else if model.batchResults.isEmpty && !model.batchRunning {
                     setupArea
                 } else {
                     resultArea
@@ -76,6 +78,19 @@ struct BatchView: View {
     /// 各分组名（去重排序）
     private var groupNames: [String] {
         Array(Set(model.connections.compactMap { $0.groupName.isEmpty ? nil : $0.groupName })).sorted()
+    }
+
+    /// 空状态：还没有任何 SSH 连接（批量群发无对象）→ 友好引导
+    private var emptyConnectionsState: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "server.rack")
+                .font(.system(size: 44)).foregroundStyle(Theme.textSecondary)
+            Text("还没有 SSH 连接").font(.headline).foregroundStyle(Theme.textPrimary)
+            Text("批量群发需要先添加服务器连接，\n在侧边栏「+」新建连接后再回来一键群发。")
+                .font(.caption).foregroundStyle(Theme.textSecondary).multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
     }
 
     private var setupArea: some View {

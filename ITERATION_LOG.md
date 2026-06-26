@@ -6,6 +6,15 @@
 
 ---
 
+## 服务器状态面板评估 + android 加负载/运行时长
+- **审计**：grep 双端状态面板字段。apple `SystemInfo` 有 hostname/cpu/cpuCores/mem/**loadavg(负载 1/5/15)**/**uptime(运行时长)**/disk/services/healthSummary/hasWarning，StatusBar 显示负载+运行时长。android `ServerStatus`(OpsCore) 仅 cpu/mem/disk/healthSummary，**缺 loadavg/uptime** → android 落后。
+- **android 补齐**：`SshClient.fetchStatus` 命令尾加 `uptime`；`ServerStatus` 加 `load`/`uptime` 字段 + parse 正则(load average: x,y,z / up ... user)；healthSummary 含负载/运行；状态面板 Row→Column 加第二行显「负载 x/y/z · 运行 N」。对齐 apple StatusBar。
+- **改动**：`SshClient.kt`(命令)、`OpsCore.kt`(字段+解析+摘要)、`MainActivity.kt`(面板第二行)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 26s 零 deprecated；apple swift build + 8 自测全过(metrics 无回归)。推送 d83273f。
+- **意义**：服务器状态面板字段双端对齐(CPU/内存/磁盘/负载/运行时长/服务/健康/告警)。又一处审计发现 android 落后→补齐。状态面板完整。
+
+---
+
 ## CHANGELOG 阶段10 梳理（功能完整化与平台差异处理）
 - **内容**：CHANGELOG 加「阶段 10 — 功能完整化与平台差异处理」——梳理细节打磨延续的里程碑：SFTP 批量操作(删除+下载，桌面 NSOpenPanel/移动系统导出器)、AI 提示词库扩充(5×5=25)、连接编辑完整化(色选器+必填+端口校验)、危险操作二次确认审计、快捷命令增删改+分组、终端区完整度评估(无缺口)、文档审查(README 平台矩阵/能力清单)、方法论延续(审计→补齐保 🟡=0)、linux 端如实评估(backlog)。当前状态刷新到功能完整化成熟度。
 - **边界保留**：本机无 Xcode→apple 未出包/未真机实测；linux 无 Rust 工具链。

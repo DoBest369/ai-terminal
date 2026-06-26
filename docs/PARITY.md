@@ -77,7 +77,7 @@
 | Z3 环境感知 | ✅ | ✅ | |
 | Z4 排障工作流（真执行+AI 总结） | ✅ | ✅ | 8 内置工作流双端（网站/磁盘/SSL/Nginx/Docker/内存/端口/服务） |
 | Z5 操作回滚（备份+时间线） | ✅ | ✅ | OpRollback 双端 |
-| Z6 服务器状态面板 | ✅ | ✅ | CPU/内存/磁盘+服务/告警 |
+| Z6 服务器状态面板 | ✅ | ✅ | CPU/内存/磁盘/负载(1/5/15)/运行时长+服务/告警 |
 | Z7 风险分级 + 脱敏 | ✅ | ✅ | CommandRisk 四级 + Redactor 双端 |
 | Z8 初始化模板（真执行） | ✅ | ✅ | 8 内置模板双端（Ubuntu Web/Docker/Node/静态站/LNMP/Redis/PostgreSQL/Python） |
 

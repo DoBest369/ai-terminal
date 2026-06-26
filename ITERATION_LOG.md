@@ -6,6 +6,15 @@
 
 ---
 
+## AI 运维提示词库扩充双端（每类 3→5 条）
+- **评估**：双端 AI 提示词库 5 类(排障/部署/安全/性能/日志)各 3 条，内容已对齐。apple 在 `AIAgentView.promptGroups`、android 在 `MainActivity` promptCategories。
+- **扩充**：每类加 2 条实用运维提示词(双端内容一致)：排障+数据库连接排查/端口占用定位；部署+Nginx 反代配置/systemd 自启服务；安全+防火墙放行/可疑定时任务排查；性能+进程 CPU 分析/磁盘 IO 定位；日志+报错归类/实时跟踪。每类 3→5 条。
+- **改动**：`AIAgentView.swift`(promptGroups)、`MainActivity.kt`(promptCategories)、`docs/PARITY.md`。
+- **验证**：apple swift build + 抽测过；android BUILD SUCCESSFUL 25s 零 deprecated。推送 apple 1e482ff/android 4aa22c7。
+- **意义**：AI 辅助运维提示更丰富(5 类×5=25 条)，覆盖更多常见运维场景，降低用户提问门槛。双端内容对齐。
+
+---
+
 ## apple ConnectionEditShowcase 补颜色标签截图（截图与功能同步）
 - **内容**：`ConnectionEditShowcase` 加「颜色标签」SectionCard(6 色圆点 none/红/橙/绿/蓝/紫，选中 accent 描边环)+主机/用户名 MockField 标「*」，与上轮真实 ConnectionEditView 同步。`swift run Shots` 渲染 `04-connection-edit.png`，Read 看图核对：颜色标签 6 色圆点(绿色选中带描边)、必填 * 标识、各 Section 布局/配色(Theme) 均无误，拷 `apple/screenshots/04-connection-edit.png`。
 - **改动**：`Showcase.swift`(颜色标签卡片+必填标识)、`apple/screenshots/04-connection-edit.png`。

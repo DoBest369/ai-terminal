@@ -6,6 +6,19 @@
 
 ---
 
+## 质量收口 · 护城河场景库快照（Z4 排障 11 / Z8 部署 11）
+- **质量门禁**：apple swift build Build complete；核心 8 自测全过 + **diag 工作流数=11 / template 模板数=11**(验证扩充)；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
+- **Z4 排障工作流（11，双端 builtins，真执行只读诊断+AI 总结）**：
+  网站打不开 · 磁盘清理 · SSL 证书 · Nginx 状态 · Docker 容器 · 内存占用 · 端口占用 · 服务启动失败 · 定时任务 · 日志异常扫描 · 防火墙规则
+- **Z8 初始化模板（11，双端 builtins，真执行+执行前预览+风险标注）**：
+  Ubuntu Web · Docker · Node · 静态站 · LNMP · Redis · PostgreSQL · Python · MongoDB · Caddy(自动 HTTPS) · Prometheus+Grafana 监控
+- **护城河价值**：排障/部署一键化 + AI 结合本机知识卡片(闭环)给针对性结论。诊断命令只读、部署命令风险标注+预览。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测 + diag/template 数量验证；android clean 零 warning。
+- **意义**：护城河两大场景库(排障/部署)均扩至 11，覆盖更广的常见运维场景。Termind「AI + 真实环境 + 安全执行 + 知识沉淀」的场景化能力丰满。
+
+---
+
 ## 初始化模板 Z8 扩充（8→11，双端）
 - **内容**：`SetupTemplate.builtins` 从 8 增至 11，新增：
   - **MongoDB 数据库**：安装+自启+创建管理员(YOUR_PASSWORD 占位)+验证

@@ -708,6 +708,18 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                 AssistChip(onClick = { regenerate() }, label = { Text("重新生成", fontSize = 12.sp) },
                     leadingIcon = { Icon(Icons.Filled.Refresh, null, tint = Accent, modifier = Modifier.size(16.dp)) },
                     colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary))
+                // 知识沉淀闭环：把 AI 结论一键存为方案卡片（有关联连接时）
+                if (connId.isNotEmpty()) {
+                    AssistChip(onClick = {
+                        val text = messages.lastOrNull()?.second?.trim().orEmpty()
+                        if (text.isNotEmpty()) {
+                            ServerNotebook.add(ctx, connId, ServerNote(kind = NoteKind.SOLUTION, text = text))
+                            android.widget.Toast.makeText(ctx, "已存为方案到知识卡片", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }, label = { Text("存为方案", fontSize = 12.sp) },
+                        leadingIcon = { Icon(Icons.Filled.BookmarkAdd, null, tint = Success, modifier = Modifier.size(16.dp)) },
+                        colors = AssistChipDefaults.assistChipColors(containerColor = Success.copy(alpha = 0.12f), labelColor = Success))
+                }
                 // 快捷追问：点击直接发该追问（走 send，自动带环境+知识卡片上下文）
                 listOf("给我具体命令", "换个思路", "解释原理", "有什么风险").forEach { q ->
                     AssistChip(onClick = { send(q) }, label = { Text(q, fontSize = 12.sp) },

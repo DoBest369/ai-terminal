@@ -82,4 +82,24 @@ object ServerNotebook {
         }
         return sb.toString()
     }
+
+    /** 解析导出的 Markdown→知识卡片（与 exportMarkdown 对称，对齐 apple parseImport）。 */
+    fun parseImport(text: String): List<ServerNote> {
+        val out = ArrayList<ServerNote>()
+        var kind = NoteKind.NOTE
+        text.split("\n").forEach { raw ->
+            val line = raw.trim()
+            when {
+                line.startsWith("## ") -> {
+                    val label = line.removePrefix("## ").trim()
+                    kind = NoteKind.values().firstOrNull { it.label == label } ?: NoteKind.NOTE
+                }
+                line.startsWith("- ") -> {
+                    val t = line.removePrefix("- ").trim()
+                    if (t.isNotEmpty()) out.add(ServerNote(kind = kind, text = t))
+                }
+            }
+        }
+        return out
+    }
 }

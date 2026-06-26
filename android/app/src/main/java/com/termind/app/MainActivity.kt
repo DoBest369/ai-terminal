@@ -1888,6 +1888,7 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
     var filterKind by remember { mutableStateOf<NoteKind?>(null) }   // null=全部
     var noteQuery by remember { mutableStateOf("") }                 // 关键词搜索
     var filterTag by remember { mutableStateOf<String?>(null) }      // 按标签筛选
+    var showNoteImport by remember { mutableStateOf(false) }         // 知识卡片导入粘贴
 
     fun kindColor(k: NoteKind) = when (k) { NoteKind.ISSUE -> Danger; NoteKind.SOLUTION -> Success; NoteKind.NOTE -> Accent }
 
@@ -1906,6 +1907,10 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
                     runCatching { ctx.startActivity(android.content.Intent.createChooser(intent, "导出知识卡片")) }
                 }, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Filled.Share, "导出", tint = Accent, modifier = Modifier.size(18.dp))
+                }
+                // 导入知识卡片（粘贴 Markdown）
+                IconButton(onClick = { showNoteImport = true }, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Filled.FileDownload, "导入", tint = Accent, modifier = Modifier.size(18.dp))
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -2002,6 +2007,33 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
                         }
                     }
                 }
+            }
+            // 知识卡片导入（粘贴导出的 Markdown→解析+去重）
+            if (showNoteImport) {
+                var imp by remember { mutableStateOf("") }
+                AlertDialog(
+                    onDismissRequest = { showNoteImport = false },
+                    title = { Text("导入知识卡片", color = TextPrimary) },
+                    text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("粘贴导出的 Markdown（## 类型 + - 内容）。", color = TextSecondary, fontSize = 12.sp)
+                            OutlinedTextField(imp, { imp = it }, placeholder = { Text("## 方案\n- 重启 nginx 前先 nginx -t", color = TextSecondary) },
+                                minLines = 3, maxLines = 8,
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                                modifier = Modifier.fillMaxWidth())
+                        }
+                    },
+                    confirmButton = { TextButton(onClick = {
+                        val parsed = ServerNotebook.parseImport(imp)
+                        val existing = notes.map { it.text }.toSet()
+                        val fresh = parsed.filter { it.text !in existing }
+                        fresh.forEach { notes.clear(); notes.addAll(ServerNotebook.add(ctx, connId, it)) }
+                        android.widget.Toast.makeText(ctx, if (fresh.isEmpty()) "无新卡片" else "已导入 ${fresh.size} 条", android.widget.Toast.LENGTH_SHORT).show()
+                        showNoteImport = false
+                    }) { Text("导入", color = Accent) } },
+                    dismissButton = { TextButton(onClick = { showNoteImport = false }) { Text("取消", color = TextSecondary) } },
+                    containerColor = Surface
+                )
             }
         }
     }

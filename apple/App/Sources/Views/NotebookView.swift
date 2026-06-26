@@ -14,13 +14,16 @@ struct NotebookView: View {
     @State private var newTags = ""   // 逗号分隔标签
     @State private var filterKind: ServerNote.Kind?   // nil=全部
     @State private var search = ""                    // 关键词搜索
+    @State private var filterTag: String?             // 按标签筛选
 
     private var connID: String { connection.id.uuidString }
+    private var allTags: [String] { notes.flatMap { $0.tags }.reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } } }
     private var shownNotes: [ServerNote] {
         let q = search.trimmingCharacters(in: .whitespaces)
         return notes.filter {
             (filterKind == nil || $0.kind == filterKind) &&
-            (q.isEmpty || $0.text.localizedCaseInsensitiveContains(q))
+            (q.isEmpty || $0.text.localizedCaseInsensitiveContains(q)) &&
+            (filterTag == nil || $0.tags.contains(filterTag!))
         }
     }
 
@@ -79,6 +82,24 @@ struct NotebookView: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal, 12).padding(.top, 8)
+                    // 标签筛选（有标签时显可点 #标签 Chip）
+                    if !allTags.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 6) {
+                                ForEach(allTags, id: \.self) { tag in
+                                    Button { filterTag = (filterTag == tag) ? nil : tag } label: {
+                                        Text("#\(tag)").font(.system(size: 11))
+                                            .padding(.horizontal, 8).padding(.vertical, 3)
+                                            .background((filterTag == tag ? Theme.accent : Theme.surfaceLight).opacity(filterTag == tag ? 0.25 : 0.5))
+                                            .foregroundStyle(filterTag == tag ? Theme.accent : Theme.textSecondary)
+                                            .clipShape(Capsule())
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal, 12).padding(.top, 6)
+                        }
+                    }
                     List {
                         ForEach(shownNotes) { note in
                             HStack(alignment: .top, spacing: 10) {

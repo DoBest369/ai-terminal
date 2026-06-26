@@ -1842,6 +1842,7 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
     var newTags by remember { mutableStateOf("") }   // 逗号分隔标签
     var filterKind by remember { mutableStateOf<NoteKind?>(null) }   // null=全部
     var noteQuery by remember { mutableStateOf("") }                 // 关键词搜索
+    var filterTag by remember { mutableStateOf<String?>(null) }      // 按标签筛选
 
     fun kindColor(k: NoteKind) = when (k) { NoteKind.ISSUE -> Danger; NoteKind.SOLUTION -> Success; NoteKind.NOTE -> Accent }
 
@@ -1914,7 +1915,22 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
                     colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
                     modifier = Modifier.fillMaxWidth().padding(top = 6.dp))
             }
-            val shownNotes = notes.filter { (filterKind == null || it.kind == filterKind) && (noteQuery.isBlank() || it.text.contains(noteQuery.trim(), ignoreCase = true)) }
+            val shownNotes = notes.filter {
+                (filterKind == null || it.kind == filterKind) &&
+                (noteQuery.isBlank() || it.text.contains(noteQuery.trim(), ignoreCase = true)) &&
+                (filterTag == null || it.tags.contains(filterTag))
+            }
+            // 标签筛选（卡片有标签时显可点标签 Chip 行）
+            val allTags = notes.flatMap { it.tags }.distinct()
+            if (allTags.isNotEmpty()) {
+                Row(Modifier.horizontalScroll(rememberScrollState()).padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    allTags.forEach { tag ->
+                        FilterChip(selected = filterTag == tag, onClick = { filterTag = if (filterTag == tag) null else tag },
+                            label = { Text("#$tag", fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Accent.copy(alpha = 0.25f), selectedLabelColor = Accent, labelColor = TextSecondary))
+                    }
+                }
+            }
             if (notes.isEmpty()) {
                 Text("还没有记录。把这台机出过的问题、解决方案、注意事项记下来，AI 排障时可参考。", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(top = 12.dp))
             } else {

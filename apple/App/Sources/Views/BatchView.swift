@@ -57,8 +57,28 @@ struct BatchView: View {
 
     // MARK: 选择 + 命令
 
+    /// 各分组名（去重排序）
+    private var groupNames: [String] {
+        Array(Set(model.connections.compactMap { $0.groupName.isEmpty ? nil : $0.groupName })).sorted()
+    }
+
     private var setupArea: some View {
         VStack(spacing: 0) {
+            // 快速选择：全选 / 清空 / 按分组
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    Button("全选") { selected = Set(model.connections.map { $0.id }) }.buttonStyle(.bordered).tint(Theme.accent)
+                    Button("清空") { selected.removeAll() }.buttonStyle(.bordered)
+                    ForEach(groupNames, id: \.self) { g in
+                        Button {
+                            selected.formUnion(model.connections.filter { $0.groupName == g }.map { $0.id })
+                        } label: { Label(g, systemImage: "folder") }
+                        .buttonStyle(.bordered)
+                    }
+                }
+                .padding(.horizontal, 12).padding(.vertical, 6)
+            }
+            .background(Theme.surface)
             List {
                 Section {
                     ForEach(model.connections) { conn in

@@ -538,6 +538,17 @@ private struct MessageBubble: View {
                             } label: {
                                 Label("复制纯文本", systemImage: "doc.plaintext")
                             }
+                            // 知识沉淀：把这条 AI 回复存为知识卡片（有关联连接时）
+                            if let connID = model.activeSession?.connection?.id.uuidString {
+                                Button {
+                                    _ = ServerNotebook.add(ServerNote(kind: .note, text: displayText), connectionID: connID)
+                                    model.toast = "已存为知识卡片（笔记）"
+                                } label: { Label("存为知识卡片", systemImage: "book.closed") }
+                                Button {
+                                    _ = ServerNotebook.add(ServerNote(kind: .solution, text: displayText), connectionID: connID)
+                                    model.toast = "已存为方案"
+                                } label: { Label("存为方案", systemImage: "bookmark") }
+                            }
                         }
                     }
             }

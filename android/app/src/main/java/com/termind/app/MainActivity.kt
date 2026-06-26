@@ -206,7 +206,12 @@ fun TermindApp() {
                     onBatchGroup = { ids, group ->
                         ids.forEach { id -> val i = conns.indexOfFirst { it.id == id }; if (i >= 0) conns[i] = conns[i].copy(group = group) }
                         persist()
-                    }
+                    },
+                    onBatchColor = { ids, tag ->
+                        ids.forEach { id -> val i = conns.indexOfFirst { it.id == id }; if (i >= 0) conns[i] = conns[i].copy(colorTag = tag) }
+                        persist()
+                    },
+                    onBatchDelete = { ids -> conns.removeAll { it.id in ids }; persist() }
                 )
                 Tab.AI -> AIAssistantScreen(onGoSettings = { tab = Tab.Settings }, profile = activeProfile, connId = activeConnId)
                 Tab.Settings -> SettingsScreen()
@@ -248,7 +253,9 @@ fun ServerListScreen(
     onEdit: (ServerConn) -> Unit,
     onDelete: (ServerConn) -> Unit,
     onClone: (ServerConn) -> Unit = {},
-    onBatchGroup: (List<String>, String) -> Unit = { _, _ -> }   // 批量改分组
+    onBatchGroup: (List<String>, String) -> Unit = { _, _ -> },   // 批量改分组
+    onBatchColor: (List<String>, ColorTag) -> Unit = { _, _ -> }, // 批量改颜色标签
+    onBatchDelete: (List<String>) -> Unit = {}                    // 批量删除
 ) {
     val ctxLocal = LocalContext.current
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -268,6 +275,8 @@ fun ServerListScreen(
     val selectedIds = remember { mutableStateListOf<String>() }        // 批量编辑：多选连接 id
     var selectMode by remember { mutableStateOf(false) }
     var showBatchGroup by remember { mutableStateOf(false) }
+    var showBatchColor by remember { mutableStateOf(false) }
+    var showBatchDelete by remember { mutableStateOf(false) }
     Column {
         // 顶栏 + 刷新状态
         Surface(color = Surface) {
@@ -316,7 +325,9 @@ fun ServerListScreen(
             Surface(color = Accent.copy(alpha = 0.12f)) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("已选 ${selectedIds.size}", color = Accent, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                    TextButton(onClick = { showBatchGroup = true }, enabled = selectedIds.isNotEmpty()) { Text("改分组", color = Accent, fontSize = 13.sp) }
+                    TextButton(onClick = { showBatchGroup = true }, enabled = selectedIds.isNotEmpty()) { Text("分组", color = Accent, fontSize = 13.sp) }
+                    TextButton(onClick = { showBatchColor = true }, enabled = selectedIds.isNotEmpty()) { Text("标签", color = Accent, fontSize = 13.sp) }
+                    TextButton(onClick = { showBatchDelete = true }, enabled = selectedIds.isNotEmpty()) { Text("删除", color = Danger, fontSize = 13.sp) }
                     TextButton(onClick = { selectMode = false; selectedIds.clear() }) { Text("取消", color = TextSecondary, fontSize = 13.sp) }
                 }
             }
@@ -331,6 +342,39 @@ fun ServerListScreen(
                     colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent)) },
                 confirmButton = { TextButton(onClick = { onBatchGroup(selectedIds.toList(), g.trim()); showBatchGroup = false; selectMode = false; selectedIds.clear() }) { Text("确定", color = Accent) } },
                 dismissButton = { TextButton(onClick = { showBatchGroup = false }) { Text("取消", color = TextSecondary) } },
+                containerColor = Surface
+            )
+        }
+        // 批量改颜色标签对话框
+        if (showBatchColor) {
+            AlertDialog(
+                onDismissRequest = { showBatchColor = false },
+                title = { Text("批量颜色标签（${selectedIds.size} 台）", color = TextPrimary) },
+                text = {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        ColorTag.values().forEach { tag ->
+                            Box(Modifier.size(28.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(tag.hex?.let { Color(it) } ?: SurfaceLight)
+                                .clickable { onBatchColor(selectedIds.toList(), tag); showBatchColor = false; selectMode = false; selectedIds.clear() },
+                                contentAlignment = Alignment.Center) {
+                                if (tag == ColorTag.NONE) Icon(Icons.Filled.Block, null, tint = TextSecondary, modifier = Modifier.size(16.dp))
+                            }
+                        }
+                    }
+                },
+                confirmButton = { TextButton(onClick = { showBatchColor = false }) { Text("取消", color = TextSecondary) } },
+                containerColor = Surface
+            )
+        }
+        // 批量删除二次确认
+        if (showBatchDelete) {
+            AlertDialog(
+                onDismissRequest = { showBatchDelete = false },
+                icon = { Icon(Icons.Filled.Warning, null, tint = Danger) },
+                title = { Text("删除 ${selectedIds.size} 台连接？", color = TextPrimary) },
+                text = { Text("将删除选中的连接，此操作不可撤销。", color = TextSecondary) },
+                confirmButton = { TextButton(onClick = { onBatchDelete(selectedIds.toList()); showBatchDelete = false; selectMode = false; selectedIds.clear() }) { Text("删除", color = Danger) } },
+                dismissButton = { TextButton(onClick = { showBatchDelete = false }) { Text("取消", color = TextSecondary) } },
                 containerColor = Surface
             )
         }

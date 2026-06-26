@@ -6,6 +6,15 @@
 
 ---
 
+## 知识卡片喂 AI 全路径覆盖双端（闭环再扩展）
+- **android**：`TermindApp` 记 `activeConnId`(ServerWorkspace onProfile 时 = conn.id)；`AIAssistantScreen` 收 `connId` 参数；`send` 的 sys 注入 `ServerNotebook.composeForAI(load(ctx, connId))`。AI 对话(含「分析报错」快捷入口走 send)也结合本机历史。推送 2c3c6d1。
+- **apple**：在中心 AI 调用 `runAICompletion` 注入 `ServerNotebook.composeForAI(activeSession.connection.id)`——所有 AI 路径(对话/解释/报错/排障/健康)统一覆盖；移除 analyzeDiagnostic/diagnoseHealth 的重复注入(改中心化，更简洁)。推送 03242b9。
+- **改动**：`MainActivity.kt`(activeConnId+AIAssistantScreen connId+send 注入)、`AppModel.swift`(runAICompletion 中心注入+去重)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 27s 无 warning；apple swift build + 7 自测全过。
+- **意义**：知识沉淀闭环的「喂 AI」从 排障+健康 两条路径扩展到**所有 AI 路径(对话/解释/报错/排障/健康)**双端覆盖。无论用户怎么问 AI，AI 都「记得」这台机的历史。apple 中心化注入更简洁(单点覆盖全路径)。差异化价值「AI 记得每台服务器」彻底贯通。
+
+---
+
 ## 质量收口 · 近期进展快照（差异化深化阶段）
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；7 自测(history/batch/risk/metrics/env-detect/inspect/notebook)全 true 无回归；android clean assembleDebug **零 deprecated**。
 - **PARITY 状态**：配对能力 🟡=0（全 ✅✅），仅余 2 项各自独有特性（android 定时后台巡检 / apple 分屏录制）。

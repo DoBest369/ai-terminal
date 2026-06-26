@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 顶栏新建/设置按钮（对照 windows 工具栏）
+- **内容**：linux 顶栏 Termind 品牌右侧用 `Layout::right_to_left` 加 ＋新建连接（accent）/ ⚙设置 无框 `Button`，对照 windows 侧边栏顶部工具栏。
+- **改动**：`linux/src/main.rs`(顶栏工具栏按钮)。
+- **验证**：`cargo build` **0 error/warning**（0.51s 增量，带 proxy，build 通过后才提交，吸取上轮教训）。推送 2091f8a。
+- **意义**：linux 顶栏对照 windows 加工具栏按钮，五端顶栏/工具栏趋于一致。linux 端工作台进一步完整。
+
+---
+
 ## android 连接编辑端口校验加警告图标（双端校验一致）
 - **内容**：android EditConnectionScreen 端口非法提示加 `Icons.Filled.Warning` 图标（红），对齐 apple exclamationmark.triangle。双端连接编辑端口校验一致（isError 红框 + 警告图标 + 红字）。
 - **教训**：首次提交漏 `import androidx.compose.material.icons.filled.Warning` → 编译失败（误推送 9de82ab）→ 补 import 重建 BUILD SUCCESSFUL 修复（f057330）。**提交前应等 build 结果再 push**（本轮先 commit+push 才发现 build 失败，破坏了 main 短暂；下次严格 build 通过再提交）。

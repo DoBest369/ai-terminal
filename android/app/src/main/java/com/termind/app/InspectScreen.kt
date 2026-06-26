@@ -141,6 +141,21 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
                         }.joinToString(" · ")
                         Text(statTxt, color = if (warnCount > 0) Danger else Success, fontWeight = FontWeight.Medium, fontSize = 13.sp)
                         Spacer(Modifier.weight(1f))
+                        IconButton(onClick = {
+                            val md = buildString {
+                                append("# 批量巡检报告\n\n$statTxt · 共 ${items.size} 台\n")
+                                sorted.forEach { i ->
+                                    append("\n## ${i.conn.name}\n")
+                                    if (i.error != null) append("❌ 巡检失败：${i.error}\n")
+                                    else i.status?.let { append("${if (it.hasWarning) "⚠️" else "✅"} ${it.healthSummary.removePrefix("服务器状态：")}\n") }
+                                }
+                            }
+                            ctx.startActivity(android.content.Intent.createChooser(
+                                android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain")
+                                    .putExtra(android.content.Intent.EXTRA_TEXT, md), "导出巡检报告"))
+                        }, modifier = Modifier.size(32.dp)) {
+                            Icon(Icons.Filled.Share, "导出", tint = Accent, modifier = Modifier.size(16.dp))
+                        }
                         TextButton(onClick = { summarize() }) {
                             Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(14.dp))
                             Spacer(Modifier.width(4.dp)); Text("AI 总结", color = Accent, fontSize = 12.sp)

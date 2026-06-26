@@ -131,20 +131,38 @@ struct InspectView: View {
             .scrollContentBackground(.hidden)
             .background(Theme.background)
 
-            if !model.inspectionRunning {
-                Button {
-                    model.summarizeInspection()
-                    dismiss()
-                } label: {
-                    Label("让 AI 总结这批巡检", systemImage: "sparkles")
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
+            if !model.inspectionRunning && !model.inspectionResults.isEmpty {
+                HStack(spacing: 10) {
+                    Button { exportInspection() } label: {
+                        Label("导出", systemImage: "square.and.arrow.up").frame(maxWidth: .infinity).padding(.vertical, 10)
+                    }
+                    .buttonStyle(.bordered).tint(Theme.accent)
+                    Button {
+                        model.summarizeInspection()
+                        dismiss()
+                    } label: {
+                        Label("AI 总结", systemImage: "sparkles").frame(maxWidth: .infinity).padding(.vertical, 10)
+                    }
+                    .buttonStyle(.borderedProminent).tint(Theme.accent)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Theme.accent)
                 .padding(12)
             }
         }
+    }
+
+    /// 把巡检结果拼成 Markdown 复制到剪贴板（巡检报告留存，对齐 android 分享）
+    private func exportInspection() {
+        let failN = model.inspectionResults.filter { $0.error != nil }.count
+        let warnN = model.inspectionResults.filter { $0.error == nil && $0.hasWarning }.count
+        let okN = model.inspectionResults.count - failN - warnN
+        var md = "# 批量巡检报告\n\n⚠️ 告警 \(warnN) · ✅ 正常 \(okN) · ❌ 失败 \(failN) · 共 \(model.inspectionResults.count) 台\n"
+        for r in model.inspectionResults {
+            md += "\n## \(r.name)\n"
+            if let e = r.error { md += "❌ 巡检失败：\(e)\n" }
+            else if let info = r.info { md += "\(r.hasWarning ? "⚠️" : "✅") \(info.healthSummary.replacingOccurrences(of: "服务器状态：", with: ""))\n" }
+        }
+        Clipboard.copy(md)
+        model.toast = "巡检报告已复制（Markdown）"
     }
 
     private func resultRow(_ r: AppModel.InspectionResult) -> some View {

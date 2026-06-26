@@ -44,12 +44,15 @@ public struct SFTPEntry: Identifiable, Sendable, Hashable {
     public let path: String
     public let isDirectory: Bool
     public let size: UInt64
+    /// 修改时间（可选，Citadel 提供时填充）
+    public let modifiedAt: Date?
 
-    public init(name: String, path: String, isDirectory: Bool, size: UInt64) {
+    public init(name: String, path: String, isDirectory: Bool, size: UInt64, modifiedAt: Date? = nil) {
         self.name = name
         self.path = path
         self.isDirectory = isDirectory
         self.size = size
+        self.modifiedAt = modifiedAt
     }
 }
 
@@ -329,7 +332,8 @@ public actor SSHTerminalSession {
                 if c.filename == "." || c.filename == ".." { continue }
                 let isDir = c.longname.hasPrefix("d")
                 let full = path.hasSuffix("/") ? path + c.filename : path + "/" + c.filename
-                entries.append(SFTPEntry(name: c.filename, path: full, isDirectory: isDir, size: c.attributes.size ?? 0))
+                let mtime = c.attributes.accessModificationTime?.modificationTime
+                entries.append(SFTPEntry(name: c.filename, path: full, isDirectory: isDir, size: c.attributes.size ?? 0, modifiedAt: mtime))
             }
         }
         return entries.sorted { a, b in

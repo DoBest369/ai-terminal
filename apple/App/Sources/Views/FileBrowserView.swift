@@ -40,6 +40,28 @@ struct FileBrowserView: View {
     @State private var deleteTarget: SFTPEntry?
     @State private var showGoto = false       // 路径直接跳转
     @State private var gotoText = ""
+    @State private var sortMode = 0           // 0=名称 1=大小 2=时间
+
+    /// 文件夹优先，组内按选定方式排序
+    private var sortedEntries: [SFTPEntry] {
+        let cmp: (SFTPEntry, SFTPEntry) -> Bool
+        switch sortMode {
+        case 1: cmp = { $0.size > $1.size }
+        case 2: cmp = { ($0.modifiedAt ?? .distantPast) > ($1.modifiedAt ?? .distantPast) }
+        default: cmp = { $0.name.lowercased() < $1.name.lowercased() }
+        }
+        return entries.sorted { a, b in
+            if a.isDirectory != b.isDirectory { return a.isDirectory }
+            return cmp(a, b)
+        }
+    }
+
+    /// 修改时间标签：今年显 MM-dd HH:mm，往年显 yyyy-MM-dd
+    static func timeLabel(_ date: Date) -> String {
+        let fmt = DateFormatter()
+        fmt.dateFormat = Calendar.current.isDate(date, equalTo: Date(), toGranularity: .year) ? "MM-dd HH:mm" : "yyyy-MM-dd"
+        return fmt.string(from: date)
+    }
 
     var body: some View {
         NavigationStack {
@@ -72,6 +94,15 @@ struct FileBrowserView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("完成") { dismiss() }
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        Picker("排序", selection: $sortMode) {
+                            Text("名称").tag(0); Text("大小").tag(1); Text("时间").tag(2)
+                        }
+                    } label: {
+                        Label("排序", systemImage: "arrow.up.arrow.down")
+                    }
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -165,7 +196,7 @@ struct FileBrowserView: View {
                 if let busy {
                     Text(busy).font(.footnote).foregroundStyle(Theme.accent)
                 }
-                ForEach(entries) { entry in
+                ForEach(sortedEntries) { entry in
                     row(entry)
                 }
                 if entries.isEmpty && !loading {
@@ -190,10 +221,15 @@ struct FileBrowserView: View {
                 Image(systemName: entry.isDirectory ? "folder.fill" : "doc")
                     .foregroundStyle(entry.isDirectory ? Theme.accent : Theme.textSecondary)
                     .frame(width: 20)
-                Text(entry.name)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Theme.textPrimary)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(entry.name)
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                    if let t = entry.modifiedAt {
+                        Text(Self.timeLabel(t)).font(.system(size: 10)).foregroundStyle(Theme.textSecondary.opacity(0.7))
+                    }
+                }
                 Spacer()
                 if entry.isDirectory {
                     Image(systemName: "chevron.right").font(.system(size: 11)).foregroundStyle(Theme.textSecondary)

@@ -6,6 +6,24 @@
 
 ---
 
+## 质量收口 · 护城河能力库快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；7 自测(history/batch/risk/metrics/env-detect/inspect/notebook)全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~20.9MB)。
+- **护城河能力库全景（截至本轮，双端共用 Core）**：
+  - **Z1 命令解释 · Z2 报错分析 · Z3 环境感知**（探测 OS/服务/项目 → 喂 AI）
+  - **Z4 排障工作流（8 场景）**：网站打不开/磁盘清理/SSL/Nginx/Docker/内存占用/端口占用/服务启动失败 — 真跑只读诊断 + AI 总结
+  - **Z5 操作回滚**：改关键配置前自动备份 + 时间线 + 一键还原 + sshd 自动回滚
+  - **Z6 状态面板**：CPU/内存/磁盘/服务/健康摘要/告警 + Z6b 面板↔AI
+  - **Z7 风险四级分级 + 敏感脱敏**
+  - **Z8 初始化模板（8 模板）**：Ubuntu Web/Docker/Node/静态站/LNMP/Redis/PostgreSQL/Python — 执行前预览 + 真执行
+  - **阶段 N 批量运维**：批量群发+AI 汇总 · 批量巡检+AI 总结（双端 UI）· 命令历史 · 定时巡检(android)
+  - **🎯 服务器知识卡片闭环**：记录(问题/方案/笔记)→喂 AI(排障+健康分析注入本机历史)→导出共享(Markdown)
+- **自测覆盖**：7 项（history/batch/risk/metrics/env-detect/inspect/notebook）核心逻辑回归保护。
+- **改动**：`ITERATION_LOG.md`（快照）。
+- **验证**：apple swift build + 7 自测全过；android clean 零 warning。
+- **意义**：连续多轮护城河场景库扩充(Z4 5→8/Z8 5→8)+知识卡片闭环后，做质量稳健确认。Termind 护城河能力库丰满、双端共用、质量稳健。
+
+---
+
 ## 深化初始化模板 Z8（内置 5→8，双端）
 - **内容**：`SetupTemplate.builtins` 从 5 个(Ubuntu Web/Docker/Node/静态站/LNMP)增至 8 个，新增：
   - **Redis 缓存**：安装+仅本地监听(bind 127.0.0.1)+设密码(YOUR_PASSWORD 占位)+开机自启+验证

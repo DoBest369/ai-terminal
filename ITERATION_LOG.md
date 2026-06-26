@@ -6,6 +6,14 @@
 
 ---
 
+## linux 终端状态条反映选中连接（真实交互第一步）
+- **内容**：linux 终端区状态条从固定 mock「prod-01」→ 根据 `self.selected` 显示选中连接的 host + 在线状态（已连接绿 ●/离线灰 ○）。点击侧边栏连接列表 → 终端区状态条实时反映选中连接。在 CentralPanel 前取 `(sel_host, sel_online)` 避开 borrow 冲突。
+- **改动**：`linux/src/main.rs`(终端状态条用 selected 连接)。
+- **验证**：`cargo build` **0 error/warning**（0.51s 增量，带 proxy，build 通过后提交）。推送 ce82755。
+- **意义**：linux 端从「纯静态 mock 展示」→「真实交互」（点连接→终端区反映选中），mock 数据驱动的真实状态联动。下一步可继续给各端接真实数据/逻辑（SSH 连接、状态采集）。
+
+---
+
 ## MATURITY 更新 windows/linux 功能完整度（骨架→完整工作台 UI）
 - **内容**：docs/MATURITY.md 边界描述更新——windows/linux 从「对齐设计的 UI 骨架（三栏 + 连接列表）」→「对齐 apple/android **全功能区** UI」（连接列表全信息 + 状态面板进度条/服务状态 + 终端区快捷命令/可滚动 + AI 面板全套 + 设置页 + SFTP 文件浏览）。明确「完整 UI + mock 数据，真实 SSH/AI 逻辑待接入」。反映 47+ 项 UI 现代化五端对齐真实进展。
 - **改动**：`docs/MATURITY.md`。

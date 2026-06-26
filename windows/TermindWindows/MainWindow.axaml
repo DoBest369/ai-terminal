@@ -1,0 +1,73 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="720"
+        x:Class="TermindWindows.MainWindow"
+        Title="Termind" Width="1100" Height="720"
+        Background="#0D0E1A">
+    <!-- Termind 智能 SSH 服务器运维工作台（Windows · Avalonia，对齐 apple/android 设计）-->
+    <Grid ColumnDefinitions="280,*">
+
+        <!-- 侧边栏：品牌 + 搜索 + 连接列表 -->
+        <Border Grid.Column="0" Background="#16182A">
+            <StackPanel>
+                <TextBlock Text="Termind" FontSize="20" FontWeight="Bold"
+                           Foreground="#FFFFFF" Margin="16,16,16,12"/>
+
+                <!-- 搜索框 -->
+                <Border Background="#0D0E1A" CornerRadius="8" Margin="10,0,10,10" Padding="10,8">
+                    <TextBlock Text="🔍  搜索连接" Foreground="#6B7280" FontSize="13"/>
+                </Border>
+
+                <TextBlock Text="SSH 连接 (3)" FontSize="11" FontWeight="SemiBold"
+                           Foreground="#6B7280" Margin="16,6,16,6"/>
+
+                <!-- 连接卡片（占位，后续接真实连接数据） -->
+                <Border Background="#00000000" CornerRadius="8" Margin="8,2" Padding="12,8">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Ellipse Grid.Column="0" Width="8" Height="8" Fill="#3FB950" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="开发机" Foreground="#FFFFFF" FontSize="13" FontWeight="Medium"/>
+                            <TextBlock Text="deploy@dev.example.com:2222" Foreground="#8B92A8" FontSize="11"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <Border Background="#1AFF4B6E" CornerRadius="8" Margin="8,2" Padding="12,8">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Ellipse Grid.Column="0" Width="8" Height="8" Fill="#3FB950" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="数据库主机" Foreground="#FFFFFF" FontSize="13" FontWeight="Medium"/>
+                            <TextBlock Text="admin@db.internal.net:22" Foreground="#8B92A8" FontSize="11"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <Border Background="#00000000" CornerRadius="8" Margin="8,2" Padding="12,8">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Ellipse Grid.Column="0" Width="8" Height="8" Fill="#6B7280" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="生产服务器" Foreground="#FFFFFF" FontSize="13" FontWeight="Medium"/>
+                            <TextBlock Text="root@192.168.1.10:22" Foreground="#8B92A8" FontSize="11"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- 主区域：欢迎占位（后续接终端 + AI 面板） -->
+        <Border Grid.Column="1" Background="#0D0E1A">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10">
+                <TextBlock Text="Termind" FontSize="34" FontWeight="Bold"
+                           Foreground="#FF4B6E" HorizontalAlignment="Center"/>
+                <TextBlock Text="智能 SSH 服务器运维工作台" FontSize="15"
+                           Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+                <TextBlock Text="AI + 真实服务器状态 + 安全执行 + 可回滚"
+                           FontSize="12" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4"/>
+                <Border Background="#FF4B6E" CornerRadius="8" Padding="18,9" Margin="0,12"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="选择左侧连接开始" Foreground="#FFFFFF" FontSize="13"/>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

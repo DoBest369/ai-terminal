@@ -6,6 +6,23 @@
 
 ---
 
+## 危险操作二次确认审计对齐（系统性防误删）
+- **审计**：grep 双端所有删除/破坏性操作的确认现状：
+  | 操作 | apple | android(原) |
+  |---|---|---|
+  | 删除连接 | ✅ confirmationDialog | ❌ 直接删 → **补 AlertDialog** |
+  | 删除对话 | ✅ confirmationDialog | ❌ 直接 removeAt → **补 AlertDialog** |
+  | 清空对话 | ✅ | ✅(上轮补) |
+  | SFTP 删除文件/目录 | ✅ alert | ✅ pendingDelete |
+  | 批量删除连接 | ✅ | ✅ |
+  | 删除知识卡片/快捷命令 | swipe/icon | Close icon — 低破坏性单条，swipe/图标删除可接受，未补 |
+- **android 补齐**：`ServerCard` 删除→`confirmDelete` AlertDialog(显连接名)；删除当前对话→`showDeleteConvoConfirm` AlertDialog。对齐 apple。
+- **改动**：`MainActivity.kt`(两处确认)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 27s 零 deprecated；apple swift build + 8 自测全过。推送 d231188。
+- **意义**：高频破坏性操作(删连接/删对话)二次确认双端齐，防误删数据。审计确认其余删除点(SFTP/批量/清空)双端本就有确认，低破坏性单条删除(卡片/快捷命令)沿用 swipe/图标轻确认。防误操作一致性收尾。
+
+---
+
 ## android AI 清空对话二次确认（对齐 apple，防误删）
 - **评估发现**：apple `AIAgentView` 清空对话有 `confirmationDialog`(「清空当前对话？」)，android 清空当前消息**直接 `messages.clear()` 无确认** → android 落后(误触即丢整段对话)。
 - **android 补齐**：清空菜单项改为弹 `AlertDialog` 二次确认(标题/说明/清空[Danger]/取消)，确认才 clear+persist。对齐 apple。

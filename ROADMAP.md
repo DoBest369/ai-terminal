@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **危险操作二次确认审计对齐** ✅（审计双端破坏性操作确认；android 补 删除连接/删除对话 二次确认[d231188]；SFTP/批量/清空 双端本有；删除卡片/快捷命令属低破坏性单条 swipe/icon 可接受；apple 8 自测全过）
 - [x] **android AI 清空对话二次确认** ✅（对齐 apple 早有 confirmationDialog；防误触丢对话；apple 8 自测+android clean 零 warning；推送 5c3905a）
 - [x] **质量收口·双端对齐持续巩固快照** ✅（apple 8 自测+android clean 零 warning+APK；PARITY 🟡=0；近批次 快捷命令编辑/消息重发/端口校验等细节双端对齐；推送见下）
 - [x] **apple 连接端口范围校验** ✅（portValid 1-65535+无效红字提示+禁用保存+save 钳制；对齐 android 早有校验；8 自测全过；推送 397f31b）

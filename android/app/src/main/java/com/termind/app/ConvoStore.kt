@@ -44,4 +44,17 @@ object ConvoStore {
             out.ifEmpty { listOf(emptyList()) }
         }.getOrElse { listOf(emptyList()) }
     }
+
+    /** 各对话自定义标题（平行于对话列表，空=用自动标题）。 */
+    fun saveTitles(ctx: Context, titles: List<String>) {
+        val arr = JSONArray(); titles.forEach { arr.put(it) }
+        ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit().putString("conv_titles", arr.toString()).apply()
+    }
+
+    fun loadTitles(ctx: Context): List<String> {
+        val raw = ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).getString("conv_titles", null) ?: return emptyList()
+        return runCatching {
+            val arr = JSONArray(raw); (0 until arr.length()).map { arr.getString(it) }
+        }.getOrDefault(emptyList())
+    }
 }

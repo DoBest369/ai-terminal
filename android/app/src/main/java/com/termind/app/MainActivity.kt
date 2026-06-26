@@ -557,12 +557,18 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
     }
     var curIdx by remember { mutableStateOf(0) }
     val messages = convos[curIdx.coerceIn(0, convos.size - 1)]
+    // 各对话自定义标题（平行列表，空=自动标题）
+    val convoTitles = remember {
+        mutableStateListOf<String>().apply { addAll(ConvoStore.loadTitles(ctx)); while (size < convos.size) add(""); }
+    }
     var convoMenu by remember { mutableStateOf(false) }
     var showClearConfirm by remember { mutableStateOf(false) }   // 清空消息二次确认
     var showDeleteConvoConfirm by remember { mutableStateOf(false) }   // 删除对话二次确认
-    fun persistConvos() = ConvoStore.save(ctx, convos.map { it.toList() })
+    var showRenameConvo by remember { mutableStateOf(false) }   // 重命名对话
+    fun persistConvos() { ConvoStore.save(ctx, convos.map { it.toList() }); ConvoStore.saveTitles(ctx, convoTitles.toList()) }
     fun convoTitle(c: List<ChatMsg>, i: Int) =
-        c.firstOrNull { it.role == "user" }?.content?.take(16) ?: "新对话 ${i + 1}"
+        convoTitles.getOrNull(i)?.takeIf { it.isNotBlank() }
+            ?: c.firstOrNull { it.role == "user" }?.content?.take(16) ?: "新对话 ${i + 1}"
     // A-ConvoExport：当前对话导出 Markdown 并分享
     fun exportConvo() {
         if (messages.isEmpty()) return
@@ -663,8 +669,10 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                         // A-AIClear：清空当前对话消息（保留对话）——二次确认防误删
                         if (messages.isNotEmpty()) DropdownMenuItem(text = { Text("🧹 清空当前消息", color = TextPrimary) },
                             onClick = { convoMenu = false; showClearConfirm = true })
+                        DropdownMenuItem(text = { Text("✏️ 重命名对话", color = TextPrimary) },
+                            onClick = { convoMenu = false; showRenameConvo = true })
                         DropdownMenuItem(text = { Text("➕ 新建对话", color = Accent) },
-                            onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; convoMenu = false; persistConvos() })
+                            onClick = { convos.add(mutableStateListOf()); convoTitles.add(""); curIdx = convos.size - 1; convoMenu = false; persistConvos() })
                         if (convos.size > 1) DropdownMenuItem(text = { Text("🗑 删除当前", color = Danger) },
                             onClick = { convoMenu = false; showDeleteConvoConfirm = true })
                     }
@@ -683,6 +691,22 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                         containerColor = Surface
                     )
                 }
+                // 重命名对话（对齐 apple，空=恢复自动标题）
+                if (showRenameConvo) {
+                    var nm by remember { mutableStateOf(convoTitles.getOrNull(curIdx)?.takeIf { it.isNotBlank() } ?: "") }
+                    AlertDialog(
+                        onDismissRequest = { showRenameConvo = false },
+                        title = { Text("重命名对话", color = TextPrimary) },
+                        text = { OutlinedTextField(nm, { nm = it }, placeholder = { Text("对话名称（留空恢复自动）", color = TextSecondary) }, singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent)) },
+                        confirmButton = { TextButton(onClick = {
+                            while (convoTitles.size <= curIdx) convoTitles.add("")
+                            convoTitles[curIdx] = nm.trim(); persistConvos(); showRenameConvo = false
+                        }) { Text("保存", color = Accent) } },
+                        dismissButton = { TextButton(onClick = { showRenameConvo = false }) { Text("取消", color = TextSecondary) } },
+                        containerColor = Surface
+                    )
+                }
                 // 删除当前对话二次确认（对齐 apple）
                 if (showDeleteConvoConfirm) {
                     AlertDialog(
@@ -690,7 +714,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                         title = { Text("删除当前对话？", color = TextPrimary) },
                         text = { Text("将删除当前整段对话，此操作不可撤销。", color = TextSecondary) },
                         confirmButton = { TextButton(onClick = {
-                            convos.removeAt(curIdx); curIdx = curIdx.coerceIn(0, convos.size - 1); persistConvos(); showDeleteConvoConfirm = false
+                            convos.removeAt(curIdx); if (curIdx < convoTitles.size) convoTitles.removeAt(curIdx); curIdx = curIdx.coerceIn(0, convos.size - 1); persistConvos(); showDeleteConvoConfirm = false
                         }) { Text("删除", color = Danger) } },
                         dismissButton = { TextButton(onClick = { showDeleteConvoConfirm = false }) { Text("取消", color = TextSecondary) } },
                         containerColor = Surface
@@ -700,7 +724,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                 IconButton(onClick = { searchActive = !searchActive; if (!searchActive) search = "" }, enabled = messages.isNotEmpty()) {
                     Icon(Icons.Filled.Search, "搜索对话", tint = if (searchActive) Accent else TextSecondary)
                 }
-                IconButton(onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; persistConvos() }) {
+                IconButton(onClick = { convos.add(mutableStateListOf()); convoTitles.add(""); curIdx = convos.size - 1; persistConvos() }) {
                     Icon(Icons.Filled.Add, "新建对话", tint = TextSecondary)
                 }
             }

@@ -6,6 +6,14 @@
 
 ---
 
+## windows SFTP 文件浏览 Flyout → SFTP 五端对齐
+- **内容**：windows 侧边栏工具栏加 📁 SFTP 按钮 → `Flyout` 文件列表（路径栏 ↑ /home/deploy + 文件夹/文件 + 类型图标[脚本⌨/压缩🗜/文档📄/配置⚙] + 大小），对照 apple/android/linux SFTP。工具栏 Grid 改 4 列（品牌/SFTP/新建/设置）。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(SFTP Flyout + 设置按钮列号)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）。推送 0252fd4。
+- **🎯 SFTP 文件浏览五端对齐**：apple/android（全屏 SFTP）/ linux（SFTP 窗口）/ windows（SFTP Flyout）都有文件浏览（路径 + 文件类型图标 + 大小）。windows 端功能更完整（主工作台 + 设置 + SFTP）。
+
+---
+
 ## 质量基线收口 + linux SFTP 文件浏览窗口
 - **质量基线**（45 项 UI 迭代后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo build Finished；windows dotnet build 0 警告 0 错误；PARITY **103 项 ✅✅**。五端 build 全绿，核心逻辑无回归。
 - **linux SFTP 窗口**：顶栏加 📁 SFTP 按钮 → `egui::Window` 文件浏览占位（路径栏 + 文件夹/文件 + 类型图标[脚本⌨/压缩🗜/文档📄/配置⚙] + 大小），对照 apple/android SFTP。cargo build 0 error/warning（build 通过后提交）。推送 fad80ab。

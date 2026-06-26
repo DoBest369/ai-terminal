@@ -501,6 +501,9 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null) 
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text("📤 导出当前(Markdown)", color = TextPrimary) },
                             onClick = { convoMenu = false; exportConvo() })
+                        // A-AIClear：清空当前对话消息（保留对话）
+                        if (messages.isNotEmpty()) DropdownMenuItem(text = { Text("🧹 清空当前消息", color = TextPrimary) },
+                            onClick = { messages.clear(); lastSent = null; convoMenu = false; persistConvos() })
                         DropdownMenuItem(text = { Text("➕ 新建对话", color = Accent) },
                             onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; convoMenu = false; persistConvos() })
                         if (convos.size > 1) DropdownMenuItem(text = { Text("🗑 删除当前", color = Danger) },

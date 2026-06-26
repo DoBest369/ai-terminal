@@ -428,10 +428,28 @@ fun ServerListScreen(
             else -> filtered.sortedBy { it.name.lowercase() }
         }
         val grouped = shown.groupBy { it.group }
+        // 最近使用：横滑快速访问（非多选/非搜索时显，取 lastUsed>0 倒序前 5）
+        val recent = if (!selectMode && q.isEmpty()) conns.filter { it.lastUsed > 0 }.sortedByDescending { it.lastUsed }.take(5) else emptyList()
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            if (recent.isNotEmpty()) {
+                item(key = "recent-hdr") { Text("最近使用", fontSize = 12.sp, color = TextSecondary, modifier = Modifier.padding(top = 8.dp)) }
+                item(key = "recent-row") {
+                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        recent.forEach { c ->
+                            Surface(onClick = { onOpen(c) }, color = SurfaceLight.copy(alpha = 0.5f), shape = RoundedCornerShape(12.dp)) {
+                                Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Filled.Circle, null, tint = if (reachMap[c.id] == true) Success else TextSecondary, modifier = Modifier.size(8.dp))
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(c.name.ifEmpty { c.host }, color = TextPrimary, fontSize = 12.sp, maxLines = 1)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             grouped.forEach { (group, list) ->
                 // A-GroupFold：分组标题可点折叠/展开（仅有组名时）
                 if (group.isNotEmpty()) item(key = "hdr-$group") {

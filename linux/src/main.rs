@@ -61,6 +61,11 @@ impl eframe::App for TermindApp {
                 ui.colored_label(ACCENT, "⚡");
                 ui.heading(egui::RichText::new("Termind").color(TEXT_PRIMARY).strong());
                 ui.colored_label(TEXT_SECONDARY, "智能 SSH 运维");
+                // 右侧工具栏：新建连接 / 设置（对照 windows 顶部工具栏）
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    let _ = ui.add(egui::Button::new(egui::RichText::new("⚙").size(15.0).color(TEXT_SECONDARY)).frame(false));
+                    let _ = ui.add(egui::Button::new(egui::RichText::new("＋").size(16.0).color(ACCENT)).frame(false));
+                });
             });
             ui.add_space(4.0);
         });

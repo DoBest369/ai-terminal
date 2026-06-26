@@ -6,6 +6,17 @@
 
 ---
 
+## linux 端现状评估（全平台第三端可行性）
+- **工具链**：本机 `cargo`/`rustc` **均缺失**（macOS 开发机只装了 Swift CLT + Android SDK）→ linux 端**无法在本机编译验证**。
+- **骨架完成度**：`linux/src/main.rs`（114 行，Rust + eframe 0.27）——窗口 + 顶栏(Termind 品牌) + 连接列表(分组 ServerCard：在线点/名称/user@host:port/备注) + 选中态。品牌配色(午夜深蓝 #1A1A2E + 珊瑚红 #E94560)与 apple/android 统一。`Cargo.toml` 依赖齐(eframe/egui/ssh2/ureq/serde)。`run_native` 闭包返回 `Box<dyn App>` 符合 eframe 0.27 API。
+- **现状**：纯 UI 占位 mock，**无真实 SSH/SFTP/AI/持久化**（demo_conns 硬编码）。`linux/README.md` 已准确标注「骨架阶段 + 未编译验证 + 系统依赖 + 路线」。
+- **评估结论**：linux 端需在 **Linux + Rust 环境**推进（装 rustup + libssh2/openssl 系统依赖），本机无法验证。**负责任做法：不在无法编译验证的情况下盲写 Rust 代码**（避免引入查不出的错误）。保留为明确 backlog。
+- **下一步（待 Linux+Rust 环境）**：① ssh2 真实连接+exec+PTY ② serde_json 本地持久化+增删改 ③ ureq 接 AI 流式 ④ 移植 apple Core 智能运维逻辑(风险分级/脱敏/排障/模板/回滚/环境感知)。
+- **改动**：`ITERATION_LOG.md`(评估)、`ROADMAP.md`(backlog 细化)。
+- **意义**：如实记录 linux 端真实现状(骨架+工具链缺)，明确推进前置条件与路线，不虚标进度。apple+android 双端仍是当前可验证的主战场。
+
+---
+
 ## 质量收口 · AI 对话体验全景快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **AI 对话体验全景（双端齐平）**：

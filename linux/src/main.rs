@@ -248,6 +248,14 @@ fn server_card(ui: &mut egui::Ui, c: &ServerConn, selected: bool) -> egui::Respo
                         ui.colored_label(TEXT_SECONDARY, format!("📝 {}", c.note));
                     }
                 });
+                // 右侧可达指示（对照 apple/android wifi/wifi.slash）
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    if c.online {
+                        ui.colored_label(SUCCESS, egui::RichText::new("✓").strong());
+                    } else {
+                        ui.colored_label(TEXT_SECONDARY, "✕");
+                    }
+                });
             });
         })
         .response

@@ -6,6 +6,16 @@
 
 ---
 
+## 快捷命令导入双端（与导出对称，备份恢复）
+- **解析器**：apple `CommandSnippet.parseImport`(Core) + android `SnippetStore.parseImport`——解析 `## 分组` 设当前分组 + `- **标题**：\`命令\``(导出格式) 或宽松 `标题|命令`/`标题=命令`，逻辑对齐。
+- **UI**：apple SnippetsView 工具栏「导入快捷命令」→ alert 粘贴；android 快捷命令 Chip 行「导入」→ AlertDialog 粘贴。解析后按 `title|command` 去重 + 数量反馈。
+- **修复**：android `line.isEmpty` → `line.isEmpty()`(Kotlin String.isEmpty 是函数)。
+- **改动**：`CommandSnippet.swift`(parseImport)、`Snippets.kt`(parseImport)、`SnippetsView.swift`(导入 alert)、`MainActivity.kt`(导入 Chip+对话框)、`docs/PARITY.md`。
+- **验证**：apple Core+App swift build + 抽测过；android 重建 BUILD SUCCESSFUL 25s 零 deprecated。推送 apple 2596fca/android 5b7f5f0→修复 07bfbc5。
+- **意义**：快捷命令导入导出对称完整(导出 Markdown→导入解析同格式)，支持备份恢复/团队共享常用命令集。快捷命令管理(增删改+分组+收藏+导出+导入)全功能。
+
+---
+
 ## CHANGELOG 阶段14 梳理（知识卡片增强与导出全覆盖）
 - **内容**：CHANGELOG 加「阶段 14 — 知识卡片增强与导出全覆盖」——知识卡片自由标签、三维检索(类型/标签/关键词)、排障结论存方案(闭环覆盖全 AI 路径)、快捷命令导出、导出能力全覆盖(对话/批量结果/卡片/快捷命令/配置)、PARITY 95 项双端对齐。当前状态刷新双端共有能力 95 项全 ✅✅。
 - **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。

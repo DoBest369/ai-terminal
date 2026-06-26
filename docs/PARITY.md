@@ -123,6 +123,7 @@
 | 快捷命令编辑 | ✅ | ✅ | 双端编辑自定义片段 名称/命令/分组（apple swipe / android 长按） |
 | 命令收藏夹（星标置顶） | ✅ | ✅ | 双端 CommandFavorites 持久化；命令历史星标收藏 |
 | 快捷命令导出 | ✅ | ✅ | 双端按分组导出 Markdown（apple 复制 / android 分享 Intent） |
+| 快捷命令导入 | ✅ | ✅ | 双端粘贴解析（Markdown/标题|命令）+去重，对齐导出 |
 | 命令历史（去重/置顶/限长/调出） | ✅ | ✅ | N-History 双端 UI 接入 |
 | 批量群发命令（多服务器同命令） | ✅ | ✅ | 双端完整 UI + 全选/清空/按分组快速选目标 + 成功/失败统计 |
 | 群发结果 AI 汇总 | ✅ | ✅ | apple summarizeBatch + composeForAI；android 完整 |

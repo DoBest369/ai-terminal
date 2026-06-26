@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **快捷命令导入双端** ✅（Core/SnippetStore.parseImport 解析 Markdown/宽松格式+去重；apple 工具栏/android Chip 粘贴对话框；与导出对称；修 Kotlin isEmpty()；apple 2596fca/android 5b7f5f0→07bfbc5）
 - [x] **CHANGELOG 阶段14·知识卡片增强与导出全覆盖** ✅（自由标签/三维检索/排障存方案/快捷命令导出/导出全覆盖/PARITY 95 项；当前状态刷新；推送 184f42f）
 - [x] **质量收口·PARITY 能力规模快照（95 项 ✅✅）** ✅（apple 8 自测+android clean 零 warning；PARITY 95 项双端共有全对齐 🟡=0；推送见下）
 - [x] **快捷命令导出双端** ✅（按分组拼 Markdown；apple 工具栏「导出」复制[0e68a95]/android Chip「导出」分享 Intent[3e1d112]；备份/团队共享）

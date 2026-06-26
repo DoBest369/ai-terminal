@@ -93,7 +93,10 @@ fun EditConnectionScreen(existing: ServerConn?, onCancel: () -> Unit, onSave: (S
                 OutlinedTextField(user, { user = it }, label = { Text("用户名 *") }, singleLine = true, colors = fieldColors, modifier = Modifier.weight(2f))
                 OutlinedTextField(port, { port = it.filter { c -> c.isDigit() } }, label = { Text("端口") }, singleLine = true, isError = !portOk, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number), colors = fieldColors, modifier = Modifier.weight(1f))
             }
-            if (!portOk) Text("端口需在 1–65535 之间", color = Danger, fontSize = 11.sp)
+            if (!portOk) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Icon(Icons.Filled.Warning, null, tint = Danger, modifier = Modifier.size(13.dp))
+                Text("端口需在 1–65535 之间", color = Danger, fontSize = 11.sp)
+            }
             // A-TestConn：测试连接（TCP 可达性）
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = {

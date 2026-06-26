@@ -600,12 +600,17 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                 if (sending && q.isEmpty()) item { Text("AI 思考中…", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(8.dp)) }
             }
         }
-        // A-Regen：重新生成上一条（末条是 assistant 且未生成中）
+        // A-Regen：重新生成 + 快捷追问（末条是 assistant 且未生成中）
         if (!sending && messages.lastOrNull()?.first == "assistant" && lastSent != null) {
-            Row(Modifier.padding(horizontal = 12.dp)) {
+            Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 AssistChip(onClick = { regenerate() }, label = { Text("重新生成", fontSize = 12.sp) },
                     leadingIcon = { Icon(Icons.Filled.Refresh, null, tint = Accent, modifier = Modifier.size(16.dp)) },
                     colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextPrimary))
+                // 快捷追问：点击直接发该追问（走 send，自动带环境+知识卡片上下文）
+                listOf("给我具体命令", "换个思路", "解释原理", "有什么风险").forEach { q ->
+                    AssistChip(onClick = { send(q) }, label = { Text(q, fontSize = 12.sp) },
+                        colors = AssistChipDefaults.assistChipColors(containerColor = SurfaceLight.copy(alpha = 0.45f), labelColor = TextSecondary))
+                }
             }
         }
         // A-AIActions：命令解释 / 报错分析 快捷入口（对齐 apple AIAgentView）

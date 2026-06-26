@@ -108,6 +108,7 @@
 |------|:---:|:---:|------|
 | 凭据安全存储 | ✅ | ✅ | apple Keychain / android EncryptedSharedPreferences |
 | 快捷命令片段（风险着色 + 自定义增删） | ✅ | ✅ | |
+| 快捷命令分组显示 | ✅ | ✅ | 双端按 group 分组（apple SnippetsView Section / android 横滑分组标签） |
 | 命令收藏夹（星标置顶） | ✅ | ✅ | 双端 CommandFavorites 持久化；命令历史星标收藏 |
 | 命令历史（去重/置顶/限长/调出） | ✅ | ✅ | N-History 双端 UI 接入 |
 | 批量群发命令（多服务器同命令） | ✅ | ✅ | 双端完整 UI + 全选/清空/按分组快速选目标 |

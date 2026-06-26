@@ -6,6 +6,15 @@
 
 ---
 
+## android 快捷命令分组显示（对齐 apple 早有的分组）
+- **评估**：CommandSnippet 双端都有 `group` 字段，defaults 都已分组(系统/网络/服务/Docker/日志/安全等)。apple `SnippetsView` 早已按 group 分 Section 显示；android 快捷命令是 ServerWorkspace 平铺横滑 Chip 行，未体现分组。
+- **android 改进**：横滑 Chip 行改为 `groupBy { group }`，每组前显分组标签(TextSecondary 小字)，命令多时分类清晰。无分组归「其他」，自定义命令按其 group 归类。
+- **改动**：`MainActivity.kt`(快捷命令分组渲染)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 27s 零 deprecated。apple 无需改(早有分组)。推送 7ca4dec。
+- **意义**：快捷命令分组显示双端齐(apple 早有/android 补齐)，常用命令按 系统/网络/服务/Docker 等分类，多命令时找得快。
+
+---
+
 ## 质量收口 · 知识沉淀入口全覆盖快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
 - **知识沉淀入口全覆盖（录入路径，本批次完善后全齐）**：

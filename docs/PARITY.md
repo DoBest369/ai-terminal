@@ -8,7 +8,7 @@
 | 能力 | apple | android | 说明 |
 |------|:---:|:---:|------|
 | 连接管理（分组/备注/持久化/增删改） | ✅ | ✅ | |
-| 连接颜色标签 | ✅ | ✅ | 双端 6 色环境标识（apple Core+导入导出+渲染，UI 色选器待接入） |
+| 连接颜色标签 | ✅ | ✅ | 双端 6 色环境标识 + 编辑器色选器（apple ConnectionEditView 色圆点 / android FilterChip） |
 | 连接列表搜索过滤 | ✅ | ✅ | 按名称/主机/用户/分组 |
 | 连接列表排序 | ✅ | ✅ | 名称/最近使用/在线优先 |
 | 连接编辑测试连通 | ✅ | ✅ | 双端 TCP 测试按钮（apple ConnectionEditView + ReachabilityChecker） |

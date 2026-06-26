@@ -6,6 +6,19 @@
 
 ---
 
+## 质量收口 · 双端对齐 100% 恢复快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测(history/batch/risk/metrics/env-detect/inspect/notebook/favorites)全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。
+- **PARITY 状态**：配对能力 **🟡=0**（全 ✅✅），仅余 2 项各自独有特性（android 定时后台巡检 / apple 分屏录制）。
+- **本批次对齐进展（连接管理）**：
+  - **连接批量编辑** 双端 ✅✅：多选→批量改分组/颜色标签/删除（apple 头部开关+底部操作栏 / android 长按多选）
+  - **最近使用快速访问** 双端 ✅✅：连接列表顶部横滑最近连过的服务器
+- **差异化 + 实用能力全景**：知识卡片闭环(随手记→筛选→喂AI全路径→导出) · 命令收藏夹 · AI 快捷追问 · SSH config 导入 · 批量运维分组全选 · 护城河 Z1-Z8(排障 8/部署 8)。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：连续多轮连接管理增强(批量编辑/最近使用)+双向对齐后，双端配对能力 100% 恢复，质量稳健。Termind 是双端齐平、护城河丰满、实用细节打磨到位的成熟运维工作台。
+
+---
+
 ## apple 连接批量编辑对齐（双端对齐，PARITY 🟡=0 恢复）
 - **内容**：`AppModel` 加 `multiSelectMode`/`selectedConnectionIDs` published + `batchSetGroup`(改 connection.group 字段，空=nil)/`batchSetColor`(colorTag)/`batchDelete`(含删密钥)/`exitMultiSelect`。`SidebarView` SSH 连接头部加批量编辑开关(checkmark.circle)；`ConnectionRow` 多选时显勾选框+点击切换选中(而非 openSession)；底部 `batchBar`(已选 N + 分组 Menu[现有分组+无分组]/标签 Menu[6 色]/删除)。对齐 android 长按多选。
 - **修复**：`connection.groupName` 是只读计算属性→实际字段是 `group: String?`，batchSetGroup 改赋 `group`。

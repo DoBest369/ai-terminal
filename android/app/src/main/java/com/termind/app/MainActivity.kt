@@ -761,6 +761,11 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
         }
         if (messages.isEmpty()) {
             Column(Modifier.weight(1f).fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                // 醒目标题 + 引导（对齐 apple emptyHint）
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Filled.AutoAwesome, null, tint = Accent, modifier = Modifier.size(20.dp))
+                    Text("用自然语言操作终端", color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                }
                 Text("让 AI 结合服务器真实环境帮你运维", color = TextSecondary, fontSize = 13.sp)
                 // A-Prompts：分类提示词 — 分类选择行
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {

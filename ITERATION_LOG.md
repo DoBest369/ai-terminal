@@ -6,6 +6,19 @@
 
 ---
 
+## 深化初始化模板 Z8（内置 5→8，双端）
+- **内容**：`SetupTemplate.builtins` 从 5 个(Ubuntu Web/Docker/Node/静态站/LNMP)增至 8 个，新增：
+  - **Redis 缓存**：安装+仅本地监听(bind 127.0.0.1)+设密码(YOUR_PASSWORD 占位)+开机自启+验证
+  - **PostgreSQL 数据库**：安装+自启+创建库与用户(占位密码)+验证
+  - **Python 应用环境**：python3/venv/pip+创建 /opt/app venv+装 gunicorn+验证
+  每个含 name+steps(SetupStep 标题+命令，复用 Z7 risk 分级)+previewText。
+- **双端对齐**：apple `SetupTemplate.swift`+android `OpsWorkflows.kt` builtins 一致。
+- **改动**：`SetupTemplate.swift`、`OpsWorkflows.kt`。
+- **验证**：apple Core+App swift build Build complete；android BUILD SUCCESSFUL 11s 零 deprecated。推送 07f7a3d。
+- **意义**：护城河 Z8 部署能力深化——覆盖更多常见部署场景(缓存/数据库/Python 应用)。一键初始化+执行前预览(风险标注)+真执行。配合 Z4 排障(8 场景)，部署与排障两大护城河场景库都扩充。
+
+---
+
 ## 深化排障工作流 Z4（内置 5→8 场景，双端）
 - **内容**：`DiagnosticWorkflow.builtins` 从 5 个(网站打不开/磁盘清理/SSL/Nginx/Docker)增至 8 个，新增：
   - **内存占用排查**(mem-pressure)：free -m / ps aux --sort=-%mem / meminfo / dmesg OOM 记录

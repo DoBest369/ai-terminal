@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **深化初始化模板 Z8** ✅（内置 5→8：加 Redis 缓存/PostgreSQL 数据库/Python 应用环境；双端 builtins 对齐；含密码占位；双端构建通过；推送 07f7a3d）
 - [x] **深化排障工作流 Z4** ✅（内置 5→8：加 内存占用/端口占用/服务启动失败 排查；双端 builtins 对齐；只读诊断命令；双端构建通过；推送 642392e）
 - [x] **质量收口 + README 更新** ✅（apple 7 自测+android clean 零 warning；README 加知识卡片护城河区+新截图[24/23/22]+能力表补充；推送 0a6bda1）
 - [x] **SSH config 导入双端** ✅（android SshConfigParser.kt 对齐 apple+粘贴文本导入；apple 早有读 ~/.ssh/config 文件[SettingsView 入口]→双端，方式各适配平台；推送 8da9e25）

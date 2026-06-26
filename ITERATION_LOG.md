@@ -6,6 +6,16 @@
 
 ---
 
+## A-Clone + A-Duration + 质量收口 · 连接克隆 + 连接时长
+- **A-Clone**（连接克隆）：ServerCard 更多菜单加「复制」→onClone 回调链(ServerCard→ServerListScreen→TermindApp)；TermindApp 用 `conn.copy(id=新 UUID, name=+副本, lastUsed=0)` 插入 conns+persist+`editing=copy;showEditor=true` 立即编辑。快速建相似连接。构建 22s，推送 87dc681。
+- **A-Duration**（连接时长）：ServerWorkspace `connectedAt`(连接成功 System.currentTimeMillis()/断开清 0)+`durTick`；状态条已连接时 `LaunchedEffect(connectedAt){ while(true){ delay(1000); durTick++ } }` 每秒刷新+显 `formatDuration(now-connectedAt)`(mm:ss/HH:mm:ss)。长会话知道连了多久。构建 22s，推送 34370d2。
+- **质量收口**：apple `AITerminalCore`+`App` swift build Build complete；6 自测全 true 无回归；android clean assembleDebug **零 deprecated**。
+- **改动**：`MainActivity.kt`(连接克隆回调+连接时长+formatDuration)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL clean 零 warning；apple swift build + 6 自测全过。
+- **意义**：连接管理(克隆)+终端会话信息(时长)更完善。双端成熟产品持续打磨细节。
+
+---
+
 ## A-LastUsed + A-AIClear + 质量收口 · 上次使用时间 + 清空消息
 - **A-LastUsed**（上次使用时间）：`relativeTime(ms)` helper(刚刚/N分钟前/N小时前/N天前/yyyy-MM-dd)；ServerCard `conn.lastUsed > 0` 时副标题下显「上次使用 · X」。对齐 apple 侧边栏。构建 22s，推送 435a5a2。
 - **A-AIClear**（清空消息）：AIAssistantScreen 对话菜单加「🧹 清空当前消息」(messages 非空时)→`messages.clear()`+`lastSent=null`+`persistConvos()`，保留对话壳。对齐 apple 清空会话。构建 21s，推送 f8f30dd。

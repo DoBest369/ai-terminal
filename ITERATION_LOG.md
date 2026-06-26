@@ -6,6 +6,14 @@
 
 ---
 
+## apple AI 面板 Showcase 补新 UI（截图与功能同步）
+- **内容**：`AIPanelShowcase` 在输入栏上方加 末条 assistant 时的快捷行——「重新生成」+「存为方案」(绿 bookmark)+快捷追问(给我具体命令/换个思路)Chip，对齐真实 AIAgentView。`swift run Shots` 渲染 `03-ai-panel.png`，Read 看图核对：代码块等宽深色框渲染正确、Chip 布局/配色(Theme.success 绿 + Theme.surfaceLight)无误，拷到 `apple/screenshots/03-ai-panel.png`。
+- **改动**：`Showcase.swift`(AIPanelShowcase 快捷行)、`apple/screenshots/03-ai-panel.png`。
+- **验证**：App swift build Build complete；ImageRenderer 渲染核对；8 自测全过。推送 a5b41a6。
+- **意义**：近期 AI 对话新 UI(快捷追问/存为方案)进截图，保持截图与功能同步。其余新 UI(最近使用/批量编辑在 List/sidebar，ImageRenderer 渲染受限)后续可补纯布局 mock。
+
+---
+
 ## 质量收口 · 知识沉淀闭环全景快照（护城河核心）
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
 - **🎯 知识沉淀闭环（双端全链路，差异化护城河核心）——「AI 记得每台服务器」**：

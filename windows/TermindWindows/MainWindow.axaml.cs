@@ -26,4 +26,18 @@ public partial class MainWindow : Window
         };
         ConnList.SelectedIndex = 0;
     }
+
+    /// 连接列表选中变化 → 终端区状态条反映选中连接（真实交互，对照 linux）
+    private void OnConnSelected(object? sender, SelectionChangedEventArgs e)
+    {
+        if (ConnList.SelectedItem is not ConnItem c) return;
+        // 地址形如 user@host:port → 取 host 段
+        var host = c.Addr;
+        var at = host.IndexOf('@'); if (at >= 0) host = host[(at + 1)..];
+        var colon = host.IndexOf(':'); if (colon >= 0) host = host[..colon];
+        var online = c.Reach == "✓";
+        StatusHost.Text = $"主机 {host}";
+        StatusDot.Text = online ? "● 已连接" : "○ 离线";
+        StatusDot.Foreground = online ? Brush.Parse("#3FB950") : Brush.Parse("#6B7280");
+    }
 }

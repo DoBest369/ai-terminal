@@ -931,7 +931,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                 output += Redactor.redact(raw.replace(DiagnosticWorkflow.SEP, "──────")) + "\n"
                 if (SettingsStore.isConfigured(ctx)) {
                     output += "\n🤖 AI 分析中…\n"
-                    val sys = wf.summaryPrompt
+                    // 知识卡片注入：让 AI 结合这台机的历史问题/方案排障（知识沉淀闭环）
+                    val notebook = ServerNotebook.composeForAI(ServerNotebook.load(ctx, conn.id))
+                    val sys = if (notebook.isNotEmpty()) "${wf.summaryPrompt}\n\n$notebook\n请结合以上历史运维记录给出针对性结论。" else wf.summaryPrompt
+                    if (notebook.isNotEmpty()) output += "📓 已结合本机知识卡片\n"
                     val ai = AiClient.chat(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
                         listOf("user" to wf.composeForAI(outs)), sys)
                     output += "【AI 结论】\n" + ai.getOrElse { "⚠️ ${it.message}" } + "\n"

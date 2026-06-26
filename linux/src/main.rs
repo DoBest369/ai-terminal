@@ -42,11 +42,12 @@ fn demo_conns() -> Vec<ServerConn> {
 struct TermindApp {
     conns: Vec<ServerConn>,
     selected: Option<usize>,
+    search: String,
 }
 
 impl Default for TermindApp {
     fn default() -> Self {
-        Self { conns: demo_conns(), selected: None }
+        Self { conns: demo_conns(), selected: None, search: String::new() }
     }
 }
 
@@ -69,10 +70,22 @@ impl eframe::App for TermindApp {
             .exact_width(280.0)
             .frame(egui::Frame::default().fill(SURFACE).inner_margin(10.0))
             .show(ctx, |ui| {
+                // 搜索框（对照 windows/apple 侧边栏，按名称/host 过滤）
+                ui.add(egui::TextEdit::singleline(&mut self.search)
+                    .hint_text("🔍 搜索连接").desired_width(f32::INFINITY));
+                ui.add_space(6.0);
                 ui.colored_label(TEXT_SECONDARY, "SSH 连接");
                 ui.add_space(6.0);
+                let q = self.search.trim().to_lowercase();
                 let mut last_group = "";
                 for (i, c) in self.conns.iter().enumerate() {
+                    // 关键词过滤（名称/host/user）
+                    if !q.is_empty()
+                        && !c.name.to_lowercase().contains(&q)
+                        && !c.host.to_lowercase().contains(&q)
+                        && !c.user.to_lowercase().contains(&q) {
+                        continue;
+                    }
                     if c.group != last_group {
                         ui.add_space(8.0);
                         ui.colored_label(TEXT_SECONDARY, c.group);

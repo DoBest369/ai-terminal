@@ -832,6 +832,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var forwardLabel by remember { mutableStateOf<String?>(null) }
     var showHistory by remember { mutableStateOf(false) }   // N-History 命令历史
     val cmdHistory = remember { mutableStateListOf<String>().apply { addAll(CommandHistory.load(ctx)) } }
+    var showNotebook by remember { mutableStateOf(false) }  // 服务器知识卡片
     var termFont by remember { mutableStateOf(SettingsStore.loadTermFont(ctx)) }   // A-FontSize 终端字号
     var termSearch by remember { mutableStateOf("") }          // A-TermSearch 终端搜索
     var termSearchOn by remember { mutableStateOf(false) }
@@ -1038,6 +1039,11 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
         )
     }
 
+    // 服务器知识卡片 sheet（每台机沉淀历史问题/方案/笔记）
+    if (showNotebook) {
+        NotebookSheet(conn.id, onClose = { showNotebook = false })
+    }
+
     // N-History：命令历史 sheet
     if (showHistory) {
         ModalBottomSheet(onDismissRequest = { showHistory = false }, containerColor = Bg) {
@@ -1133,6 +1139,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     // A-Rollback：操作时间线（有记录才高亮）
                     IconButton(onClick = { showTimeline = true }) {
                         Icon(Icons.Filled.History, "时间线", tint = if (opTimeline.isEmpty()) TextSecondary.copy(alpha = 0.5f) else Accent)
+                    }
+                    // 知识卡片：每台机沉淀历史问题/方案/笔记
+                    IconButton(onClick = { showNotebook = true }) {
+                        Icon(Icons.Filled.MenuBook, "知识卡片", tint = TextSecondary)
                     }
                     // A-SFTP：文件浏览（仅已连接可用）
                     IconButton(onClick = { if (state == ConnState.CONNECTED) showFiles = true }, enabled = state == ConnState.CONNECTED) {
@@ -1462,6 +1472,73 @@ fun HealthAISheet(status: ServerStatus, onClose: () -> Unit) {
             Spacer(Modifier.height(10.dp))
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                 Text(content.ifEmpty { "分析中…" }, color = TextPrimary, fontSize = 13.sp)
+            }
+        }
+    }
+}
+
+/** 服务器知识卡片 sheet：每台机沉淀历史问题/方案/笔记（PRODUCT 护城河 知识沉淀）。 */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NotebookSheet(connId: String, onClose: () -> Unit) {
+    val ctx = LocalContext.current
+    val notes = remember { mutableStateListOf<ServerNote>().apply { addAll(ServerNotebook.load(ctx, connId)) } }
+    var newKind by remember { mutableStateOf(NoteKind.NOTE) }
+    var newText by remember { mutableStateOf("") }
+
+    fun kindColor(k: NoteKind) = when (k) { NoteKind.ISSUE -> Danger; NoteKind.SOLUTION -> Success; NoteKind.NOTE -> Accent }
+
+    ModalBottomSheet(onDismissRequest = onClose, containerColor = Bg) {
+        Column(Modifier.fillMaxWidth().padding(16.dp).heightIn(min = 300.dp, max = 560.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.MenuBook, null, tint = Accent)
+                Spacer(Modifier.width(8.dp))
+                Text("知识卡片", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                Text("沉淀这台机的运维经验", color = TextSecondary, fontSize = 11.sp)
+            }
+            Spacer(Modifier.height(10.dp))
+            // 新增：类型选择 + 文本 + 添加
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                NoteKind.values().forEach { k ->
+                    FilterChip(selected = newKind == k, onClick = { newKind = k },
+                        label = { Text(k.label, fontSize = 12.sp) },
+                        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = kindColor(k).copy(alpha = 0.25f), selectedLabelColor = kindColor(k), labelColor = TextSecondary))
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(vertical = 8.dp)) {
+                OutlinedTextField(
+                    newText, { newText = it }, placeholder = { Text("记录问题/解决方案/笔记…", color = TextSecondary) },
+                    singleLine = false, minLines = 1, maxLines = 3,
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                    modifier = Modifier.weight(1f)
+                )
+                FilledIconButton(onClick = {
+                    if (newText.trim().isNotEmpty()) {
+                        notes.clear(); notes.addAll(ServerNotebook.add(ctx, connId, ServerNote(kind = newKind, text = newText.trim())))
+                        newText = ""
+                    }
+                }, colors = IconButtonDefaults.filledIconButtonColors(containerColor = Accent)) {
+                    Icon(Icons.Filled.Add, "添加", tint = Color.White)
+                }
+            }
+            HorizontalDivider(color = SurfaceLight)
+            if (notes.isEmpty()) {
+                Text("还没有记录。把这台机出过的问题、解决方案、注意事项记下来，AI 排障时可参考。", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(top = 12.dp))
+            } else {
+                LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)) {
+                    items(notes.size) { i ->
+                        val n = notes[i]
+                        Surface(color = SurfaceLight.copy(alpha = 0.4f), shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth()) {
+                            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.Top) {
+                                Text(n.kind.label, color = kindColor(n.kind), fontSize = 11.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(end = 10.dp, top = 1.dp))
+                                Text(n.text, color = TextPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                                IconButton(onClick = { notes.clear(); notes.addAll(ServerNotebook.remove(ctx, connId, n.id)) }, modifier = Modifier.size(26.dp)) {
+                                    Icon(Icons.Filled.Close, "删除", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

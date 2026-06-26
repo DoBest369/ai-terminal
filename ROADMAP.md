@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **质量收口·AI 对话体验全景快照（重构后验证）** ✅（apple 8 自测+persist+android clean 零 warning+APK；PARITY 🟡=0；消息重构无回归；AI 对话 输入/生成/操作/沉淀/上下文/管理 全双端齐；推送见下）
 - [x] **android AI 消息时间戳（PARITY 🟡=0 恢复）** ✅（Pair→ChatMsg data class[role/content/time] 重构 convos/ConvoStore/send/ChatBubble 全链；ConvoStore JSON 加 time 兼容旧；显 HH:mm；构建 24s 零 warning；推送 7ca96c9）
 - [x] **apple AI 消息时间戳** ✅（ChatMessage.createdAt Codable 向后兼容+各处戳 Date()+MessageBubble 显 HH:mm；8 自测+ai-persist/ai-conv 全过；推送 f46fc8c）
 - [x] **CHANGELOG 阶段12·批量运维闭环与结果留存** ✅（批量结果导出/服务状态采集补齐/批量运维完整闭环；审计方法论持续；推送 4f350ef）

@@ -6,6 +6,21 @@
 
 ---
 
+## 质量收口 · AI 对话体验全景快照（消息重构后验证）
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测 + **ai-persist/ai-conv 自测全过**；android **clean assembleDebug 零 deprecated/warning**(消息 Pair→ChatMsg 重构全新编译无回归) + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **AI 对话体验（双端齐平，完整）**：
+  - 输入：多行输入 · 运维提示词库(5×5=25) · 命令解释/报错分析快捷入口
+  - 生成：流式输出 · 停止生成 · 模型选择(Opus/Sonnet/Haiku)
+  - 操作：重新生成 · 单条 user 重发 · 快捷追问(给我命令/换思路/解释/风险) · 消息复制 · **消息时间戳(HH:mm)**
+  - 沉淀：AI 结论存为方案 · 单条消息存知识卡片
+  - 上下文：喂 AI 全路径注入本机知识卡片 + 真实环境摘要
+  - 管理：多对话(新建/切换/删除/清空，均二次确认) · 对话搜索 · 导出 Markdown · 代码块渲染/复制 · 角色头像/自动滚动
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测 + persist 全过；android clean 零 warning(重构验证)。
+- **意义**：android 消息类型大重构(Pair→ChatMsg data class)后 clean 编译零 warning、持久化兼容，无回归。AI 对话体验从输入到生成到操作到沉淀全链路双端齐。
+
+---
+
 ## android AI 消息时间戳（Pair→ChatMsg 重构，PARITY 🟡=0 恢复）
 - **重构**：android AI 消息类型从 `Pair<String,String>`(role,content) 改为 `data class ChatMsg(role,content,time:Long=0)`。涉及：`convos: SnapshotStateList<SnapshotStateList<ChatMsg>>`、`ConvoStore`(save/load JSON 加 time，optLong 兼容旧对话)、`convoTitle`/`exportConvo`(it.first/.second→.role/.content)、`send`(messages.add ChatMsg(...,currentTimeMillis)；history=messages.map{role to content} 转 chatStream)、`stop`/`regenerate`(.copy/.role)、流式更新(`messages[i].copy(content=...)`)、`shown` 过滤、`ChatBubble(role,content,time,...)`、快捷追问。约 18 处。
 - **显示**：`ChatBubble` 外层改 Column，time>0 时显 `HH:mm`(SimpleDateFormat)。

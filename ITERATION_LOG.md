@@ -6,6 +6,15 @@
 
 ---
 
+## 命令收藏夹双端（常用命令星标置顶）
+- **android**：`CommandFavorites.kt`(SharedPreferences 存收藏命令，toggle 置顶/取消)；命令历史行加星标按钮(Star/StarBorder)收藏；ServerWorkspace 收藏命令横滑 ⭐ Chip(置于快捷命令上方)点击填入+取消收藏。构建 22s，推送 dac2a90。
+- **apple**：Core `CommandFavorites`(UserDefaults，toggled 纯逻辑+toggle/load，类比 CommandHistory)；`SnippetsView`「⭐ 收藏命令」Section 置顶 + 命令历史行 contextMenu「收藏命令/取消收藏」。新增 Core 文件触发 SPM 缓存"cannot find CommandFavorites"→`swift package clean` 解决。推送 7d31e36。
+- **改动**：`CommandFavorites.kt`(新)、`CommandFavorites.swift`(新)、`MainActivity.kt`(收藏 Chip+星标)、`SnippetsView.swift`(收藏 Section+contextMenu)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 无 warning；apple swift build(clean 后) + 7 自测全过。
+- **意义**：常用命令一键星标收藏、跨连接快捷复用，置顶于快捷命令上方。运维高频命令触手可及。双端命令收藏夹✅。
+
+---
+
 ## 知识卡片喂 AI 全路径覆盖双端（闭环再扩展）
 - **android**：`TermindApp` 记 `activeConnId`(ServerWorkspace onProfile 时 = conn.id)；`AIAssistantScreen` 收 `connId` 参数；`send` 的 sys 注入 `ServerNotebook.composeForAI(load(ctx, connId))`。AI 对话(含「分析报错」快捷入口走 send)也结合本机历史。推送 2c3c6d1。
 - **apple**：在中心 AI 调用 `runAICompletion` 注入 `ServerNotebook.composeForAI(activeSession.connection.id)`——所有 AI 路径(对话/解释/报错/排障/健康)统一覆盖；移除 analyzeDiagnostic/diagnoseHealth 的重复注入(改中心化，更简洁)。推送 03242b9。

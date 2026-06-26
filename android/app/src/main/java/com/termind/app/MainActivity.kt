@@ -871,6 +871,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var connectedAt by remember { mutableStateOf(0L) }         // A-Duration 连接时刻
     var durTick by remember { mutableStateOf(0) }              // 每秒 tick 触发重组
     val customSnippets = remember { mutableStateListOf<CommandSnippet>().apply { addAll(SnippetStore.load(ctx)) } }  // A-SnippetCRUD
+    val favorites = remember { mutableStateListOf<String>().apply { addAll(CommandFavorites.load(ctx)) } }  // 命令收藏夹
     var showNewSnippet by remember { mutableStateOf(false) }
 
     // 采集服务器状态（CPU/内存/磁盘）
@@ -1130,6 +1131,11 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                             Icon(Icons.Filled.Circle, null, tint = risk.color, modifier = Modifier.size(8.dp))
                             Spacer(Modifier.width(10.dp))
                             Text(h, color = TextPrimary, fontSize = 13.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.weight(1f), maxLines = 1)
+                            // 命令收藏夹：星标收藏
+                            val fav = favorites.contains(h)
+                            IconButton(onClick = { favorites.clear(); favorites.addAll(CommandFavorites.toggle(ctx, h)) }, modifier = Modifier.size(28.dp)) {
+                                Icon(if (fav) Icons.Filled.Star else Icons.Filled.StarBorder, "收藏", tint = if (fav) Warning else TextSecondary, modifier = Modifier.size(15.dp))
+                            }
                             // 随手记：把命令存为知识卡片
                             IconButton(onClick = { quickNote = h; showHistory = false }, modifier = Modifier.size(28.dp)) {
                                 Icon(Icons.Filled.BookmarkAdd, "存为知识卡片", tint = TextSecondary, modifier = Modifier.size(14.dp))
@@ -1383,6 +1389,20 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                             onClick = { shellSession?.write(seq) },
                             label = { Text(label, fontSize = 11.sp, fontFamily = FontFamily.Monospace) },
                             colors = AssistChipDefaults.assistChipColors(containerColor = Surface, labelColor = Accent)
+                        )
+                    }
+                }
+            }
+            // 命令收藏夹：收藏的命令横滑 Chip（⭐ 置顶，点击填入）
+            if (state == ConnState.CONNECTED && favorites.isNotEmpty()) {
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    favorites.forEach { fav ->
+                        AssistChip(
+                            onClick = { command = fav },
+                            label = { Text(fav, fontSize = 11.sp, fontFamily = FontFamily.Monospace, maxLines = 1) },
+                            leadingIcon = { Icon(Icons.Filled.Star, null, tint = Warning, modifier = Modifier.size(12.dp)) },
+                            trailingIcon = { Icon(Icons.Filled.Close, "取消收藏", tint = TextSecondary, modifier = Modifier.size(12.dp).clickable { favorites.clear(); favorites.addAll(CommandFavorites.toggle(ctx, fav)) }) },
+                            colors = AssistChipDefaults.assistChipColors(containerColor = Warning.copy(alpha = 0.12f), labelColor = TextPrimary)
                         )
                     }
                 }

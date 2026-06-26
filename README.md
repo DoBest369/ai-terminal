@@ -27,8 +27,8 @@
 |------|---------|------|------|
 | **macOS / iOS / iPadOS** | Swift + SwiftUI（Citadel SSH + SwiftTerm） | [`apple/`](apple/README.md) | ✅ 旗舰，智能运维 Z1–Z8 全完成 |
 | **Android** | Kotlin + Jetpack Compose（sshj + OkHttp） | [`android/`](android/) | ✅ 与 apple 全对齐，可构建 APK |
+| **Linux** | Rust + egui/eframe（ssh2 + ureq） | [`linux/`](linux/README.md) | 🟡 骨架（连接列表 UI；本机无 Rust 工具链，未编译验证） |
 | **Windows** | C# + WinUI 3 / .NET | `windows/` | ⬜ 待起（需 Windows 环境） |
-| **Linux** | Rust + GTK4 / C++ Qt | `linux/` | ⬜ 待起（需 Linux 环境） |
 
 > 早期 Electron / Capacitor Web 方案已按「全平台原生」决策删除，git 历史保留。
 
@@ -40,12 +40,12 @@
 |------|------|:---:|:---:|
 | 连接管理 | 分组 / 备注 / 持久化 / 增删改 | ✅ | ✅ |
 | 真实 SSH | 密码 / 密钥认证，交互式 PTY 终端 | ✅ | ✅ |
-| SFTP 文件 | 远程目录浏览 + 查看文件内容 | ✅ | ✅ |
+| SFTP 文件 | 浏览/查看/下载/上传/新建/重命名/删除/批量删除/排序/过滤 | ✅ | ✅ |
 | 服务器状态 | CPU / 内存 / 磁盘实时采集 | ✅ | ✅ |
 | **环境感知** | 探测系统/发行版/已装服务 → 喂给 AI | ✅ | ✅ |
-| **AI 助手** | 对话 / 命令解释 / 报错分析，流式输出 | ✅ | ✅ |
-| **排障工作流** | 网站打不开/磁盘/SSL/Nginx/Docker 一键诊断 + AI 总结 | ✅ | ✅ |
-| **初始化模板** | Ubuntu Web / Docker / Node / LNMP 一键部署 | ✅ | ✅ |
+| **AI 助手** | 对话 / 命令解释 / 报错分析，流式输出 + 快捷追问/重发/存卡片 | ✅ | ✅ |
+| **排障工作流** | 8 场景：网站/磁盘/SSL/Nginx/Docker/内存/端口/服务启动 一键诊断 + AI 总结 | ✅ | ✅ |
+| **初始化模板** | 8 模板：Ubuntu Web/Docker/Node/静态站/LNMP/Redis/PostgreSQL/Python 一键部署 | ✅ | ✅ |
 | **风险分级** | 命令四级风险（安全/注意/高/极高）+ 高危二次确认 | ✅ | ✅ |
 | **敏感脱敏** | 终端输出里的密码/密钥/Token 自动打码 | ✅ | ✅ |
 | **操作回滚** | 改关键配置前自动备份 + 时间线 + 一键还原 | ✅ | ✅ |
@@ -150,7 +150,8 @@ ai-terminal/
 
 - apple 端：核心逻辑 + UI 均 `swift build` 通过、自测齐全；**出 iOS/macOS 安装包需完整 Xcode**（开发机仅 Command Line Tools，未出包）。
 - android 端：`gradle assembleDebug` 通过、产出可安装 APK；**真实连接/AI 对话需真机或模拟器 + 目标服务器 + API Key** 实测。
-- Windows / Linux 原生端：架构已定，待在对应平台环境起步。
+- Linux 原生端（Rust + egui）：连接列表 UI 骨架已搭；开发机无 Rust 工具链，**未编译验证**，需 Linux + Rust 环境推进（ssh2/AI 待接）。
+- Windows 原生端：架构已定，待在 Windows 环境起步。
 
 ## 路线图与历程
 

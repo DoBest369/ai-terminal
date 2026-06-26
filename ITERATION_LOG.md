@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 终端区快捷命令栏（五端终端区对齐）
+- **内容**：linux 终端区终端输出下加快捷命令 `Button` chips：ls -la / df -h / free -h / top（accent 粉红）+ systemctl status nginx（橙色风险），点击填入设计。对照 windows/apple/android 终端区快捷命令。
+- **改动**：`linux/src/main.rs`。
+- **验证**：`cargo build` **0 error/warning**（0.70s 增量，带 proxy）。mac 上不运行（icrate 兼容）。推送 a98e7aa。
+- **意义**：**五端终端区快捷命令栏对齐**（apple/android/linux/windows，iOS 同 apple）。linux 端工作台更完整（三栏 + 状态进度条 + 快捷命令栏）。五端 UI 一致性再进一步。
+
+---
+
 ## windows 终端区快捷命令 chip 横栏（对照 apple/android）
 - **内容**：windows 终端区命令输入框上方加快捷命令横滑 chip 栏（ScrollViewer + StackPanel）：ls -la / df -h / free -h / top（粉红）+ systemctl status nginx（橙色风险）。点击填入设计。终端区 Grid 从 3 行→4 行（状态条/输出/快捷命令/输入）。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`。

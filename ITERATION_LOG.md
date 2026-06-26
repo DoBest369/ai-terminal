@@ -6,6 +6,14 @@
 
 ---
 
+## android AI 对话空状态加图标+醒目标题（双端 AI 空状态对齐）
+- **内容**：android AI 对话空状态原本只有引导文字 + 分类提示词。加 `AutoAwesome` AI 图标 + bold 标题「用自然语言操作终端」（对齐 apple emptyHint 的 .bold() 标题），引导文字「让 AI 结合服务器真实环境帮你运维」保留。两端空状态都是「图标/标题 + 分类提示词 chips + 示例问题」。
+- **改动**：`MainActivity.kt`(AI 空状态标题行)。
+- **验证**：android BUILD SUCCESSFUL 27s **零 deprecated**。推送 32d280d。
+- **意义**：**双端 AI 对话空状态一致**（apple/android 同醒目标题 + 分类提示词引导）。新对话首次体验友好——引导用户用自然语言运维。
+
+---
+
 ## linux egui AI 面板快捷追问 chips + 输入框（对照 apple/windows）
 - **内容**：linux AI 面板在 AI 气泡（含代码块）下加快捷追问 `Button` chips（重新生成 蓝 / 存为方案 绿）+ 底部 AI 输入 `TextEdit`（`ai_input` 字段，hint「输入指令…」）。对照 apple/windows AI 面板的快捷追问区 + 输入框。
 - **改动**：`linux/src/main.rs`(struct ai_input + chips + 输入框)。

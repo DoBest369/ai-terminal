@@ -6,6 +6,26 @@
 
 ---
 
+## 终端区功能完整度评估（双端齐平，无缺口）
+- **评估**：grep 双端终端区功能逐项对比：
+  | 终端功能 | apple | android |
+  |---|---|---|
+  | 控制键栏(Tab/Ctrl/方向/管道符等) | ✅ TerminalKeyBar(18 键) | ✅ |
+  | 输出搜索 | ✅ SwiftTerm 内置(高亮+上下导航) | ✅ 高亮+匹配计数 |
+  | 复制全部 | ✅ | ✅ ContentCopy |
+  | 清屏 | ✅ | ✅ ClearAll(output="") |
+  | 字号调节 | ✅ | ✅ +/-（8–22，持久化） |
+  | 自动滚动到底 | ✅ | ✅ A-AutoScroll(LaunchedEffect 滚 maxValue) |
+  | ANSI 彩色渲染 | ✅ | ✅ AnsiParser |
+  | 快捷命令/历史/补全 | ✅ | ✅ |
+  | 命令风险实时徽章 | ✅ | ✅ |
+- **结论**：终端区功能**双端完整齐平，无缺口**，无需补齐。apple 用 SwiftTerm 真实终端模拟器(LocalProcessTerminalView/PTY)，android 用自渲染输出区(AnsiParser+自动滚动+搜索高亮)，能力对等。
+- **改动**：`ITERATION_LOG.md`(评估)。
+- **验证**：纯评估，未改功能代码；apple 仍可 build、android 仍零 warning(上轮已验)。
+- **意义**：系统性确认终端区无功能缺口，避免主观臆测「还缺什么」。延续审计方法论——确认完整也是有价值的结论。
+
+---
+
 ## 质量收口 · AI 辅助能力快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
 - **AI 辅助运维能力全景（双端齐平）**：

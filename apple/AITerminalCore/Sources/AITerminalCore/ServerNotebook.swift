@@ -80,4 +80,17 @@ public enum ServerNotebook {
         let lines = notes.map { "· [\($0.kind.label)] \($0.text)" }
         return "这台服务器的历史运维记录：\n" + lines.joined(separator: "\n")
     }
+
+    /// 导出为 Markdown（按 问题/方案/笔记 三类分组），便于团队共享运维经验。
+    public static func exportMarkdown(_ notes: [ServerNote], serverName: String = "") -> String {
+        let title = serverName.isEmpty ? "服务器知识卡片" : "知识卡片 · \(serverName)"
+        var md = "# \(title)\n"
+        for kind in ServerNote.Kind.allCases {
+            let group = notes.filter { $0.kind == kind }
+            guard !group.isEmpty else { continue }
+            md += "\n## \(kind.label)\n"
+            for n in group { md += "- \(n.text)\n" }
+        }
+        return md
+    }
 }

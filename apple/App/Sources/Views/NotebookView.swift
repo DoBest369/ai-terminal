@@ -82,6 +82,13 @@ struct NotebookView: View {
             .navigationTitle("知识卡片 · \(connection.title)")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("完成") { dismiss() } }
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        Clipboard.copy(ServerNotebook.exportMarkdown(notes, serverName: connection.title))
+                        model.toast = "知识卡片已复制（Markdown）"
+                    } label: { Label("导出", systemImage: "square.and.arrow.up") }
+                    .disabled(notes.isEmpty)
+                }
             }
             .onAppear { notes = ServerNotebook.load(connectionID: connID) }
         }

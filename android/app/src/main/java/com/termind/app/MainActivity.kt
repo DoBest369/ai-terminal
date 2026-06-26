@@ -1501,7 +1501,16 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
                 Icon(Icons.AutoMirrored.Filled.MenuBook, null, tint = Accent)
                 Spacer(Modifier.width(8.dp))
                 Text("知识卡片", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                Text("沉淀这台机的运维经验", color = TextSecondary, fontSize = 11.sp)
+                // 导出 Markdown 分享（团队共享运维经验）
+                if (notes.isNotEmpty()) IconButton(onClick = {
+                    val md = ServerNotebook.exportMarkdown(notes)
+                    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                        type = "text/plain"; putExtra(android.content.Intent.EXTRA_TEXT, md)
+                    }
+                    runCatching { ctx.startActivity(android.content.Intent.createChooser(intent, "导出知识卡片")) }
+                }, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Filled.Share, "导出", tint = Accent, modifier = Modifier.size(18.dp))
+                }
             }
             Spacer(Modifier.height(10.dp))
             // 新增：类型选择 + 文本 + 添加

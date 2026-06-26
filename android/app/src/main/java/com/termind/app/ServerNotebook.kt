@@ -66,4 +66,18 @@ object ServerNotebook {
         val lines = notes.joinToString("\n") { "· [${it.kind.label}] ${it.text}" }
         return "这台服务器的历史运维记录：\n$lines"
     }
+
+    /** 导出为 Markdown（按 问题/方案/笔记 分组），便于团队共享运维经验（对齐 apple exportMarkdown）。 */
+    fun exportMarkdown(notes: List<ServerNote>, serverName: String = ""): String {
+        val title = if (serverName.isEmpty()) "服务器知识卡片" else "知识卡片 · $serverName"
+        val sb = StringBuilder("# $title\n")
+        NoteKind.values().forEach { kind ->
+            val group = notes.filter { it.kind == kind }
+            if (group.isNotEmpty()) {
+                sb.append("\n## ${kind.label}\n")
+                group.forEach { sb.append("- ${it.text}\n") }
+            }
+        }
+        return sb.toString()
+    }
 }

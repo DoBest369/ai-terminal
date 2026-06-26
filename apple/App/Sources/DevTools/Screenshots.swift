@@ -285,7 +285,9 @@ public enum AppScreenshots {
         let delOk = afterDel.count == 1 && afterDel.first?.kind == .solution
         let material = ServerNotebook.composeForAI(notes)
         let materialOk = material.contains("[问题] 磁盘曾被日志写满") && material.contains("[方案] 配置 logrotate")
-        return "新增置顶=\(addOk)；删除=\(delOk)；AI 素材正确=\(materialOk)"
+        let md = ServerNotebook.exportMarkdown(notes, serverName: "web-01")
+        let mdOk = md.contains("# 知识卡片 · web-01") && md.contains("## 问题") && md.contains("## 方案")
+        return "新增置顶=\(addOk)；删除=\(delOk)；AI 素材正确=\(materialOk)；导出 MD=\(mdOk)"
     }
 
     /// 命令历史自测（N-History）：去重/置顶/限长

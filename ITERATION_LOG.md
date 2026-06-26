@@ -6,6 +6,15 @@
 
 ---
 
+## windows 状态条进度条 → 五端状态面板进度条全对齐
+- **内容**：windows 终端区状态条 CPU 47%/内存 56% 文字 → 加 Border 自绘 mini 进度条（底槽 `#1AFFFFFF` + 前景比例条按 % 宽度）。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(状态条进度条)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图验证状态条进度条。推送 3503e46。
+- **🎯 五端状态面板 CPU/内存进度条全对齐**：apple(GeometryReader Capsule) · android(Box fillMaxWidth) · linux(egui ProgressBar) · windows(Border 自绘) · iOS(同 apple)。同绿/橙/红三档语义。
+- **意义**：状态面板进度条这一 UI 现代化点**五端全部落地对齐**，设计语言一致性的范例。一点点对照实现见成效。
+
+---
+
 ## linux egui 状态条 CPU/内存进度条（三端状态面板对齐）
 - **内容**：linux 终端区状态条加 CPU/内存 mini 进度条（egui `ProgressBar`，CPU 47%/内存 56%），`usage_color` 绿<60/橙60-80/红>80 三档（对齐 apple/android）。加 `WARNING` 橙色常量。
 - **改动**：`linux/src/main.rs`(usage_color + ProgressBar)。

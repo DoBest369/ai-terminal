@@ -6,6 +6,15 @@
 
 ---
 
+## CHANGELOG 阶段11 梳理（批量运维统计与数据贯穿）
+- **内容**：CHANGELOG 加「阶段 11 — 批量运维统计与数据贯穿」——批量群发结果统计(成功/失败)、批量巡检结果统计(告警/正常/失败)、运维数据贯穿(状态面板负载/运行时长→巡检/健康 AI 素材)、连接导入去重+数量反馈、审计方法论三类(单端落后补齐/双端同缺新增/数据增强下游同步)。阶段 N 批量运维条目刷新含统计。
+- **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。
+- **改动**：`CHANGELOG.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 1357a33。
+- **意义**：文档体系反映 Termind 从「功能完整化」延伸到「批量运维统计与数据贯穿」——批量操作有统计、运维数据贯穿全链路。成熟度持续提升，文档同步。
+
+---
+
 ## 质量收口 · 近期审计补齐进展快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
 - **近期审计驱动补齐（运维数据/批量统计/导入）**：

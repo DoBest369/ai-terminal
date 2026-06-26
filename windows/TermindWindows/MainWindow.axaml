@@ -133,11 +133,15 @@
             </Border>
             <ScrollViewer Grid.Row="1" Margin="12,0">
                 <StackPanel Spacing="8">
-                    <!-- 用户气泡 -->
+                    <!-- 用户消息：角色标签 + 气泡（对照 apple/android/linux） -->
+                    <TextBlock Text="你" Foreground="#8B92A8" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right"/>
                     <Border Background="#3B82F6" CornerRadius="10" Padding="12,9" HorizontalAlignment="Right" MaxWidth="260">
                         <TextBlock Text="怎么查看 Nginx 错误日志？" Foreground="#FFFFFF" FontSize="13" TextWrapping="Wrap"/>
                     </Border>
-                    <!-- AI 气泡 + 代码块 -->
+                    <!-- AI 消息：角色标签 + 气泡 + 代码块 -->
+                    <TextBlock Foreground="#8B92A8" FontSize="10" FontWeight="Bold" HorizontalAlignment="Left">
+                        <Run Text="✦" Foreground="#FF4B6E"/><Run Text=" AI"/>
+                    </TextBlock>
                     <Border Background="#0D0E1A" CornerRadius="10" Padding="12,9" HorizontalAlignment="Left" MaxWidth="290">
                         <StackPanel Spacing="6">
                             <TextBlock Text="用下面的命令查看最近的 Nginx 错误日志：" Foreground="#C9D1D9" FontSize="13" TextWrapping="Wrap"/>

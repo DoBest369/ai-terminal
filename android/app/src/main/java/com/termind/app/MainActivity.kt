@@ -550,7 +550,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
     val scope = rememberCoroutineScope()
     // A-Convos / A-ConvoPersist：多对话（从 store 加载，变更后持久化）
     val convos = remember {
-        mutableStateListOf<SnapshotStateList<Pair<String, String>>>().apply {
+        mutableStateListOf<SnapshotStateList<ChatMsg>>().apply {
             ConvoStore.load(ctx).forEach { add(it.toMutableStateList()) }
             if (isEmpty()) add(mutableStateListOf())
         }
@@ -561,16 +561,16 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
     var showClearConfirm by remember { mutableStateOf(false) }   // 清空消息二次确认
     var showDeleteConvoConfirm by remember { mutableStateOf(false) }   // 删除对话二次确认
     fun persistConvos() = ConvoStore.save(ctx, convos.map { it.toList() })
-    fun convoTitle(c: List<Pair<String, String>>, i: Int) =
-        c.firstOrNull { it.first == "user" }?.second?.take(16) ?: "新对话 ${i + 1}"
+    fun convoTitle(c: List<ChatMsg>, i: Int) =
+        c.firstOrNull { it.role == "user" }?.content?.take(16) ?: "新对话 ${i + 1}"
     // A-ConvoExport：当前对话导出 Markdown 并分享
     fun exportConvo() {
         if (messages.isEmpty()) return
         val md = buildString {
             append("# Termind AI 对话\n\n")
-            messages.forEach { (role, content) ->
-                append(if (role == "user") "## 🧑 用户\n\n" else "## 🤖 AI 助手\n\n")
-                append(content); append("\n\n")
+            messages.forEach { m ->
+                append(if (m.role == "user") "## 🧑 用户\n\n" else "## 🤖 AI 助手\n\n")
+                append(m.content); append("\n\n")
             }
         }
         runCatching {
@@ -602,7 +602,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
         val t = text.trim(); if (t.isEmpty() || sending) return
         if (!SettingsStore.isConfigured(ctx)) { onGoSettings(); return }
         lastSent = t to basePrompt   // A-Regen 记录
-        messages.add("user" to t); input = ""; sending = true
+        messages.add(ChatMsg("user", t, System.currentTimeMillis())); input = ""; sending = true
         // A-Env：把当前服务器环境摘要注入系统提示，让 AI 结合真实环境回答（对齐 apple Z3）
         var sys = profile?.aiSummary?.takeIf { it.isNotEmpty() }?.let {
             "$basePrompt\n\n$it\n请结合以上真实服务器环境给出针对性、可直接执行的回答。"
@@ -613,14 +613,14 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
             if (notebook.isNotEmpty()) sys += "\n\n$notebook\n如与本次问题相关，请结合上述历史运维记录。"
         }
         // A-Stream：流式逐字显示。先放一个空 assistant 消息，delta 时追加到它
-        val history = messages.toList()
+        val history = messages.map { it.role to it.content }   // chatStream 需 (role,content)
         val aiIndex = messages.size
-        messages.add("assistant" to "")
+        messages.add(ChatMsg("assistant", "", System.currentTimeMillis()))
         sendJob = scope.launch {
             val r = AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx), history, sys) { delta ->
-                messages[aiIndex] = "assistant" to (messages[aiIndex].second + delta)
+                messages[aiIndex] = messages[aiIndex].copy(content = messages[aiIndex].content + delta)
             }
-            r.onFailure { messages[aiIndex] = "assistant" to "⚠️ ${it.message ?: "请求失败"}" }
+            r.onFailure { messages[aiIndex] = messages[aiIndex].copy(content = "⚠️ ${it.message ?: "请求失败"}") }
             sending = false
             persistConvos()   // A-ConvoPersist：回复完成后持久化
         }
@@ -628,7 +628,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
     // A-Stop：停止当前流式生成（保留已生成内容）
     fun stop() {
         sendJob?.cancel(); sendJob = null; sending = false
-        messages.lastOrNull()?.let { if (it.first == "assistant") messages[messages.size - 1] = "assistant" to (it.second + "\n[已停止]") }
+        messages.lastOrNull()?.let { if (it.role == "assistant") messages[messages.size - 1] = it.copy(content = it.content + "\n[已停止]") }
         persistConvos()
     }
     // A-Regen：重新生成上一条 AI 回复
@@ -636,8 +636,8 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
         if (sending) return
         val (txt, prompt) = lastSent ?: return
         // 移除末尾的 assistant + 对应 user（send 会重新加 user）
-        if (messages.lastOrNull()?.first == "assistant") messages.removeAt(messages.size - 1)
-        if (messages.lastOrNull()?.first == "user") messages.removeAt(messages.size - 1)
+        if (messages.lastOrNull()?.role == "assistant") messages.removeAt(messages.size - 1)
+        if (messages.lastOrNull()?.role == "user") messages.removeAt(messages.size - 1)
         send(txt, prompt)
     }
 
@@ -738,15 +738,15 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
         } else {
             // A-ConvoSearch：搜索时只显匹配的消息
             val q = search.trim()
-            val shown = if (q.isEmpty()) messages.toList() else messages.filter { it.second.contains(q, ignoreCase = true) }
+            val shown = if (q.isEmpty()) messages.toList() else messages.filter { it.content.contains(q, ignoreCase = true) }
             LazyColumn(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (q.isNotEmpty()) item { Text("${shown.size} 条匹配", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.padding(4.dp)) }
-                items(shown.size) { i -> ChatBubble(shown[i].first, shown[i].second, connId, onResend = { if (!sending) send(it) }) }
+                items(shown.size) { i -> ChatBubble(shown[i].role, shown[i].content, shown[i].time, connId, onResend = { if (!sending) send(it) }) }
                 if (sending && q.isEmpty()) item { Text("AI 思考中…", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(8.dp)) }
             }
         }
         // A-Regen：重新生成 + 快捷追问（末条是 assistant 且未生成中）
-        if (!sending && messages.lastOrNull()?.first == "assistant" && lastSent != null) {
+        if (!sending && messages.lastOrNull()?.role == "assistant" && lastSent != null) {
             Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 AssistChip(onClick = { regenerate() }, label = { Text("重新生成", fontSize = 12.sp) },
                     leadingIcon = { Icon(Icons.Filled.Refresh, null, tint = Accent, modifier = Modifier.size(16.dp)) },
@@ -754,7 +754,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                 // 知识沉淀闭环：把 AI 结论一键存为方案卡片（有关联连接时）
                 if (connId.isNotEmpty()) {
                     AssistChip(onClick = {
-                        val text = messages.lastOrNull()?.second?.trim().orEmpty()
+                        val text = messages.lastOrNull()?.content?.trim().orEmpty()
                         if (text.isNotEmpty()) {
                             ServerNotebook.add(ctx, connId, ServerNote(kind = NoteKind.SOLUTION, text = text))
                             android.widget.Toast.makeText(ctx, "已存为方案到知识卡片", android.widget.Toast.LENGTH_SHORT).show()
@@ -805,7 +805,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-private fun ChatBubble(role: String, content: String, connId: String = "", onResend: (String) -> Unit = {}) {
+private fun ChatBubble(role: String, content: String, time: Long = 0L, connId: String = "", onResend: (String) -> Unit = {}) {
     val isUser = role == "user"
     val clipboard = LocalClipboardManager.current
     val ctx = LocalContext.current
@@ -816,6 +816,12 @@ private fun ChatBubble(role: String, content: String, connId: String = "", onRes
             Box(Modifier.padding(top = 2.dp, end = 6.dp).size(26.dp).clip(androidx.compose.foundation.shape.CircleShape).background(Accent.copy(alpha = 0.2f)), contentAlignment = Alignment.Center) {
                 Icon(Icons.Filled.AutoAwesome, "AI", tint = Accent, modifier = Modifier.size(15.dp))
             }
+        }
+        Column(horizontalAlignment = if (isUser) Alignment.End else Alignment.Start) {
+        // 发送时间（time>0 时显 HH:mm，对齐 apple）
+        if (time > 0L) {
+            Text(java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date(time)),
+                color = TextSecondary.copy(alpha = 0.7f), fontSize = 9.sp, modifier = Modifier.padding(bottom = 2.dp, start = 4.dp, end = 4.dp))
         }
         Box {
         Surface(
@@ -875,6 +881,7 @@ private fun ChatBubble(role: String, content: String, connId: String = "", onRes
                     android.widget.Toast.makeText(ctx, "已存为方案", android.widget.Toast.LENGTH_SHORT).show()
                 })
             }
+        }
         }
         }
     }

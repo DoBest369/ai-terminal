@@ -4,21 +4,24 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 
+/** 一条 AI 对话消息（role/content + 发送时间，对齐 apple ChatMessage.createdAt）。 */
+data class ChatMsg(val role: String, val content: String, val time: Long = 0L)
+
 /**
  * AI 多对话持久化（A-ConvoPersist）：SharedPreferences 存对话列表 JSON。
- * 每个对话 = 消息数组 [{role, content}]。对齐 apple AIConversation 持久化。
+ * 每个对话 = 消息数组 [{role, content, time}]。time 向后兼容（旧数据缺失=0）。对齐 apple AIConversation 持久化。
  */
 object ConvoStore {
     private const val PREF = "termind_convos"
     private const val KEY = "conversations"
 
-    /** 保存：对话列表（每个对话是 (role,content) 消息列表） */
-    fun save(ctx: Context, convos: List<List<Pair<String, String>>>) {
+    /** 保存：对话列表（每个对话是 ChatMsg 列表） */
+    fun save(ctx: Context, convos: List<List<ChatMsg>>) {
         val arr = JSONArray()
         convos.forEach { msgs ->
             val mArr = JSONArray()
-            msgs.forEach { (role, content) ->
-                mArr.put(JSONObject().put("role", role).put("content", content))
+            msgs.forEach { m ->
+                mArr.put(JSONObject().put("role", m.role).put("content", m.content).put("time", m.time))
             }
             arr.put(mArr)
         }
@@ -26,7 +29,7 @@ object ConvoStore {
     }
 
     /** 加载：返回对话列表；无数据则返回单个空对话 */
-    fun load(ctx: Context): List<List<Pair<String, String>>> {
+    fun load(ctx: Context): List<List<ChatMsg>> {
         val raw = ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(KEY, null)
             ?: return listOf(emptyList())
         return runCatching {
@@ -35,7 +38,7 @@ object ConvoStore {
                 val mArr = arr.getJSONArray(i)
                 (0 until mArr.length()).map { j ->
                     val o = mArr.getJSONObject(j)
-                    o.optString("role") to o.optString("content")
+                    ChatMsg(o.optString("role"), o.optString("content"), o.optLong("time", 0L))
                 }
             }
             out.ifEmpty { listOf(emptyList()) }

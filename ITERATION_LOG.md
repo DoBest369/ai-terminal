@@ -6,6 +6,15 @@
 
 ---
 
+## UI 现代化：SFTP 文件按类型语义化图标（截图驱动）
+- **内容**：截图审视 SFTP 文件浏览，发现所有文件用同一通用 `doc` 图标 → 现代文件管理器按扩展名显示语义图标。`FileBrowserView.fileIcon(name)` 按后缀返回：脚本(.sh/.bash)→terminal · 压缩(.tar/.gz/.zip)→archivebox · 文档(.md/.txt)→doc.text · 日志(.log)→放大镜 · 配置(.json/.yml/.conf/dotfile)→gearshape · 图片→photo · 代码(.py/.js/.go/.rs…)→</> · pdf/数据库/lock 等。
+- **改动**：`FileBrowserView.swift`(fileIcon)、`Showcase.swift`(同步引用)。
+- **验证**：swift build Build complete；`swift run Shots` 渲染 09-sftp，Read 看图确认 deploy.sh→终端、.bashrc→齿轮、backup.tar.gz→归档箱、notes.md→文档 图标各异。推送 b197b35。
+- **意义**：文件类型一眼识别（现代化 + 实用）；下一步可 android SFTP 同步对齐。同期 dotnet 国内 brew 镜像仍装中（Windows Avalonia 前提）。
+- **UI 现代化进度**：品牌名 Termind · AI 代码块复制 · 状态面板 CPU/内存进度条 · SFTP 文件类型图标（均截图验证）。
+
+---
+
 ## UI 现代化：状态面板 CPU/内存 mini 进度条（截图驱动）
 - **内容**：截图审视状态面板展开详情，发现 CPU/内存只有数字无可视化 → 现代运维面板标配进度条。给 `StatusBarView.detailCellWithBar` 加 mini 进度条（数值下方），**绿<60 / 橙60-80 / 红>80 三档语义**着色，一眼看占用程度。
 - **技术**：用纯布局 `Capsule`（真实 GeometryReader 自适应宽度 / Showcase 固定宽 130），**避开 `ProgressView` 在 ImageRenderer 离屏渲染失败**（之前试 ProgressView 截图显示橙块+禁止符号）。低占用色从 accent(粉红) 改 success(绿) 更直观。

@@ -41,16 +41,19 @@ struct FileBrowserView: View {
     @State private var showGoto = false       // 路径直接跳转
     @State private var gotoText = ""
     @State private var sortMode = 0           // 0=名称 1=大小 2=时间
+    @State private var filter = ""            // 文件名过滤
 
-    /// 文件夹优先，组内按选定方式排序
+    /// 过滤 + 文件夹优先，组内按选定方式排序
     private var sortedEntries: [SFTPEntry] {
+        let f = filter.trimmingCharacters(in: .whitespaces)
+        let filtered = f.isEmpty ? entries : entries.filter { $0.name.localizedCaseInsensitiveContains(f) }
         let cmp: (SFTPEntry, SFTPEntry) -> Bool
         switch sortMode {
         case 1: cmp = { $0.size > $1.size }
         case 2: cmp = { ($0.modifiedAt ?? .distantPast) > ($1.modifiedAt ?? .distantPast) }
         default: cmp = { $0.name.lowercased() < $1.name.lowercased() }
         }
-        return entries.sorted { a, b in
+        return filtered.sorted { a, b in
             if a.isDirectory != b.isDirectory { return a.isDirectory }
             return cmp(a, b)
         }
@@ -206,6 +209,7 @@ struct FileBrowserView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
             .background(Theme.background)
+            .searchable(text: $filter, placement: .automatic, prompt: "过滤文件名")
         }
     }
 

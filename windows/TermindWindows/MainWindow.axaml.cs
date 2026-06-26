@@ -40,4 +40,14 @@ public partial class MainWindow : Window
         StatusDot.Text = online ? "● 已连接" : "○ 离线";
         StatusDot.Foreground = online ? Brush.Parse("#3FB950") : Brush.Parse("#6B7280");
     }
+
+    /// 快捷命令点击 → 填入命令输入框（真实交互，对照 linux/apple/android）
+    private void OnQuickCmd(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is Button b && b.Content is string cmd)
+        {
+            CmdInput.Text = cmd;
+            CmdInput.Focus();
+        }
+    }
 }

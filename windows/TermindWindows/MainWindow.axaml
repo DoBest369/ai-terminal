@@ -178,16 +178,21 @@
             <!-- 快捷命令 chip 横栏（点击填入，对照 apple/android） -->
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="10,0,10,6">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Border Background="#1AFF4B6E" CornerRadius="14" Padding="10,5"><TextBlock Text="ls -la" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/></Border>
-                    <Border Background="#1AFF4B6E" CornerRadius="14" Padding="10,5"><TextBlock Text="df -h" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/></Border>
-                    <Border Background="#1AFF4B6E" CornerRadius="14" Padding="10,5"><TextBlock Text="free -h" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/></Border>
-                    <Border Background="#1AFF4B6E" CornerRadius="14" Padding="10,5"><TextBlock Text="top" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/></Border>
-                    <Border Background="#1AF59E0B" CornerRadius="14" Padding="10,5"><TextBlock Text="systemctl status nginx" Foreground="#F59E0B" FontFamily="Consolas,monospace" FontSize="11"/></Border>
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
+                            Content="ls -la" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/>
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
+                            Content="df -h" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/>
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
+                            Content="free -h" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/>
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
+                            Content="top" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/>
+                    <Button Background="#1AF59E0B" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
+                            Content="systemctl status nginx" Foreground="#F59E0B" FontFamily="Consolas,monospace" FontSize="11"/>
                 </StackPanel>
             </ScrollViewer>
             <!-- 命令输入（可真实输入） -->
             <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="10,0,10,10">
-                <TextBox PlaceholderText="输入命令…" Background="Transparent" BorderThickness="0"
+                <TextBox x:Name="CmdInput" PlaceholderText="输入命令…" Background="Transparent" BorderThickness="0"
                          Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="13"
                          Padding="12,9" CaretBrush="#FF4B6E"/>
             </Border>

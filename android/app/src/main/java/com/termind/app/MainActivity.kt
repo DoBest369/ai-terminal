@@ -1581,6 +1581,7 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
     val notes = remember { mutableStateListOf<ServerNote>().apply { addAll(ServerNotebook.load(ctx, connId)) } }
     var newKind by remember { mutableStateOf(NoteKind.NOTE) }
     var newText by remember { mutableStateOf("") }
+    var filterKind by remember { mutableStateOf<NoteKind?>(null) }   // null=全部
 
     fun kindColor(k: NoteKind) = when (k) { NoteKind.ISSUE -> Danger; NoteKind.SOLUTION -> Success; NoteKind.NOTE -> Accent }
 
@@ -1627,12 +1628,24 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
                 }
             }
             HorizontalDivider(color = SurfaceLight)
+            // 类型筛选（记录多时按类型找）
+            if (notes.isNotEmpty()) {
+                Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    FilterChip(selected = filterKind == null, onClick = { filterKind = null }, label = { Text("全部", fontSize = 12.sp) },
+                        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Accent.copy(alpha = 0.25f), selectedLabelColor = Accent, labelColor = TextSecondary))
+                    NoteKind.values().forEach { k ->
+                        FilterChip(selected = filterKind == k, onClick = { filterKind = k }, label = { Text(k.label, fontSize = 12.sp) },
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = kindColor(k).copy(alpha = 0.25f), selectedLabelColor = kindColor(k), labelColor = TextSecondary))
+                    }
+                }
+            }
+            val shownNotes = if (filterKind == null) notes.toList() else notes.filter { it.kind == filterKind }
             if (notes.isEmpty()) {
                 Text("还没有记录。把这台机出过的问题、解决方案、注意事项记下来，AI 排障时可参考。", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(top = 12.dp))
             } else {
                 LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)) {
-                    items(notes.size) { i ->
-                        val n = notes[i]
+                    items(shownNotes.size) { i ->
+                        val n = shownNotes[i]
                         Surface(color = SurfaceLight.copy(alpha = 0.4f), shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth()) {
                             Row(Modifier.padding(12.dp), verticalAlignment = Alignment.Top) {
                                 Text(n.kind.label, color = kindColor(n.kind), fontSize = 11.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(end = 10.dp, top = 1.dp))

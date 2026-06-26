@@ -11,8 +11,10 @@ struct NotebookView: View {
     @State private var notes: [ServerNote] = []
     @State private var newKind: ServerNote.Kind = .note
     @State private var newText = ""
+    @State private var filterKind: ServerNote.Kind?   // nil=全部
 
     private var connID: String { connection.id.uuidString }
+    private var shownNotes: [ServerNote] { filterKind == nil ? notes : notes.filter { $0.kind == filterKind } }
 
     private func kindColor(_ k: ServerNote.Kind) -> Color {
         switch k {
@@ -58,8 +60,15 @@ struct NotebookView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
+                    // 类型筛选（记录多时按类型找）
+                    Picker("筛选", selection: $filterKind) {
+                        Text("全部").tag(ServerNote.Kind?.none)
+                        ForEach(ServerNote.Kind.allCases, id: \.self) { k in Text(k.label).tag(ServerNote.Kind?.some(k)) }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal, 12).padding(.top, 8)
                     List {
-                        ForEach(notes) { note in
+                        ForEach(shownNotes) { note in
                             HStack(alignment: .top, spacing: 10) {
                                 Text(note.kind.label)
                                     .font(.system(size: 11, weight: .medium))
@@ -70,7 +79,7 @@ struct NotebookView: View {
                             .listRowBackground(Theme.surface.opacity(0.4))
                         }
                         .onDelete { idx in
-                            for i in idx { notes = ServerNotebook.remove(id: notes[i].id, connectionID: connID) }
+                            for i in idx { notes = ServerNotebook.remove(id: shownNotes[i].id, connectionID: connID) }
                         }
                     }
                     .listStyle(.plain)

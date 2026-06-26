@@ -480,6 +480,17 @@ fun ServerListScreen(
 @Composable
 fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit, onClone: () -> Unit = {}, selectMode: Boolean = false, selected: Boolean = false, onLongPress: () -> Unit = {}) {
     var menu by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }   // 删除连接二次确认
+    if (confirmDelete) {
+        AlertDialog(
+            onDismissRequest = { confirmDelete = false },
+            title = { Text("删除连接「${conn.name.ifEmpty { conn.host }}」？", color = TextPrimary) },
+            text = { Text("将移除此连接配置（不影响远程主机），此操作不可撤销。", color = TextSecondary) },
+            confirmButton = { TextButton(onClick = { confirmDelete = false; onDelete() }) { Text("删除", color = Danger) } },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
     // A-Reach：在线绿 / 离线灰 / 探测中黄
     val dotColor = when {
         reachable == true -> Success
@@ -520,7 +531,7 @@ fun ServerCard(conn: ServerConn, reachable: Boolean?, probing: Boolean, onClick:
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text("编辑") }, onClick = { menu = false; onEdit() })
                     DropdownMenuItem(text = { Text("复制") }, onClick = { menu = false; onClone() })
-                    DropdownMenuItem(text = { Text("删除") }, onClick = { menu = false; onDelete() })
+                    DropdownMenuItem(text = { Text("删除", color = Danger) }, onClick = { menu = false; confirmDelete = true })
                 }
             }
         }
@@ -542,6 +553,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
     val messages = convos[curIdx.coerceIn(0, convos.size - 1)]
     var convoMenu by remember { mutableStateOf(false) }
     var showClearConfirm by remember { mutableStateOf(false) }   // 清空消息二次确认
+    var showDeleteConvoConfirm by remember { mutableStateOf(false) }   // 删除对话二次确认
     fun persistConvos() = ConvoStore.save(ctx, convos.map { it.toList() })
     fun convoTitle(c: List<Pair<String, String>>, i: Int) =
         c.firstOrNull { it.first == "user" }?.second?.take(16) ?: "新对话 ${i + 1}"
@@ -648,7 +660,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                         DropdownMenuItem(text = { Text("➕ 新建对话", color = Accent) },
                             onClick = { convos.add(mutableStateListOf()); curIdx = convos.size - 1; convoMenu = false; persistConvos() })
                         if (convos.size > 1) DropdownMenuItem(text = { Text("🗑 删除当前", color = Danger) },
-                            onClick = { convos.removeAt(curIdx); curIdx = curIdx.coerceIn(0, convos.size - 1); convoMenu = false; persistConvos() })
+                            onClick = { convoMenu = false; showDeleteConvoConfirm = true })
                     }
                 }
                 if (profile?.aiSummary?.isNotEmpty() == true) {
@@ -662,6 +674,19 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
                         text = { Text("将清除当前对话的所有消息（保留对话本身），此操作不可撤销。", color = TextSecondary) },
                         confirmButton = { TextButton(onClick = { messages.clear(); lastSent = null; persistConvos(); showClearConfirm = false }) { Text("清空", color = Danger) } },
                         dismissButton = { TextButton(onClick = { showClearConfirm = false }) { Text("取消", color = TextSecondary) } },
+                        containerColor = Surface
+                    )
+                }
+                // 删除当前对话二次确认（对齐 apple）
+                if (showDeleteConvoConfirm) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteConvoConfirm = false },
+                        title = { Text("删除当前对话？", color = TextPrimary) },
+                        text = { Text("将删除当前整段对话，此操作不可撤销。", color = TextSecondary) },
+                        confirmButton = { TextButton(onClick = {
+                            convos.removeAt(curIdx); curIdx = curIdx.coerceIn(0, convos.size - 1); persistConvos(); showDeleteConvoConfirm = false
+                        }) { Text("删除", color = Danger) } },
+                        dismissButton = { TextButton(onClick = { showDeleteConvoConfirm = false }) { Text("取消", color = TextSecondary) } },
                         containerColor = Surface
                     )
                 }

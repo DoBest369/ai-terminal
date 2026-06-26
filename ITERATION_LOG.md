@@ -6,6 +6,20 @@
 
 ---
 
+## 质量收口 · 双端对齐持续巩固快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **本批次双端对齐/完善（实用细节）**：
+  - 快捷命令编辑(增删改+分组) · 快捷命令分组显示 · 命令收藏夹
+  - AI 单条 user 消息重发 · AI 单条消息存知识卡片 · 快捷追问 · 存为方案
+  - 知识卡片关键词搜索+类型筛选 · 连接批量编辑 · 最近使用 · 连接端口范围校验
+- **评估确认已完成项**：SFTP 文件大小友好显示(双端 sizeLabel/formatBytes)。
+- **linux 端**：保留 backlog(本机无 Rust 工具链，骨架阶段)。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：近 N 轮持续打磨双端对齐细节(多处经评估发现 apple/android 单端落后→补齐)，PARITY 配对能力始终 🟡=0，质量稳健。Termind 双端齐平、护城河丰满、细节打磨到位。
+
+---
+
 ## SFTP 大小显示评估 + apple 连接端口范围校验
 - **SFTP 文件大小评估**：双端**已友好显示**——android `RemoteFile.sizeLabel`(B/KB/MB/GB 计算属性)、apple `formatBytes(entry.size)`。无需改，如实记录已完成。
 - **apple 连接端口校验对齐**：发现 android `EditConnectionScreen` 早有完整端口校验(portOk 1–65535+isError+红字提示+数字过滤)，apple `ConnectionEditView` 仅 `Int(portText) ?? 22` 无范围校验/提示 → apple 落后。补：`portValid`(空或 1–65535)计算属性、无效时红字「端口需在 1–65535 之间」、`canSave` 含 portValid(禁用保存)、save 钳制到有效范围(越界回退 22)。

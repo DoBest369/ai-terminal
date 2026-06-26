@@ -33,7 +33,21 @@
 - SSH：[Citadel](https://github.com/orlandos-nl/Citadel)（纯 Swift，基于 swift-nio-ssh；交互式 PTY `withPTY` 需 macOS 15+）
 - AI：直接 URLSession 调 Anthropic Messages API（默认 `claude-opus-4-8`）/ OpenAI 兼容接口
 
-## 构建与验证（本机无完整 Xcode，只能 swift build 校验）
+## 构建与验证（本机工具链齐全：Xcode 26.4 / Rust / .NET）
+
+> ✅ 2026-06-27 更新：本机**有完整 Xcode 26.4**（`/Applications/Xcode.app`，iOS/macOS SDK 26.4 + xcodegen）+ **Rust cargo**（rsproxy 镜像）+ **.NET SDK**（Avalonia）。`xcode-select` 默认指向 CommandLineTools，用 `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`（已永久切）或 `export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` 启用 `xcodebuild`。能本地出 macOS/iOS 包、编译 linux(cargo)、交叉编译 windows(Avalonia)。前端测试用 `screencapture` 真截图 + Read 看图自查（见 memory [[ui-modern]]）。
+
+### macOS/iOS 真机出包（xcodegen + xcodebuild）
+
+```bash
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+cd apple/App && xcodegen generate           # 生成 AITerminal.xcodeproj（scheme: macOS / iOS）
+xcodebuild -project AITerminal.xcodeproj -scheme "AITerminal (macOS)" \
+  -destination 'platform=macOS,arch=arm64' -derivedDataPath /tmp/aiterminal-xcb \
+  CODE_SIGNING_ALLOWED=NO build              # 出 .app；首次缺 Metal 用 xcodebuild -downloadComponent MetalToolchain
+```
+
+### 快速 swift build 校验（仍可用，最快）
 
 ```bash
 # 核心逻辑
@@ -77,7 +91,7 @@ node --check src/main/main.js
   "file://$(pwd)/mobile/www/index.html"
 ```
 
-> ⚠️ 本机仅 Command Line Tools（Swift 6.x），**没有完整 Xcode** → iOS 出包/模拟器需用户自行装完整 Xcode。
+> ✅ 本机有完整 Xcode 26.4 → iOS/macOS 可本地出包/模拟器（见上方 xcodebuild 段）。
 > ⚠️ `ImageRenderer` 渲染不了 `List`/`Form`/`ScrollView`/`TextField`（需 AppKit 宿主），故截图用 `Sources/DevTools/Showcase.swift` 的纯布局高保真预览（与真实视图共用 `Theme`）。改了 UI 要同步更新 Showcase 再渲染。
 
 ## 每轮迭代流程（务必全部执行）

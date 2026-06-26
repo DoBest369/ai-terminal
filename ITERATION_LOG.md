@@ -6,6 +6,14 @@
 
 ---
 
+## apple 连接列表空状态现代化（图标+引导）
+- **内容**：SidebarView 无连接时从纯文字「暂无保存的连接」→ 现代空状态（`server.rack` 图标 + 「还没有连接」标题 + 「点上方「＋」添加第一台服务器，开始智能 SSH 运维」引导），与上轮 BatchView/InspectView 空状态风格一致。
+- **改动**：`SidebarView.swift`(空状态 VStack 图标+引导)。
+- **验证**：swift build Build complete。推送 5be514b。
+- **意义**：连接列表首次（无连接）体验友好——图标 + 引导而非干巴文字。apple 三处空状态（连接列表/批量群发/批量巡检）风格统一。下一步可 android 主连接列表空状态对照升级（android 现为「还没有连接，点右下角 + 新建」纯文字）。
+
+---
+
 ## linux egui 侧边栏搜索框（对照其他端，连接列表实时过滤）
 - **内容**：linux `TermindApp` 加 `search: String` 字段；侧边栏顶部加 egui `TextEdit::singleline` 搜索框（hint「🔍 搜索连接」）→ 实时按 名称/host/user 关键词过滤连接列表（大小写不敏感）。对照 windows/apple 侧边栏搜索。
 - **改动**：`linux/src/main.rs`(search 字段 + TextEdit + 过滤逻辑)。

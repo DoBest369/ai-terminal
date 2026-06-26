@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui 状态条 CPU/内存进度条（三端状态面板对齐）
+- **内容**：linux 终端区状态条加 CPU/内存 mini 进度条（egui `ProgressBar`，CPU 47%/内存 56%），`usage_color` 绿<60/橙60-80/红>80 三档（对齐 apple/android）。加 `WARNING` 橙色常量。
+- **改动**：`linux/src/main.rs`(usage_color + ProgressBar)。
+- **验证**：`cargo build` **0 error/warning**（0.82s 增量，带 proxy）。mac 上不运行（icrate 兼容）。推送 6f6bc65。
+- **意义**：**apple/android/linux 三端状态面板 CPU/内存进度条对齐**（同绿/橙/红三档语义）。五端 UI 一致性再进一步。windows 端状态条文字版（后续可加）。
+
+---
+
 ## windows 端连接列表 ListBox 交互（占位→可用）
 - **内容**：Windows 连接列表从静态卡片 → **Avalonia ListBox**，自带选中高亮 / hover / 键盘上下导航。`ItemTemplate`(色条 + 状态点 + 名称 + user@host:port)，code-behind 提供 `ConnItem`(Name/Addr/Bar/Dot，IBrush 颜色)数据，`SelectedIndex=1` 默认选中。
 - **修复**：Avalonia 编译绑定（`AvaloniaUseCompiledBindingsByDefault`）需 `xmlns:local="using:TermindWindows"` + `DataTemplate x:DataType="local:ConnItem"`，否则 AVLN2000 解析不到属性。

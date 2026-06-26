@@ -1941,6 +1941,22 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                 .onFailure { error = it.message; loading = false }
         }
     }
+    // SFTP 批量下载：依次下载选中文件到 Downloads 目录（目录已在调用处过滤）
+    fun batchDownload(targets: List<RemoteFile>) {
+        if (targets.isEmpty()) { toast = "未选中文件（目录不可下载）"; selMode = false; selPaths.clear(); return }
+        loading = true
+        scope.launch {
+            val dir = ctx.getExternalFilesDir("Downloads") ?: ctx.cacheDir
+            var ok = 0
+            for (f in targets) {
+                val local = java.io.File(dir, f.name)
+                SshClient.downloadFile(conn.host, conn.port, conn.user, password, f.path, local.absolutePath, privateKey, jump)
+                    .onSuccess { ok++ }.onFailure { error = it.message }
+            }
+            toast = "已下载 $ok/${targets.size} 个到 ${dir.absolutePath}"
+            selMode = false; selPaths.clear(); loading = false
+        }
+    }
     // SFTP 批量删除：依次删选中项，复用单删逻辑
     fun batchDelete(targets: List<RemoteFile>) {
         loading = true
@@ -2096,6 +2112,7 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
             if (selMode) {
                 Row(Modifier.fillMaxWidth().background(Accent.copy(alpha = 0.1f)).padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("已选 ${selPaths.size}", color = Accent, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { batchDownload(files.filter { it.path in selPaths && !it.isDir }) }, enabled = selPaths.isNotEmpty()) { Text("下载", color = Accent, fontSize = 13.sp) }
                     TextButton(onClick = { showBatchDel = true }, enabled = selPaths.isNotEmpty()) { Text("删除", color = Danger, fontSize = 13.sp) }
                     TextButton(onClick = { selMode = false; selPaths.clear() }) { Text("取消", color = TextSecondary, fontSize = 13.sp) }
                 }

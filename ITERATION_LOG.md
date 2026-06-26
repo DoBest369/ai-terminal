@@ -6,6 +6,15 @@
 
 ---
 
+## apple AI 消息时间戳（android 评估记 backlog）
+- **apple 落地**：`ChatMessage` 加 `createdAt: Date?=nil`（Codable 向后兼容，旧持久化缺失解码 nil；API 请求 line 344 只取 role/content，时间戳不泄漏）。`sendAIMessage`/`runAICompletion` assistant 占位/命令解释/报错分析/健康分析/排障 各处新建消息戳 `Date()`。`MessageBubble` 角色标签旁显 `HH:mm`（有 createdAt 时）。
+- **android 评估**：消息为 `mutableStateListOf<Pair<String,String>>`，加时间戳需把 Pair 改 data class（role/content/time），涉及 ChatBubble 签名、send append、`.first`/`.second` 访问、ConvoStore 持久化(兼容旧 JSON) 等 ~15+ 处。中等改动 → **本轮 apple 先行，android 记 backlog 下轮做**(PARITY 标 apple✅/android🟡)。
+- **改动**：`AIService.swift`(createdAt)、`AppModel.swift`(各处戳 Date)、`AIAgentView.swift`(MessageBubble 显时间)、`docs/PARITY.md`。
+- **验证**：apple swift build + 8 自测 + **ai-persist/ai-conv 自测全过**(持久化向后兼容验证)。推送 f46fc8c。
+- **意义**：apple AI 对话消息显发送时间，持久化向后兼容(旧对话不崩)。android 因消息类型重构记 backlog，下轮对齐(届时 PARITY 🟡 归零)。如实标边界，不虚标对齐。
+
+---
+
 ## CHANGELOG 阶段12 梳理（批量运维闭环与结果留存）
 - **内容**：CHANGELOG 加「阶段 12 — 批量运维闭环与结果留存」——批量群发/巡检结果导出(Markdown 留存)、服务状态采集补齐(android，运维数据 6 维度全)、批量运维完整闭环(选目标→执行/采集→统计→AI洞察→导出)、审计方法论持续(单端落后补齐/双端同缺新增/数据增强下游同步)。强调批量运维是 Termind 区别于单连接 SSH 工具的核心差异化。
 - **边界保留**：本机无 Xcode→apple 未出包；linux 无 Rust 工具链。

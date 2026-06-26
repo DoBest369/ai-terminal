@@ -63,6 +63,7 @@
 | 停止生成 | ✅ | ✅ | 流式可中断 |
 | 重新生成上一条 | ✅ | ✅ | |
 | 单条 user 消息重发 | ✅ | ✅ | 双端右键[apple]/长按[android]菜单重发该问题 |
+| AI 消息时间戳 | ✅ | 🟡 | apple ChatMessage.createdAt 显 HH:mm；android 消息 Pair 需改 data class（backlog） |
 | AI 模型选择 | ✅ | ✅ | Opus 4.8 / Sonnet 4.6 / Haiku 4.5 |
 | AI 运维提示词库 | ✅ | ✅ | 双端 5 类(排障/部署/安全/性能/日志)×5 条分类提示词 |
 | AI 代码块渲染 | ✅ | ✅ | 双端等宽深色框；复制 android(代码块点击)/apple(气泡右键) |

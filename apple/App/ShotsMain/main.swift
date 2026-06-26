@@ -43,6 +43,8 @@ MainActor.assumeIsolated {
         print(AppScreenshots.inspectTest())
     } else if firstArg == "--notebook-test" {
         print(AppScreenshots.notebookTest())
+    } else if firstArg == "--favorites-test" {
+        print(AppScreenshots.favoritesTest())
     } else {
         AppScreenshots.renderAll(to: firstArg)
     }

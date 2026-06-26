@@ -290,6 +290,18 @@ public enum AppScreenshots {
         return "新增置顶=\(addOk)；删除=\(delOk)；AI 素材正确=\(materialOk)；导出 MD=\(mdOk)"
     }
 
+    /// 命令收藏夹自测：toggled 置顶加入 / 取消 / 去空
+    public static func favoritesTest() -> String {
+        var f: [String] = []
+        f = CommandFavorites.toggled(f, "ls")
+        f = CommandFavorites.toggled(f, "df -h")     // 置顶最新
+        let addOk = f == ["df -h", "ls"]
+        f = CommandFavorites.toggled(f, "ls")        // 已存在→取消
+        let removeOk = f == ["df -h"]
+        let blankOk = CommandFavorites.toggled(f, "  ") == f   // 空→忽略
+        return "置顶加入=\(addOk)；取消=\(removeOk)；去空=\(blankOk)"
+    }
+
     /// 命令历史自测（N-History）：去重/置顶/限长
     public static func historyTest() -> String {
         var h: [String] = []

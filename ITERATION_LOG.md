@@ -6,6 +6,14 @@
 
 ---
 
+## android 代码块复制 toast + 工具链网络困境记录
+- **android 代码块 toast**：ChatBubble 代码块复制图标点击加 `Toast "已复制命令"`，对齐 apple `model.toast`。**双端 AI 代码块复制完全一致**（右上角图标→复制纯命令→toast 反馈）。验证：android BUILD SUCCESSFUL 27s 零 deprecated，推送 a82cc4b。
+- **⚠️ 工具链网络困境（如实）**：本机网络对**几乎所有国外大文件 CDN 下载都有干扰**——Rust dist server（rsproxy/ustc/官方）`TLS handshake eof`；Homebrew bottle（ghcr.io）`HTTP/2 PROTOCOL_ERROR`；.NET Azure CDN install 脚本 `curl --retry 20` 重试 25 分钟仍未完成。**dotnet/rust 大二进制本地装不上**（环境/网络限制，非代码问题）。唯一稳的国内通道是 rsproxy crates 索引（cargo 能下 crates，但缺 rustc 本体）。
+- **结论 + 路径**：linux(Rust)/windows(Avalonia/.NET) 的**编译验证改走 CI 云端**（GitHub runner 国外干净网络无此问题）——正好契合用户「全平台对齐后每 100 迭代 CI」计划。CI 待 `gh auth refresh -s workflow` 授权激活。**apple(swift build,Xcode 可用)/android(gradle) 本地继续高质量 UI 现代化 + 功能迭代**，不被工具链阻塞。dotnet/rust 后台 install 保留（万一网络好转自动成功）。
+- **UI 现代化进度（截图驱动，6 项）**：品牌名 Termind · AI 代码块复制(双端) · 状态面板 CPU/内存进度条 · SFTP 文件类型图标(双端) · 代码块 toast(双端)。
+
+---
+
 ## UI 现代化双端对齐：android SFTP 文件类型图标
 - **内容**：上轮 apple SFTP 加了按扩展名语义化图标，本轮 android 同步对齐。`sftpFileIcon(name)` 按后缀返回 Material 图标：脚本→Terminal · 压缩→FolderZip · 图片→Image · 代码→Code · 文档/配置→Article(AutoMirrored) · 默认→Description。
 - **修复**：① Edit 误把 SftpBrowser 的 `@OptIn/@Composable` 注解错位到新函数 → 重排修正；② `Article` 图标 deprecated → 改 `Icons.AutoMirrored.Filled.Article`（零 deprecated 政策）。

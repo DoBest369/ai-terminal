@@ -6,6 +6,14 @@
 
 ---
 
+## windows 连接卡片最近使用时间 → 连接卡片信息五端完全对齐
+- **内容**：windows `ConnItem` 加 `LastUsed`/`HasLastUsed`；ItemTemplate 备注下加「上次使用 · 5 分钟前」（HasLastUsed false 隐藏）。对照 apple/android/linux 最近使用。
+- **改动**：`MainWindow.axaml.cs`(ConnItem LastUsed)、`MainWindow.axaml`(ItemTemplate)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）；`dotnet run` 截图验证完整卡片信息。推送 515e1cc。
+- **🎯 连接卡片信息五端完全对齐**：apple/android/linux/windows 连接卡片都显「色条 + 状态点 + 名称 + 地址 + 备注 + 可达指示 + 最近使用」。连接卡片设计语言完全一致。
+
+---
+
 ## linux egui 连接卡片最近使用时间（对照 apple/android）
 - **内容**：linux `ServerConn` 加 `last_used` 字段；`server_card` 在备注后显「上次使用 · 5 分钟前」（非空时，淡化色），对照 apple/android 连接卡片的 lastUsed 显示。
 - **改动**：`linux/src/main.rs`(ServerConn last_used + server_card 显示)。

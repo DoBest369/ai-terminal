@@ -149,10 +149,20 @@ impl eframe::App for TermindApp {
                 ui.add_space(8.0);
                 egui::Frame::default().fill(egui::Color32::from_rgb(0x0A, 0x0B, 0x14)).rounding(6.0).inner_margin(12.0)
                     .show(ui, |ui| {
-                        ui.colored_label(TEXT_SECONDARY, egui::RichText::new("Last login: Sun Jun 22 19:00 on ttys001").monospace());
-                        ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ ls -la").monospace());
-                        ui.colored_label(SUCCESS, egui::RichText::new("-rwxr-xr-x 1 root root 1024 deploy.sh").monospace());
-                        ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ \u{2588}").monospace());
+                        // 终端输出可滚动（对照 windows，输出多时查看历史）
+                        egui::ScrollArea::vertical().auto_shrink([false, false]).max_height(360.0).show(ui, |ui| {
+                            ui.colored_label(TEXT_SECONDARY, egui::RichText::new("Last login: Sun Jun 22 19:00 on ttys001").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ ls -la").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("total 32").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("drwxr-xr-x  6 root root 4096 Jun 22 18:00 .").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("-rw-r--r--  1 root root  220 Jun 10 09:12 .bashrc").monospace());
+                            ui.colored_label(SUCCESS, egui::RichText::new("-rwxr-xr-x  1 root root 1024 Jun 22 17:30 deploy.sh").monospace());
+                            ui.colored_label(ACCENT, egui::RichText::new("drwxr-xr-x  4 root root 4096 Jun 22 18:00 projects").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ systemctl status nginx").monospace());
+                            ui.colored_label(SUCCESS, egui::RichText::new("● nginx.service - A high performance web server").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("   Active: active (running) since Mon 2026-06-22").monospace());
+                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("root@prod-01:~$ \u{2588}").monospace());
+                        });
                     });
                 ui.add_space(8.0);
                 // 快捷命令栏（对照 windows/apple/android 终端区，点击填入命令）

@@ -6,6 +6,20 @@
 
 ---
 
+## 质量收口 · 双端对齐里程碑快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；6 自测(history/batch/risk/metrics/env-detect/inspect)全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~20.9MB)。
+- **双端对齐里程碑（截至本轮）**：
+  - **SFTP 文件管理完全对齐**：浏览/查看/下载/上传/新建/删除/重命名/路径跳转/修改时间/排序/过滤(双端✅)
+  - **阶段 N 批量运维双端完整 UI**：批量群发(BatchView)+群发 AI 汇总+批量巡检(InspectView)+巡检 AI 总结(双端✅)；apple 巡检逻辑 --inspect-test 自测覆盖
+  - **AI 能力完全对齐**：对话/流式/停止/重生成/多对话(持久化/搜索/导出/清空)/模型选择/代码块渲染/消息复制/运维提示词库/角色头像
+  - **多轮源码核查纠正文档滞后**：apple 终端控制键栏(18键)/终端搜索(SwiftTerm)/连接测试/批量群发/连接复制 实为✅
+- **PARITY 剩余仅 4 项单端特性**(非缺陷)：apple 待补 连接分组折叠/终端连接时长(细枝末节)；android 独有 定时后台巡检；apple 独有 分屏/录制。
+- **改动**：`docs/PARITY.md`(小结更新)。
+- **验证**：apple swift build + 6 自测全过；android clean 零 warning。
+- **意义**：Termind 双端高度对齐成熟、质量稳健。核心+主线+增强能力实质全双端，仅余单端特性。
+
+---
+
 ## apple SFTP 文件名过滤对齐（双端 SFTP 完全对齐）
 - **内容**：`FileBrowserView` 加 `@State filter` + `.searchable(text:$filter, prompt:"过滤文件名")`；`sortedEntries` 先 `localizedCaseInsensitiveContains(filter)` 过滤再排序(与上轮时间/排序联动)。对齐 android A-SftpFilter。
 - **改动**：`FileBrowserView.swift`(filter+searchable)。

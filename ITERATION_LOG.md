@@ -6,6 +6,16 @@
 
 ---
 
+## 质量收口 · 快捷命令 + 连接管理体验快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
+- **快捷命令体验（本批次完善后全齐）**：默认库(分组) · 自定义增/删/**改**(名称/命令/分组) · 分组显示 · 风险着色 · 一键填入 · 命令收藏夹(星标置顶跨连接) · 命令历史(去重/补全/随手记)。
+- **连接管理体验**：分组/折叠/颜色标签/搜索/排序/启动命令/测试/克隆/批量编辑(分组/颜色/删除)/最近使用/导出导入/SSH config 导入。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：快捷命令(增删改分组)+连接管理(批量/最近/导入)两大高频运维操作体验双端完整。连续多轮实用细节打磨后质量稳健。
+
+---
+
 ## 快捷命令编辑双端（已有增删基础上补编辑）
 - **apple**：`SnippetsView` snippetRow swipe 加「编辑」→载入表单(editingID 保留 id)，Section 标题/按钮切换编辑态(保存修改/取消编辑)；`model.saveSnippet` 本就按 id upsert，编辑天然覆盖原片段。推送 9cd48ca。
 - **android**：`SnippetStore.update(old,new)` 保位替换；自定义快捷命令 Chip 用 `combinedClickable` 包裹，长按→编辑对话框(预填 名称/命令/分组，比新建多 group 字段)→update。`ServerWorkspace` 加 `ExperimentalFoundationApi` OptIn(combinedClickable)。推送 41b7bec→修复 a6f7c90。

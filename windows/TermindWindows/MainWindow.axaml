@@ -75,15 +75,24 @@
                     <TextBlock Text="负载 0.82" Foreground="#8B92A8" FontSize="12" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
-            <!-- 终端输出 -->
+            <!-- 终端输出（可滚动） -->
             <Border Grid.Row="1" Background="#0A0B14" Margin="10">
-                <StackPanel Margin="14">
-                    <TextBlock Text="Last login: Sun Jun 22 19:00 on ttys001" Foreground="#8B92A8" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                    <TextBlock Text="root@prod-01:~$ ls -la" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
-                    <TextBlock Text="drwxr-xr-x  6 root root 4096 Jun 22 18:00 ." Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                    <TextBlock Text="-rwxr-xr-x  1 root root 1024 Jun 22 17:30 deploy.sh" Foreground="#3FB950" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                    <TextBlock Text="root@prod-01:~$ █" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
-                </StackPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <StackPanel Margin="14">
+                        <TextBlock Text="Last login: Sun Jun 22 19:00 on ttys001" Foreground="#8B92A8" FontFamily="Consolas,monospace" FontSize="12.5"/>
+                        <TextBlock Text="root@prod-01:~$ ls -la" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
+                        <TextBlock Text="total 32" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
+                        <TextBlock Text="drwxr-xr-x  6 root root 4096 Jun 22 18:00 ." Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
+                        <TextBlock Text="drwxr-xr-x 18 root root 4096 Jun 10 09:12 .." Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
+                        <TextBlock Text="-rw-r--r--  1 root root  220 Jun 10 09:12 .bashrc" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
+                        <TextBlock Text="-rwxr-xr-x  1 root root 1024 Jun 22 17:30 deploy.sh" Foreground="#3FB950" FontFamily="Consolas,monospace" FontSize="12.5"/>
+                        <TextBlock Text="drwxr-xr-x  4 root root 4096 Jun 22 18:00 projects" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="12.5"/>
+                        <TextBlock Text="root@prod-01:~$ systemctl status nginx" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
+                        <TextBlock Text="● nginx.service - A high performance web server" Foreground="#3FB950" FontFamily="Consolas,monospace" FontSize="12.5"/>
+                        <TextBlock Text="   Active: active (running) since Mon 2026-06-22" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
+                        <TextBlock Text="root@prod-01:~$ █" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
             <!-- 快捷命令 chip 横栏（点击填入，对照 apple/android） -->
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="10,0,10,6">

@@ -86,6 +86,12 @@
 
 > 阶段 N 让 Termind 从「逐台 SSH」升级为「**一批机器的批量操作 + AI 智能洞察**」——这是单连接 SSH 工具（Xshell/Termius）做不到的运维工作台核心差异化。android 先行落地，apple 框架就绪待 UI 接入。
 
+## 差异化深化
+
+| 能力 | apple | android | 说明 |
+|------|:---:|:---:|------|
+| 服务器知识卡片 | 🟡 | ✅ | 每台机沉淀 问题/方案/笔记（Core 双端；android UI 完整，apple UI 待接）；喂 AI 排障参考 |
+
 ## 安全 / 其它
 
 | 能力 | apple | android | 说明 |

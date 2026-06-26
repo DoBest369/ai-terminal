@@ -6,6 +6,16 @@
 
 ---
 
+## android 服务器知识卡片（Kotlin 化 + UI，差异化深化落地）
+- **Core Kotlin 化**：新建 `ServerNotebook.kt` 对齐 apple——`NoteKind`(ISSUE/SOLUTION/NOTE+label)+`ServerNote`(id/kind/text/createdAt)+`object ServerNotebook`：按连接 id SharedPreferences 存 JSON(load/save/add[置顶,空忽略]/remove)+`composeForAI`(拼历史运维记录给 AI)。
+- **UI**：ServerWorkspace 工具栏加「知识卡片」入口(MenuBook)+`NotebookSheet`(ModalBottomSheet)——类型 FilterChip(问题红/方案绿/笔记蓝)+多行文本+添加按钮；列表按类型着色标签+文本+删除；空态引导文案。
+- **修复**：MenuBook deprecated→`Icons.AutoMirrored.Filled.MenuBook`+导入，保持零 warning。
+- **改动**：`ServerNotebook.kt`(新)、`MainActivity.kt`(入口+NotebookSheet+MenuBook 修)、`docs/PARITY.md`。
+- **验证**：android 重建 BUILD SUCCESSFUL 零 deprecated。推送 88efa3c→5982b02。
+- **意义**：服务器知识卡片差异化能力 android 端完整落地(Core+UI)，PARITY 新增「差异化深化」分类。每台机沉淀 问题/方案/笔记，是 PRODUCT 护城河「运维经验沉淀」的落地。apple UI 下轮接(Core 已就绪)。
+
+---
+
 ## 服务器知识卡片 Core 模型（双端对齐后转向差异化深化）
 - **背景**：双端配对能力已 100% 对齐，转向 PRODUCT MVP 待建的差异化项「服务器知识卡片」——每台机沉淀历史问题/解决方案/运维笔记，让经验沉淀+喂 AI 排障参考。
 - **内容**：新增 `apple/AITerminalCore/.../ServerNotebook.swift`——`ServerNote`(id/kind[issue 问题/solution 方案/note 笔记]/text/createdAt，Codable)+`enum ServerNotebook`：`adding`(置顶最新，空忽略)/`removing` 纯逻辑+按连接 id 持久化(UserDefaults JSON load/save/add/remove)+`composeForAI`(拼「这台服务器的历史运维记录：· [类] text」给 AI 排障参考)。`Screenshots.notebookTest`+main `--notebook-test`：验证 新增置顶/删除/AI 素材含「[问题]/[方案]」。CLAUDE.md 自测清单加 --notebook-test。

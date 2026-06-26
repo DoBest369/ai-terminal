@@ -510,7 +510,13 @@ final class AppModel: ObservableObject {
             return
         }
         aiMessages.append(ChatMessage(role: .user, content: workflow.composeForAI(outputs: outputs)))
-        runAICompletion(systemPrompt: workflow.summaryPrompt)
+        // 知识卡片注入：结合这台机的历史问题/方案排障（知识沉淀闭环，对齐 android）
+        var sys = workflow.summaryPrompt
+        if let connID = activeSession?.connection?.id.uuidString {
+            let notebook = ServerNotebook.composeForAI(ServerNotebook.load(connectionID: connID))
+            if !notebook.isEmpty { sys += "\n\n\(notebook)\n请结合以上历史运维记录给出针对性结论。" }
+        }
+        runAICompletion(systemPrompt: sys)
     }
 
     // MARK: - 连接管理

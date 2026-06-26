@@ -378,7 +378,7 @@ private struct EmptyStateView: View {
             Image(systemName: "terminal")
                 .font(.system(size: 56))
                 .foregroundStyle(Theme.accent)
-            Text("AI Terminal")
+            Text("Termind")
                 .font(.title.bold())
                 .foregroundStyle(Theme.textPrimary)
             Text("从左侧选择一个连接，或新建 SSH 连接")

@@ -83,7 +83,7 @@ struct SidebarShowcase: View {
     let statuses: [SessionStatus]
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("AI Terminal").font(.system(size: 17, weight: .bold)).foregroundStyle(Theme.textPrimary)
+            Text("Termind").font(.system(size: 17, weight: .bold)).foregroundStyle(Theme.textPrimary)
                 .padding(16)
 
             HStack(spacing: 6) {
@@ -590,7 +590,7 @@ struct SettingsShowcase: View {
                     .font(.system(size: 13)).foregroundStyle(Theme.danger)
             }
             HStack {
-                Text("AI Terminal v1.0.0 · 原生 macOS / iOS 终端工具")
+                Text("Termind v1.0.0 · 智能 SSH 服务器运维工作台")
                     .font(.footnote).foregroundStyle(Theme.textSecondary)
                 Spacer()
             }

@@ -181,7 +181,7 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Text("AI Terminal v1.0.0\n原生 macOS / iOS 终端工具")
+                    Text("Termind v1.0.0\n智能 SSH 服务器运维工作台")
                         .font(.footnote)
                         .foregroundStyle(Theme.textSecondary)
                 }

@@ -6,6 +6,20 @@
 
 ---
 
+## 质量收口 · 知识沉淀入口全覆盖快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
+- **知识沉淀入口全覆盖（录入路径，本批次完善后全齐）**：
+  - **随手记**：命令历史一键存为知识卡片
+  - **直接记录**：知识卡片页手动新增（问题/方案/笔记）
+  - **AI 结论存为方案**：末条 AI 回复一键沉淀
+  - **AI 单条消息存卡片**：任意历史 AI 回复 右键[apple]/长按[android]存为 笔记/方案
+- **检索/应用/共享**：类型筛选 + 关键词搜索 · 喂 AI 全路径（对话/解释/报错/排障/健康）· 导出 Markdown。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：知识沉淀闭环的「录入」环节四入口全覆盖（随手记/手动/AI结论/任意消息），配合检索+喂AI+共享，护城河核心闭环各环节都打磨到位。质量持续稳健。
+
+---
+
 ## AI 单条消息存为知识卡片双端（知识沉淀入口更灵活）
 - **apple**：`MessageBubble` 的 contextMenu(AI 气泡，已有复制/复制纯文本)加「存为知识卡片」(.note)+「存为方案」(.solution)→`ServerNotebook.add(displayText, connectionID: activeSession.connection)`+toast。任意一条 AI 回复都可沉淀。推送 a48f793。
 - **android**：`ChatBubble` 收 `connId` 参数；AI 消息长按改为弹 `DropdownMenu`(复制/存为笔记/存为方案)→`ServerNotebook.add`+Toast（无连接时仍直接复制）。Box 包裹 Surface+菜单。推送 d8c0a53。

@@ -6,6 +6,20 @@
 
 ---
 
+## 质量收口 · 近期审计补齐进展快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
+- **近期审计驱动补齐（运维数据/批量统计/导入）**：
+  - 状态面板 负载/运行时长（android 补）→ 巡检 + 健康分析 AI 素材同步带上
+  - 批量群发结果 成功/失败统计（双端同步新增）
+  - 批量巡检结果 告警/正常/失败统计（apple 补头部、android 细化明细）
+  - 连接导入 去重+数量反馈（android 补反馈）
+- **方法论三类**：① 单端落后→补齐(apple/android 各若干) ② 双端同缺→同步新增(群发统计) ③ 数据增强→下游同步(load/uptime 贯穿巡检/健康)。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：审计方法论涵盖三类改进点，使双端不仅功能对齐，连数据维度/统计展示/反馈细节都一致。Termind 成熟度持续扎实提升。
+
+---
+
 ## 批量巡检结果统计（告警/正常/失败，对齐群发统计）
 - **审计**：apple `InspectView` 巡检结果**无统计头部**(只列表+AI 按钮)；android `InspectScreen` 有「N 台需关注/全部正常」摘要但无 告警/正常/失败 明细。
 - **双端补齐/对齐**：① apple 结果列表上方加统计行「⚠️告警 N · ✅正常 M · ❌失败 K」(error→失败、hasWarning→告警、其余正常)。② android 摘要细化为同样的「⚠️告警 N · ✅正常 M · ❌失败 K」明细。与上轮群发统计风格一致。

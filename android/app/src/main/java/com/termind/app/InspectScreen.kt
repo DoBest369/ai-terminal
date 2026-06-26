@@ -83,8 +83,10 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
         }
     }
 
+    var onlyAlerts by remember { mutableStateOf(false) }   // 仅看告警结果
     // 异常（告警/错误）置顶
-    val sorted = items.sortedByDescending { (it.status?.hasWarning == true) || it.error != null }
+    val sortedAll = items.sortedByDescending { (it.status?.hasWarning == true) || it.error != null }
+    val sorted = if (onlyAlerts) sortedAll.filter { (it.status?.hasWarning == true) || it.error != null } else sortedAll
     val warnCount = items.count { (it.status?.hasWarning == true) || it.error != null }
     val done = items.isNotEmpty() && items.none { it.running }
 
@@ -140,6 +142,11 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
                             if (failN > 0) add("❌失败 $failN")
                         }.joinToString(" · ")
                         Text(statTxt, color = if (warnCount > 0) Danger else Success, fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                        Spacer(Modifier.width(8.dp))
+                        // 仅看告警筛选（巡检多台时快速定位问题机）
+                        if (warnCount > 0) FilterChip(selected = onlyAlerts, onClick = { onlyAlerts = !onlyAlerts },
+                            label = { Text("仅告警", fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Danger.copy(alpha = 0.25f), selectedLabelColor = Danger, labelColor = TextSecondary))
                         Spacer(Modifier.weight(1f))
                         IconButton(onClick = {
                             val md = buildString {

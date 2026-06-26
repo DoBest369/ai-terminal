@@ -6,6 +6,14 @@
 
 ---
 
+## linux 终端提示符联动选中连接（深化真实交互）
+- **内容**：linux 终端输出提示符从固定「root@prod-01:~$」→ `format!("{}@{}:~$", sel_user, sel_host)` 用选中连接的 user@host。3 处提示符（ls -la / systemctl / 光标行）联动。点连接列表 → 终端输出提示符反映该连接。
+- **改动**：`linux/src/main.rs`(CentralPanel 前取 sel_user + prompt 构造 + 3 处提示符)。
+- **验证**：`cargo build` **0 error/warning**（0.52s 增量，带 proxy，build 通过后提交）。推送 d0c2f0b。
+- **意义**：深化 linux 真实交互——不只状态条，终端输出提示符也联动选中连接（user@host）。点不同连接 → 终端区完整反映该连接上下文。
+
+---
+
 ## windows 连接列表 SelectionChanged → 终端状态条反映（真实交互）
 - **内容**：windows `ConnList` 加 `SelectionChanged=OnConnSelected`；code-behind 解析选中连接地址（user@host:port → host）+ 在线状态（Reach ✓），更新终端状态条 `StatusHost`（主机名）/ `StatusDot`（已连接绿/离线灰）。点连接列表 → 终端区实时反映，对照 linux 真实交互。
 - **改动**：`MainWindow.axaml`(SelectionChanged + StatusDot/StatusHost x:Name)、`MainWindow.axaml.cs`(OnConnSelected 处理)。

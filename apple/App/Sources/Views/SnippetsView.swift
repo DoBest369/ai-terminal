@@ -14,6 +14,7 @@ struct SnippetsView: View {
     @State private var quickNoteCmd: String?            // 随手记：把命令存为知识卡片
     @State private var quickNoteText = ""
     @State private var quickNoteKind: ServerNote.Kind = .note
+    @State private var favorites: [String] = CommandFavorites.load()   // 命令收藏夹
 
     /// 按名称/命令/分组过滤
     private var filtered: [CommandSnippet] {
@@ -62,6 +63,26 @@ struct SnippetsView: View {
                     }
                 }
 
+                // 命令收藏夹（⭐ 置顶常用命令）
+                if !favorites.isEmpty {
+                    Section("⭐ 收藏命令") {
+                        ForEach(favorites, id: \.self) { cmd in
+                            Button {
+                                if let inject = model.activeSession?.injectCommand { inject(cmd); model.recordCommand(cmd); dismiss() }
+                                else { model.toast = "请先打开一个终端会话" }
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "star.fill").font(.system(size: 11)).foregroundStyle(Theme.warning)
+                                    Text(cmd).font(.system(size: 12, design: .monospaced)).foregroundStyle(Theme.textPrimary).lineLimit(1)
+                                    Spacer()
+                                    Image(systemName: "xmark.circle").foregroundStyle(Theme.textSecondary)
+                                        .onTapGesture { favorites = CommandFavorites.toggle(cmd) }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
                 // N-History：命令历史（点击注入重用）
                 if !model.commandHistory.isEmpty {
                     Section("命令历史") {
@@ -82,6 +103,9 @@ struct SnippetsView: View {
                             }
                             .buttonStyle(.plain)
                             .contextMenu {
+                                Button {
+                                    favorites = CommandFavorites.toggle(cmd)
+                                } label: { Label(favorites.contains(cmd) ? "取消收藏" : "收藏命令", systemImage: favorites.contains(cmd) ? "star.slash" : "star") }
                                 Button {
                                     quickNoteText = cmd; quickNoteKind = .note; quickNoteCmd = cmd
                                 } label: { Label("存为知识卡片", systemImage: "book.closed") }

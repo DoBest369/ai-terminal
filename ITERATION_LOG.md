@@ -6,6 +6,15 @@
 
 ---
 
+## README 更新到当前成熟度
+- **内容**：能力清单表新增/刷新——连接管理加 批量编辑·最近使用；AI 助手加 快捷追问；新增 排障工作流 Z4(8 场景)/初始化模板 Z8(8 模板)/命令收藏夹 行；批量运维加 按分组快速选目标。知识卡片章节升级为「**知识沉淀闭环六环**」：随手记→记录→筛选检索→喂 AI 全路径→AI 结论存方案→导出共享，阐明完整运维闭环差异化。
+- **边界保留**：本机无 Xcode → apple 未出包/未真机实测。
+- **改动**：`README.md`。
+- **验证**：apple App swift build Build complete 抽查。推送 735ae03。
+- **意义**：对外门面(README)同步到当前成熟度，护城河核心(知识沉淀闭环六环)清晰表达。文档体系全套(README/CHANGELOG/ROADMAP/ITERATION_LOG/PARITY/PRODUCT)与功能同步。
+
+---
+
 ## 质量收口 · 知识卡片体验全齐快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **知识卡片体验（差异化护城河，本批次完善后全齐）**：

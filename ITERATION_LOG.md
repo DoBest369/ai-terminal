@@ -6,6 +6,15 @@
 
 ---
 
+## android 批量群发分组全选（批量运维效率）
+- **内容**：`BatchScreen` 连接选择上方加横滑 Chip 行——「全选」(选所有连接)/「清空」+各分组 Chip(Folder 图标，点击选中该组所有连接 selected.add)；标题显选择计数「N/总数」。连接多、分组多时快速圈选目标，无需逐个点。InspectScreen 默认巡检全部，无需分组选。
+- **修复**：首构建 `horizontalScroll` 未导入→加 `import androidx.compose.foundation.horizontalScroll`。
+- **改动**：`BatchScreen.kt`(分组全选 Chip + 导入)。
+- **验证**：android 重建 BUILD SUCCESSFUL 15s 零 deprecated。推送 a64e168→e6b26ed。
+- **意义**：批量群发选目标更高效——「全选/清空/按分组」一键圈选，提升多服务器批量运维体验。
+
+---
+
 ## 知识卡片随手记双端（命令历史一键沉淀，强化闭环）
 - **android**：命令历史 sheet 每行加「存为知识卡片」书签图标(BookmarkAdd)→快速记录对话框(NoteKind FilterChip 着色+预填命令+多行编辑)→`ServerNotebook.add(ctx, conn.id, ...)`。构建 24s，推送 b3d7c8a。
 - **apple**：`SnippetsView` 命令历史行 `.contextMenu`「存为知识卡片」→`.alert` 快速记录→`ServerNotebook.add(connectionID: activeSession.connection.id.uuidString)`。无活动会话提示。推送 67415a5。

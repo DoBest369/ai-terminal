@@ -6,6 +6,15 @@
 
 ---
 
+## 知识卡片自由标签双端（归类，持久化向后兼容）
+- **Core 模型**：`ServerNote` 加 `tags: [String]=[]`。持久化向后兼容：apple 自定义 `init(from:)` 用 `decodeIfPresent([String].self) ?? []`(旧卡片 JSON 无 tags key 不抛错)；android `optJSONArray("tags")?.map ?: emptyList()`(旧卡片缺失=空)；save 都写 tags(JSONArray)。
+- **UI**：apple `NotebookView` + android `NotebookSheet` 录入区加「标签（逗号分隔，可选）」输入框(支持中英文逗号分隔)；卡片显示 `#标签` chip(Accent 着色)。
+- **改动**：`ServerNotebook.swift`(tags+自定义解码)、`ServerNotebook.kt`(tags+JSON)、`NotebookView.swift`(录入+显示)、`MainActivity.kt`(NotebookSheet 录入+显示)、`docs/PARITY.md`。
+- **验证**：apple Core swift build + **notebook 自测过**(新增置顶/删除/AI 素材/导出 MD 全 true，向后兼容验证)；android BUILD SUCCESSFUL 29s 零 deprecated。推送 5c5aca8。
+- **意义**：知识卡片除类型(问题/方案/笔记)外加自由标签，多维归类(如按 #nginx #磁盘 #紧急 等)。持久化向后兼容(旧卡片无 tags 不崩)。双端 ServerNote 字段对齐。
+
+---
+
 ## 质量收口 · 知识沉淀闭环全景终极快照（护城河核心）
 - **质量门禁**：apple swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **🎯 知识沉淀闭环（差异化护城河核心，双端全链路·全路径覆盖）**：

@@ -6,6 +6,14 @@
 
 ---
 
+## windows 连接卡片备注显示 → 连接卡片备注五端对齐
+- **内容**：windows `ConnItem` 加 `Note`/`HasNote` 字段；ItemTemplate 地址下加备注行（📝 MySQL 主库），`HasNote` false 时 IsVisible 隐藏。对照 apple/android/linux 连接卡片备注（补 windows 缺口）。
+- **改动**：`MainWindow.axaml.cs`(ConnItem Note 数据)、`MainWindow.axaml`(ItemTemplate 备注行)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）；`dotnet run` 截图。推送 dc392df。
+- **🎯 连接卡片备注显示五端对齐**：apple/android/linux/windows 连接卡片都显备注（运维记录这台机用途）。又一项五端对齐缺口补齐。
+
+---
+
 ## CHANGELOG 阶段17 梳理（40 项 UI 现代化 · 五端设计语言高度一致）
 - **内容**：CHANGELOG 加「阶段 17 — 40 项 UI 现代化 · 五端设计语言高度一致」——五端对齐能力（状态进度条/服务状态点/快捷命令栏/终端滚动/连接搜索/分组/可达指示/AI 面板全套）+ 双端对齐（代码块复制 toast/SFTP 图标/键栏着色/空状态/端口校验）+ windows/linux 从骨架→功能完整工作台 + 质量基线无回归（PARITY 103）。
 - **改动**：`CHANGELOG.md`。

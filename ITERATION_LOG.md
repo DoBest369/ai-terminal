@@ -6,6 +6,14 @@
 
 ---
 
+## android 批量群发/巡检无连接空状态（双端空状态对齐）
+- **内容**：android BatchScreen/InspectScreen 当 `conns.isEmpty()` 时显空状态（`Icons.Filled.Dns` 图标 + 「还没有 SSH 连接」+ 「批量群发/巡检需要先添加服务器连接，返回连接列表新建后再来」引导），而非空白表单。对齐 apple BatchView/InspectView 上轮加的空状态。
+- **改动**：`BatchScreen.kt`/`InspectScreen.kt`(conns.isEmpty 空状态 + return@Column)。
+- **验证**：android BUILD SUCCESSFUL 15s **零 deprecated**。推送 6788f83。
+- **意义**：**双端批量运维面板空状态一致**（apple/android 群发/巡检无连接时同样引导）。现代 App 空状态标配，首次/无数据体验友好。
+
+---
+
 ## apple 批量群发/巡检无连接空状态引导（UI 现代化）
 - **内容**：BatchView/InspectView 当 `model.connections.isEmpty`（一个 SSH 连接都没有）时，显**空状态引导**（`server.rack` 图标 + 「还没有 SSH 连接」标题 + 「批量群发/巡检需要先添加服务器连接，在侧边栏「+」新建后再来」引导文案），而非空白表单。
 - **改动**：`BatchView.swift`/`InspectView.swift`(emptyConnectionsState)。

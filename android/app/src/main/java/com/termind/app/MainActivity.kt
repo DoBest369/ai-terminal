@@ -858,6 +858,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     var showHistory by remember { mutableStateOf(false) }   // N-History 命令历史
     val cmdHistory = remember { mutableStateListOf<String>().apply { addAll(CommandHistory.load(ctx)) } }
     var showNotebook by remember { mutableStateOf(false) }  // 服务器知识卡片
+    var quickNote by remember { mutableStateOf<String?>(null) }  // 快速记录知识卡片（预填文本）
     var termFont by remember { mutableStateOf(SettingsStore.loadTermFont(ctx)) }   // A-FontSize 终端字号
     var termSearch by remember { mutableStateOf("") }          // A-TermSearch 终端搜索
     var termSearchOn by remember { mutableStateOf(false) }
@@ -1071,6 +1072,35 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
     if (showNotebook) {
         NotebookSheet(conn.id, onClose = { showNotebook = false })
     }
+    // 随手记：快速存为知识卡片（命令历史/排障后一键沉淀）
+    quickNote?.let { prefill ->
+        var noteText by remember { mutableStateOf(prefill) }
+        var noteKind by remember { mutableStateOf(NoteKind.NOTE) }
+        AlertDialog(
+            onDismissRequest = { quickNote = null },
+            title = { Text("存为知识卡片", color = TextPrimary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        NoteKind.values().forEach { k ->
+                            val c = when (k) { NoteKind.ISSUE -> Danger; NoteKind.SOLUTION -> Success; NoteKind.NOTE -> Accent }
+                            FilterChip(selected = noteKind == k, onClick = { noteKind = k }, label = { Text(k.label, fontSize = 12.sp) },
+                                colors = FilterChipDefaults.filterChipColors(selectedContainerColor = c.copy(alpha = 0.25f), selectedLabelColor = c, labelColor = TextSecondary))
+                        }
+                    }
+                    OutlinedTextField(noteText, { noteText = it }, minLines = 2, maxLines = 4,
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                        modifier = Modifier.fillMaxWidth())
+                }
+            },
+            confirmButton = { TextButton(onClick = {
+                if (noteText.trim().isNotEmpty()) { ServerNotebook.add(ctx, conn.id, ServerNote(kind = noteKind, text = noteText.trim())) }
+                quickNote = null
+            }) { Text("保存", color = Accent) } },
+            dismissButton = { TextButton(onClick = { quickNote = null }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
 
     // N-History：命令历史 sheet
     if (showHistory) {
@@ -1094,6 +1124,10 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                             Icon(Icons.Filled.Circle, null, tint = risk.color, modifier = Modifier.size(8.dp))
                             Spacer(Modifier.width(10.dp))
                             Text(h, color = TextPrimary, fontSize = 13.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.weight(1f), maxLines = 1)
+                            // 随手记：把命令存为知识卡片
+                            IconButton(onClick = { quickNote = h; showHistory = false }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Filled.BookmarkAdd, "存为知识卡片", tint = TextSecondary, modifier = Modifier.size(14.dp))
+                            }
                             IconButton(onClick = { cmdHistory.clear(); cmdHistory.addAll(CommandHistory.remove(ctx, h)) }, modifier = Modifier.size(28.dp)) {
                                 Icon(Icons.Filled.Close, "删除", tint = TextSecondary, modifier = Modifier.size(14.dp))
                             }

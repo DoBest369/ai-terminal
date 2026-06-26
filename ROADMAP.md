@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **CHANGELOG 阶段8·差异化深化** ✅（知识沉淀闭环全链路+护城河场景库扩充+批量分组全选+SSH config 导入；当前状态从双端对齐→差异化深化；推送 07eef3e）
 - [x] **质量收口·近期进展快照** ✅（apple 7 自测+android clean 零 warning；PARITY 🟡=0；知识卡片闭环+场景库扩充+批量效率 全景；推送见下）
 - [x] **apple 批量群发/巡检分组全选** ✅（BatchView/InspectView 全选/清空/分组按钮；双端批量选目标对齐；7 自测通过；推送 9a860eb）
 - [x] **android 批量群发分组全选** ✅（BatchScreen 全选/清空+各分组 Chip 一键选中该组+选择计数；修 horizontalScroll 导入；推送 a64e168→e6b26ed）

@@ -156,7 +156,7 @@ object SshClient {
                             val name = info.name
                             if (name == "." || name == "..") return@mapNotNull null
                             val isDir = info.attributes.type == FileMode.Type.DIRECTORY
-                            RemoteFile(name, isDir, info.attributes.size, info.path)
+                            RemoteFile(name, isDir, info.attributes.size, info.path, info.attributes.mtime)
                         }.sortedWith(compareByDescending<RemoteFile> { it.isDir }.thenBy { it.name.lowercase() })
                     }
                 } finally {
@@ -290,8 +290,8 @@ object SshClient {
          .replace("]0;", "").replace("", "")
 }
 
-/** 远程文件（A-SFTP） */
-data class RemoteFile(val name: String, val isDir: Boolean, val size: Long, val path: String) {
+/** 远程文件（A-SFTP）。mtime 为修改时间（秒，0 表示未知）。 */
+data class RemoteFile(val name: String, val isDir: Boolean, val size: Long, val path: String, val mtime: Long = 0) {
     /** 人类可读大小 */
     val sizeLabel: String
         get() = when {
@@ -300,6 +300,18 @@ data class RemoteFile(val name: String, val isDir: Boolean, val size: Long, val 
             size < 1024 * 1024 -> "%.1f KB".format(size / 1024.0)
             size < 1024 * 1024 * 1024 -> "%.1f MB".format(size / 1024.0 / 1024.0)
             else -> "%.1f GB".format(size / 1024.0 / 1024.0 / 1024.0)
+        }
+
+    /** 修改时间标签（A-SftpTime）：今年显 MM-dd HH:mm，往年显 yyyy-MM-dd */
+    val timeLabel: String
+        get() {
+            if (mtime <= 0) return ""
+            val date = java.util.Date(mtime * 1000)
+            val cal = java.util.Calendar.getInstance()
+            val curYear = cal.get(java.util.Calendar.YEAR)
+            cal.time = date
+            val fmt = if (cal.get(java.util.Calendar.YEAR) == curYear) "MM-dd HH:mm" else "yyyy-MM-dd"
+            return java.text.SimpleDateFormat(fmt, java.util.Locale.getDefault()).format(date)
         }
 }
 

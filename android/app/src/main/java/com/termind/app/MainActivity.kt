@@ -1584,7 +1584,11 @@ fun SftpBrowser(conn: ServerConn, password: String, privateKey: String?, jump: J
                         Icon(if (f.isDir) Icons.Filled.Folder else Icons.Filled.Description, null,
                             tint = if (f.isDir) Accent else TextSecondary, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(12.dp))
-                        Text(f.name, color = TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f), maxLines = 1)
+                        // A-SftpTime：名称 + 修改时间
+                        Column(Modifier.weight(1f)) {
+                            Text(f.name, color = TextPrimary, fontSize = 14.sp, maxLines = 1)
+                            if (f.timeLabel.isNotEmpty()) Text(f.timeLabel, color = TextSecondary.copy(alpha = 0.7f), fontSize = 10.sp)
+                        }
                         Text(f.sizeLabel, color = TextSecondary, fontSize = 11.sp)
                         if (!f.isDir) {
                             IconButton(onClick = { download(f) }, modifier = Modifier.size(28.dp)) {

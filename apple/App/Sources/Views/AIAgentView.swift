@@ -30,6 +30,20 @@ struct AIAgentView: View {
             if model.aiMessages.last?.role == .assistant && !model.aiProcessing {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
+                        // 知识沉淀闭环：把 AI 结论一键存为方案卡片（有关联连接时）
+                        if let connID = model.activeSession?.connection?.id.uuidString {
+                            Button {
+                                let text = model.aiMessages.last?.content.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                                if !text.isEmpty {
+                                    _ = ServerNotebook.add(ServerNote(kind: .solution, text: text), connectionID: connID)
+                                    model.toast = "已存为方案到知识卡片"
+                                }
+                            } label: {
+                                Label("存为方案", systemImage: "bookmark").font(.system(size: 12)).padding(.horizontal, 10).padding(.vertical, 5)
+                                    .background(Theme.success.opacity(0.15)).foregroundStyle(Theme.success).clipShape(Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
                         ForEach(["给我具体命令", "换个思路", "解释原理", "有什么风险"], id: \.self) { q in
                             Button { input = q; send() } label: {
                                 Text(q).font(.system(size: 12)).padding(.horizontal, 10).padding(.vertical, 5)

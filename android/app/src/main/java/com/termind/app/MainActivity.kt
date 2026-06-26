@@ -590,11 +590,17 @@ private fun ChatBubble(role: String, content: String) {
     val isUser = role == "user"
     val clipboard = LocalClipboardManager.current
     val ctx = LocalContext.current
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start, verticalAlignment = Alignment.Top) {
+        // A-Avatar：AI 角色头像（assistant 消息左侧小圆图标，一眼区分角色）
+        if (!isUser) {
+            Box(Modifier.padding(top = 2.dp, end = 6.dp).size(26.dp).clip(androidx.compose.foundation.shape.CircleShape).background(Accent.copy(alpha = 0.2f)), contentAlignment = Alignment.Center) {
+                Icon(Icons.Filled.AutoAwesome, "AI", tint = Accent, modifier = Modifier.size(15.dp))
+            }
+        }
         Surface(
             color = if (isUser) Accent.copy(alpha = 0.25f) else SurfaceLight.copy(alpha = 0.5f),
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.fillMaxWidth(0.85f).combinedClickable(
+            modifier = Modifier.fillMaxWidth(if (isUser) 0.85f else 0.78f).combinedClickable(
                 onClick = {},
                 onLongClick = {
                     clipboard.setText(androidx.compose.ui.text.AnnotatedString(content))

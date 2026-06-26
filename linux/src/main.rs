@@ -145,6 +145,12 @@ impl eframe::App for TermindApp {
                     ui.colored_label(TEXT_SECONDARY, "内存");
                     ui.add(egui::ProgressBar::new(0.56).desired_width(54.0).text("56%").fill(usage_color(56)));
                     ui.colored_label(TEXT_SECONDARY, "负载 0.82");
+                    ui.separator();
+                    // 关键服务运行状态点（对照 apple/android Z6：nginx/docker/mysql/redis/sshd）
+                    for (svc, running) in [("nginx", true), ("docker", true), ("mysql", true), ("redis", false), ("sshd", true)] {
+                        ui.colored_label(if running { SUCCESS } else { TEXT_SECONDARY }, "●");
+                        ui.colored_label(if running { TEXT_PRIMARY } else { TEXT_SECONDARY }, svc);
+                    }
                 });
                 ui.add_space(8.0);
                 egui::Frame::default().fill(egui::Color32::from_rgb(0x0A, 0x0B, 0x14)).rounding(6.0).inner_margin(12.0)

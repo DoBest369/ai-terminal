@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **知识卡片标签筛选双端** ✅（filterTag+allTags 去重；#标签 Chip→按标签过滤；与类型筛选+关键词组合；多维筛选；notebook 自测过；推送 5d88fbf）
 - [x] **知识卡片自由标签双端** ✅（ServerNote 加 tags+持久化向后兼容[apple 自定义 init/android JSONArray]；NotebookView/Sheet 录入标签+卡片显 #标签；notebook 自测过；推送 5c5aca8）
 - [x] **质量收口·知识沉淀闭环全景终极快照** ✅（apple 8 自测+android clean 零 warning+APK；PARITY 🟡=0；录入全覆盖[含全 AI 路径排障]/检索/喂AI全路径/共享 极致完整；推送见下）
 - [x] **android 排障结论一键存方案** ✅（审计:apple 排障结论在 AI 对话区已有存方案入口/android 在终端区无→android 补 diagSaveable+「存为方案」Chip；排障路径纳入知识沉淀闭环；apple 8 自测+android clean 零 warning；推送 5b0188e）

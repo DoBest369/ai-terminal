@@ -6,6 +6,15 @@
 
 ---
 
+## 知识卡片标签筛选双端（多维筛选 类型+标签+关键词）
+- **内容**：上轮加了标签录入/显示，本轮加按标签筛选。双端 `allTags`(notes.flatMap{tags} 去重)→类型筛选下方显可点 `#标签` Chip(FilterChip)→点击设 `filterTag`→`shownNotes` 再按 `tags.contains(filterTag)` 过滤。与现有 类型筛选(filterKind)+关键词搜索(query) **组合过滤**(三条件 AND)。
+- **android**：NotebookSheet filterTag state + 标签 Chip 行(横滑)。**apple**：NotebookView filterTag state + allTags 计算属性 + 标签 Chip 行(ScrollView 横滑 Capsule)。
+- **改动**：`MainActivity.kt`(NotebookSheet 标签筛选)、`NotebookView.swift`(标签筛选)、`docs/PARITY.md`。
+- **验证**：apple swift build + notebook 自测过；android BUILD SUCCESSFUL 25s 零 deprecated。推送 5d88fbf。
+- **意义**：知识卡片现支持**三维筛选**(类型 问题/方案/笔记 + 自由标签 + 关键词)，记录多时多角度快速定位。知识卡片检索能力完整。
+
+---
+
 ## 知识卡片自由标签双端（归类，持久化向后兼容）
 - **Core 模型**：`ServerNote` 加 `tags: [String]=[]`。持久化向后兼容：apple 自定义 `init(from:)` 用 `decodeIfPresent([String].self) ?? []`(旧卡片 JSON 无 tags key 不抛错)；android `optJSONArray("tags")?.map ?: emptyList()`(旧卡片缺失=空)；save 都写 tags(JSONArray)。
 - **UI**：apple `NotebookView` + android `NotebookSheet` 录入区加「标签（逗号分隔，可选）」输入框(支持中英文逗号分隔)；卡片显示 `#标签` chip(Accent 着色)。

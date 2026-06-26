@@ -40,13 +40,25 @@
 
         <!-- ② 终端区：状态条 + 输出 + 输入 -->
         <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto" Background="#0D0E1A">
-            <!-- 状态条 -->
+            <!-- 状态条（CPU/内存 mini 进度条，绿/橙/红三档，对齐 apple/android/linux） -->
             <Border Grid.Row="0" Background="#16182A" Padding="14,8">
-                <StackPanel Orientation="Horizontal" Spacing="18">
+                <StackPanel Orientation="Horizontal" Spacing="16">
                     <TextBlock Text="● 已连接" Foreground="#3FB950" FontSize="12" VerticalAlignment="Center"/>
                     <TextBlock Text="主机 prod-01" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
-                    <TextBlock Text="CPU 47%" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
-                    <TextBlock Text="内存 56%" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
+                    <!-- CPU 47% -->
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="CPU 47%" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
+                        <Border Width="54" Height="4" Background="#1AFFFFFF" CornerRadius="2" VerticalAlignment="Center">
+                            <Border Width="25" Height="4" Background="#3FB950" CornerRadius="2" HorizontalAlignment="Left"/>
+                        </Border>
+                    </StackPanel>
+                    <!-- 内存 56% -->
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="内存 56%" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
+                        <Border Width="54" Height="4" Background="#1AFFFFFF" CornerRadius="2" VerticalAlignment="Center">
+                            <Border Width="30" Height="4" Background="#3FB950" CornerRadius="2" HorizontalAlignment="Left"/>
+                        </Border>
+                    </StackPanel>
                     <TextBlock Text="负载 0.82" Foreground="#8B92A8" FontSize="12" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>

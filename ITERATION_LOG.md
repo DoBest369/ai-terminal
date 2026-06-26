@@ -6,6 +6,16 @@
 
 ---
 
+## A-LastUsed + A-AIClear + 质量收口 · 上次使用时间 + 清空消息
+- **A-LastUsed**（上次使用时间）：`relativeTime(ms)` helper(刚刚/N分钟前/N小时前/N天前/yyyy-MM-dd)；ServerCard `conn.lastUsed > 0` 时副标题下显「上次使用 · X」。对齐 apple 侧边栏。构建 22s，推送 435a5a2。
+- **A-AIClear**（清空消息）：AIAssistantScreen 对话菜单加「🧹 清空当前消息」(messages 非空时)→`messages.clear()`+`lastSent=null`+`persistConvos()`，保留对话壳。对齐 apple 清空会话。构建 21s，推送 f8f30dd。
+- **质量收口**：apple `AITerminalCore`+`App` swift build Build complete；6 自测全 true 无回归；android clean assembleDebug **零 deprecated**。
+- **改动**：`MainActivity.kt`(relativeTime+ServerCard 时间+清空消息菜单)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL clean 零 warning；apple swift build + 6 自测全过。
+- **意义**：连接卡片信息更丰富(上次使用)+AI 对话管理更灵活(清空)。双端成熟产品持续打磨。
+
+---
+
 ## A-GroupFold + A-SftpFilter + 质量收口 · 连接分组折叠 + SFTP 过滤
 - **A-GroupFold**（分组折叠）：ServerListScreen 分组标题改可点 Row(ChevronRight/ExpandMore 箭头+「组名 (数量)」)→toggle `collapsedGroups`(mutableStateListOf)；折叠的组 `group !in collapsedGroups` 时才渲染连接。连接多时整洁。构建 21s，推送 02916ff。
 - **A-SftpFilter**（文件过滤）：SftpBrowser 顶栏过滤图标 toggle 过滤框→`remember(files,sortMode,filter)` 先 `name.contains(filter)` 过滤再排序(与 A-SftpSort 联动)。文件多时找得快。构建 21s，推送 c787f76。

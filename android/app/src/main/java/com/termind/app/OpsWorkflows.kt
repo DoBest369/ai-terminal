@@ -204,6 +204,36 @@ data class SetupTemplate(
                     SetupStep("安装 PHP-FPM", listOf("apt install -y php-fpm php-mysql", "systemctl enable --now php8.1-fpm")),
                     SetupStep("验证", listOf("nginx -v", "mysql --version", "php -v"))
                 )
+            ),
+            SetupTemplate(
+                "redis", "Redis 缓存",
+                "安装 Redis、设密码、仅本地监听、开机自启",
+                listOf(
+                    SetupStep("安装 Redis", listOf("apt update", "apt install -y redis-server")),
+                    SetupStep("仅本地监听 + 设访问密码（请改 YOUR_PASSWORD）", listOf("sed -i 's/^bind .*/bind 127.0.0.1/' /etc/redis/redis.conf", "sed -i 's/^# *requirepass .*/requirepass YOUR_PASSWORD/' /etc/redis/redis.conf")),
+                    SetupStep("启用并重启", listOf("systemctl enable --now redis-server", "systemctl restart redis-server")),
+                    SetupStep("验证", listOf("redis-cli ping || true", "systemctl status redis-server --no-pager | head -5"))
+                )
+            ),
+            SetupTemplate(
+                "postgres", "PostgreSQL 数据库",
+                "安装 PostgreSQL、创建库与用户、开机自启",
+                listOf(
+                    SetupStep("安装 PostgreSQL", listOf("apt update", "apt install -y postgresql postgresql-contrib")),
+                    SetupStep("启用并自启", listOf("systemctl enable --now postgresql")),
+                    SetupStep("创建数据库与用户（请改名称/密码）", listOf("sudo -u postgres psql -c \"CREATE USER appuser WITH PASSWORD 'YOUR_PASSWORD';\"", "sudo -u postgres psql -c \"CREATE DATABASE appdb OWNER appuser;\"")),
+                    SetupStep("验证", listOf("sudo -u postgres psql -c '\\l' | head -10", "psql --version"))
+                )
+            ),
+            SetupTemplate(
+                "python-app", "Python 应用环境",
+                "装 Python3/venv、创建虚拟环境、装 gunicorn",
+                listOf(
+                    SetupStep("安装 Python3 与工具", listOf("apt update", "apt install -y python3 python3-venv python3-pip")),
+                    SetupStep("创建应用目录与虚拟环境", listOf("mkdir -p /opt/app && cd /opt/app", "python3 -m venv /opt/app/venv")),
+                    SetupStep("装常用依赖（按需改）", listOf("/opt/app/venv/bin/pip install --upgrade pip", "/opt/app/venv/bin/pip install gunicorn")),
+                    SetupStep("验证", listOf("python3 --version", "/opt/app/venv/bin/pip --version"))
+                )
             )
         )
     }

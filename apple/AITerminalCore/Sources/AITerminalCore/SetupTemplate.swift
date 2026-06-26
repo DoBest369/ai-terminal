@@ -97,6 +97,33 @@ public struct SetupTemplate: Identifiable, Codable, Sendable, Equatable {
                 SetupStep("安装 MySQL", ["apt install -y mysql-server", "systemctl enable --now mysql"]),
                 SetupStep("安装 PHP-FPM", ["apt install -y php-fpm php-mysql", "systemctl enable --now php8.1-fpm"]),
                 SetupStep("验证", ["nginx -v", "mysql --version", "php -v"])
+            ]),
+        SetupTemplate(
+            id: "redis", name: "Redis 缓存", icon: "bolt.horizontal",
+            description: "安装 Redis、设密码、仅本地监听、开机自启",
+            steps: [
+                SetupStep("安装 Redis", ["apt update", "apt install -y redis-server"]),
+                SetupStep("仅本地监听 + 设访问密码（请改 YOUR_PASSWORD）", ["sed -i 's/^bind .*/bind 127.0.0.1/' /etc/redis/redis.conf", "sed -i 's/^# *requirepass .*/requirepass YOUR_PASSWORD/' /etc/redis/redis.conf"]),
+                SetupStep("启用并重启", ["systemctl enable --now redis-server", "systemctl restart redis-server"]),
+                SetupStep("验证", ["redis-cli ping || true", "systemctl status redis-server --no-pager | head -5"])
+            ]),
+        SetupTemplate(
+            id: "postgres", name: "PostgreSQL 数据库", icon: "cylinder",
+            description: "安装 PostgreSQL、创建库与用户、开机自启",
+            steps: [
+                SetupStep("安装 PostgreSQL", ["apt update", "apt install -y postgresql postgresql-contrib"]),
+                SetupStep("启用并自启", ["systemctl enable --now postgresql"]),
+                SetupStep("创建数据库与用户（请改名称/密码）", ["sudo -u postgres psql -c \"CREATE USER appuser WITH PASSWORD 'YOUR_PASSWORD';\"", "sudo -u postgres psql -c \"CREATE DATABASE appdb OWNER appuser;\""]),
+                SetupStep("验证", ["sudo -u postgres psql -c '\\l' | head -10", "psql --version"])
+            ]),
+        SetupTemplate(
+            id: "python-app", name: "Python 应用环境", icon: "chevron.left.forwardslash.chevron.right",
+            description: "装 Python3/venv、创建虚拟环境、装 gunicorn、配 systemd 服务雏形",
+            steps: [
+                SetupStep("安装 Python3 与工具", ["apt update", "apt install -y python3 python3-venv python3-pip"]),
+                SetupStep("创建应用目录与虚拟环境", ["mkdir -p /opt/app && cd /opt/app", "python3 -m venv /opt/app/venv"]),
+                SetupStep("装常用依赖（按需改）", ["/opt/app/venv/bin/pip install --upgrade pip", "/opt/app/venv/bin/pip install gunicorn"]),
+                SetupStep("验证", ["python3 --version", "/opt/app/venv/bin/pip --version"])
             ])
     ]
 }

@@ -6,6 +6,20 @@
 
 ---
 
+## 质量收口 · 近期进展快照（知识卡片增强 + 导入导出对称 + 多对话完善）
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **97 项 ✅✅，🟡=0**。
+- **近 N 轮进展（双端）**：
+  - 知识卡片：自由标签(tags，持久化向后兼容) → 三维检索(类型+标签+关键词) → 导入(Markdown 解析，与导出对称)
+  - 快捷命令：导出(Markdown) → 导入(解析+去重，与导出对称)
+  - 知识沉淀闭环：排障结论一键存方案(android 补，「AI 结论存方案」覆盖全 AI 路径)
+  - AI 多对话：重命名(android 补 convoTitles 平行列表，对齐 apple)
+  - 文档：CHANGELOG 阶段 13/14/15；PARITY 95→97 项
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：近期围绕「知识卡片增强 + 导入导出对称 + 多对话完善」深化，核心资产可流转、知识卡片多维归类、闭环覆盖全路径。PARITY 增至 97 项全对齐，质量基线稳。
+
+---
+
 ## android AI 对话重命名（对齐 apple，平行标题列表）
 - **审计**：apple 已有对话重命名(`AIConversation.title`+`titleIsCustom`+`renameConversation`+AIAgentView 重命名菜单/alert)；android 对话标题取首条 user 消息或「新对话 N」，**无自定义重命名** → android 落后。
 - **android 补齐**：`convoTitles: SnapshotStateList<String>`(平行 convos，空=自动标题)；`ConvoStore.saveTitles/loadTitles`(独立 key 持久化)；`convoTitle` 优先用自定义标题；对话菜单加「重命名」→ AlertDialog(留空恢复自动)；**新建/删除对话同步 convoTitles**(add ""/removeAt curIdx)，避免标题错位。

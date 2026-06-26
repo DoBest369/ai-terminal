@@ -6,6 +6,13 @@
 
 ---
 
+## linux egui 三栏工作台 UI（五端 UI 设计语言统一）
+- **内容**：linux 端 `main.rs` 从单栏（仅连接列表）→ **三栏工作台**对齐 apple/windows：① `SidePanel::left`(280px) 连接列表（分组 + server_card 卡片，状态点/名称/user@host:port/备注）② `CentralPanel` 终端区（状态条 ● 已连接/prod-01/CPU 47%/内存 56%/负载 + 终端输出 mono[绿色脚本]）③ `SidePanel::right`(320px) AI 面板（用户蓝气泡 + AI 气泡含代码块[绿 mono+黑底]）。窗口 420x640→1200x760。
+- **验证**：`cargo build` **编译成功 0 error/warning**（0.70s 增量，带 proxy）。注：mac 上 `cargo run` 因 egui icrate 0.0.4 对 macOS 26 NSScreen 兼容 bug 不运行，**编译验证已达成**，真 UI 留 CI/真 Linux。推送 46f66ae。
+- **意义**：五端 UI 设计语言统一——apple/windows/linux 都是「左连接列表 + 中终端区 + 右 AI 面板」三栏工作台 + 深色 + accent。android 是移动端单页（连接列表→工作区切换，平台适配）。一点点对照实现，五端设计一致。
+
+---
+
 ## windows Avalonia 三栏工作台 UI（对照 apple 功能对齐）
 - **内容**：Windows 端 MainWindow 从两栏欢迎占位 → 完整**三栏工作台**，对照 apple main-overview：① 侧边栏（Termind 品牌 + 搜索 + 连接列表卡片，含颜色色条/状态点/名称/user@host:port，选中态高亮）② 终端区（状态条「已连接·prod-01·CPU 47%·内存 56%·负载」+ 终端输出 mono 文本[含绿色脚本] + 命令输入框）③ AI 面板（用户蓝气泡 + AI 深色气泡含代码块[绿 mono+黑底] + 快捷追问 chips[重新生成/存为方案] + 输入框带粉红发送按钮）。
 - **验证**：`dotnet build` **0 警告 0 错误**（带 proxy）；`dotnet run` 截图，Read 看图确认三栏布局渲染（左连接/中终端/右AI 对齐 apple）。推送 cecd9cd。

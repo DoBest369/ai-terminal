@@ -6,6 +6,19 @@
 
 ---
 
+## 质量收口 · 批量运维全功能快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **批量运维全功能（双端齐，杀手级差异化闭环）**：
+  - **批量群发**：选目标(全选/清空/按分组) → 并发执行(高危二次确认) → 每台 ok/fail+输出 → **成功/失败统计** → AI 汇总 → **导出 Markdown**
+  - **批量健康巡检**：选目标(全选/分组) → 并发采集(CPU/内存/磁盘/负载/运行时长/服务) → 告警置顶 → **告警/正常/失败统计** → AI 总结 → **导出巡检报告**
+  - **定时后台巡检**：android WorkManager 主动运维
+- **批量运维闭环**：选目标 → 执行/采集 → 统计 → AI 洞察 → 导出留存，每环双端齐。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：批量运维从「执行」扩展到「执行→统计→AI 分析→留存」完整闭环，单连接 SSH 工具无法企及的运维工作台核心差异化完整成型。
+
+---
+
 ## 批量巡检结果导出双端（巡检报告留存）
 - **内容**：批量巡检结果导出为 Markdown 巡检报告(对齐上轮群发结果导出)。
 - **android**：`InspectScreen` 统计行加分享图标→拼 Markdown(标题+告警/正常/失败统计+各机名+healthSummary(去前缀)/error，告警置顶顺序)→`ACTION_SEND` 分享。

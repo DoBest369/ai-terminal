@@ -6,6 +6,15 @@
 
 ---
 
+## android 连接编辑端口校验加警告图标（双端校验一致）
+- **内容**：android EditConnectionScreen 端口非法提示加 `Icons.Filled.Warning` 图标（红），对齐 apple exclamationmark.triangle。双端连接编辑端口校验一致（isError 红框 + 警告图标 + 红字）。
+- **教训**：首次提交漏 `import androidx.compose.material.icons.filled.Warning` → 编译失败（误推送 9de82ab）→ 补 import 重建 BUILD SUCCESSFUL 修复（f057330）。**提交前应等 build 结果再 push**（本轮先 commit+push 才发现 build 失败，破坏了 main 短暂；下次严格 build 通过再提交）。
+- **改动**：`EditConnectionScreen.kt`(Warning 图标 + import)。
+- **验证**：android 重建 BUILD SUCCESSFUL 13s **零 deprecated**。推送 f057330（修复 9de82ab）。
+- **意义**：双端连接编辑端口校验视觉一致。教训：build 通过再 push，勿先推后验。
+
+---
+
 ## apple 连接编辑端口校验加警告图标（实时校验更醒目）
 - **内容**：ConnectionEditView 端口非法（非 1–65535）时的红色文字提示加 `exclamationmark.triangle.fill` 警告图标，实时校验反馈更醒目。
 - **改动**：`ConnectionEditView.swift`(端口校验 HStack + 图标)。

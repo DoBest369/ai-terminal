@@ -6,6 +6,21 @@
 
 ---
 
+## 质量收口 · 运维数据链贯穿快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
+- **运维数据链（采集 → 展示 → AI 分析，双端贯穿）**：
+  1. **采集**：fetchStatus 跑 top/free/df/uptime → CPU/内存/磁盘/负载/运行时长/服务
+  2. **状态面板**：实时显示 + 告警高亮（CPU/磁盘 >85%）+ 问 AI 按钮
+  3. **批量巡检**：并发采集全部机器 → 告警置顶 + AI 总结（素材含 负载/运行时长）
+  4. **健康分析**：单机状态 → AI 结合本机知识卡片给排查/优化建议
+  5. **知识沉淀**：AI 结论可存为方案卡片，下次复用
+- **本批次贯穿增强**：状态面板加 load/uptime → 巡检 AI 素材 + 健康分析 AI 素材同步带上（数据增强下游 AI 全受益）。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：运维数据从采集到展示到 AI 分析到沉淀完整贯穿，每次数据维度增强都同步到下游 AI 路径。Termind「真实状态 + AI 洞察」数据链完整。
+
+---
+
 ## 批量巡检 AI 素材加负载/运行时长（延续状态面板增强）
 - **审计**：上轮状态面板加了 load/uptime(ServerStatus)，但巡检 AI 素材未跟上：① android `InspectScreen.summarize` material 只拼 CPU/内存/磁盘 ② apple 巡检 `composeForAI` 用 `healthSummary`(含负载，但缺 uptime)。巡检数据已含 load/uptime(复用 fetchStatus)，AI 素材未充分利用。
 - **补齐**：① android 巡检 material 加 `负载/运行时长`(status 已有) ② apple `healthSummary` 加 `运行 uptime`(巡检 composeForAI + 健康分析 AI 素材都受益)。双端巡检 AI 素材一致(CPU/内存/磁盘/负载/运行/告警)。

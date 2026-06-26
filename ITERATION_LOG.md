@@ -6,6 +6,19 @@
 
 ---
 
+## 质量收口 · 批量运维完整度快照
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
+- **批量运维能力（双端齐平，杀手级差异化）**：
+  - **批量群发命令**：多选(全选/清空/按分组快速选) → 并发执行 → 每台 ok/fail+输出 → **成功/失败统计** → AI 汇总(总览/失败原因/共性/建议)
+  - **批量健康巡检**：多选(全选/分组) → 并发采集(CPU/内存/磁盘/负载/运行时长) → 告警置顶 → AI 总结(素材含负载/运行时长)
+  - **定时后台巡检**：android WorkManager 主动运维(离线推通知)
+  - 高危命令二次确认 · 风险徽章
+- **意义**：从「逐台 SSH」升级为「一批机器批量操作 + AI 智能洞察」——单连接 SSH 工具(Xshell/Termius)做不到的运维工作台核心差异化。批量群发+巡检结果都有统计汇总+AI 分析。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+
+---
+
 ## 批量群发结果成功/失败统计（双端同步新增）
 - **审计**：双端批量群发结果展示。android `BatchScreen` + apple `BatchView` 都显每台 ok/fail 图标+名称+输出，但**都无成功/失败汇总统计**（双端同缺，非单端落后）→ 适合双端同步新增。
 - **双端新增**：结果列表上方加统计行「✅ 成功 N · ❌ 失败 M · 共 K 台」(完成项统计，运行中不计)。android Row + apple HStack，配色 Success/Danger/TextSecondary。

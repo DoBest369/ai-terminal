@@ -1839,6 +1839,7 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
     val notes = remember { mutableStateListOf<ServerNote>().apply { addAll(ServerNotebook.load(ctx, connId)) } }
     var newKind by remember { mutableStateOf(NoteKind.NOTE) }
     var newText by remember { mutableStateOf("") }
+    var newTags by remember { mutableStateOf("") }   // 逗号分隔标签
     var filterKind by remember { mutableStateOf<NoteKind?>(null) }   // null=全部
     var noteQuery by remember { mutableStateOf("") }                 // 关键词搜索
 
@@ -1879,13 +1880,21 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
                 )
                 FilledIconButton(onClick = {
                     if (newText.trim().isNotEmpty()) {
-                        notes.clear(); notes.addAll(ServerNotebook.add(ctx, connId, ServerNote(kind = newKind, text = newText.trim())))
-                        newText = ""
+                        val tags = newTags.split(",", "，").map { it.trim() }.filter { it.isNotEmpty() }
+                        notes.clear(); notes.addAll(ServerNotebook.add(ctx, connId, ServerNote(kind = newKind, text = newText.trim(), tags = tags)))
+                        newText = ""; newTags = ""
                     }
                 }, colors = IconButtonDefaults.filledIconButtonColors(containerColor = Accent)) {
                     Icon(Icons.Filled.Add, "添加", tint = Color.White)
                 }
             }
+            // 标签输入（逗号分隔，可选）
+            OutlinedTextField(
+                newTags, { newTags = it }, placeholder = { Text("标签（逗号分隔，可选）", color = TextSecondary) }, singleLine = true,
+                leadingIcon = { Icon(Icons.Filled.Sell, null, tint = TextSecondary, modifier = Modifier.size(16.dp)) },
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
+            )
             HorizontalDivider(color = SurfaceLight)
             // 类型筛选（记录多时按类型找）
             if (notes.isNotEmpty()) {
@@ -1915,7 +1924,16 @@ fun NotebookSheet(connId: String, onClose: () -> Unit) {
                         Surface(color = SurfaceLight.copy(alpha = 0.4f), shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth()) {
                             Row(Modifier.padding(12.dp), verticalAlignment = Alignment.Top) {
                                 Text(n.kind.label, color = kindColor(n.kind), fontSize = 11.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(end = 10.dp, top = 1.dp))
-                                Text(n.text, color = TextPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                                Column(Modifier.weight(1f)) {
+                                    Text(n.text, color = TextPrimary, fontSize = 13.sp)
+                                    if (n.tags.isNotEmpty()) {
+                                        Row(Modifier.horizontalScroll(rememberScrollState()).padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                            n.tags.forEach { tag ->
+                                                Text("#$tag", color = Accent, fontSize = 10.sp, modifier = Modifier.background(Accent.copy(alpha = 0.12f), RoundedCornerShape(4.dp)).padding(horizontal = 5.dp, vertical = 1.dp))
+                                            }
+                                        }
+                                    }
+                                }
                                 IconButton(onClick = { notes.clear(); notes.addAll(ServerNotebook.remove(ctx, connId, n.id)) }, modifier = Modifier.size(26.dp)) {
                                     Icon(Icons.Filled.Close, "删除", tint = TextSecondary, modifier = Modifier.size(14.dp))
                                 }

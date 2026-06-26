@@ -20,12 +20,25 @@ public struct ServerNote: Identifiable, Codable, Sendable, Equatable {
     public var kind: Kind
     public var text: String
     public var createdAt: Date
+    /// 自由标签（便于归类/筛选）。旧持久化缺失时解码为空数组（向后兼容）。
+    public var tags: [String]
 
-    public init(id: UUID = UUID(), kind: Kind = .note, text: String, createdAt: Date = Date()) {
+    public init(id: UUID = UUID(), kind: Kind = .note, text: String, createdAt: Date = Date(), tags: [String] = []) {
         self.id = id
         self.kind = kind
         self.text = text
         self.createdAt = createdAt
+        self.tags = tags
+    }
+
+    // 自定义解码：tags 缺失时默认空数组（兼容旧卡片 JSON）
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        kind = try c.decode(Kind.self, forKey: .kind)
+        text = try c.decode(String.self, forKey: .text)
+        createdAt = try c.decode(Date.self, forKey: .createdAt)
+        tags = try c.decodeIfPresent([String].self, forKey: .tags) ?? []
     }
 }
 

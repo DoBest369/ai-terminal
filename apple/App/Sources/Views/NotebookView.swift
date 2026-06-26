@@ -11,6 +11,7 @@ struct NotebookView: View {
     @State private var notes: [ServerNote] = []
     @State private var newKind: ServerNote.Kind = .note
     @State private var newText = ""
+    @State private var newTags = ""   // 逗号分隔标签
     @State private var filterKind: ServerNote.Kind?   // nil=全部
     @State private var search = ""                    // 关键词搜索
 
@@ -47,13 +48,17 @@ struct NotebookView: View {
                         Button {
                             let t = newText.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !t.isEmpty else { return }
-                            notes = ServerNotebook.add(ServerNote(kind: newKind, text: t), connectionID: connID)
-                            newText = ""
+                            let tags = newTags.split(whereSeparator: { $0 == "," || $0 == "，" }).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+                            notes = ServerNotebook.add(ServerNote(kind: newKind, text: t, tags: tags), connectionID: connID)
+                            newText = ""; newTags = ""
                         } label: {
                             Image(systemName: "plus.circle.fill").font(.system(size: 22)).foregroundStyle(Theme.accent)
                         }
                         .buttonStyle(.plain)
                     }
+                    TextField("标签（逗号分隔，可选）", text: $newTags)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(size: 12))
                 }
                 .padding(12)
                 .background(Theme.surface)
@@ -81,7 +86,18 @@ struct NotebookView: View {
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundStyle(kindColor(note.kind))
                                     .padding(.top, 1)
-                                Text(note.text).font(.system(size: 13)).foregroundStyle(Theme.textPrimary)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(note.text).font(.system(size: 13)).foregroundStyle(Theme.textPrimary)
+                                    if !note.tags.isEmpty {
+                                        HStack(spacing: 4) {
+                                            ForEach(note.tags, id: \.self) { tag in
+                                                Text("#\(tag)").font(.system(size: 10)).foregroundStyle(Theme.accent)
+                                                    .padding(.horizontal, 5).padding(.vertical, 1)
+                                                    .background(Theme.accent.opacity(0.12)).clipShape(RoundedRectangle(cornerRadius: 4))
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             .listRowBackground(Theme.surface.opacity(0.4))
                         }

@@ -15,7 +15,8 @@ data class ServerNote(
     val id: String = UUID.randomUUID().toString(),
     val kind: NoteKind = NoteKind.NOTE,
     val text: String,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val tags: List<String> = emptyList()   // 自由标签（归类/筛选），旧卡片缺失=空
 )
 
 /** 服务器知识卡片持久化（按连接 id 存 JSON，对齐 apple ServerNotebook）。 */
@@ -33,7 +34,8 @@ object ServerNotebook {
                     id = o.optString("id", UUID.randomUUID().toString()),
                     kind = runCatching { NoteKind.valueOf(o.optString("kind", "NOTE")) }.getOrDefault(NoteKind.NOTE),
                     text = o.optString("text"),
-                    createdAt = o.optLong("createdAt", 0L)
+                    createdAt = o.optLong("createdAt", 0L),
+                    tags = o.optJSONArray("tags")?.let { ja -> (0 until ja.length()).map { ja.getString(it) } } ?: emptyList()
                 )
             }
         }.getOrDefault(emptyList())
@@ -41,7 +43,7 @@ object ServerNotebook {
 
     private fun save(ctx: Context, connId: String, notes: List<ServerNote>) {
         val arr = JSONArray()
-        notes.forEach { arr.put(JSONObject().put("id", it.id).put("kind", it.kind.name).put("text", it.text).put("createdAt", it.createdAt)) }
+        notes.forEach { arr.put(JSONObject().put("id", it.id).put("kind", it.kind.name).put("text", it.text).put("createdAt", it.createdAt).put("tags", JSONArray(it.tags))) }
         ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit().putString(key(connId), arr.toString()).apply()
     }
 

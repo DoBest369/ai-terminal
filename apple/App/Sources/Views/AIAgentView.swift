@@ -603,6 +603,23 @@ private struct MessageBubble: View {
                             .padding(8)
                             .background(Color.black.opacity(0.35))
                             .clipShape(RoundedRectangle(cornerRadius: 6))
+                            // 代码块右上角一键复制（运维高频复制命令，对齐 android）
+                            .overlay(alignment: .topTrailing) {
+                                Button {
+                                    Self.copyToClipboard(code.trimmingCharacters(in: .whitespacesAndNewlines))
+                                    model.toast = "已复制命令"
+                                } label: {
+                                    Image(systemName: "doc.on.doc")
+                                        .font(.system(size: 10))
+                                        .foregroundStyle(Theme.textSecondary)
+                                        .padding(5)
+                                        .background(Color.black.opacity(0.5))
+                                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                                }
+                                .buttonStyle(.plain)
+                                .padding(5)
+                                .help("复制命令")
+                            }
                     } else {
                         let t = part.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !t.isEmpty {

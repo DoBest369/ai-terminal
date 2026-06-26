@@ -430,6 +430,12 @@ struct AIPanelShowcase: View {
                             .font(.system(size: 12, design: .monospaced)).foregroundStyle(Theme.success)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(8).background(Color.black.opacity(0.35)).clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(alignment: .topTrailing) {
+                                Image(systemName: "doc.on.doc")
+                                    .font(.system(size: 10)).foregroundStyle(Theme.textSecondary)
+                                    .padding(5).background(Color.black.opacity(0.5)).clipShape(RoundedRectangle(cornerRadius: 5))
+                                    .padding(5)
+                            }
                     } else {
                         let t = part.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !t.isEmpty { Text(t).font(.system(size: 13)).foregroundStyle(Theme.textPrimary) }

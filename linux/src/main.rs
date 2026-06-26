@@ -48,11 +48,12 @@ struct TermindApp {
     show_settings: bool,
     api_key: String,
     show_sftp: bool,
+    cmd_input: String,
 }
 
 impl Default for TermindApp {
     fn default() -> Self {
-        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false }
+        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false, cmd_input: String::new() }
     }
 }
 
@@ -303,17 +304,28 @@ impl eframe::App for TermindApp {
                         });
                     });
                 ui.add_space(8.0);
-                // 快捷命令栏（对照 windows/apple/android 终端区，点击填入命令）
+                // 快捷命令栏（对照 windows/apple/android 终端区，点击填入命令输入框）
                 ui.horizontal(|ui| {
                     for cmd in ["ls -la", "df -h", "free -h", "top"] {
-                        let _ = ui.add(egui::Button::new(
+                        if ui.add(egui::Button::new(
                             egui::RichText::new(cmd).monospace().size(11.0).color(ACCENT))
-                            .fill(ACCENT.linear_multiply(0.12)).rounding(14.0));
+                            .fill(ACCENT.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                            self.cmd_input = cmd.to_string();
+                        }
                     }
                     // 高风险命令橙色
-                    let _ = ui.add(egui::Button::new(
+                    if ui.add(egui::Button::new(
                         egui::RichText::new("systemctl status nginx").monospace().size(11.0).color(WARNING))
-                        .fill(WARNING.linear_multiply(0.12)).rounding(14.0));
+                        .fill(WARNING.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                        self.cmd_input = "systemctl status nginx".to_string();
+                    }
+                });
+                ui.add_space(8.0);
+                // 命令输入框（对照 windows/apple/android，提示符 + 输入，快捷命令点击填入这里）
+                ui.horizontal(|ui| {
+                    ui.colored_label(SUCCESS, egui::RichText::new(format!("{} ", prompt)).monospace());
+                    let _ = ui.add_sized([ui.available_width(), 24.0],
+                        egui::TextEdit::singleline(&mut self.cmd_input).hint_text("输入命令…").font(egui::TextStyle::Monospace));
                 });
             });
     }

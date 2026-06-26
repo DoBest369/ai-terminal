@@ -6,6 +6,15 @@
 
 ---
 
+## 质量收口 · PARITY 99 项快照（批量运维增强后）
+- **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归(inspect 告警置顶)；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **99 项 ✅✅，🟡=0**，逼近 100 项里程碑。
+- **近 N 轮进展（双端）**：知识卡片(标签/三维检索/导入) · 快捷命令(导出/导入) · 排障结论存方案 · AI 对话重命名 · 复制 ssh 连接串 · 批量巡检告警筛选 · CHANGELOG 阶段 13/14/15 · PARITY 95→99。
+- **改动**：`ITERATION_LOG.md`(快照)。
+- **验证**：apple swift build + 8 自测全过；android clean 零 warning。
+- **意义**：持续小步快跑补齐细节(知识卡片/快捷命令/对话/连接/巡检)，PARITY 增至 99 项全对齐，逼近 100。质量基线稳，每轮构建+自测+推送。下一里程碑：PARITY 100 项 + 产品成熟度总结。
+
+---
+
 ## 批量巡检告警筛选双端（护城河批量运维增强）+ 批量运维全景
 - **内容**：批量巡检结果加「仅看告警」筛选——巡检多台机器时只显告警/失败的，快速定位问题机。apple `InspectView` onlyAlerts(点告警数 toggle，胶囊高亮)；android `InspectScreen`「仅告警」FilterChip。复用已有告警分类(status.hasWarning/error)。
 - **批量运维（护城河，双端全功能）**：命令历史(去重/置顶/收藏) · 批量群发命令(并发+结果+成功/失败统计+导出+AI 汇总) · 批量健康巡检(并发采集+告警置顶+告警/正常/失败统计+**仅告警筛选**+导出+AI 总结) · 定时后台巡检(android WorkManager 可达性通知)。

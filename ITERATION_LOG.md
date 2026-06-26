@@ -6,6 +6,14 @@
 
 ---
 
+## windows 设置面板 Flyout（对照 apple SettingsView）
+- **内容**：windows ⚙设置按钮加 `Flyout` 设置面板——配色主题（午夜/Dracula/Nord chips）+ AI 服务商（Anthropic Claude/OpenAI）+ API Key（密码框 PasswordChar）+ 模型（claude-opus-4-8），对照 apple SettingsView。点⚙弹出。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(设置按钮 Button.Flyout)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）。推送 9382802。
+- **意义**：windows 端补设置页（之前只有主工作台），对照 apple SettingsView。windows 端功能更完整（主工作台 + 设置面板）。下一步 linux 设置面板对齐。
+
+---
+
 ## windows 连接卡片最近使用时间 → 连接卡片信息五端完全对齐
 - **内容**：windows `ConnItem` 加 `LastUsed`/`HasLastUsed`；ItemTemplate 备注下加「上次使用 · 5 分钟前」（HasLastUsed false 隐藏）。对照 apple/android/linux 最近使用。
 - **改动**：`MainWindow.axaml.cs`(ConnItem LastUsed)、`MainWindow.axaml`(ItemTemplate)。

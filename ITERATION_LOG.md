@@ -6,6 +6,14 @@
 
 ---
 
+## apple 批量巡检自测（--inspect-test，巡检纯逻辑解耦+质量巩固）
+- **内容**：把巡检的排序/AI 素材逻辑从 AppModel(@MainActor) 提取到 Core 纯逻辑——`SystemMonitor.swift` 加 `HealthInspectionItem`(name/info/error/hasWarning) + `enum HealthInspection { sorted(告警置顶) / composeForAI(各机 healthSummary 或失败原因) }`。AppModel.runHealthInspection 用 `HealthInspection.sorted`、summarizeInspection 用 `composeForAI`(去重复逻辑)。`Screenshots.inspectTest`：构造 告警(CPU92%)/正常/采集失败 三 item，验证 sorted 告警+失败置顶/正常垫底 + composeForAI 含「CPU 92%」「c-fail 采集失败：连接超时」。main 加 `--inspect-test`。
+- **改动**：`SystemMonitor.swift`(HealthInspectionItem+HealthInspection)、`AppModel.swift`(复用)、`Screenshots.swift`(inspectTest)、`ShotsMain/main.swift`(子命令)、`CLAUDE.md`(自测清单)。
+- **验证**：Core+App swift build Build complete；`swift run Shots --inspect-test` 输出「告警置顶排序=true；AI 素材正确=true」。推送 ffa2815。
+- **意义**：apple 批量巡检核心逻辑解耦+自测覆盖，质量巩固(自测从 5→6 项)。N-Cron 排序/AI 素材正确性有回归保护。
+
+---
+
 ## A-Complete + 质量收口 · 命令历史补全 + 双端能力总览
 - **A-Complete**（命令补全）：ServerWorkspace 命令输入框上方——已连接+输入非空时，从 cmdHistory 过滤 `contains(q, ignoreCase)`(排除等于自身)取 4 条→AssistChip(History 图标+等宽)横滑显示→点击 `command = h` 填入。加速重复命令输入。构建 21s，推送 90da71d。
 - **质量收口**：apple `AITerminalCore`+`App` swift build 均 Build complete(含新 BatchView/InspectView)；--history/--batch/--risk/--metrics/--env-detect 五自测全 true 无回归；android 零 deprecated。

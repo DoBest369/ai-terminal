@@ -6,6 +6,17 @@
 
 ---
 
+## 质量基线 · 全 18 项自测完整回归
+- **全 18 项自测逐一通过**（用补全后的 CLAUDE.md 完整清单一次性全跑）：
+  - ssh-config(config 解析正确) · portability(连接往返 group/启动命令/字号/备注 正确) · ai-md(当前对话导出 MD) · ai-md-all(全部对话导出) · ai-persist(对话持久化往返) · ai-conv(多对话保存/加载/删除/迁移)
+  - reach(127.0.0.1:1/空host 可达=false 符合预期) · history(去重置顶+限长=true) · risk(风险分级正确) · metrics(指标解析正确) · env-detect(环境探测正确) · batch(群发聚合成功)
+  - diag(排障拼接正确) · rollback(回滚备份/时间线全部) · template(模板步骤/风险正确) · inspect(巡检告警置顶=true) · notebook(知识卡片=true) · favorites(收藏夹去空=true)
+- **构建**：apple `AITerminalCore`+`App` swift build Build complete；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **🟡=0**。
+- **改动**：`ITERATION_LOG.md`(质量基线)。
+- **意义**：以 18 项自测全集做一次完整质量基线回归(往常每轮跑核心 8 项)，确认全部核心逻辑(连接/AI/持久化/巡检/排障/模板/回滚/风险/指标/收藏/知识卡片)无回归。Termind 质量基线扎实。
+
+---
+
 ## 命令历史时间戳评估 + CLAUDE.md 自测清单补全
 - **命令历史时间戳评估**：双端 `CommandHistory` 存 `List<String>`(命令字符串，去重/置顶/限 50)。评估加时间戳：① 命令历史用于**快速复用**而非审计日志，时间价值有限 ② 去重语义(重跑命令置顶)与「执行时间」含义冲突(变成 last-used) ③ 改 data class 会破坏 history 自测(验证 String 列表)。**务实结论：不强做，保持 List<String> 设计**(与 AI 消息时间戳不同——消息是流水记录天然有时序，历史是去重复用集)。
 - **CLAUDE.md 自测清单补全**：发现 CLAUDE.md 只列 10 项自测，实际 main.swift 支持 18 项。补全缺的 8 项(history/risk/metrics/env-detect/batch/diag/rollback/template)+标注「全集 18，核心 8」。**全 18 项均验证通过**。

@@ -39,6 +39,7 @@ public struct SystemInfo: Sendable, Equatable {
         if memTotal > 0 { parts.append("内存 \(Int(memPercent))%") }
         if diskTotal > 0 { parts.append("磁盘 \(Int(diskPercent))%") }
         if !loadavg.isEmpty { parts.append("负载 \(loadavg.map { String(format: "%.2f", $0) }.joined(separator: "/"))") }
+        if !uptime.isEmpty { parts.append("运行 \(uptime)") }
         let stopped = stoppedServices
         if !stopped.isEmpty { parts.append("⚠️ 未运行 \(stopped.joined(separator: ","))") }
         return parts.isEmpty ? "" : "服务器状态：" + parts.joined(separator: " · ")

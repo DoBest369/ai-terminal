@@ -6,6 +6,15 @@
 
 ---
 
+## 连接导入冲突处理评估 + android 数量反馈
+- **审计**：双端连接导入(JSON / SSH config)去重现状。**apple** `importConnections`/`importFromSSHConfig` 早有按 host+username+port 去重 + 数量反馈 toast(「已导入 N 个」/「无新连接」)。**android** `onImport` 已按 user@host:port 去重，但**无数量反馈** → android 落后。
+- **android 补齐**：`onImport` 计算 fresh/skipped，加 `Toast`「已导入 N 个连接（跳过 M 个已存在）」/「无新连接（N 个已存在或为空）」。JSON 导入 + SSH config 导入(都经 onImport)统一覆盖。
+- **改动**：`MainActivity.kt`(onImport 数量反馈)、`docs/PARITY.md`。
+- **验证**：android BUILD SUCCESSFUL 24s 零 deprecated；apple swift build + 8 自测全过。推送 deac041。
+- **意义**：连接导入去重+数量反馈双端齐，重复导入(同 host+user+port)自动跳过且明确告知用户导入/跳过数。导入更稳健、透明。又一处审计发现 android 落后→补齐。
+
+---
+
 ## 质量收口 · 审计驱动双端对齐成果总览
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated** + APK 出包(~21MB)。PARITY 配对能力 **🟡=0**。
 - **「系统性审计 → 补齐单端落后」累计成果（本阶段方法论核心）**：

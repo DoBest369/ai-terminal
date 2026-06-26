@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **android 连接导入数量反馈** ✅（审计发现 apple 早有去重+反馈，android 已去重缺反馈→补 Toast「已导入 N/跳过 M」；JSON+SSH config 统一；导入去重+反馈双端齐；apple 8 自测+android clean 零 warning；推送 deac041）
 - [x] **质量收口·审计驱动双端对齐成果总览** ✅（apple 8 自测+android clean 零 warning+APK；PARITY 🟡=0；审计补齐累计 apple 4 项/android 4 项+双端同步多项；推送见下）
 - [x] **android 状态面板加负载/运行时长** ✅（审计发现 apple 早有 loadavg/uptime，android 缺→补 fetchStatus uptime+ServerStatus load/uptime+面板第二行；状态面板双端对齐；apple 8 自测+android clean 零 warning；推送 d83273f）
 - [x] **CHANGELOG 阶段10·功能完整化与平台差异处理** ✅（SFTP 批量操作/AI 提示词 25/连接编辑色选器校验/危险操作审计/快捷命令编辑分组/终端完整度评估/文档审查/linux 评估；方法论审计补齐保 🟡=0；推送 0123303）

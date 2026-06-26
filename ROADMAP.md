@@ -79,6 +79,7 @@
 - [x] **A-SftpFilter** SFTP 文件名过滤 ✅（SftpBrowser 过滤图标 toggle 过滤框→contains 过滤+排序联动；构建 21s 无 warning；推送 c787f76）
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
+- [x] **android SFTP 批量下载** ✅（多选→批量下载到 Downloads，复用单下载循环；apple fileExporter 一次一文件批量受限，如实记 backlog；构建 25s 无 warning；推送 b591938）
 - [x] **README 整体审查更新** ✅（平台矩阵 Linux 行修正为 Rust+egui 骨架🟡；能力清单刷新 SFTP批量删/AI快捷追问/排障8/模板8；边界 Linux 未编译验证；截图引用核对全存在；推送 7a6a71f）
 - [x] **质量收口·SFTP 文件管理完整度快照** ✅（apple 8 自测+android clean 零 warning+APK；PARITY 🟡=0；SFTP 浏览/传输/增删改/批量删/排序过滤/路径跳转 双端完整；推送见下）
 - [x] **SFTP 批量删除双端** ✅（多选→批量删，复用单删循环+二次确认；android 长按多选[6153c08]/apple 工具栏开关[4fd4a8f]）

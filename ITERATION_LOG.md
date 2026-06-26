@@ -6,6 +6,15 @@
 
 ---
 
+## android SFTP 批量下载 + apple 批量下载边界评估
+- **android**：SFTP 多选操作栏(上轮批量删除)加「下载」→`batchDownload` 循环 `downloadFile` 到 `getExternalFilesDir("Downloads")`(目录在调用处过滤跳过)。下载直存 app 外部 Downloads 目录，无需逐个 SAF 选择器，批量天然顺畅。构建 25s，推送 b591938。
+- **apple 评估**：`FileBrowserView` 共用 macOS+iOS，单文件下载经 `fileExporter`(系统导出器，一次一文件)。批量下载需 ① iOS 无文件夹选择器 ② macOS 可 NSOpenPanel 选目录但与 iOS 不一致。**如实记录**：apple 单文件下载经系统导出器是平台惯例，批量下载受 fileExporter 一次一文件限制，**暂记 backlog**，不强行做 N 次弹窗的差 UX 方案。
+- **改动**：`MainActivity.kt`(batchDownload + 下载按钮)、`docs/PARITY.md`(SFTP 批量下载 android✅/apple🟡+边界说明)。
+- **验证**：android BUILD SUCCESSFUL 25s 零 deprecated；apple swift build Build complete(无改动)。
+- **意义**：android SFTP 批量下载落地(多选删+下载完整)；apple 因导出机制差异如实标 🟡+backlog，不虚标对齐。务实反映平台差异。
+
+---
+
 ## README 整体审查更新（对外门面准确性）
 - **审查发现并修正**：① 平台矩阵 Linux 行误标「Rust + GTK4 / C++ Qt」「⬜ 待起」→ 实为 Rust+egui 骨架，改为「Rust + egui/eframe」「🟡 骨架（无 Rust 工具链未编译验证）」+ 链接 linux/README。② 能力清单 SFTP 行只写「浏览+查看」→ 补「下载/上传/新建/重命名/删除/批量删除/排序/过滤」；AI 行补「快捷追问/重发/存卡片」；排障 5→8 场景、模板 4→8 个。③ 现状边界 Windows/Linux 笼统「待起」→ 分开:Linux 骨架未编译验证(无 Rust)、Windows 待起。
 - **核对无误**：README 引用的 7 张截图(01-sidebar/03-ai-panel/04-connection-edit/09-sftp/24-notebook/23-inspect/22-batch)全部存在;边界说明(本机无 Xcode 未出包/android 真机实测)准确。

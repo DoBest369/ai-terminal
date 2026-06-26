@@ -31,6 +31,7 @@
 | SFTP 新建文件夹 / 删除 | ✅ | ✅ | 双端（apple Citadel createDirectory/rmdir/remove；android sftp.mkdir/rm/rmdir）+ 二次确认 |
 | SFTP 文件重命名 | ✅ | ✅ | 双端 sftp.rename（apple 右键菜单 / android 行图标） |
 | SFTP 批量删除 | ✅ | ✅ | 双端多选→批量删（apple 工具栏开关 / android 长按）+二次确认 |
+| SFTP 批量下载 | 🟡 | ✅ | android 多选→批量下载到 Downloads；apple 单文件经系统导出器（fileExporter 一次一文件，批量受限，backlog） |
 | SFTP 路径直接跳转 | ✅ | ✅ | 双端输路径直达深目录 |
 | SFTP 修改时间 / 排序 | ✅ | ✅ | 双端行显时间 + 名称/大小/时间排序 |
 | SFTP 文件名过滤 | ✅ | ✅ | 双端当前目录过滤（apple .searchable） |

@@ -82,6 +82,37 @@ public struct DiagnosticWorkflow: Identifiable, Codable, Sendable, Equatable {
                 "for c in $(docker ps -q); do echo \"== $(docker inspect --format '{{.Name}}' $c) ==\"; docker logs --tail 20 $c 2>&1; done"
             ],
             summaryPrompt: "你是运维排障助手。根据上述 Docker 输出，给出：① 各容器运行状态（有无退出/重启）② 异常容器及日志线索 ③ 处理建议。精炼中文。"
+        ),
+        DiagnosticWorkflow(
+            id: "mem-pressure", name: "内存占用排查", icon: "memorychip",
+            description: "查看内存/交换分区、占用最高的进程、OOM 记录",
+            commands: [
+                "free -m",
+                "ps aux --sort=-%mem | head -12",
+                "cat /proc/meminfo | head -5",
+                "dmesg 2>/dev/null | grep -i -E 'oom|out of memory' | tail -10"
+            ],
+            summaryPrompt: "你是运维排障助手。根据上述内存输出，给出：① 当前内存/交换使用是否紧张 ② 占用最高的进程是否异常（如内存泄漏迹象）③ 有无 OOM 杀进程记录 ④ 优化/排查建议。精炼中文。"
+        ),
+        DiagnosticWorkflow(
+            id: "port-usage", name: "端口占用排查", icon: "point.3.connected.trianglepath.dotted",
+            description: "查看监听端口、占用进程、连接数，定位端口冲突",
+            commands: [
+                "ss -tlnp",
+                "ss -s",
+                "netstat -tlnp 2>/dev/null | head -20"
+            ],
+            summaryPrompt: "你是运维排障助手。根据上述端口输出，给出：① 各监听端口及对应进程 ② 有无端口冲突或异常监听 ③ 连接数概况 ④ 如需释放某端口的处理建议（标注风险）。精炼中文。"
+        ),
+        DiagnosticWorkflow(
+            id: "service-failed", name: "服务启动失败排查", icon: "exclamationmark.triangle",
+            description: "列出启动失败的 systemd 服务及其状态与日志",
+            commands: [
+                "systemctl --failed --no-pager",
+                "systemctl list-units --state=failed --no-pager",
+                "for s in $(systemctl --failed --no-legend --plain | awk '{print $1}'); do echo \"== $s ==\"; systemctl status $s --no-pager -l | tail -15; done"
+            ],
+            summaryPrompt: "你是运维排障助手。根据上述失败服务输出，给出：① 哪些服务启动失败 ② 各自的失败原因线索（从状态/日志）③ 具体修复建议（配置/依赖/权限等）。精炼中文。"
         )
     ]
 }

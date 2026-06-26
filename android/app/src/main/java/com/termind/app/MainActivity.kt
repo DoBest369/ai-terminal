@@ -1362,6 +1362,11 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     IconButton(onClick = { showHistory = true }, enabled = cmdHistory.isNotEmpty()) {
                         Icon(Icons.Filled.History, "命令历史", tint = if (cmdHistory.isEmpty()) TextSecondary.copy(alpha = 0.4f) else Accent)
                     }
+                    // A-Paste：粘贴剪贴板到命令框
+                    val cmdClip = LocalClipboardManager.current
+                    IconButton(onClick = { cmdClip.getText()?.text?.let { command = it } }) {
+                        Icon(Icons.Filled.ContentPaste, "粘贴", tint = TextSecondary)
+                    }
                     OutlinedTextField(
                         command, { command = it }, label = { Text("命令") }, singleLine = true,
                         colors = termColors, modifier = Modifier.weight(1f)

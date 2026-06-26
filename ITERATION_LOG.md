@@ -6,6 +6,16 @@
 
 ---
 
+## 知识卡片导入双端（与导出对称，团队共享）+ 导入导出全景
+- **解析器**：apple `ServerNotebook.parseImport`(Core) + android `ServerNotebook.parseImport`——`## 问题/方案/笔记` 设当前类型 + `- 内容` 为一条卡片(对称 exportMarkdown)，逻辑对齐。
+- **UI**：apple NotebookView 工具栏「导入」→ alert 粘贴；android NotebookSheet 标题栏导入图标 → AlertDialog 粘贴。解析后按 text 去重 + 数量反馈。
+- **导入导出全景（双端）**：① 连接配置 JSON(导出+导入,去重+反馈) ② 知识卡片 Markdown(导出+导入) ③ 快捷命令 Markdown(导出+导入) ④ AI 对话 Markdown(导出) ⑤ 批量群发/巡检结果 Markdown(导出) ⑥ SSH config(导入)。配置/经验/命令 三类核心资产导入导出对称完整。
+- **改动**：`ServerNotebook.swift`(parseImport)、`ServerNotebook.kt`(parseImport)、`NotebookView.swift`(导入 alert)、`MainActivity.kt`(导入图标+对话框)、`docs/PARITY.md`。
+- **验证**：apple Core+App swift build + 8 自测全过(notebook 含导入)；android BUILD SUCCESSFUL 25s 零 deprecated。PARITY 96+知识卡片导入=97 项 ✅✅，🟡=0。推送 apple a0d5f32/android d03e23d。
+- **意义**：知识卡片导入导出对称完整，团队可共享运维经验(导出→他人导入)。Termind 核心资产(连接配置/知识卡片/快捷命令)导入导出都对称，运维资产可流转。
+
+---
+
 ## 质量收口 · 快捷命令全功能 + PARITY 96 项快照
 - **质量门禁**：apple `AITerminalCore`+`App` swift build Build complete；8 自测全 true 无回归；android clean assembleDebug **零 deprecated**。PARITY 配对能力 **96 项 ✅✅，🟡=0**。
 - **快捷命令管理（双端全功能）**：默认库(分组) · 自定义增/删/改(名称/命令/分组) · 分组显示 · 风险着色 · 一键填入 · 命令收藏夹(星标置顶) · **导出**(Markdown 复制/分享) · **导入**(粘贴解析 Markdown/宽松格式+去重)。导出导入对称，支持备份恢复/团队共享。

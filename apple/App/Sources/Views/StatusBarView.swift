@@ -35,6 +35,13 @@ struct StatusBarView: View {
                            value: session.status.label,
                            tint: statusColor(session.status))
 
+                // 连接时长（已连接时每秒刷新，对齐 android A-Duration）
+                if let start = session.connectedAt {
+                    TimelineView(.periodic(from: start, by: 1)) { ctx in
+                        statusItem(icon: "clock", label: "时长", value: Self.durationLabel(ctx.date.timeIntervalSince(start)))
+                    }
+                }
+
                 if let note = session.connection?.noteText, !note.isEmpty {
                     statusItem(icon: "note.text", label: "备注", value: note)
                 }
@@ -122,6 +129,13 @@ struct StatusBarView: View {
 
     private var displayInfo: SystemInfo? {
         session.isLocal ? localInfo : session.systemInfo
+    }
+
+    /// 秒数 → mm:ss 或 HH:mm:ss
+    static func durationLabel(_ interval: TimeInterval) -> String {
+        let s = Int(max(0, interval))
+        let h = s / 3600, m = (s % 3600) / 60, sec = s % 60
+        return h > 0 ? String(format: "%d:%02d:%02d", h, m, sec) : String(format: "%02d:%02d", m, sec)
     }
 
     private func statusItem(icon: String, label: String, value: String, tint: Color = Theme.textSecondary) -> some View {

@@ -12,6 +12,7 @@ final class TerminalSessionVM: ObservableObject, Identifiable {
 
     @Published var status: SessionStatus
     @Published var statusMessage: String = ""
+    @Published var connectedAt: Date?   // 连接成功时刻（用于显示连接时长，对齐 android A-Duration）
     @Published var systemInfo: SystemInfo?
 
     /// 由终端视图注入：SwiftTerm 终端视图引用（用于搜索）
@@ -100,6 +101,7 @@ final class TerminalSessionVM: ObservableObject, Identifiable {
                 guard !Task.isCancelled, self.sshSession === session else { return }
                 self.status = .connected
                 self.statusMessage = "已连接"
+                self.connectedAt = Date()
                 self.feed?(Data("\u{1b}[32m✓ 连接成功\u{1b}[0m\r\n".utf8))
                 await session.startShell(
                     cols: cols,
@@ -142,6 +144,7 @@ final class TerminalSessionVM: ObservableObject, Identifiable {
 
     private func handleClose(_ message: String?) {
         status = .disconnected
+        connectedAt = nil
         statusMessage = message ?? "连接已断开"
         if let message {
             feed?(Data("\r\n\u{1b}[33m\(message)\u{1b}[0m\r\n".utf8))
@@ -179,6 +182,7 @@ final class TerminalSessionVM: ObservableObject, Identifiable {
         Task { await session?.close() }
         sshSession = nil
         status = .disconnected
+        connectedAt = nil
         didStartShell = false
     }
 

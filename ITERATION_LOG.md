@@ -6,6 +6,15 @@
 
 ---
 
+## UI 现代化：状态面板 CPU/内存 mini 进度条（截图驱动）
+- **内容**：截图审视状态面板展开详情，发现 CPU/内存只有数字无可视化 → 现代运维面板标配进度条。给 `StatusBarView.detailCellWithBar` 加 mini 进度条（数值下方），**绿<60 / 橙60-80 / 红>80 三档语义**着色，一眼看占用程度。
+- **技术**：用纯布局 `Capsule`（真实 GeometryReader 自适应宽度 / Showcase 固定宽 130），**避开 `ProgressView` 在 ImageRenderer 离屏渲染失败**（之前试 ProgressView 截图显示橙块+禁止符号）。低占用色从 accent(粉红) 改 success(绿) 更直观。
+- **改动**：`StatusBarView.swift`(detailCellWithBar)、`Showcase.swift`(detailBar 同步)。
+- **验证**：swift build Build complete；`swift run Shots` 渲染 02-statusbar，Read 看图确认 CPU 47%/内存 56% 显示绿色进度条按比例填充。推送 89e8e24。
+- **意义**：状态面板可视化提升，运维一眼看 CPU/内存负载程度（现代化 + 实用）；同期工具链 dotnet 国内 brew 镜像装中（Windows Avalonia 前提）。
+
+---
+
 ## UI 现代化：apple AI 代码块一键复制按钮（截图驱动）
 - **内容**：用 Showcase 截图审视 AI 对话面板，发现 apple 代码块只能选中、**无复制按钮**（android 有点击复制）→ 现代化缺口 + 双端不对齐。给 apple AIAgentView 代码块右上角加复制按钮（`doc.on.doc` 图标，深色圆角）→ `Clipboard.copy` 纯命令 + `model.toast`。Showcase 同步，**截图验证按钮显示**（代码块右上角）。
 - **改动**：`AIAgentView.swift`(代码块 overlay 复制按钮)、`Showcase.swift`(同步)。

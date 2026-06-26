@@ -6,6 +6,14 @@
 
 ---
 
+## linux egui AI 气泡角色标签（对照 apple/android）
+- **内容**：linux AI 面板用户气泡前加「你」标签、AI 气泡前加「✦ AI」标签（10pt strong），对照 apple/android MessageBubble 的角色标签。
+- **改动**：`linux/src/main.rs`(AI 气泡角色标签)。
+- **验证**：`cargo build` **0 error/warning**（0.48s 增量，带 proxy）。mac 上不运行（icrate 兼容）。推送 5e97f3b。
+- **意义**：linux AI 面板对照 apple/android 更一致（角色标签 + 气泡 + 代码块 + 快捷追问 + 输入框）。五端 AI 对话面板设计语言趋于完全一致。
+
+---
+
 ## windows 状态条服务状态点 → 服务状态五端全对齐
 - **内容**：windows 状态条负载后加分隔线 + nginx/docker（绿点运行）/redis（灰点未运行）服务状态点，对照 apple/android/linux Z6 状态面板服务状态。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(服务状态点)。

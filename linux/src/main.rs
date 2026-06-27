@@ -200,7 +200,9 @@ struct TermindApp {
     show_sftp: bool,
     cmd_input: String,
     term_lines: Vec<String>,   // 用户输入回车后追加的终端历史行
-    ai_msgs: Vec<(bool, String)>,  // AI 对话（true=用户提问 / false=AI 真实回复）
+    ai_msgs: Vec<(bool, String)>,  // AI 对话（true=用户提问 / false=AI 真实回复）；当前活跃会话
+    sessions: Vec<Vec<(bool, String)>>,  // 多会话存档（对照 windows/apple ai-conv），切换时与 ai_msgs 同步
+    cur_session: usize,            // 当前会话索引
     cmd_history: Vec<String>,  // 命令历史（去重最近优先），供上下键回溯
     hist_idx: Option<usize>,   // 当前回溯位置（None=未回溯）
     reach_rx: std::sync::mpsc::Receiver<(usize, bool)>,  // 后台 TCP 可达性探测结果
@@ -415,7 +417,7 @@ impl Default for TermindApp {
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
         THEME_IDX.store(load_theme_idx(), std::sync::atomic::Ordering::Relaxed);   // U3 恢复持久化主题
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), ai_search: String::new(), custom_cmds: load_custom_cmds(), new_cmd_input: String::new(), custom_asks: load_custom_asks(), new_ask_input: String::new(), metrics: (0, 0, 0, "--".to_string()), services: Vec::new(), metrics_target: String::new(), last_refresh: 0.0, metrics_tx, metrics_rx }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), sessions: vec![Vec::new()], cur_session: 0, cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), ai_search: String::new(), custom_cmds: load_custom_cmds(), new_cmd_input: String::new(), custom_asks: load_custom_asks(), new_ask_input: String::new(), metrics: (0, 0, 0, "--".to_string()), services: Vec::new(), metrics_target: String::new(), last_refresh: 0.0, metrics_tx, metrics_rx }
     }
 }
 
@@ -1027,11 +1029,13 @@ impl eframe::App for TermindApp {
                             self.ai_mode = mode;
                         }
                     }
-                    // 清空 / 导出对话（对照 windows）
+                    // 会话管理 / 清空 / 导出对话（对照 windows/apple ai-conv）
                     let mut trigger_export = false;
+                    let mut session_action: Option<usize> = None;   // Some(i)=切到i, usize::MAX=新建
+                    let mut del_session: Option<usize> = None;
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::TRASH).size(13.0).color(TEXT_SECONDARY()))
-                            .fill(egui::Color32::TRANSPARENT)).on_hover_text("清空对话").clicked() {
+                            .fill(egui::Color32::TRANSPARENT)).on_hover_text("清空当前会话").clicked() {
                             self.ai_msgs.clear();
                             self.pending_cmds.clear();
                         }
@@ -1039,10 +1043,52 @@ impl eframe::App for TermindApp {
                             .fill(egui::Color32::TRANSPARENT)).on_hover_text("导出对话为 Markdown").clicked() {
                             trigger_export = true;
                         }
+                        // 多会话切换/新建/删除（对照 windows）
+                        ui.menu_button(egui::RichText::new(egui_phosphor::regular::CHATS).size(13.0).color(TEXT_SECONDARY()), |ui| {
+                            ui.set_max_width(260.0);
+                            ui.label(egui::RichText::new("AI 会话").size(12.0).color(TEXT_PRIMARY()));
+                            for i in 0..self.sessions.len() {
+                                let msgs = if i == self.cur_session { &self.ai_msgs } else { &self.sessions[i] };
+                                let first = msgs.iter().find(|(u, _)| *u).map(|(_, t)| t.clone()).unwrap_or_default();
+                                let title = if first.is_empty() { format!("新会话 {}", i + 1) } else if first.chars().count() > 18 { format!("{}…", first.chars().take(18).collect::<String>()) } else { first };
+                                let cur = i == self.cur_session;
+                                ui.horizontal(|ui| {
+                                    if ui.add(egui::Button::new(egui::RichText::new(format!("{}{}", if cur { "● " } else { "" }, title)).size(11.0).color(if cur { ACCENT() } else { TEXT_PRIMARY() })).frame(false)).clicked() {
+                                        session_action = Some(i); ui.close_menu();
+                                    }
+                                    if self.sessions.len() > 1 && ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::X).size(10.0).color(WARNING())).frame(false)).clicked() {
+                                        del_session = Some(i); ui.close_menu();
+                                    }
+                                });
+                            }
+                            if ui.button(egui::RichText::new("+ 新建会话").size(11.0).color(SUCCESS())).clicked() {
+                                session_action = Some(usize::MAX); ui.close_menu();
+                            }
+                        });
                         // AI 对话搜索（匹配气泡高亮，对照终端搜索）
                         ui.add(egui::TextEdit::singleline(&mut self.ai_search).hint_text("搜索对话…").desired_width(100.0).font(egui::TextStyle::Small));
                     });
                     if trigger_export { self.export_chat(); }
+                    // 会话切换/新建：先把当前 ai_msgs 存回 sessions[cur]，再加载目标
+                    if let Some(i) = session_action {
+                        self.sessions[self.cur_session] = self.ai_msgs.clone();
+                        if i == usize::MAX {
+                            self.sessions.push(Vec::new());
+                            self.cur_session = self.sessions.len() - 1;
+                            self.ai_msgs.clear();
+                        } else {
+                            self.cur_session = i;
+                            self.ai_msgs = self.sessions[i].clone();
+                        }
+                        self.pending_cmds.clear();
+                    }
+                    if let Some(i) = del_session {
+                        self.sessions[self.cur_session] = self.ai_msgs.clone();
+                        self.sessions.remove(i);
+                        if self.cur_session >= self.sessions.len() { self.cur_session = self.sessions.len() - 1; }
+                        else if i < self.cur_session { self.cur_session -= 1; }
+                        self.ai_msgs = self.sessions[self.cur_session].clone();
+                    }
                 });
                 // 待执行命令卡片（Agent 确认放行 / Auto 危险命令确认）
                 let mut run_idx: Option<usize> = None;

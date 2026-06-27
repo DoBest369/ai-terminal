@@ -6,6 +6,14 @@
 
 ---
 
+## linux AI 输入回车/发送→追加提问气泡（AI 区真实交互）
+- **内容**：linux `struct` 加 `ai_msgs`；AI 输入框回车（lost_focus + Enter）或发送按钮点击 → push 提问到 `ai_msgs` + 清空；mock 气泡后渲染用户提问气泡（蓝色，对照终端命令回车交互）。
+- **改动**：`linux/src/main.rs`(ai_msgs + 提问气泡渲染 + 回车/发送追加)。
+- **验证**：`cargo build` **0 error/warning**（0.56s 增量，带 proxy，borrow 通过，build 通过后提交）。推送 f491715。
+- **意义**：linux AI 区也回车交互（输入提问→回车→追加气泡），对照终端命令回车。linux 双区都支持回车交互（终端命令执行 + AI 提问追加）。下一步 windows AI 回车对齐。
+
+---
+
 ## windows 命令输入回车→追加终端输出（双端命令执行回显）
 - **内容**：windows 终端输出 StackPanel/ScrollViewer/光标行加 x:Name（TermOutput/TermScroll/TermCursor）；CmdInput `KeyDown=OnCmdKeyDown`，回车 → 构造 TextBlock（root@host:~$ cmd，host 取状态条选中连接）插入光标行前 + 清空 + `ScrollToEnd`。对照 linux 命令回车执行。
 - **改动**：`MainWindow.axaml`(终端输出 x:Name + KeyDown)、`MainWindow.axaml.cs`(OnCmdKeyDown + Avalonia.Input using)。

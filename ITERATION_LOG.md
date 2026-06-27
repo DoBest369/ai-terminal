@@ -4679,3 +4679,11 @@
 - **改动**：`windows MainWindow.axaml.cs`(OnExportChat StorageProvider)、`linux main.rs`(export_chat rfd)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 0993018。
 - **意义**：AI 导出与终端导出体验一致（文件对话框选位置 + 友好提示），双端。导出能力完善（终端+AI 都可导出到任意位置）。下一步 AI 对话搜索 / 质量收口 / 新功能。
+
+---
+
+## AI 对话搜索（windows+linux，气泡匹配高亮，对照终端搜索，搜索能力补全）
+- **内容**：AI 面板加搜索框 → 匹配气泡橙色描边高亮 + 首个滚动到可见；windows OnAiSearch 遍历 AiMessages（Border 气泡，BubbleText 提取 TextBlock/StackPanel 文本），linux ai_search 字段 + ai_msgs 渲染 stroke 高亮。
+- **改动**：`windows MainWindow.axaml`(AiSearchBox)、`MainWindow.axaml.cs`(OnAiSearch + BubbleText)、`linux main.rs`(ai_search 字段 + 搜索框 + 气泡 stroke 高亮)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 3eccab4。
+- **意义**：搜索能力补全——终端 + 连接 + AI 全可搜，windows/linux 双端对齐。下一步 质量收口 CHANGELOG 阶段51 / AI 多会话 / 新功能。

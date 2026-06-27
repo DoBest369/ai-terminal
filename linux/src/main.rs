@@ -53,11 +53,29 @@ struct TermindApp {
     ai_msgs: Vec<String>,      // AI 区用户输入回车后追加的提问气泡
     cmd_history: Vec<String>,  // 命令历史（去重最近优先），供上下键回溯
     hist_idx: Option<usize>,   // 当前回溯位置（None=未回溯）
+    reach_rx: std::sync::mpsc::Receiver<(usize, bool)>,  // 后台 TCP 可达性探测结果
+}
+
+/// TCP 可达性探测（真实逻辑第一步，std::net 无需额外依赖）：connect_timeout 2s
+fn probe_tcp(host: &str, port: u16) -> bool {
+    use std::net::ToSocketAddrs;
+    match (host, port).to_socket_addrs() {
+        Ok(mut addrs) => addrs.next().map_or(false, |addr|
+            std::net::TcpStream::connect_timeout(&addr, std::time::Duration::from_secs(2)).is_ok()),
+        Err(_) => false,
+    }
 }
 
 impl Default for TermindApp {
     fn default() -> Self {
-        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None }
+        let conns = demo_conns();
+        // 启动后台线程对每个连接做真实 TCP 可达性探测，结果经 channel 回传
+        let (tx, reach_rx) = std::sync::mpsc::channel();
+        for (i, c) in conns.iter().enumerate() {
+            let (host, port, tx) = (c.host, c.port, tx.clone());
+            std::thread::spawn(move || { let _ = tx.send((i, probe_tcp(host, port))); });
+        }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx }
     }
 }
 
@@ -77,6 +95,13 @@ fn sftp_demo() -> Vec<(&'static str, bool, &'static str, &'static str)> {
 
 impl eframe::App for TermindApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // 应用后台 TCP 探测结果（真实可达性）→ 更新连接 online 状态
+        while let Ok((i, ok)) = self.reach_rx.try_recv() {
+            if let Some(c) = self.conns.get_mut(i) { c.online = ok; }
+        }
+        // 探测期间保持低频重绘以接收后台线程结果
+        ctx.request_repaint_after(std::time::Duration::from_millis(500));
+
         // 顶栏
         egui::TopBottomPanel::top("topbar").show(ctx, |ui| {
             ui.horizontal(|ui| {

@@ -432,9 +432,14 @@ public partial class MainWindow : Window
         var host = System.Environment.GetEnvironmentVariable("TERMIND_SSH_HOST") ?? "47.85.19.31";
         var user = System.Environment.GetEnvironmentVariable("TERMIND_SSH_USER") ?? "root";
         AppendTerm($"{user}@{host}:~$ {cmd}", "#C9D1D9");
+        var sw = System.Diagnostics.Stopwatch.StartNew();
         var result = await SshExecAsync(cmd);
+        sw.Stop();
         foreach (var line in result.Split('\n'))
             AppendTerm(line.TrimEnd(), result.StartsWith("⚠") ? "#F59E0B" : "#A0A0A0");
+        // 执行耗时提示（运维参考：命令慢可能是资源/网络问题）
+        var ok = !result.StartsWith("⚠");
+        AppendTerm($"{(ok ? "✓" : "✕")} 耗时 {sw.ElapsedMilliseconds}ms", ok ? "#6B7280" : "#F59E0B");
 
         // S5 Auto 自主闭环：把执行结果回喂 AI，让 AI 决策下一步（限轮防失控）
         if (_aiMode == AiMode.Auto && !result.StartsWith("⚠") && _autoLoopDepth < AutoLoopMax)

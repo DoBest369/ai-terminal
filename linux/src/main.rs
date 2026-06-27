@@ -1316,6 +1316,22 @@ impl eframe::App for TermindApp {
                         .on_hover_text("批量群发：对所有连接执行此命令").clicked() {
                         trigger_batch = true;
                     }
+                    // 命令历史面板（点击重用，对照 windows/apple history）
+                    let mut hist_pick: Option<String> = None;
+                    ui.menu_button(egui::RichText::new(egui_phosphor::regular::CLOCK_COUNTER_CLOCKWISE).size(15.0).color(TEXT_SECONDARY()), |ui| {
+                        if self.cmd_history.is_empty() {
+                            ui.colored_label(TEXT_SECONDARY(), "（暂无历史命令）");
+                        } else {
+                            ui.set_max_width(320.0);
+                            for cmd in self.cmd_history.iter().take(20) {
+                                if ui.add(egui::Button::new(egui::RichText::new(cmd).monospace().size(12.0).color(TEXT_PRIMARY())).frame(false)).clicked() {
+                                    hist_pick = Some(cmd.clone());
+                                    ui.close_menu();
+                                }
+                            }
+                        }
+                    }).response.on_hover_text("命令历史（点击重用）");
+                    if let Some(c) = hist_pick { self.cmd_input = c; }
                     let resp = ui.add_sized([ui.available_width(), 24.0],
                         egui::TextEdit::singleline(&mut self.cmd_input).hint_text("输入命令…").font(egui::TextStyle::Monospace));
                     // ↑/↓ 键回溯命令历史（终端常用交互）

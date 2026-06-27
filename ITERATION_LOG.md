@@ -6,6 +6,14 @@
 
 ---
 
+## ROADMAP 全平台对齐节点达成 + 真实交互阶段
+- **内容**：ROADMAP「全平台对齐节点」从 `[ ]`（进行中，linux Rust 装中 / windows Avalonia 待建）→ `[x]` 达成（**五端本机编译全打通** + windows/linux 全功能区 UI + 真实交互，68 项 UI 现代化）。新增「真实逻辑接入节点」作为下一阶段（windows/linux mock → 真实 SSH/AI）。迭代日志加「五端真实交互阶段」摘要。
+- **改动**：`ROADMAP.md`(节点状态 + 下一阶段 + 迭代日志摘要)。
+- **验证**：纯文档（apple build + 8 自测本轮上一段质量收口已验证无回归）。推送 21d4de2。
+- **意义**：ROADMAP 关键节点状态准确（全平台对齐达成），明确下一阶段方向（真实逻辑接入）。文档体系（ROADMAP/CHANGELOG/MATURITY/ITERATION_LOG）全部反映真实进展。
+
+---
+
 ## windows SFTP 文件项加修改时间 → SFTP 文件信息五端对齐
 - **内容**：windows SFTP Flyout 文件行 Grid 从 3 列 → 4 列加时间列，文件夹/文件都显修改时间（淡化小字），对照 apple/android/linux SFTP。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(SFTP 文件行加时间 TextBlock)。

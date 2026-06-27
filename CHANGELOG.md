@@ -199,6 +199,15 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 38 — U4 字号可调 + 持久化双端完整（2026-06-28）
+
+UI 品质 U4（字号可调）双端完整落地，含持久化。
+
+- **终端字号持久化（windows/linux）**：字号 A-/A+ 调整后存配置（windows AppData/Termind config.json / linux ~/.config/termind config.json），重启恢复（clamp 9-22）。
+- **配置持久化完整双端**：windows（AI Key/地址 + 连接 + 命令历史 + 字号）/ linux（AI Key/地址 + 字号），跨重启不丢。
+- **UI 品质专项小结**：U1 图标库化（去 emoji，五端）✅ / U2 配色协调（整窗深色）✅ / U4 字号可调+持久化（windows/linux）✅ / U3 主题切换（待做）。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，861 提交。
+
 ## 阶段 37 — UI 品质 U4 字号可调 + SFTP 上传双端（2026-06-28）
 
 落地用户 UI 品质要求 U4（字号可调），SFTP 上传双端完成。

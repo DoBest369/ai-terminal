@@ -109,6 +109,18 @@ public partial class MainWindow : Window
         };
         AiMessages.Children.Add(label);
         AiMessages.Children.Add(bubble);
+        // 占位 AI 回复（✦ AI 标签 + 灰气泡，后续接真实 AI 流式回复，对照 linux）
+        var aiLabel = new TextBlock { Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left };
+        aiLabel.Inlines!.Add(new Run("✦") { Foreground = Brush.Parse("#FF4B6E") });
+        aiLabel.Inlines!.Add(new Run(" AI"));
+        var aiBubble = new Border
+        {
+            Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290,
+            Child = new TextBlock { Text = "已收到，正在结合服务器环境分析…（接入 API Key 后回复）", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+        };
+        AiMessages.Children.Add(aiLabel);
+        AiMessages.Children.Add(aiBubble);
         AiInput.Text = "";
         AiScroll.ScrollToEnd();
     }

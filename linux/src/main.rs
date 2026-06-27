@@ -53,10 +53,36 @@ struct TermindApp {
     show_sftp: bool,
     cmd_input: String,
     term_lines: Vec<String>,   // 用户输入回车后追加的终端历史行
-    ai_msgs: Vec<String>,      // AI 区用户输入回车后追加的提问气泡
+    ai_msgs: Vec<(bool, String)>,  // AI 对话（true=用户提问 / false=AI 真实回复）
     cmd_history: Vec<String>,  // 命令历史（去重最近优先），供上下键回溯
     hist_idx: Option<usize>,   // 当前回溯位置（None=未回溯）
     reach_rx: std::sync::mpsc::Receiver<(usize, bool)>,  // 后台 TCP 可达性探测结果
+    ai_tx: std::sync::mpsc::Sender<String>,    // AI 真实回复回传（后台线程→UI）
+    ai_rx: std::sync::mpsc::Receiver<String>,
+    ai_busy: bool,                             // AI 请求进行中
+}
+
+/// 真实 AI（S2：ureq 调 Anthropic 兼容接口 nexcores，对照 windows CallAiAsync）
+/// key 从环境变量 TERMIND_AI_KEY（不硬编码）；返回 content[0].text 或错误
+fn ai_chat(base_url: &str, api_key: &str, model: &str, sys: &str, user: &str) -> String {
+    let body = serde_json::json!({
+        "model": model, "max_tokens": 1024, "system": sys,
+        "messages": [{ "role": "user", "content": user }]
+    });
+    match ureq::post(base_url)
+        .set("x-api-key", api_key)
+        .set("anthropic-version", "2023-06-01")
+        .set("content-type", "application/json")
+        .send_json(body)
+    {
+        Ok(resp) => match resp.into_json::<serde_json::Value>() {
+            Ok(j) => j["content"][0]["text"].as_str().map(|s| s.to_string())
+                .or_else(|| j["error"]["message"].as_str().map(|s| format!("⚠️ {}", s)))
+                .unwrap_or_else(|| "(无回复)".to_string()),
+            Err(e) => format!("⚠️ 解析失败：{}", e),
+        },
+        Err(e) => format!("⚠️ 请求失败：{}", e),
+    }
 }
 
 /// 读本机真实负载（/proc/loadavg，真实系统指标；非 Linux/读失败返回 None）
@@ -109,7 +135,8 @@ impl Default for TermindApp {
             let (host, port, tx) = (c.host, c.port, tx.clone());
             std::thread::spawn(move || { let _ = tx.send((i, probe_tcp(host, port))); });
         }
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), base_url: "https://api.anthropic.com/v1/messages".to_string(), sys_prompt: "你是 Termind 的 SSH 运维助手。请结合服务器环境，给出安全、可直接执行的运维建议。危险操作（删除/格式化/重启服务/改防火墙）必须警示风险并建议先备份。回答精炼、用中文，命令用代码块。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx }
+        let (ai_tx, ai_rx) = std::sync::mpsc::channel();
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: std::env::var("TERMIND_AI_KEY").unwrap_or_default(), base_url: "https://www.nexcores.net/v1/messages".to_string(), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false }
     }
 }
 
@@ -132,6 +159,11 @@ impl eframe::App for TermindApp {
         // 应用后台 TCP 探测结果（真实可达性）→ 更新连接 online 状态
         while let Ok((i, ok)) = self.reach_rx.try_recv() {
             if let Some(c) = self.conns.get_mut(i) { c.online = ok; c.probed = true; }
+        }
+        // 接收 AI 真实回复（后台线程 ai_chat → ai_rx）
+        while let Ok(reply) = self.ai_rx.try_recv() {
+            self.ai_msgs.push((false, reply));
+            self.ai_busy = false;
         }
         // 探测期间保持低频重绘以接收后台线程结果
         ctx.request_repaint_after(std::time::Duration::from_millis(500));
@@ -313,20 +345,25 @@ impl eframe::App for TermindApp {
                         ui.colored_label(SUCCESS, egui::RichText::new("tail -n 50 /var/log/nginx/error.log").monospace());
                     });
                 });
-                // 用户回车追加的提问气泡 + 占位 AI 回复（对照终端命令回车交互）
-                for msg in &self.ai_msgs {
+                // AI 真实对话（true=用户提问蓝气泡 / false=AI 真实回复气泡）
+                for (is_user, text) in &self.ai_msgs {
                     ui.add_space(6.0);
-                    ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());
-                    egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
-                        .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, msg); });
-                    ui.add_space(4.0);
-                    // 占位 AI 回复（后续接真实 AI 流式回复）
-                    ui.horizontal(|ui| {
-                        ui.colored_label(ACCENT, egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
-                        ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
-                    });
-                    egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0)
-                        .show(ui, |ui| { ui.colored_label(TEXT_SECONDARY, "已收到，正在结合服务器环境分析…（接入 API Key 后回复）"); });
+                    if *is_user {
+                        ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());
+                        egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
+                            .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, text); });
+                    } else {
+                        ui.horizontal(|ui| {
+                            ui.colored_label(ACCENT, egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
+                            ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
+                        });
+                        egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0)
+                            .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, text); });
+                    }
+                }
+                if self.ai_busy {
+                    ui.add_space(6.0);
+                    ui.colored_label(TEXT_SECONDARY, "✦ AI 思考中…");
                 }
                 ui.add_space(10.0);
                 // 快捷追问 chips（点击填入 AI 输入框，对照 apple/windows AI 面板 + 快捷命令交互）
@@ -351,9 +388,19 @@ impl eframe::App for TermindApp {
                         egui::TextEdit::singleline(&mut self.ai_input).hint_text("输入指令…"));
                     // 发送按钮点击 或 回车 → 追加提问气泡（后续接 AI 回复）
                     let enter = resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
-                    if (send.clicked() || enter) && !self.ai_input.trim().is_empty() {
-                        self.ai_msgs.push(self.ai_input.trim().to_string());
+                    if (send.clicked() || enter) && !self.ai_input.trim().is_empty() && !self.ai_busy {
+                        let user_msg = self.ai_input.trim().to_string();
+                        self.ai_msgs.push((true, user_msg.clone()));
                         self.ai_input.clear();
+                        // 后台线程真实调 AI（对照 reach_rx 模式），结果经 ai_tx 回传
+                        if self.api_key.is_empty() {
+                            self.ai_msgs.push((false, "⚠️ 未配置 API Key（环境变量 TERMIND_AI_KEY 或设置面板）".to_string()));
+                        } else {
+                            self.ai_busy = true;
+                            let (base, key, model, sys, tx) =
+                                (self.base_url.clone(), self.api_key.clone(), "claude-opus-4-8".to_string(), self.sys_prompt.clone(), self.ai_tx.clone());
+                            std::thread::spawn(move || { let _ = tx.send(ai_chat(&base, &key, &model, &sys, &user_msg)); });
+                        }
                     }
                 });
             });

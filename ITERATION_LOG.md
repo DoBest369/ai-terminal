@@ -4259,3 +4259,12 @@
 - **改动**：`linux/src/main.rs`(new_dir_name 字段 + run_sftp_mkdir + SFTP 窗口新建目录行)。
 - **验证**：`cargo build` **0 error/warning**（0.85s，带 proxy）。推送 90eeb0f。
 - **意义**：SFTP 新建目录 windows/linux 双端对齐。windows/linux SFTP 能力一致（浏览/导航/预览/下载/删除/新建目录），靠拢 apple 标杆。下一步 SFTP 重命名 / 连接编辑 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段34 SFTP新建目录双端 + 截图归档
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；837 提交。五端 build 全绿。
+- **CHANGELOG 阶段34**：SFTP 新建目录（windows/linux）+ SFTP 写操作能力齐备双端（浏览/导航/预览/下载/删除/新建目录）。
+- **windows 整体巡检**（截图 Read 自查）：三栏 + 终端命令栏批量按钮 + AI 面板，深色协调。
+- **改动**：`CHANGELOG.md`、更新 `apple/screenshots/windows-smart-ops.png`。
+- **意义**：CHANGELOG 至阶段34。windows/linux SFTP 文件读写常用操作齐备，护城河能力一致。Termind 全平台真实智能运维工作台功能完整度高，windows/linux 双端接近 apple 标杆。

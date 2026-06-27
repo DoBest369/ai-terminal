@@ -4468,3 +4468,11 @@
 - **MATURITY**：加用户全部需求实现里程碑（智能运维全平台+AI三模式+护城河+SFTP+连接CRUD+终端彩色+配置持久化+UI品质U1-U4）。
 - **改动**：`CHANGELOG.md`(阶段42)、`docs/MATURITY.md`、截图归档。
 - **🎯 意义**：重大里程碑——用户提出的全部需求全部实现并文档沉淀。从用户最初「智能运维不是全平台落地吗？」「AI三模式安全梯度」「UI品质U1-U4」到全部落地。Termind 全平台真实智能 SSH 运维工作台完整成熟。后续持续打磨/新功能。
+
+---
+
+## windows U3 主题切换更彻底（次级面板也随主题，6色主题）
+- **内容**：windows App.axaml 加 ThemeCardBg 资源；4 处次级面板（状态条/命令输入/三模式器/AI 输入）用 DynamicResource；Themes 扩展第 6 色 cardBg（各主题次级面板色）；ApplyTheme 设 ThemeCardBg。主题切换覆盖窗口/侧栏/终端/AI/次级面板/强调色，整体色调变化更完整。
+- **改动**：`App.axaml`(ThemeCardBg)、`MainWindow.axaml`(4 处次级面板 DynamicResource)、`MainWindow.axaml.cs`(Themes 6 色 + ApplyTheme)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 83117fe。
+- **意义**：windows U3 主题切换视觉更彻底（6 个色位随主题变）。下一步 终端搜索 / 多会话管理 / 新功能。

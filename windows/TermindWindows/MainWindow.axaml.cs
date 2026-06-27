@@ -418,6 +418,19 @@ public partial class MainWindow : Window
         });
     }
 
+    /// 编辑连接（右键菜单）：解析 user@host:port 填入新建表单 + 移除原项，改后点「添加」重加（CRUD 的 U）
+    private void OnEditConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is not Control c || c.DataContext is not ConnItem item) return;
+        var addr = item.Addr; string user = "root", port = "22";
+        var at = addr.IndexOf('@'); if (at >= 0) { user = addr[..at]; addr = addr[(at + 1)..]; }
+        var colon = addr.IndexOf(':'); if (colon >= 0) { port = addr[(colon + 1)..]; addr = addr[..colon]; }
+        NewConnName.Text = item.Name; NewConnHost.Text = addr; NewConnUser.Text = user; NewConnPort.Text = port;
+        _conns.Remove(item);
+        SaveConfig();
+        AppendTerm($"# 已载入「{item.Name}」到新建连接表单（工具栏 +），修改后点「添加」即可", "#8B92A8");
+    }
+
     /// 删除连接（右键菜单）：从列表移除 + 持久化（连接管理 CRUD）
     private void OnDeleteConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

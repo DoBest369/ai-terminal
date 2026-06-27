@@ -135,9 +135,10 @@
                                 <TextBlock Text="{Binding GroupName}" IsVisible="{Binding ShowHeader}"
                                            Foreground="#6B7280" FontSize="11" FontWeight="SemiBold" Margin="2,6,0,4"/>
                                 <Grid ColumnDefinitions="3,Auto,*,Auto" Margin="0,3">
-                                    <!-- 右键菜单：删除连接（连接管理 CRUD） -->
+                                    <!-- 右键菜单：编辑/删除连接（连接管理 CRUD） -->
                                     <Grid.ContextFlyout>
                                         <MenuFlyout>
+                                            <MenuItem Header="编辑连接" Click="OnEditConn"/>
                                             <MenuItem Header="删除连接" Click="OnDeleteConn"/>
                                         </MenuFlyout>
                                     </Grid.ContextFlyout>

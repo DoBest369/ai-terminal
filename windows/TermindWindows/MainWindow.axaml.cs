@@ -197,6 +197,16 @@ public partial class MainWindow : Window
     /// SFTP 打开按钮 → 浏览 home 目录
     private void OnSftpOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => LoadSftp("~");
 
+    /// SFTP 文件删除（对照 apple sftpRemove）：SSH rm + 刷新列表（嵌套确认菜单防误删）
+    private async void DeleteSftpFile(string filePath)
+    {
+        var p = filePath.Replace("'", "");
+        AppendTerm($"# 删除 {filePath} …", "#F59E0B");
+        var r = await SshExecAsync($"rm -f '{p}' && echo TERMIND_RM_OK");
+        if (r.Contains("TERMIND_RM_OK")) { AppendTerm("  ✓ 已删除", "#3FB950"); LoadSftp(_sftpCwd); }
+        else AppendTerm($"  ✕ 删除失败：{r}", "#F59E0B");
+    }
+
     /// SFTP 文件下载（对照 apple sftpDownload）：SSH base64 取内容 → 存本地 Downloads
     private async void DownloadFile(string filePath, string fileName)
     {
@@ -288,12 +298,17 @@ public partial class MainWindow : Window
                 var fbtn = new Button { Background = Brush.Parse("#00000000"), BorderThickness = new Thickness(0), Padding = new Thickness(2), Content = grid, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left, Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand) };
                 var fpath = $"{_sftpCwd}/{name}";
                 fbtn.Click += (_, _) => PreviewFile(fpath);
-                // 右键菜单：下载到本地（对照 apple sftpDownload）
+                // 右键菜单：下载到本地（对照 apple sftpDownload）+ 删除（嵌套确认防误删，对照 apple sftpRemove）
                 var fname = name;
                 var menu = new MenuFlyout();
                 var dl = new MenuItem { Header = "下载到本地" };
                 dl.Click += (_, _) => DownloadFile(fpath, fname);
                 menu.Items.Add(dl);
+                var del = new MenuItem { Header = "删除", Foreground = Brush.Parse("#F87171") };
+                var confirmDel = new MenuItem { Header = $"⚠ 确认删除 {fname}" };
+                confirmDel.Click += (_, _) => DeleteSftpFile(fpath);
+                del.Items.Add(confirmDel);
+                menu.Items.Add(del);
                 fbtn.ContextFlyout = menu;
                 SftpList.Children.Add(fbtn);
             }

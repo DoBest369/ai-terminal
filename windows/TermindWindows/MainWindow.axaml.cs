@@ -331,6 +331,21 @@ public partial class MainWindow : Window
                 void Cell(string t, int col, string color) { var tb = new TextBlock { Text = t, Foreground = Brush.Parse(color), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextTrimming = TextTrimming.CharacterEllipsis }; Grid.SetColumn(tb, col); grid.Children.Add(tb); }
                 Cell(cols[0], 0, fg); Cell(cols[1], 1, fg); Cell(cols[2], 2, fg);
                 Cell(string.Join(" ", cols[3..]), 3, isHeader ? "#6B7280" : "#C9D1D9");
+                // 数据行右键 → 终止进程（危险操作，SSH kill PID + 刷新）
+                if (!isHeader)
+                {
+                    var pid = cols[0]; var pname = string.Join(" ", cols[3..]);
+                    var killMi = new MenuItem { Header = $"终止进程 {pid}（{pname}）", Foreground = Brush.Parse("#F85149") };
+                    killMi.Click += async (_, _) =>
+                    {
+                        AppendTerm($"# kill {pid}（{pname}）…", "#F59E0B");
+                        try { var rk = await SshExecAsync($"kill {pid} 2>&1 && echo TERMIND_KILL_OK"); AppendTerm(rk.Contains("TERMIND_KILL_OK") ? $"✓ 已终止进程 {pid}" : $"✕ 终止 {pid} 失败：{rk.Trim()}", rk.Contains("TERMIND_KILL_OK") ? "#3FB950" : "#F85149"); }
+                        catch (System.Exception ex) { AppendTerm($"✕ 终止 {pid} 异常：{ex.Message}", "#F85149"); }
+                    };
+                    grid.ContextFlyout = new MenuFlyout { Items = { killMi } };
+                    ToolTip.SetTip(grid, "右键终止进程");
+                    grid.Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand);
+                }
                 TopProcsList.Children.Add(grid);
             }
             if (TopProcsList.Children.Count == 0) TopProcsList.Children.Add(new TextBlock { Text = "（未取到进程，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });

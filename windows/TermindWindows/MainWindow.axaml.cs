@@ -173,19 +173,9 @@ public partial class MainWindow : Window
             CmdInput.Text = "";
             return;
         }
-        var host = StatusHost.Text?.Replace("主机 ", "") ?? "prod-01";
-        var line = new TextBlock
-        {
-            Text = $"root@{host}:~$ {cmd}",
-            Foreground = Brush.Parse("#C9D1D9"),
-            FontFamily = new FontFamily("Consolas"),
-            FontSize = 12.5,
-            Margin = new Thickness(0, 4, 0, 0)
-        };
-        // 插入到光标行（最后一项）之前
-        TermOutput.Children.Insert(TermOutput.Children.Count - 1, line);
+        // 手输命令也真实 SSH 在服务器执行（复用 ExecuteCommand 真实 exec→结果回终端）
         CmdInput.Text = "";
-        TermScroll.ScrollToEnd();
+        ExecuteCommand(cmd);
     }
 
     /// AI 输入回车 → 追加提问气泡（AI 区真实交互，对照 linux/终端）

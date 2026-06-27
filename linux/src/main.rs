@@ -200,7 +200,8 @@ struct TermindApp {
     sftp_loading: bool,
     sftp_tx: std::sync::mpsc::Sender<String>,  // SFTP ls 原始输出回传
     sftp_rx: std::sync::mpsc::Receiver<String>,
-    new_dir_name: String,                      // SFTP 新建目录输入
+    new_dir_name: String,                      // SFTP 新建目录 / 重命名输入（复用）
+    sftp_renaming: Option<String>,             // 待重命名文件原路径（非空=重命名模式）
 }
 
 /// 全局复用的 SSH 会话缓存（对照 windows _sshClient；多后台线程经 Mutex 串行复用）
@@ -361,7 +362,7 @@ impl Default for TermindApp {
         let (sftp_tx, sftp_rx) = std::sync::mpsc::channel();
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new() }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None }
     }
 }
 
@@ -379,6 +380,27 @@ impl TermindApp {
                 else { ssh_exec(&host, 22, &user, &pass, &format!("cd '{}' 2>/dev/null && pwd && ls -la --time-style=long-iso", dir)) };
             let _ = tx.send(out);
         });
+    }
+
+    /// SFTP 文件重命名（对照 windows / apple sftpRename）：ssh mv 原→同目录新名 + 刷新
+    fn run_sftp_rename(&mut self) {
+        let new = self.new_dir_name.trim().to_string();
+        let Some(src) = self.sftp_renaming.take() else { return; };
+        if new.is_empty() { return; }
+        let cwd = if self.sftp_path.is_empty() { "~".to_string() } else { self.sftp_path.clone() };
+        let dst = format!("{}/{}", cwd, new).replace('\'', "");
+        let s = src.replace('\'', "");
+        self.term_lines.push(format!("# 重命名 → {} …", dst));
+        self.new_dir_name.clear();
+        let (host, user) = self.ssh_target();
+        let tx = self.term_tx.clone();
+        std::thread::spawn(move || {
+            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+            if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+            let r = ssh_exec(&host, 22, &user, &pass, &format!("mv '{}' '{}' && echo TERMIND_MV_OK", s, dst));
+            let _ = tx.send(if r.contains("TERMIND_MV_OK") { "✓ 已重命名".to_string() } else { format!("✕ 重命名失败：{}", r) });
+        });
+        self.run_sftp_ls(&cwd);   // 刷新
     }
 
     /// SFTP 新建目录（对照 windows OnMkdir / apple sftpMakeDirectory）：ssh mkdir + 刷新
@@ -723,6 +745,7 @@ impl eframe::App for TermindApp {
         let mut sftp_preview: Option<String> = None;   // 待预览文件（点击后循环外执行）
         let mut sftp_download: Option<(String, String)> = None;   // 待下载 (远程路径, 文件名)
         let mut sftp_delete: Option<String> = None;   // 待删除文件（嵌套确认后）
+        let mut sftp_start_rename: Option<(String, String)> = None;   // 开始重命名 (原路径, 原名)
         egui::Window::new("SFTP 文件")
             .open(&mut sftp_open)
             .resizable(true)
@@ -730,16 +753,19 @@ impl eframe::App for TermindApp {
             .show(ctx, |ui| {
                 let path = if self.sftp_path.is_empty() { "~".to_string() } else { self.sftp_path.clone() };
                 ui.colored_label(TEXT_SECONDARY, egui::RichText::new(&path).monospace());
-                // 新建目录（对照 windows OnMkdir / apple sftpMakeDirectory）
+                // 新建目录 / 重命名（输入框复用；有 sftp_renaming 则重命名，对照 windows）
                 let mut trigger_mkdir = false;
+                let renaming = self.sftp_renaming.is_some();
                 ui.horizontal(|ui| {
-                    ui.add(egui::TextEdit::singleline(&mut self.new_dir_name).hint_text("新建目录名…").desired_width(180.0).font(egui::TextStyle::Monospace));
-                    if ui.add(egui::Button::new(egui::RichText::new("新建").size(11.0).color(SUCCESS))
+                    let hint = if renaming { "输入新名…" } else { "新建目录名…" };
+                    ui.add(egui::TextEdit::singleline(&mut self.new_dir_name).hint_text(hint).desired_width(180.0).font(egui::TextStyle::Monospace));
+                    let label = if renaming { "重命名" } else { "新建" };
+                    if ui.add(egui::Button::new(egui::RichText::new(label).size(11.0).color(SUCCESS))
                         .fill(SUCCESS.linear_multiply(0.12)).rounding(6.0)).clicked() {
                         trigger_mkdir = true;
                     }
                 });
-                if trigger_mkdir { self.run_sftp_mkdir(); }
+                if trigger_mkdir { if renaming { self.run_sftp_rename(); } else { self.run_sftp_mkdir(); } }
                 ui.separator();
                 if self.sftp_loading { ui.colored_label(TEXT_SECONDARY, "加载中…"); }
                 else if self.sftp_files.is_empty() { ui.colored_label(TEXT_SECONDARY, "(空目录或未配置 SSH)"); }
@@ -770,6 +796,11 @@ impl eframe::App for TermindApp {
                                     sftp_download = Some((format!("{}/{}", cwd, name), name.to_string()));
                                     ui.close_menu();
                                 }
+                                // 重命名：复用 new_dir_name 输入框 + sftp_renaming 标志（对照 windows/apple sftpRename）
+                                if ui.button("重命名").clicked() {
+                                    sftp_start_rename = Some((format!("{}/{}", cwd, name), name.to_string()));
+                                    ui.close_menu();
+                                }
                                 // 删除：嵌套子菜单确认防误删（对照 windows/apple sftpRemove）
                                 ui.menu_button(egui::RichText::new("删除").color(ACCENT), |ui| {
                                     if ui.button(format!("⚠ 确认删除 {}", name)).clicked() {
@@ -796,6 +827,7 @@ impl eframe::App for TermindApp {
         if let Some(file) = sftp_preview { self.run_sftp_preview(&file); }   // 预览文件到终端
         if let Some((path, fname)) = sftp_download { self.run_sftp_download(&path, &fname); }   // 下载到本地
         if let Some(path) = sftp_delete { self.run_sftp_delete(&path); }   // 删除文件（确认后）
+        if let Some((path, name)) = sftp_start_rename { self.sftp_renaming = Some(path); self.new_dir_name = name; }   // 进入重命名模式
 
         // ① 左侧栏：连接列表（按分组）—— 三栏工作台对齐 apple/windows
         egui::SidePanel::left("connections")

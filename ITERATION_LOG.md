@@ -4366,3 +4366,11 @@
 - **CHANGELOG 阶段38**：终端字号持久化（windows/linux）+ 配置持久化完整双端 + UI 品质专项小结（U1/U2/U4 完成，U3 待做）。
 - **改动**：`CHANGELOG.md`(阶段38)。
 - **意义**：CHANGELOG 至阶段38。UI 品质 U4 字号可调+持久化双端完整。用户 UI 要求 U1/U2/U4 落地，仅剩 U3 主题切换。Termind 全平台真实智能运维工作台功能+UI品质双成熟。
+
+---
+
+## windows AI 面板字号可调 A-/A+（U4 补全字号体系，含持久化）
+- **内容**：windows 三模式切换器行右侧加 AI 字号 A-/A+ → SetAiFont：_aiFontSize 调整（clamp 10-22）+ 更新所有 AI 气泡文本 + 新气泡用新字号；AI 气泡 FontSize 统一 _aiFontSize（sed 批量 9 处）；SaveConfig/LoadConfig 加 aiFontSize 持久化。
+- **改动**：`MainWindow.axaml`(AI 字号控制)、`MainWindow.axaml.cs`(_aiFontSize + SetAiFont + AI 气泡字号 + 持久化)。
+- **验证**：`dotnet build` 0 错误；run 存活 + 截图确认 AI 字号控制（终端 + AI 都有 A-/A+）。推送 a0dc8f9。
+- **意义**：windows 字号体系完整（终端 + AI 都可调+持久化，U4）。下一步 linux AI 字号 / U3 主题切换（评估 120 处颜色硬编码大重构）/ 连接编辑。

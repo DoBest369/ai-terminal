@@ -4014,3 +4014,11 @@
 - **CHANGELOG 阶段26**：真实连接切换（windows/linux）+ AI 配置 UI 生效+持久化（windows）+ 命令填入终端 + 对话导出（windows/linux）。
 - **改动**：`CHANGELOG.md`(阶段26)。
 - **意义**：CHANGELOG 至阶段26。S7 深化打磨真实连接管理 + 配置/交互细节双端对齐。Termind 全平台真实智能运维工作台持续完善：核心(S1-S5)→护城河补齐(22-24)→三模式Auto闭环五端(25)→真实连接管理+细节(26)。
+
+---
+
+## linux 设置持久化（api_key/base_url 存配置文件，对照 windows）
+- **内容**：linux `load_config`/`save_config` 读写 ~/.config/termind/config.json（serde_json）；Default 加载优先级 配置文件 > env > 默认；设置面板 api_key/base_url 失焦保存（lost_focus）。
+- **改动**：`linux/src/main.rs`(config_path/load_config/save_config + Default 加载 + 设置失焦保存)。
+- **验证**：`cargo build` **0 error/warning**（0.81s，带 proxy，serde_json 配置读写正确）。推送 1f58f2b。
+- **意义**：设置持久化 windows/linux 双端对齐（配置跨重启不丢）。AI 配置体验双端完整（UI 可配 + 持久化 + env 后备）。下一步 主题切换 U3 / 新建连接表单 / 质量收口。

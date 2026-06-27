@@ -3708,3 +3708,11 @@
 - **CHANGELOG 补充**：阶段20 加「AI 三模式五端对齐（UI+逻辑）」+「真实 AI/SSH 双端落地端到端验证」。
 - **验证**：五端 build 全绿，apple 8 自测无回归。
 - **意义**：智能运维全平台落地 + AI 三模式五端对齐里程碑，质量基线扎实。Termind 从「全平台 UI 骨架」→「全平台真实智能 SSH 运维工作台 + AI Agent 三模式」，用户核心设计（全平台落地 + Chat/Agent/Auto + 真实 AI/SSH + 安全）全面成型。
+
+---
+
+## linux Z3 环境感知（SSH 取真实环境注入 AI，对照 windows）
+- **内容**：linux `fetch_server_env`——SSH 取服务器系统/CPU/内存/负载/磁盘/服务摘要（对照 windows FetchServerEnv）；AI 发送时后台线程先取环境拼入系统提示，AI 结合真实环境回答。
+- **改动**：`linux/src/main.rs`(fetch_server_env + AI 发送注入环境)。
+- **验证**：`cargo build` **0 error/warning**（0.74s，带 proxy）。推送 5d89318。
+- **🎯 Z3 环境感知 windows/linux 双端对齐**：linux 智能运维护城河对齐 windows（真实 AI + 真实 SSH + 三模式 + Z3 环境感知 + 危险拦截）。windows/linux 双端智能运维能力体系完全一致。下一步 windows AI 代码块渲染 / apple Auto 闭环。

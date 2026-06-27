@@ -362,6 +362,25 @@ impl TermindApp {
             let _ = tx.send(ai_chat(&base, &key, "claude-opus-4-8", &sys, &user_msg));
         });
     }
+
+    /// 导出当前 AI 对话为 Markdown（对照 windows OnExportChat），写到 $HOME
+    fn export_chat(&mut self) {
+        if self.ai_msgs.is_empty() {
+            self.ai_msgs.push((false, "⚠️ 暂无对话可导出".to_string()));
+            return;
+        }
+        let mut md = String::from("# Termind AI 运维对话\n\n");
+        for (is_user, text) in &self.ai_msgs {
+            md.push_str(&format!("## {}\n\n{}\n\n", if *is_user { "🧑 你" } else { "✦ AI" }, text));
+        }
+        if let Ok(home) = std::env::var("HOME") {
+            let path = format!("{}/termind-chat-{}.md", home, self.ai_msgs.len());
+            match std::fs::write(&path, md) {
+                Ok(_) => self.ai_msgs.push((false, format!("✓ 已导出对话：{}", path))),
+                Err(e) => self.ai_msgs.push((false, format!("⚠️ 导出失败：{}", e))),
+            }
+        }
+    }
 }
 
 impl eframe::App for TermindApp {
@@ -565,14 +584,20 @@ impl eframe::App for TermindApp {
                             self.ai_mode = mode;
                         }
                     }
-                    // 清空对话（新建会话，对照 windows）
+                    // 清空 / 导出对话（对照 windows）
+                    let mut trigger_export = false;
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::TRASH).size(13.0).color(TEXT_SECONDARY))
                             .fill(egui::Color32::TRANSPARENT)).on_hover_text("清空对话").clicked() {
                             self.ai_msgs.clear();
                             self.pending_cmds.clear();
                         }
+                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::EXPORT).size(13.0).color(TEXT_SECONDARY))
+                            .fill(egui::Color32::TRANSPARENT)).on_hover_text("导出对话为 Markdown").clicked() {
+                            trigger_export = true;
+                        }
                     });
+                    if trigger_export { self.export_chat(); }
                 });
                 // 待执行命令卡片（Agent 确认放行 / Auto 危险命令确认）
                 let mut run_idx: Option<usize> = None;

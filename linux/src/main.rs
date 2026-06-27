@@ -1191,13 +1191,37 @@ impl eframe::App for TermindApp {
                         .text(format!("{}%", mem_pct)).fill(usage_color(mem_pct)))
                         .on_hover_text("选中服务器真实内存占用（free）");
                     ui.colored_label(TEXT_SECONDARY(), format!("负载 {}", load));
-                    // 关键服务真实运行状态点（SSH systemctl is-active 取，对照 apple/android Z6）
+                    // 关键服务真实运行状态点 + 服务管理（点击 menu 启停/重启，对照 windows/apple Z6）
+                    let mut svc_action: Option<(String, String)> = None;
                     if !self.services.is_empty() {
                         ui.separator();
                         for (svc, running) in &self.services {
                             ui.colored_label(if *running { SUCCESS() } else { TEXT_SECONDARY() }, "●");
-                            ui.colored_label(if *running { TEXT_PRIMARY() } else { TEXT_SECONDARY() }, svc);
+                            let color = if *running { TEXT_PRIMARY() } else { TEXT_SECONDARY() };
+                            ui.menu_button(egui::RichText::new(svc).color(color).size(13.0), |ui| {
+                                for (act, label, danger) in [("restart", "重启", true), ("start", "启动", false), ("stop", "停止", true)] {
+                                    let txt = egui::RichText::new(format!("{} {}", label, svc)).color(if danger { WARNING() } else { TEXT_PRIMARY() });
+                                    if ui.button(txt).clicked() {
+                                        svc_action = Some((act.to_string(), svc.clone()));
+                                        ui.close_menu();
+                                    }
+                                }
+                            }).response.on_hover_text(format!("{}：{}（点击管理）", svc, if *running { "运行中" } else { "未运行" }));
                         }
+                    }
+                    // 执行服务操作（SSH systemctl，真实运维操作，stop/restart 影响线上）
+                    if let Some((act, svc)) = svc_action {
+                        let danger = act == "stop" || act == "restart";
+                        self.term_lines.push(format!("# systemctl {} {} …{}", act, svc, if danger { "（影响线上服务）" } else { "" }));
+                        let (host, user) = (active_host.clone(), active_user.clone());
+                        let tx = self.term_tx.clone();
+                        std::thread::spawn(move || {
+                            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+                            if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+                            let r = ssh_exec(&host, 22, &user, &pass, &format!("systemctl {} {} 2>&1 && echo TERMIND_SVC_OK", act, svc));
+                            let _ = tx.send(if r.contains("TERMIND_SVC_OK") { format!("✓ {} 已{}", svc, act) } else { format!("✕ {} {} 失败：{}", svc, act, r.trim()) });
+                        });
+                        self.metrics_target.clear();   // 触发指标+服务状态重取刷新
                     }
                     // 终端字号调整（U4，对照 windows A-/A+）
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {

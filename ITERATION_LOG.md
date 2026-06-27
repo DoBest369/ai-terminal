@@ -4185,3 +4185,11 @@
 - **CHANGELOG 阶段31**：windows SFTP 文件下载（base64）+ AI 气泡时间戳 + apple SFTP 真协议标杆确认。
 - **改动**：`CHANGELOG.md`(阶段31)。
 - **意义**：CHANGELOG 至阶段31。windows SFTP 能力（浏览/导航/预览/下载）向 apple 标杆靠拢。S9 持续完善细节。Termind 全平台真实智能运维工作台日臻完善，windows/linux 双端功能完整接近 apple 标杆。
+
+---
+
+## linux SFTP 文件下载（右键→base64→存本地，对照 windows，双端对齐）
+- **内容**：linux `run_sftp_download`——后台 SSH base64 取内容 → base64 crate 解码 → 存 $HOME/Downloads；大小守门 >10MB；SFTP 文件右键 context_menu「下载到本地」→ sftp_download 标志循环外执行；结果回终端。Cargo.toml 加 base64="0.22"。
+- **改动**：`linux/src/main.rs`(run_sftp_download + 文件右键菜单 + sftp_download 标志)、`linux/Cargo.toml`(base64)。
+- **验证**：`cargo build` **0 error/warning**（1.29s，带 proxy，base64 crate + 下载逻辑正确）。推送 ee65896。
+- **意义**：SFTP 文件下载 windows/linux 双端对齐。windows/linux SFTP 能力一致（浏览/导航/预览/下载）向 apple 标杆靠拢。下一步 SFTP 删除 / 连接编辑 / 质量收口。

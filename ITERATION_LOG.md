@@ -4622,3 +4622,11 @@
 - **改动**：`linux main.rs`(历史 menu_button + hist_pick 收集)。
 - **验证**：`cargo build` **0 error/warning**（0.85s，带 proxy）。推送 dfcb6d9。
 - **意义**：命令历史面板 windows/linux 双端对齐（点击重用，补充上下键回溯）。运维重用历史命令更快。下一步 质量收口 CHANGELOG 阶段48 / AI 多会话 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段48 运维体验指标告警+命令历史面板双端
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；924 提交。五端 build 全绿。
+- **CHANGELOG 阶段48**：指标超阈值告警（>90% 预警）+ 命令历史面板（点击重用），windows/linux 双端。
+- **改动**：`CHANGELOG.md`(阶段48)。
+- **意义**：CHANGELOG 至阶段48。运维体验持续打磨（监控→预警，命令复用便捷）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

@@ -3869,3 +3869,11 @@
 - **改动**：`linux/src/main.rs`(run_health_check + impl TermindApp + 健康巡检按钮一键触发)。
 - **验证**：`cargo build` **0 error/warning**（0.84s，带 proxy，borrow 通过）。推送 a7ad12e。
 - **🎯 Z3 健康巡检真闭环 windows/linux 双端对齐**：取真实指标 + AI 专业诊断，无需手动输入。windows/linux 智能运维护城河 Z3 都做到一键真闭环。下一步 AI 命令复制 / linux SSH 复用 / 质量收口。
+
+---
+
+## 质量收口（全量）+ ROADMAP S6 深化打磨小结
+- **质量基线**（深化打磨多轮后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；741 提交。五端 build 全绿。
+- **ROADMAP 更新**：加 S6 深化打磨小结（运维快捷入口 Z1-Z3 含 Z3 一键真闭环 + 风险四级 Z7 + AI 体验流式/代码块/清空 + 快捷命令栏 + 命令耗时 + SSH 复用，windows/linux 双端对齐）+ S7 后续（linux SSH 复用/报错分析一键/apple Auto 闭环/批量巡检移植）。
+- **改动**：`ROADMAP.md`(S6/S7)。
+- **意义**：深化打磨进展沉淀到 ROADMAP。智能运维全平台落地（S1-S5）+ 深化打磨对照护城河补齐（S6），方向清晰（S7）。文档体系全对齐（CHANGELOG 22/MATURITY/ROADMAP S1-S7/记忆）。

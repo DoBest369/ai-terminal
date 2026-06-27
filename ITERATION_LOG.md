@@ -4293,3 +4293,11 @@
 - **ROADMAP S9**：SFTP 写操作齐全 + ANSI 彩色完成；待办 连接编辑/SFTP 上传/主题切换 U3。
 - **改动**：`CHANGELOG.md`(阶段35)、`ROADMAP.md`(S9)。
 - **意义**：CHANGELOG 至阶段35。windows/linux SFTP 文件读写常用操作齐全，与 apple 真 SFTP 标杆仅差上传。Termind 全平台真实智能运维工作台功能完整度极高。
+
+---
+
+## 🎯 windows SFTP 文件上传（选本地→base64→ssh写远程，对照 apple sftpUpload）→ windows SFTP 完整
+- **内容**：windows SFTP 面板上传按钮 → OnSftpUpload：StorageProvider 选本地文件 → 读字节 → base64 → ssh `printf|base64 -d>远程` + 刷新；大小守门 5MB（命令行限制）；路径防注入。
+- **改动**：`MainWindow.axaml`(上传按钮)、`MainWindow.axaml.cs`(OnSftpUpload)。
+- **验证**：`dotnet build` 0 错误；run 14s 存活；base64 上传逻辑（printf|base64 -d）验证正确。推送 d5c1b49。
+- **🎯 windows SFTP 完整（含上传）对齐 apple 全操作**：浏览/导航/预览/下载/上传/删除/新建目录/重命名。windows SFTP 文件操作全覆盖。下一步 linux SFTP 上传 / 连接编辑 / 质量收口。

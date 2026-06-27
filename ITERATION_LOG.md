@@ -3885,3 +3885,11 @@
 - **改动**：`MainWindow.axaml.cs`(OnOpsQuick error 分支 + RunErrorAnalysis)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 0250a17。
 - **意义**：对照 apple 护城河 Z2 报错分析，windows 一键真闭环。windows Z2/Z3 都做到一键闭环（取真实日志/指标 + AI 诊断）。下一步 linux 报错分析一键对齐 / linux SSH 复用。
+
+---
+
+## 🎯 linux 一键报错分析（Z2 真闭环，对照 windows）→ Z2/Z3 双端对齐
+- **内容**：linux `run_error_analysis`——运维快捷「分析报错」一键触发 → 后台线程 SSH 取错误日志（journalctl -p err，回退 dmesg）+ 失败服务（systemctl --failed）→ ai_chat 诊断 → ai_rx 回；trigger_error 标志循环外执行；解释命令仍预填。
+- **改动**：`linux/src/main.rs`(run_error_analysis + 分析报错一键触发)。
+- **验证**：`cargo build` **0 error/warning**（0.74s，带 proxy）。推送 377be2b。
+- **🎯 Z2 报错分析 + Z3 健康巡检一键真闭环 windows/linux 双端对齐**：取真实日志/指标 + AI 专业诊断，无需手动。windows/linux 护城河 Z2/Z3 都一键闭环（Z1 解释命令预填）。下一步 linux SSH 复用 / AI 命令复制 / apple Auto 闭环。

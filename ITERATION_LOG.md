@@ -3796,3 +3796,11 @@
 - **改动**：`linux/src/main.rs`(运维快捷入口 + 清空对话)。
 - **验证**：`cargo build` **0 error/warning**（1.27s，带 proxy）。推送 be0c09c。
 - **意义**：运维快捷入口 + 清空对话 windows/linux 双端对齐。linux AI 面板体验对齐 windows（三模式+运维入口+快捷追问+清空+代码块+Z3）。下一步 风险四级分级 / windows SSH 连接复用。
+
+---
+
+## windows 命令风险四级分级（对照 apple CommandRisk Z7）
+- **内容**：windows `RiskLevel` 枚举（Safe/Notice/High/Critical）+ `CommandRiskOf` 四级判定（对照 apple criticalPatterns/highPatterns/mediumPatterns）；命令卡片按级别配色（绿/橙/深橙/红）+ [级别] 前缀标签（注意/高风险/极高危）。IsDangerous 委托四级分级（高/极高即危险，Auto 不自动执行强制确认）。
+- **改动**：`MainWindow.axaml.cs`(RiskLevel + CommandRiskOf + RiskStyle + AddCommandCard 四级配色)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 f9e528e。
+- **意义**：windows 安全分级从二元（危险/安全）→ 四级（对齐 apple Z7），极高危更醒目，命令卡片按风险配色。下一步 linux 四级分级对齐 / 命令卡片风险标签。

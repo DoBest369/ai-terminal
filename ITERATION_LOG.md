@@ -4793,3 +4793,11 @@
 - **改动**：`MainWindow.axaml`(会话按钮 Flyout + SessionsList)、`MainWindow.axaml.cs`(_sessions + RenderSession + OnSessionsOpen)。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 d994cfd。
 - **意义**：windows AI 多会话（独立上下文对话，对照 apple ai-conv），丰富 AI 能力。下一步 linux AI 多会话对齐 / AI 会话持久化 / 质量收口。
+
+---
+
+## linux AI 对话多会话（新建/切换/删除，对照 windows，双端对齐）
+- **内容**：linux sessions:Vec<Vec> + cur_session；ai_msgs 作当前活跃会话，切换时存回 sessions[cur] 再加载目标；AI 标题加会话 menu_button（CHATS 图标）→ 列会话（首条提问标题，当前 ● ）+ 切换 + X 删除 + 新建；16 处 ai_msgs 用法不变（巧妙保持兼容）。
+- **改动**：`linux main.rs`(sessions/cur_session 字段 + 会话 menu + 切换/删除逻辑)。
+- **验证**：`cargo build` **0 error/warning**（1.13s，CHATS 图标存在）。推送 3100081。
+- **意义**：AI 多会话 windows/linux 双端对齐（独立上下文对话，对照 apple ai-conv）。下一步 AI 会话持久化 / 质量收口 CHANGELOG 阶段56 / 新功能。

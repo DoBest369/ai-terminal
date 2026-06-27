@@ -335,6 +335,28 @@ impl TermindApp {
         });
     }
 
+    /// SFTP 文件预览（对照 windows PreviewFile）：守门大小/二进制，文本 head 到终端
+    fn run_sftp_preview(&mut self, file: &str) {
+        self.term_lines.push(format!("# 预览 {}", file));
+        let (host, user) = self.ssh_target();
+        let tx = self.term_tx.clone();
+        let f = file.replace('\'', "");
+        std::thread::spawn(move || {
+            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+            if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+            // stat 大小 + file 类型守门：>1MB 或二进制不预览
+            let meta = ssh_exec(&host, 22, &user, &pass, &format!("stat -c %s '{}' 2>/dev/null; file -b '{}' 2>/dev/null", f, f));
+            let ml: Vec<&str> = meta.split('\n').collect();
+            let size: u64 = ml.first().and_then(|s| s.trim().parse().ok()).unwrap_or(0);
+            let ftype = ml.get(1).copied().unwrap_or("");
+            if size > 1_000_000 { let _ = tx.send(format!("（文件 {}KB 过大，跳过预览）", size / 1024)); return; }
+            if ftype.contains("executable") || ftype.contains("binary") || ftype.contains("data") {
+                let _ = tx.send(format!("（{}，二进制不预览）", ftype.trim())); return;
+            }
+            let _ = tx.send(ssh_exec(&host, 22, &user, &pass, &format!("head -n 200 '{}'", f)));
+        });
+    }
+
     /// 解析 ls -la 输出 → (路径, 文件列表)
     fn parse_sftp(out: &str) -> (String, Vec<(String, bool, String, String)>) {
         let mut lines = out.split('\n');
@@ -564,6 +586,7 @@ impl eframe::App for TermindApp {
         // SFTP 文件浏览窗口（占位，对照 apple/android SFTP）
         let mut sftp_open = self.show_sftp;
         let mut sftp_nav: Option<String> = None;   // 待导航目标目录（点击后循环外执行）
+        let mut sftp_preview: Option<String> = None;   // 待预览文件（点击后循环外执行）
         egui::Window::new("SFTP 文件")
             .open(&mut sftp_open)
             .resizable(true)
@@ -592,7 +615,11 @@ impl eframe::App for TermindApp {
                                 sftp_nav = Some(format!("{}/{}", cwd, name));
                             }
                         } else {
-                            ui.colored_label(TEXT_PRIMARY, name);
+                            // 文件可点击预览（head 到终端，对照 windows PreviewFile）
+                            if ui.add(egui::Label::new(egui::RichText::new(name).color(TEXT_PRIMARY))
+                                .sense(egui::Sense::click())).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
+                                sftp_preview = Some(format!("{}/{}", cwd, name));
+                            }
                         }
                         // 右侧：大小 + 修改时间（对照 apple/android SFTP）
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
@@ -608,6 +635,7 @@ impl eframe::App for TermindApp {
             });
         self.show_sftp = sftp_open;
         if let Some(target) = sftp_nav { self.run_sftp_ls(&target); }   // 导航到子目录/上级
+        if let Some(file) = sftp_preview { self.run_sftp_preview(&file); }   // 预览文件到终端
 
         // ① 左侧栏：连接列表（按分组）—— 三栏工作台对齐 apple/windows
         egui::SidePanel::left("connections")

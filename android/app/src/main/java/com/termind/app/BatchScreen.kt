@@ -59,7 +59,8 @@ fun BatchScreen(conns: List<ServerConn>, onBack: () -> Unit) {
         scope.launch {
             AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
                 listOf("user" to material),
-                "你是运维助手。这是一批服务器执行同一命令的结果，请：① 总览(成功/失败台数) ② 失败的机器及原因 ③ 共性问题或差异 ④ 后续建议。精炼中文。"
+                "你是运维助手。这是一批服务器执行同一命令的结果，请：① 总览(成功/失败台数) ② 失败的机器及原因 ③ 共性问题或差异 ④ 后续建议。精炼中文。",
+                baseUrl = SettingsStore.loadBaseUrl(ctx)
             ) { delta -> aiSummary = (aiSummary ?: "") + delta }.onFailure { aiSummary = "⚠️ ${it.message}" }
         }
     }

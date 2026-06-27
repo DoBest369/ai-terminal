@@ -25,6 +25,12 @@ object SettingsStore {
     fun loadAutoInspect(ctx: Context): Boolean = prefs(ctx).getBoolean(K_AUTO_INSPECT, false)
     fun saveAutoInspect(ctx: Context, on: Boolean) = prefs(ctx).edit().putBoolean(K_AUTO_INSPECT, on).apply()
 
+    // API 地址（Base URL，对齐 apple；支持 OpenAI 兼容接口/代理/自托管 endpoint）
+    private const val K_BASE_URL = "ai_base_url"
+    const val DEFAULT_BASE_URL = "https://api.anthropic.com/v1/messages"
+    fun loadBaseUrl(ctx: Context): String = (prefs(ctx).getString(K_BASE_URL, DEFAULT_BASE_URL) ?: DEFAULT_BASE_URL).ifBlank { DEFAULT_BASE_URL }
+    fun saveBaseUrl(ctx: Context, url: String) = prefs(ctx).edit().putString(K_BASE_URL, url.trim()).apply()
+
     private const val K_TERM_FONT = "term_font"
     fun loadTermFont(ctx: Context): Int = prefs(ctx).getInt(K_TERM_FONT, 12)
     fun saveTermFont(ctx: Context, sp: Int) = prefs(ctx).edit().putInt(K_TERM_FONT, sp.coerceIn(8, 22)).apply()

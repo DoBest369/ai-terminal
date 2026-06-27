@@ -58,7 +58,8 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
         scope.launch {
             AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
                 listOf("user" to material),
-                "你是运维助手。这是一批服务器的健康巡检结果，请：① 总览(健康/需关注台数) ② 哪些机器资源紧张或异常及风险 ③ 优先处理建议。精炼中文。"
+                "你是运维助手。这是一批服务器的健康巡检结果，请：① 总览(健康/需关注台数) ② 哪些机器资源紧张或异常及风险 ③ 优先处理建议。精炼中文。",
+                baseUrl = SettingsStore.loadBaseUrl(ctx)
             ) { delta -> aiSummary = (aiSummary ?: "") + delta }.onFailure { aiSummary = "⚠️ ${it.message}" }
         }
     }

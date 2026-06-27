@@ -50,7 +50,8 @@ object AiClient {
         apiKey: String,
         model: String,
         messages: List<Pair<String, String>>,
-        systemPrompt: String = SYSTEM_PROMPT
+        systemPrompt: String = SYSTEM_PROMPT,
+        baseUrl: String = SettingsStore.DEFAULT_BASE_URL
     ): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
             val msgArr = JSONArray()
@@ -65,7 +66,7 @@ object AiClient {
                 .toString()
 
             val req = Request.Builder()
-                .url("https://api.anthropic.com/v1/messages")
+                .url(baseUrl)
                 .addHeader("x-api-key", apiKey)
                 .addHeader("anthropic-version", "2023-06-01")
                 .addHeader("content-type", "application/json")
@@ -101,6 +102,7 @@ object AiClient {
         model: String,
         messages: List<Pair<String, String>>,
         systemPrompt: String = SYSTEM_PROMPT,
+        baseUrl: String = SettingsStore.DEFAULT_BASE_URL,
         onDelta: suspend (String) -> Unit
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
@@ -112,7 +114,7 @@ object AiClient {
                 .put("stream", true).toString()
 
             val req = Request.Builder()
-                .url("https://api.anthropic.com/v1/messages")
+                .url(baseUrl)
                 .addHeader("x-api-key", apiKey)
                 .addHeader("anthropic-version", "2023-06-01")
                 .addHeader("content-type", "application/json")

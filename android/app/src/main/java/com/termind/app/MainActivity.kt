@@ -640,7 +640,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
         val aiIndex = messages.size
         messages.add(ChatMsg("assistant", "", System.currentTimeMillis()))
         sendJob = scope.launch {
-            val r = AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx), history, sys) { delta ->
+            val r = AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx), history, sys, baseUrl = SettingsStore.loadBaseUrl(ctx)) { delta ->
                 messages[aiIndex] = messages[aiIndex].copy(content = messages[aiIndex].content + delta)
             }
             r.onFailure { messages[aiIndex] = messages[aiIndex].copy(content = "⚠️ ${it.message ?: "请求失败"}") }
@@ -949,6 +949,10 @@ fun SettingsScreen() {
     var pickingTheme by remember { mutableStateOf(false) }
     var model by remember { mutableStateOf(SettingsStore.loadModel(ctx)) }   // A-Model
     var pickingModel by remember { mutableStateOf(false) }
+    // API 地址（Base URL，对齐 apple；OpenAI 兼容/代理/自托管）
+    var baseUrl by remember { mutableStateOf(SettingsStore.loadBaseUrl(ctx)) }
+    var editingBaseUrl by remember { mutableStateOf(false) }
+    var baseUrlInput by remember { mutableStateOf("") }
 
     // A-Model：AI 模型选择
     if (pickingModel) {
@@ -1026,6 +1030,24 @@ fun SettingsScreen() {
         )
     }
 
+    if (editingBaseUrl) {
+        AlertDialog(
+            onDismissRequest = { editingBaseUrl = false },
+            title = { Text("API 地址", color = TextPrimary) },
+            text = {
+                Column {
+                    OutlinedTextField(baseUrlInput, { baseUrlInput = it }, placeholder = { Text("https://api.anthropic.com/v1/messages", color = TextSecondary) }, singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent))
+                    Spacer(Modifier.height(6.dp))
+                    Text("自定义 endpoint（OpenAI 兼容/代理/自托管）。留空恢复默认。", color = TextSecondary, fontSize = 11.sp)
+                }
+            },
+            confirmButton = { TextButton(onClick = { SettingsStore.saveBaseUrl(ctx, baseUrlInput); baseUrl = SettingsStore.loadBaseUrl(ctx); editingBaseUrl = false }) { Text("保存", color = Accent) } },
+            dismissButton = { TextButton(onClick = { editingBaseUrl = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+
     Column {
         TopBar("设置")
         Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1034,6 +1056,8 @@ fun SettingsScreen() {
             // A-Model：模型选择
             SettingRow(Icons.Filled.Memory, "AI 模型", model.substringBefore("-20")) { pickingModel = true }
             SettingRow(Icons.Filled.Key, "API Key", if (apiKey.isBlank()) "未配置（点击设置）" else "已配置 ••••${apiKey.takeLast(4)}") { keyInput = apiKey; editingKey = true }
+            // API 地址（Base URL，对齐 apple）
+            SettingRow(Icons.Filled.Link, "API 地址", if (baseUrl == SettingsStore.DEFAULT_BASE_URL) "默认（Anthropic）" else baseUrl) { baseUrlInput = baseUrl; editingBaseUrl = true }
             // N-CronAuto：定时后台巡检开关
             var autoInspect by remember { mutableStateOf(SettingsStore.loadAutoInspect(ctx)) }
             val notifPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -1219,7 +1243,7 @@ fun ServerWorkspace(conn: ServerConn, onBack: () -> Unit, onProfile: (ServerProf
                     val sys = if (notebook.isNotEmpty()) "${wf.summaryPrompt}\n\n$notebook\n请结合以上历史运维记录给出针对性结论。" else wf.summaryPrompt
                     if (notebook.isNotEmpty()) output += "📓 已结合本机知识卡片\n"
                     val ai = AiClient.chat(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
-                        listOf("user" to wf.composeForAI(outs)), sys)
+                        listOf("user" to wf.composeForAI(outs)), sys, baseUrl = SettingsStore.loadBaseUrl(ctx))
                     val conclusion = ai.getOrNull()
                     output += "【AI 结论】\n" + (conclusion ?: "⚠️ ${ai.exceptionOrNull()?.message}") + "\n"
                     // 排障结论可一键存为方案卡片（知识沉淀闭环覆盖排障路径）
@@ -1920,7 +1944,7 @@ fun HealthAISheet(status: ServerStatus, connId: String = "", onClose: () -> Unit
         val notebook = if (connId.isNotEmpty()) ServerNotebook.composeForAI(ServerNotebook.load(ctx, connId)) else ""
         val sys = if (notebook.isNotEmpty()) "${AiClient.HEALTH_PROMPT}\n\n$notebook\n请结合以上历史运维记录分析。" else AiClient.HEALTH_PROMPT
         AiClient.chatStream(SettingsStore.loadApiKey(ctx), SettingsStore.loadModel(ctx),
-            listOf("user" to msg), sys) { delta -> content += delta }
+            listOf("user" to msg), sys, baseUrl = SettingsStore.loadBaseUrl(ctx)) { delta -> content += delta }
             .onFailure { content = "⚠️ ${it.message}" }
         done = true
     }

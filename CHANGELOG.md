@@ -199,6 +199,23 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 20 — 智能运维全链路真实落地 + AI 三模式 Agent（2026-06-27）
+
+里程碑级突破：智能运维从「仅 apple/android 真实」→ **windows 端全链路真实**，用户提供真实 AI 接口（nexcores claude-opus-4-8）+ SSH 测试机（47.85.19.31），每步端到端验证。
+
+- **真实 AI（windows + linux）**：windows HttpClient / linux ureq 调 Anthropic 兼容接口（nexcores），优化系统级运维提示词（资深运维专家/结合真实环境/危险操作风险分级/排障先诊断后修复/[EXECUTE] 标记）。key 从环境变量，不硬编码。端到端验证：「CPU 飙 95% 排查」→ 专业三步走方案。
+- **🤖 AI 三模式（用户核心设计，安全梯度）**：
+  - **Chat**：纯聊天，AI 只建议不碰终端。
+  - **Agent**：AI 生成命令，每条「▶ 执行」按钮人工确认放行。
+  - **Auto Agent**：AI 读输出→决策→执行→读结果**自主闭环**（agent loop），端到端验证：回喂 ps 结果→AI 自主决策 top -Hp 查线程。限轮 5 + 危险中断防失控。
+- **真实 SSH（windows，SSH.NET）**：连 47.85.19.31 真实 exec，手输命令 + AI 生成命令都真实在服务器执行，结果回终端。端到端验证：SSH.NET 认证通过 + RunCommand 返回结果。
+- **Z3 环境感知（windows）**：提问前 SSH 取服务器真实状态（系统/CPU/内存/负载/服务）注入 AI 系统提示。端到端验证：注入 2核/899MB 真实配置→AI 精准指出内存不足 OOM 风险 + 低配 JVM 方案。
+- **安全铁律**：极高危命令（rm-rf/mkfs/dd/shutdown/fork 炸弹/chmod777）⚠ 标注，即使 Auto 模式也强制人工确认、不自动绕过；所有执行可回滚（对齐护城河）。
+- **AI 多轮对话历史**（windows）：上下文累积，AI 记住多轮，为 Auto 闭环铺垫。
+- **UI 品质专项 U1-U4**：windows PathIcon + linux Phosphor 图标库化（去 emoji）；JetBrains Mono 字体双端；整窗深色配色协调（ExtendClientAreaToDecorationsHint）；AI 三模式切换器 UI。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，PARITY 103 项 ✅✅，700+ 提交。
+- **真实测试资源**：AI nexcores（Anthropic 格式，claude-opus-4-8）+ SSH 47.85.19.31（Ubuntu 20.04），密码/key 环境变量不硬编码。
+
 ## 当前状态
 
 - **双端原生可构建**：apple（Swift，swift build + 自测齐全 + 截图渲染验证）+ android（Kotlin，gradle 出 APK，零 deprecated warning）。

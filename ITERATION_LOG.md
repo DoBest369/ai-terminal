@@ -4760,3 +4760,12 @@
 - **改动**：`windows MainWindow.axaml`(磁盘分区按钮 Flyout)、`MainWindow.axaml.cs`(OnDiskParts 解析+进度条)、`linux main.rs`(磁盘分区按钮 + spawn df)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（HARD_DRIVES 图标）。推送 7877b41。
 - **意义**：磁盘分区面板（运维查全分区使用率，非只根分区，定位哪个分区满），双端对称。监控明细完整（进程/端口/磁盘分区）。下一步 质量收口 CHANGELOG 阶段54 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段54 监控明细套件+进程操作 + MATURITY沉淀
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；958 提交。五端 build 全绿。
+- **CHANGELOG 阶段54**：磁盘分区面板 + 进程终止（windows kill）+ 监控明细套件（聚合→进程/端口/磁盘下钻）。
+- **MATURITY**：加运维监控套件沉淀（监控-诊断-处置完整链路：状态条聚合+告警→进程/端口/磁盘下钻→服务/进程操作+Z1-Z3闭环+batch+搜索+导出+定制）。
+- **改动**：`CHANGELOG.md`(阶段54)、`docs/MATURITY.md`。
+- **意义**：CHANGELOG 至阶段54。运维监控套件成型并 MATURITY 沉淀。Termind 是完整的智能运维监控-诊断-处置工作台。后续持续打磨/新功能。

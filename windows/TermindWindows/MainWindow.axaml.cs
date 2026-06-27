@@ -3,15 +3,43 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Controls.Documents;
+using Avalonia.Threading;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace TermindWindows;
 
 /// 一条 SSH 连接（占位；后续接真实连接数据 + ssh）
-/// Bar=分组色条，Dot=在线状态点，GroupName/ShowHeader=分组标题，Reach/ReachColor=可达指示，
-/// Note/HasNote=备注，LastUsed/HasLastUsed=最近使用
-public record ConnItem(string Name, string Addr, IBrush Bar, IBrush Dot, string GroupName, bool ShowHeader,
-    string Reach, IBrush ReachColor, string Note, bool HasNote, string LastUsed, bool HasLastUsed);
+/// Bar=分组色条，Dot=在线状态点(可达探测后更新)，GroupName/ShowHeader=分组标题，
+/// Reach/ReachColor=可达指示(TCP 探测后更新)，Note/HasNote=备注，LastUsed/HasLastUsed=最近使用
+public class ConnItem : INotifyPropertyChanged
+{
+    public string Name { get; }
+    public string Addr { get; }
+    public IBrush Bar { get; }
+    public string GroupName { get; }
+    public bool ShowHeader { get; }
+    public string Note { get; }
+    public bool HasNote { get; }
+    public string LastUsed { get; }
+    public bool HasLastUsed { get; }
+
+    private IBrush _dot; public IBrush Dot { get => _dot; set { _dot = value; Notify(nameof(Dot)); } }
+    private string _reach; public string Reach { get => _reach; set { _reach = value; Notify(nameof(Reach)); } }
+    private IBrush _reachColor; public IBrush ReachColor { get => _reachColor; set { _reachColor = value; Notify(nameof(ReachColor)); } }
+
+    public ConnItem(string name, string addr, IBrush bar, IBrush dot, string groupName, bool showHeader,
+        string reach, IBrush reachColor, string note, bool hasNote, string lastUsed, bool hasLastUsed)
+    {
+        Name = name; Addr = addr; Bar = bar; _dot = dot; GroupName = groupName; ShowHeader = showHeader;
+        _reach = reach; _reachColor = reachColor; Note = note; HasNote = hasNote; LastUsed = lastUsed; HasLastUsed = hasLastUsed;
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    private void Notify(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
+}
 
 public partial class MainWindow : Window
 {
@@ -31,6 +59,41 @@ public partial class MainWindow : Window
             new("开发机", "deploy@dev.example.com:2222", green, green, "开发环境", true, "✓", green, "", false, "", false),
         };
         ConnList.SelectedIndex = 0;
+        // 真实 TCP 可达性探测（对照 linux probe_tcp）：异步探测每个连接，结果回 UI 线程更新
+        foreach (var item in (List<ConnItem>)ConnList.ItemsSource)
+            _ = ProbeReachabilityAsync(item);
+    }
+
+    /// 真实 TCP 可达性探测（对照 linux）：ConnectAsync + 2s 超时，结果更新连接状态点/可达指示
+    private static async Task ProbeReachabilityAsync(ConnItem c)
+    {
+        // 解析 user@host:port
+        var s = c.Addr;
+        var at = s.IndexOf('@'); if (at >= 0) s = s[(at + 1)..];
+        var host = s; var port = 22;
+        var colon = s.IndexOf(':');
+        if (colon >= 0) { host = s[..colon]; int.TryParse(s[(colon + 1)..], out port); }
+        bool ok = await TcpReachableAsync(host, port);
+        var green = Brush.Parse("#3FB950");
+        var gray = Brush.Parse("#6B7280");
+        Dispatcher.UIThread.Post(() =>
+        {
+            c.Reach = ok ? "✓" : "✕";
+            c.ReachColor = ok ? green : gray;
+            c.Dot = ok ? green : gray;
+        });
+    }
+
+    private static async Task<bool> TcpReachableAsync(string host, int port)
+    {
+        try
+        {
+            using var client = new TcpClient();
+            var connect = client.ConnectAsync(host, port);
+            var done = await Task.WhenAny(connect, Task.Delay(2000));
+            return done == connect && !connect.IsFaulted && client.Connected;
+        }
+        catch { return false; }
     }
 
     /// 连接列表选中变化 → 终端区状态条反映选中连接（真实交互，对照 linux）

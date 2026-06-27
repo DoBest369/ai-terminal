@@ -6,6 +6,14 @@
 
 ---
 
+## windows 真实 TCP 可达性探测（双端真实可达性对齐）🎯
+- **内容**：windows `ConnItem` 从 record → observable class（INotifyPropertyChanged，Dot/Reach/ReachColor 可通知）；`ProbeReachabilityAsync` 解析 user@host:port → `TcpClient.ConnectAsync` + 2s 超时（Task.WhenAny）真实探测，`Dispatcher.UIThread.Post` 更新状态点/可达指示。连接可达从 mock → 真实 TCP 探测，对照 linux probe_tcp。
+- **改动**：`MainWindow.axaml.cs`(ConnItem observable class + ProbeReachabilityAsync + TcpReachableAsync)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）；`dotnet run` 无 binding 异常，连接列表正常渲染。推送 69b781f。
+- **🎯 windows/linux 双端真实 TCP 可达性探测对齐**：连接 online 状态从 mock → 真实 TCP 探测（linux 后台线程+channel / windows async Task+Dispatcher）。真实逻辑接入双端推进，连接可达性真实化。
+
+---
+
 ## linux 真实 TCP 可达性探测（真实逻辑第一步，非 mock）🎯
 - **内容**：linux `probe_tcp(host, port)` 用 `std::net::TcpStream::connect_timeout`（2s）真实探测；`TermindApp::default` 启动后台线程并发探测每个连接，`mpsc::channel` 回传；`update` 开头 try_recv 应用结果更新 `conn.online`（真实可达性）。连接卡片 online 状态从 mock → 真实 TCP 探测结果。低频重绘（500ms）接收后台线程结果。
 - **改动**：`linux/src/main.rs`(probe_tcp + reach_rx channel + 后台线程探测 + update 应用)。

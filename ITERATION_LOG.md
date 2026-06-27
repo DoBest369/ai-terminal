@@ -4614,3 +4614,11 @@
 - **改动**：`windows MainWindow.axaml`(历史按钮 Flyout + HistoryList)、`MainWindow.axaml.cs`(OnHistoryOpen)。
 - **验证**：`dotnet build` 0 错误；run 存活。推送 1a45746。
 - **意义**：windows 命令历史面板（运维重用历史命令更快，对照 apple history-test / linux 上下键）。下一步 linux 命令历史面板对齐 / 质量收口 / 新功能。
+
+---
+
+## linux 命令历史面板（menu_button 点击重用，对照 windows，双端对齐）
+- **内容**：linux 批量按钮旁加历史 menu_button（时钟图标）→ 弹最近 20 条命令；点击任一 → hist_pick 局部变量收集 → 填 cmd_input 重用；空历史友好提示；等宽字体；set_max_width 限宽。
+- **改动**：`linux main.rs`(历史 menu_button + hist_pick 收集)。
+- **验证**：`cargo build` **0 error/warning**（0.85s，带 proxy）。推送 dfcb6d9。
+- **意义**：命令历史面板 windows/linux 双端对齐（点击重用，补充上下键回溯）。运维重用历史命令更快。下一步 质量收口 CHANGELOG 阶段48 / AI 多会话 / 新功能。

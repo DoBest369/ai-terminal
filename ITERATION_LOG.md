@@ -3531,3 +3531,11 @@
 - **配色协调**（用户反馈「头部白色界面黑色不协调」）：windows mac 上系统浅色标题栏 + 深色内容割裂 → `ExtendClientAreaToDecorationsHint=True` 整窗统一深色，截图确认协调（aa5f51b）。
 - **真实 SSH 验证**（用户提供授权测试机 47.85.19.31）：TCP 可达 + linux read_loadavg/read_mem/read_uptime/available_parallelism/服务状态点解析逻辑在真实 Ubuntu 20.04 上**全部正确**。测试机存入记忆 [[test-ssh-server]]，后续 SSH 测试都用它。
 - **UI 品质专项**（用户新要求记入 ROADMAP U1-U4）：U1 图标库/SVG 化（禁 emoji）、U2 整窗配色协调✅、U3 主题可调+首启选风格（像 VSCode）、U4 字体可调+字体库。
+
+---
+
+## U1 图标库化第一步：windows 工具栏 emoji→矢量 PathIcon
+- **内容**：windows 工具栏 SFTP/新建/设置 3 个 emoji（📁/＋/⚙）→ Avalonia `PathIcon` + Material Design 矢量 path data。清晰专业、不依赖系统 emoji 字体渲染。响应用户「图标用图标库/SVG，禁 emoji」要求。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(3 个 PathIcon)。
+- **验证**：`dotnet build` 0 错误；`dotnet run`(完整,不带 --no-build) 17s 存活无崩溃；截图确认矢量图标渲染 + 整窗深色协调。推送 9932a89。
+- **意义**：U1 图标库化起步。下一步继续 windows SFTP 列表图标/可达指示 + linux egui-phosphor 图标字体。

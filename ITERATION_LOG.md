@@ -3757,3 +3757,11 @@
 - **改动**：`MainWindow.axaml`(清空按钮)、`MainWindow.axaml.cs`(OnClearChat)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 15s 存活；截图确认 AI 面板完整（✦ AI 助手 + 清空按钮 + 三模式切换器[聊天高亮] + 代码块对话），整窗深色协调。推送 5de16de。
 - **意义**：windows AI 面板功能完整（标题/清空/三模式/对话代码块/快捷追问/流式输入）。windows 智能运维工作台 UI + 功能体验都成熟。下一步 apple Auto 闭环 / linux 体验对齐。
+
+---
+
+## 🎯 apple 优化 AI 默认系统提示词为资深运维专家 → AI 运维提示词五端对齐
+- **内容**：apple `defaultAgentSystemPrompt` 从旧简单版（「你是一个终端AI助手」）→ 资深 Linux/SSH 运维专家（结合真实环境/命令代码块/危险操作风险分级+备份/排障先诊断后修复验证/常见故障识别），保留 [EXECUTE] 标记。对齐 windows SysPrompt + linux sys_prompt。
+- **改动**：`apple/AITerminalCore/Sources/AITerminalCore/AIService.swift`(defaultAgentSystemPrompt)。
+- **验证**：swift build Core + App Build complete；**8 自测全过无回归**。推送 7074ae7。
+- **🎯 AI 运维系统提示词五端对齐**：apple/windows/linux（iOS/android 同源）AI 都用资深运维专家提示词（结合环境/风险分级/排障流程/[EXECUTE]）。AI 运维专业能力五端一致。windows/linux 双端真实 AI + 优化提示词，apple/android 真实 AI + 优化提示词。下一步 linux 体验对齐（清空对话）/ apple Auto 闭环。

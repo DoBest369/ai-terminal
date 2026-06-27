@@ -66,6 +66,15 @@ fn read_loadavg() -> Option<String> {
     if parts.len() == 3 { Some(parts.join(" ")) } else { None }
 }
 
+/// 读本机真实运行时长（/proc/uptime，格式化「X天Y时」；非 Linux/读失败返回 None）
+fn read_uptime() -> Option<String> {
+    let s = std::fs::read_to_string("/proc/uptime").ok()?;
+    let secs = s.split_whitespace().next()?.parse::<f64>().ok()? as u64;
+    let days = secs / 86400;
+    let hours = (secs % 86400) / 3600;
+    Some(if days > 0 { format!("{}天{}时", days, hours) } else { format!("{}时{}分", hours, (secs % 3600) / 60) })
+}
+
 /// 读本机真实内存占用（/proc/meminfo：(已用GB, 总GB, 占用%)；非 Linux/读失败返回 None）
 fn read_mem() -> Option<(f64, f64, u8)> {
     let s = std::fs::read_to_string("/proc/meminfo").ok()?;
@@ -372,6 +381,10 @@ impl eframe::App for TermindApp {
                     // 真实本机负载（/proc/loadavg）；非 Linux/读失败回退占位
                     let load = read_loadavg().unwrap_or_else(|| "0.82 0.45 0.30".to_string());
                     ui.colored_label(TEXT_SECONDARY, format!("负载 {}", load));
+                    // 真实本机运行时长（/proc/uptime）；真 Linux 显示，非 Linux 跳过
+                    if let Some(up) = read_uptime() {
+                        ui.colored_label(TEXT_SECONDARY, format!("· 运行 {}", up));
+                    }
                     ui.separator();
                     // 关键服务运行状态点（对照 apple/android Z6：nginx/docker/mysql/redis/sshd）
                     for (svc, running) in [("nginx", true), ("docker", true), ("mysql", true), ("redis", false), ("sshd", true)] {

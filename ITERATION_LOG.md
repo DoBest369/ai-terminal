@@ -4508,3 +4508,11 @@
 - **改动**：`linux/src/main.rs`(term_search 字段 + 终端搜索框 + 渲染匹配高亮)。
 - **验证**：`cargo build` **0 error/warning**（1.65s，带 proxy）。推送 27cc661。
 - **意义**：终端输出搜索 windows/linux 双端对齐（运维查日志/输出快速定位）。下一步 质量收口 CHANGELOG 阶段44 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段44 搜索能力双端对齐
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；896 提交。五端 build 全绿。
+- **CHANGELOG 阶段44**：搜索能力双端对齐（连接搜索过滤 + 终端输出搜索高亮，windows/linux）。
+- **改动**：`CHANGELOG.md`(阶段44)。
+- **意义**：CHANGELOG 至阶段44。用户全部需求实现后持续打磨新功能双端对齐（搜索/主题/字号）。Termind 全平台真实智能运维工作台日臻完善，windows/linux 双端体验一致接近 apple 标杆。

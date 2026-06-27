@@ -3684,3 +3684,11 @@
 - **改动**：`linux/src/main.rs`(AiMode + parse_execute + is_dangerous + 三模式切换器 + 待执行命令卡片 + update 解析执行)。
 - **验证**：`cargo build` **0 error/warning**（0.75s，带 proxy，borrow 通过）。推送 b2439f0。
 - **🎯 linux 智能运维闭环完整（对照 windows）**：AI 生成命令 → 三模式（Chat/Agent/Auto）→ 真实 SSH（ssh2）执行 → 结果回终端。windows + linux **双端智能运维闭环都完整**（真实 AI + 真实 SSH + 三模式 + 危险拦截）。下一步 apple 三模式对齐（apple 有最强基础）。
+
+---
+
+## 🎯 apple AI 三模式核心逻辑（Chat/Agent/Auto）→ 三模式五端对齐
+- **内容**：apple `AIMode` 枚举（chat/agent/autoAgent + label/icon/hint）+ @Published aiMode 持久化 + pendingCommands 待确认命令。`runParsedCommands` 按模式：Chat 不执行 / Agent 待确认（pendingCommands）/ Auto 非危险自动注入终端执行；危险命令即使 Auto 也进待确认（安全铁律）；`runPendingCommand` 确认放行。复用 apple 真实 AI（URLSession）+ 真实 SSH（injectCommand 注入终端 session）+ 危险检测（cmd.isDangerous）。
+- **改动**：`apple/App/Sources/AppModel.swift`(AIMode 枚举 + aiMode + runParsedCommands 三模式 + runPendingCommand)。
+- **验证**：swift build Build complete（SourceKit module 警告 IDE 误报不影响）。推送 9990c6c。
+- **🎯 AI 三模式五端对齐**：apple/windows/linux 都有 Chat/Agent/Auto 三模式（iOS 同 apple）。apple 基础最强（真实终端会话注入 injectCommand，比 windows/linux 的填入输入框更直接）。下一步 apple AIAgentView 三模式切换器 UI + pendingCommands 确认卡片 + Showcase 渲染。

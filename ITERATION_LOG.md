@@ -3820,3 +3820,12 @@
 - **改动**：`MainWindow.axaml.cs`(SshExecAsync 复用持久 Session)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 cad4442。
 - **意义**：避免每次 exec 新建 SshClient（原每次连接~1-2s），Auto 闭环多命令/手输连续命令显著提速。windows 智能运维性能体验提升。下一步 终端快捷命令增强 / CHANGELOG 阶段22 深化打磨小结。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段22 深化打磨 + windows 截图归档
+- **质量基线**（深化打磨多轮后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；729 提交。五端 build 全绿。
+- **CHANGELOG 阶段22**：深化打磨小结（运维快捷入口 Z1-Z3 + 风险四级 Z7 + 流式/代码块/清空 + SSH 复用，windows/linux 对照 apple 护城河补齐）。
+- **截图归档**：`apple/screenshots/windows-smart-ops.png`（windows 三栏 + AI 三模式 + 运维快捷入口 + 代码块对话）。
+- **改动**：`CHANGELOG.md`、归档截图。
+- **意义**：深化打磨阶段成果沉淀。CHANGELOG 演进：...智能运维全链路真实(20)→S1-S5全完成(21)→**深化打磨对照apple护城河补齐(22)**。windows/linux 不仅核心能力对齐 apple，护城河细节（Z1-Z3/Z7）+ 体验 + 性能也对齐。

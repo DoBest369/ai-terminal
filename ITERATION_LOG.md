@@ -6,6 +6,14 @@
 
 ---
 
+## android 巡检结果卡片增加负载显示（对齐 healthSummary 完整字段）
+- **内容**：android InspectScreen 巡检结果卡片从「CPU/内存/磁盘」→「CPU/内存/磁盘/负载」（load 非「—」时显示）。ServerStatus 已有 load 字段（对齐 apple loadavg），巡检卡片之前没展示——补齐，一眼看全机器健康。
+- **改动**：`InspectScreen.kt`(巡检卡片状态行加负载)。
+- **验证**：android `assembleDebug` **BUILD SUCCESSFUL 13s 零 deprecated**（带 proxy，build 通过后提交）。推送 3dd3196。
+- **意义**：android 巡检结果信息更全（CPU/内存/磁盘/负载），对齐 healthSummary 完整字段。批量巡检时负载也一目了然（运维定位高负载机器）。
+
+---
+
 ## windows 终端 clear 命令清屏（双端 clear 对齐）
 - **内容**：windows OnCmdKeyDown 若 cmd==`clear` → `while TermOutput.Children.Count > 1 RemoveAt(0)` 清到只剩光标行（清屏），对照 linux。
 - **改动**：`MainWindow.axaml.cs`(OnCmdKeyDown 加 clear 分支)。

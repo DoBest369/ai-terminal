@@ -3772,3 +3772,11 @@
 - **内容**：ROADMAP S1-S5 全部 [x] 完成——S1 linux 真实 SSH(ssh2) / S2 linux 真实 AI(ureq) / S3 windows 真实 SSH+AI(SSH.NET/HttpClient 流式) / S4 智能运维移植(Z3 环境感知+优化运维提示词+危险拦截) / S5 AI 三模式(Chat/Agent/Auto 五端对齐 UI+逻辑,windows Auto 闭环+流式+代码块)。都端到端验证（真实 AI nexcores + 真实 SSH 47.85.19.31）。
 - **改动**：`ROADMAP.md`(S1-S5 标记完成)。
 - **意义**：用户核心需求「智能运维全平台落地 + AI 三模式」**S1-S5 全部完成**。从「智能运维只 apple/android 真实」→「全平台真实落地，能力体系一致，端到端验证」。Termind 核心价值（智能 SSH 运维 + AI Agent 三模式安全梯度）全平台成型。后续转向：批量巡检移植 windows/linux / apple Auto 闭环 / 持续打磨细节。
+
+---
+
+## 🎯🎯 CHANGELOG 阶段21 里程碑（智能运维 S1-S5 全完成）+ 质量收口
+- **质量基线**（S1-S5 全完成后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；717 提交。五端 build 全绿。
+- **CHANGELOG 阶段21**：智能运维 S1-S5 全部完成 + AI 体验打磨（流式/代码块/清空）+ AI 运维提示词五端对齐 + 能力对齐总览 + 端到端验证。
+- **改动**：`CHANGELOG.md`(阶段21)。
+- **意义**：用户核心需求「智能运维全平台落地 + AI 三模式」**S1-S5 里程碑完整沉淀**。CHANGELOG 演进：编译打通(16)→UI统一(17)→真实交互(18)→真实逻辑(19)→智能运维全链路真实(20)→**智能运维S1-S5全完成+AI体验打磨(21)**。Termind 核心价值全平台成型，文档体系全对齐。后续持续深化（批量巡检移植/apple Auto闭环/细节打磨）。

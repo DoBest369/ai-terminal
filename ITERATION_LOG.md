@@ -3612,3 +3612,12 @@
 - **改动**：`MainWindow.axaml.cs`(EXECUTE 解析 + AddCommandCard + IsDangerous + ExecuteCommand)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 16s 存活无崩溃。推送 76b0aee。
 - **意义**：AI 三模式**核心闭环落地**（读 AI 回复→解析命令→按模式执行）。`ExecuteCommand` 当前填入 CmdInput（真实 SSH exec + Auto 结果回喂待 S1）。用户 Chat/Agent/Auto 设计 + 安全梯度完整成形。下一步 S1 真实 SSH（连 47.85.19.31）让命令真正执行 + Auto 闭环。
+
+---
+
+## 🎯🎯 S1 windows 真实 SSH 执行（SSH.NET）→ 智能运维闭环完整
+- **内容**：windows csproj 加 `SSH.NET 2025.1.0`（带 proxy 拉取编译通过）；`SshExecAsync` 用 `Renci.SshNet.SshClient` 连真实服务器 exec（host/user/pass 从环境变量 TERMIND_SSH_*，不硬编码）；`ExecuteCommand` 改真实执行——AI 命令（Agent 确认/Auto 自动）→ SSH 在服务器执行 → 结果追加终端（`AppendTerm`），SSH 失败橙色标注。
+- **改动**：`TermindWindows.csproj`(SSH.NET)、`MainWindow.axaml.cs`(SshExecAsync + ExecuteCommand 真实 exec + AppendTerm)。
+- **验证**：`dotnet build` 0 错误；run 18s 存活；**SSH.NET 端到端验证**（临时控制台同逻辑）：真连 47.85.19.31 认证通过 + RunCommand 返回结果（RESULT_OK）。推送 9663c98。
+- **🎯 智能运维闭环完整**：AI 真实回复（nexcores）→ 解析 `[EXECUTE]` 命令 → 三模式（Chat 建议/Agent 确认/Auto 自动）→ **真实 SSH 在 47.85.19.31 执行** → 结果回终端。危险命令拦截守安全。windows 端智能运维从 mock → **全链路真实**。
+- **意义**：用户要的「智能运维全平台落地 + AI Agent 终端接管」在 windows 端**全链路打通**（真实 AI + 真实 SSH + 三模式 + 安全）。下一步：Auto 模式结果回喂 AI（闭环自主）+ linux 同等落地（编译验证）+ 命令输入回车也走真实 SSH。

@@ -4038,3 +4038,11 @@
 - **改动**：`MainWindow.axaml.cs`(SaveConfig/LoadConfig 含连接 + OnAddConn 保存)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 fe402ce。
 - **意义**：windows 新建连接跨重启不丢（连接管理完整：列表+新建+持久化+选中切换+真实执行）。下一步 SFTP 真实文件 / 主题切换 U3 / 质量收口。
+
+---
+
+## windows SFTP 真实文件列表（SSH ls -la 取选中连接目录，替换 mock）
+- **内容**：windows SFTP 按钮 Click → OnSftpOpen：SSH `cd ~ && pwd && ls -la --time-style=long-iso` 取选中连接 home 真实文件 → 解析权限（d=目录）/大小/日期/名 → 动态填 SftpList（目录蓝/文件灰图标）；SftpPath 显真实 pwd。
+- **改动**：`MainWindow.axaml`(SFTP Flyout 动态 SftpList + Click)、`MainWindow.axaml.cs`(OnSftpOpen)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活；ls -la 解析逻辑验证正确（目录/大小/日期/名）。推送 0d9be98。
+- **意义**：windows SFTP 从「固定 mock 文件」→「真实 SSH 文件浏览」（取选中连接 home 真实目录）。windows 真实能力再下一城（连接管理 + 终端 + AI 运维 + SFTP 都真实）。下一步 linux SFTP 真实 / 质量收口。

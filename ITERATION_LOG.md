@@ -4111,3 +4111,12 @@
 - **改动**：`MainWindow.axaml`(连接 ContextFlyout 删除菜单)、`MainWindow.axaml.cs`(OnDeleteConn)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 a8da661。
 - **意义**：windows 连接管理 CRUD 完整（列表/新建/删除/持久化/切换/真实执行）。下一步 AI 时间戳 / 质量收口 / 终端 ANSI 颜色。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段29（SFTP预览+连接CRUD）+ 截图归档
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；801 提交。五端 build 全绿。
+- **CHANGELOG 阶段29**：SFTP 文件预览（windows/linux）+ 连接管理 CRUD 完整（windows）。
+- **windows 整体巡检**（截图 Read 自查）：三栏布局完整，连接列表含「我的连接」组 + 终端 + AI 面板，深色协调。
+- **改动**：`CHANGELOG.md`、更新 `apple/screenshots/windows-smart-ops.png`。
+- **意义**：CHANGELOG 至阶段29。SFTP 完整（浏览→导航→预览）+ windows 连接 CRUD 完整。windows/linux 双端全模块真实且功能完善。智能运维全平台落地的标杆 windows 端功能完整度高。后续持续打磨细节。

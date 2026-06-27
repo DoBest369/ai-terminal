@@ -3700,3 +3700,11 @@
 - **改动**：`apple/App/Sources/Views/AIAgentView.swift`(modeSwitcher + pendingCommandsBar)。
 - **验证**：swift build Build complete（Theme 配色不写死 + SF Symbols 合规）。推送 6a154da。
 - **🎯 AI 三模式切换器 UI 五端对齐**：apple/windows/linux（+iOS 同 apple）AI 面板都有 Chat/Agent/Auto 三档切换器。apple 的待确认卡片「执行」直接注入真实终端会话（injectCommand），基础最强。**用户的 Chat/Agent/Auto 三模式设计五端完整落地（UI + 逻辑）**。下一步 apple Auto 自主闭环 / windows AI 代码块渲染。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段20 补三模式五端
+- **质量基线**（智能运维 + 三模式五端大改后全量收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；PARITY **103 项 ✅✅**；699 提交。五端 build 全绿，30+ 轮智能运维大改核心逻辑零回归。
+- **CHANGELOG 补充**：阶段20 加「AI 三模式五端对齐（UI+逻辑）」+「真实 AI/SSH 双端落地端到端验证」。
+- **验证**：五端 build 全绿，apple 8 自测无回归。
+- **意义**：智能运维全平台落地 + AI 三模式五端对齐里程碑，质量基线扎实。Termind 从「全平台 UI 骨架」→「全平台真实智能 SSH 运维工作台 + AI Agent 三模式」，用户核心设计（全平台落地 + Chat/Agent/Auto + 真实 AI/SSH + 安全）全面成型。

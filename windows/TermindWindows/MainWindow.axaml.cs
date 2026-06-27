@@ -336,6 +336,23 @@ public partial class MainWindow : Window
         TermScroll.ScrollToEnd();
     }
 
+    private string? _envCache;   // 服务器环境摘要缓存（首次提问取一次）
+
+    /// Z3 环境感知：SSH 取服务器系统/资源/服务摘要（缓存，密码缺省时返回空跳过）
+    private async Task<string> FetchServerEnvAsync()
+    {
+        if (_envCache != null) return _envCache;
+        if (string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("TERMIND_SSH_PASS"))) return "";
+        var probe = "echo 系统:$(uname -sr); echo CPU核数:$(nproc); " +
+            "echo 内存:$(free -m 2>/dev/null|awk '/Mem:/{print $3\"/\"$2\"MB\"}'); " +
+            "echo 负载:$(cat /proc/loadavg|cut -d' ' -f1-3); " +
+            "echo 磁盘:$(df -h / 2>/dev/null|awk 'NR==2{print $5\" 已用\"}'); " +
+            "echo 服务:$(for s in nginx docker mysql redis sshd; do systemctl is-active $s 2>/dev/null|grep -q active && echo -n \"$s \"; done)";
+        var env = await SshExecAsync(probe);
+        _envCache = env.StartsWith("⚠") ? "" : env;
+        return _envCache;
+    }
+
     /// 真实 SSH exec（S1：连真实服务器，SSH.NET）；密码从环境变量 TERMIND_SSH_PASS（不硬编码）
     private async Task<string> SshExecAsync(string cmd)
     {
@@ -360,17 +377,22 @@ public partial class MainWindow : Window
     }
 
     /// 调 Anthropic 兼容接口（nexcores）；key 从环境变量 TERMIND_AI_KEY 读（不硬编码）
+    /// Z3 环境感知：提问前先 SSH 取服务器真实状态注入系统提示，AI 结合真实环境回答
     private async Task<string> CallAiAsync(string userMsg)
     {
         var key = System.Environment.GetEnvironmentVariable("TERMIND_AI_KEY") ?? "";
         if (string.IsNullOrEmpty(key)) return "⚠️ 未配置 API Key（设置 TERMIND_AI_KEY 环境变量，或在设置面板填入）";
+        // 取服务器真实环境摘要（一次 SSH 拿系统/资源/服务），注入系统提示
+        var env = await FetchServerEnvAsync();
+        var sys = string.IsNullOrEmpty(env) ? SysPrompt
+            : SysPrompt + "\n\n【当前服务器真实环境】\n" + env + "\n请结合以上真实环境给出针对性建议。";
         try
         {
             var payload = new
             {
                 model = AiModel,
                 max_tokens = 1024,
-                system = SysPrompt,
+                system = sys,
                 messages = new[] { new { role = "user", content = userMsg } }
             };
             using var req = new HttpRequestMessage(HttpMethod.Post, AiBaseUrl);

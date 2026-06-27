@@ -188,18 +188,23 @@ public partial class MainWindow : Window
         StatusDot.Foreground = online ? Brush.Parse("#3FB950") : Brush.Parse("#6B7280");
     }
 
-    /// SFTP 打开：SSH 取选中连接 home 目录真实文件列表（替换 mock，对照 apple/android）
-    private async void OnSftpOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private string _sftpCwd = "~";   // SFTP 当前目录（支持导航）
+
+    /// SFTP 打开按钮 → 浏览 home 目录
+    private void OnSftpOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => LoadSftp("~");
+
+    /// SFTP 真实文件列表（SSH ls 指定目录）；目录可点击导航，".." 返回上级
+    private async void LoadSftp(string path)
     {
         SftpList.Children.Clear();
         SftpList.Children.Add(new TextBlock { Text = "加载中…", Foreground = Brush.Parse("#8B92A8"), FontSize = 12 });
-        SftpPath.Text = "~";
-        // ls -la $HOME：解析权限/大小/名（第一字符 d=目录），目录蓝色文件绿色
-        var result = await SshExecAsync("cd ~ && pwd && ls -la --time-style=long-iso");
+        // cd 到目标目录后 ls（path 用单引号防注入空格）
+        var result = await SshExecAsync($"cd '{path.Replace("'", "")}' 2>/dev/null && pwd && ls -la --time-style=long-iso");
         SftpList.Children.Clear();
         if (result.StartsWith("⚠")) { SftpList.Children.Add(new TextBlock { Text = result, Foreground = Brush.Parse("#F59E0B"), FontSize = 12, TextWrapping = TextWrapping.Wrap }); return; }
         var lines = result.Split('\n');
-        if (lines.Length > 0) SftpPath.Text = lines[0].Trim();   // pwd
+        _sftpCwd = lines.Length > 0 ? lines[0].Trim() : path;   // 真实 pwd
+        SftpPath.Text = _sftpCwd;
         var mono = (FontFamily)(this.FindResource("MonoFont") ?? FontFamily.Default);
         foreach (var line in lines.Skip(1))
         {
@@ -221,12 +226,20 @@ public partial class MainWindow : Window
                     : "M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z")
             };
             Grid.SetColumn(icon, 0); grid.Children.Add(icon);
-            var nameTb = new TextBlock { Text = name, Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextTrimming = TextTrimming.CharacterEllipsis };
+            var nameTb = new TextBlock { Text = name, Foreground = Brush.Parse(isDir ? "#C9D1D9" : "#C9D1D9"), FontSize = 13, TextTrimming = TextTrimming.CharacterEllipsis };
             Grid.SetColumn(nameTb, 1); grid.Children.Add(nameTb);
             if (!isDir) { var sz = new TextBlock { Text = size, Foreground = Brush.Parse("#6B7280"), FontSize = 11, FontFamily = mono }; Grid.SetColumn(sz, 2); grid.Children.Add(sz); }
             var dt = new TextBlock { Text = date, Foreground = Brush.Parse("#5A6270"), FontSize = 10, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) };
             Grid.SetColumn(dt, 3); grid.Children.Add(dt);
-            SftpList.Children.Add(grid);
+            // 目录可点击导航（cd 进入 / .. 返回上级）
+            if (isDir)
+            {
+                var btn = new Button { Background = Brush.Parse("#00000000"), BorderThickness = new Thickness(0), Padding = new Thickness(2), Content = grid, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left, Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand) };
+                var target = name == ".." ? $"{_sftpCwd}/.." : $"{_sftpCwd}/{name}";
+                btn.Click += (_, _) => LoadSftp(target);
+                SftpList.Children.Add(btn);
+            }
+            else SftpList.Children.Add(grid);
         }
         if (SftpList.Children.Count == 0) SftpList.Children.Add(new TextBlock { Text = "(空目录)", Foreground = Brush.Parse("#6B7280"), FontSize = 12 });
     }

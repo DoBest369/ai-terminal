@@ -274,6 +274,28 @@ fn probe_tcp(host: &str, port: u16) -> bool {
     }
 }
 
+/// 配置文件路径（~/.config/termind/config.json，对照 windows AppData）
+fn config_path() -> Option<String> {
+    std::env::var("HOME").ok().map(|h| format!("{}/.config/termind/config.json", h))
+}
+
+/// 加载持久化配置（api_key/base_url）：返回 (api_key, base_url) 覆盖默认
+fn load_config() -> (Option<String>, Option<String>) {
+    let Some(path) = config_path() else { return (None, None); };
+    let Ok(text) = std::fs::read_to_string(&path) else { return (None, None); };
+    let Ok(json) = serde_json::from_str::<serde_json::Value>(&text) else { return (None, None); };
+    (json["api_key"].as_str().map(|s| s.to_string()),
+     json["base_url"].as_str().map(|s| s.to_string()))
+}
+
+/// 保存配置（api_key/base_url）到配置文件
+fn save_config(api_key: &str, base_url: &str) {
+    let Some(path) = config_path() else { return; };
+    if let Some(dir) = std::path::Path::new(&path).parent() { let _ = std::fs::create_dir_all(dir); }
+    let json = serde_json::json!({ "api_key": api_key, "base_url": base_url });
+    let _ = std::fs::write(&path, json.to_string());
+}
+
 impl Default for TermindApp {
     fn default() -> Self {
         let conns = demo_conns();
@@ -285,7 +307,9 @@ impl Default for TermindApp {
         }
         let (ai_tx, ai_rx) = std::sync::mpsc::channel();
         let (term_tx, term_rx) = std::sync::mpsc::channel();
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: std::env::var("TERMIND_AI_KEY").unwrap_or_default(), base_url: "https://www.nexcores.net/v1/messages".to_string(), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new() }
+        // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
+        let (cfg_key, cfg_url) = load_config();
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new() }
     }
 }
 
@@ -481,17 +505,22 @@ impl eframe::App for TermindApp {
                 });
                 ui.add_space(8.0);
                 ui.colored_label(TEXT_SECONDARY, "API Key");
-                ui.add(egui::TextEdit::singleline(&mut self.api_key).password(true)
-                    .hint_text("sk-ant-…").desired_width(f32::INFINITY));
+                // 失焦后持久化（对照 windows LostFocus 保存）
+                if ui.add(egui::TextEdit::singleline(&mut self.api_key).password(true)
+                    .hint_text("sk-ant-…").desired_width(f32::INFINITY)).lost_focus() {
+                    save_config(&self.api_key, &self.base_url);
+                }
                 ui.add_space(8.0);
                 ui.colored_label(TEXT_SECONDARY, "模型");
                 ui.colored_label(TEXT_PRIMARY, egui::RichText::new("claude-opus-4-8").monospace());
                 ui.add_space(8.0);
                 // API 地址（Base URL，对齐 apple/android/windows；OpenAI 兼容/代理/自托管）
                 ui.colored_label(TEXT_SECONDARY, "API 地址");
-                ui.add(egui::TextEdit::singleline(&mut self.base_url)
+                if ui.add(egui::TextEdit::singleline(&mut self.base_url)
                     .hint_text("https://api.anthropic.com/v1/messages").desired_width(f32::INFINITY)
-                    .font(egui::TextStyle::Monospace));
+                    .font(egui::TextStyle::Monospace)).lost_focus() {
+                    save_config(&self.api_key, &self.base_url);
+                }
                 ui.add_space(8.0);
                 // AI 系统提示词（可自定义，对齐 apple/android）
                 ui.colored_label(TEXT_SECONDARY, "AI 系统提示词");

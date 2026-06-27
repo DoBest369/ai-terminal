@@ -4342,3 +4342,11 @@
 - **CHANGELOG 阶段37**：终端字号可调 U4（windows/linux）+ SFTP 上传双端；UI 品质专项进展（U1 图标/U2 配色/U4 字号完成，U3 主题进行中）。
 - **改动**：`CHANGELOG.md`(阶段37)。
 - **意义**：CHANGELOG 至阶段37。用户 UI 品质要求 U1/U2/U4 落地，U3 主题切换待做。Termind 全平台真实智能运维工作台功能 + UI 品质双线成熟。后续 U3 主题切换 / 连接编辑 / 持续打磨。
+
+---
+
+## windows 终端字号持久化（U4 字号设置存配置，重启恢复）
+- **内容**：windows SaveConfig 加 fontSize；LoadConfig 读回 _termFontSize（clamp 9-22）；SetTermFont 调整后 SaveConfig 持久化；字号设置跨重启不丢。
+- **改动**：`MainWindow.axaml.cs`(SaveConfig/LoadConfig fontSize + SetTermFont 保存)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 784bd36。
+- **意义**：U4 字号可调 + 持久化完整（windows 字号调整后重启恢复）。windows 配置持久化完整（AI Key/地址 + 连接 + 命令历史 + 字号）。下一步 linux 字号持久化 / 主题切换 U3 / 连接编辑。

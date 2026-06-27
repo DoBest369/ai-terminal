@@ -451,7 +451,7 @@ public partial class MainWindow : Window
         var risk = CommandRiskOf(cmd);
         var danger = risk >= RiskLevel.High;
         var (riskLabel, riskColor) = RiskStyle(risk);
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto") };
         var cmdText = new TextBlock
         {
             // 风险级别前缀（注意/高风险/极高危 + ⚠），按四级配色（对照 apple）
@@ -461,6 +461,16 @@ public partial class MainWindow : Window
         };
         Grid.SetColumn(cmdText, 0);
         grid.Children.Add(cmdText);
+        // 「填入终端」按钮（始终显示，AI 命令一键填入终端输入框，可编辑后手动执行）
+        var fillBtn = new Button
+        {
+            Background = Brush.Parse("#16182A"), BorderThickness = new Thickness(0), CornerRadius = new CornerRadius(6),
+            Padding = new Thickness(7, 3), FontSize = 11, Margin = new Thickness(8, 0, 0, 0),
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center, Content = "填入终端", Foreground = Brush.Parse("#8B92A8")
+        };
+        fillBtn.Click += (_, _) => { CmdInput.Text = cmd; CmdInput.Focus(); CmdInput.CaretIndex = cmd.Length; };
+        Grid.SetColumn(fillBtn, 1);
+        grid.Children.Add(fillBtn);
         // Agent/Auto 模式显示执行按钮（Chat 模式仅建议不执行）
         if (_aiMode != AiMode.Chat)
         {
@@ -469,11 +479,11 @@ public partial class MainWindow : Window
                 Content = _aiMode == AiMode.Auto && !danger ? "自动执行中…" : "▶ 执行",
                 Background = Brush.Parse("#FF4B6E"), Foreground = Brush.Parse("#FFFFFF"),
                 BorderThickness = new Thickness(0), CornerRadius = new CornerRadius(6),
-                Padding = new Thickness(8, 3), FontSize = 11, Margin = new Thickness(8, 0, 0, 0),
+                Padding = new Thickness(8, 3), FontSize = 11, Margin = new Thickness(6, 0, 0, 0),
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
             };
             btn.Click += (_, _) => ExecuteCommand(cmd);
-            Grid.SetColumn(btn, 1);
+            Grid.SetColumn(btn, 2);
             grid.Children.Add(btn);
         }
         var card = new Border

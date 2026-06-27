@@ -76,7 +76,7 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="API Key" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>
                                         <Border Background="#0D0E1A" CornerRadius="6">
-                                            <TextBox PlaceholderText="sk-ant-..." PasswordChar="•" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" Padding="10,7"/>
+                                            <TextBox x:Name="ApiKeyBox" PlaceholderText="留空则用 TERMIND_AI_KEY 环境变量" PasswordChar="•" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" Padding="10,7"/>
                                         </Border>
                                     </StackPanel>
                                     <!-- 模型 -->
@@ -88,7 +88,7 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="API 地址" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>
                                         <Border Background="#0D0E1A" CornerRadius="6">
-                                            <TextBox Text="https://api.anthropic.com/v1/messages" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" FontFamily="{StaticResource MonoFont}" Padding="10,7"/>
+                                            <TextBox x:Name="BaseUrlBox" PlaceholderText="留空用默认 nexcores（Anthropic 兼容）" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" FontFamily="{StaticResource MonoFont}" Padding="10,7"/>
                                         </Border>
                                     </StackPanel>
                                     <!-- AI 系统提示词（可自定义，对齐 apple/android/linux） -->

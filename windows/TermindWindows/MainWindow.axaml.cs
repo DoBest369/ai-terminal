@@ -619,8 +619,11 @@ public partial class MainWindow : Window
     /// Z3 环境感知：提问前先 SSH 取服务器真实状态注入系统提示，AI 结合真实环境回答
     private async Task<string> CallAiAsync(string userMsg, System.Action<string>? onDelta = null)
     {
-        var key = System.Environment.GetEnvironmentVariable("TERMIND_AI_KEY") ?? "";
-        if (string.IsNullOrEmpty(key)) return "⚠️ 未配置 API Key（设置 TERMIND_AI_KEY 环境变量，或在设置面板填入）";
+        // 配置优先级：设置面板填入 > 环境变量（设置面板填了即生效，便于 UI 配置）
+        var key = !string.IsNullOrWhiteSpace(ApiKeyBox?.Text) ? ApiKeyBox.Text.Trim()
+            : (System.Environment.GetEnvironmentVariable("TERMIND_AI_KEY") ?? "");
+        if (string.IsNullOrEmpty(key)) return "⚠️ 未配置 API Key（在设置面板填入，或设 TERMIND_AI_KEY 环境变量）";
+        var baseUrl = !string.IsNullOrWhiteSpace(BaseUrlBox?.Text) ? BaseUrlBox.Text.Trim() : AiBaseUrl;
         // 取服务器真实环境摘要（一次 SSH 拿系统/资源/服务），注入系统提示
         var env = await FetchServerEnvAsync();
         var sys = string.IsNullOrEmpty(env) ? SysPrompt
@@ -638,7 +641,7 @@ public partial class MainWindow : Window
                 system = sys,
                 messages = _aiHistory.Select(h => new { role = h.role, content = h.content }).ToArray()
             };
-            using var req = new HttpRequestMessage(HttpMethod.Post, AiBaseUrl);
+            using var req = new HttpRequestMessage(HttpMethod.Post, baseUrl);
             req.Headers.Add("x-api-key", key);
             req.Headers.Add("anthropic-version", "2023-06-01");
             req.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");

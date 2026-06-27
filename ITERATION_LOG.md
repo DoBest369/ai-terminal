@@ -4525,3 +4525,12 @@
 - **踩坑**：windows 无 using System，Math/StringSplitOptions 需 System. 全限定（perl 批量，注意已有 System. 前缀勿重复加）。
 - **验证**：`dotnet build` 0 错误；run 存活 + 截图（状态条真实指标标签）。推送 6a9c44f。
 - **意义**：windows 状态条接真实 SSH /proc 指标（CPU 两次采样算占用率，对齐 linux/proc 与 apple Z6），去最后的 mock。下一步 linux 状态条确认 / 定时刷新 / 新功能。
+
+---
+
+## linux 状态条远程真实指标（SSH 取选中服务器 /proc，对齐 windows，去本机 mock）
+- **内容**：linux 状态条 CPU 47% mock + 本机 /proc（内存/负载/运行时长）→ 远程 SSH 真实：metrics 字段 + channel（metrics_tx/rx），连接切换 → spawn ssh_exec 取 /proc/loadavg + free + /proc/stat 两次采样算 CPU% → 更新进度条三档色；删本机 read_mem/read_loadavg/read_uptime（运维工具状态条应反映被运维服务器而非本机）。
+- **改动**：`linux/src/main.rs`(metrics 字段+channel + update 异步取 + 状态条渲染 + 删本机读取函数)。
+- **踩坑**：usage_color 接 u8（mock 是字面量），cpu_pct/mem_pct 用 u8 不加 as u64。
+- **验证**：`cargo build` **0 error/warning**（0.68s，带 proxy）。推送 af9096f。
+- **意义**：状态条真实指标 windows/linux 双端对齐（都取选中远程服务器 /proc，CPU 两次采样算占用率）。去本机 mock，状态条语义正确（反映被运维服务器）。下一步 服务状态点真实 / 定时刷新 / 质量收口。

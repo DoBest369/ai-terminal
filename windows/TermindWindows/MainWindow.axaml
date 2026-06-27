@@ -163,7 +163,8 @@
         <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto,Auto" Background="#0D0E1A">
             <!-- 状态条（CPU/内存 mini 进度条，绿/橙/红三档，对齐 apple/android/linux） -->
             <Border Grid.Row="0" Background="#16182A" Padding="14,8">
-                <StackPanel Orientation="Horizontal" Spacing="16">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16">
                     <TextBlock x:Name="StatusDot" Text="● 已连接" Foreground="#3FB950" FontSize="12" VerticalAlignment="Center"/>
                     <TextBlock x:Name="StatusHost" Text="主机 db.internal.net" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
                     <!-- CPU 47% -->
@@ -196,6 +197,12 @@
                         <TextBlock Text="redis" Foreground="#8B92A8" FontSize="12" VerticalAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
+                <!-- 终端字号调整（U4 用户要求：字号可调）-->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                    <Button Click="OnFontSmaller" Background="#22FFFFFF" BorderThickness="0" CornerRadius="4" Padding="7,2" Content="A-" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="缩小终端字号"/>
+                    <Button Click="OnFontLarger" Background="#22FFFFFF" BorderThickness="0" CornerRadius="4" Padding="7,2" Content="A+" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="放大终端字号"/>
+                </StackPanel>
+              </Grid>
             </Border>
             <!-- 终端输出（可滚动） -->
             <Border Grid.Row="1" Background="#0A0B14" Margin="10">

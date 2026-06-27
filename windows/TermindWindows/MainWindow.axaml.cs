@@ -901,12 +901,24 @@ public partial class MainWindow : Window
         [90] = "#8B92A8", [91] = "#FCA5A5", [92] = "#86EFAC", [93] = "#FCD34D", [94] = "#93C5FD", [95] = "#D8B4FE", [96] = "#67E8F9", [97] = "#FFFFFF",
     };
 
+    private double _termFontSize = 12.5;   // 终端字号（U4 可调）
+
+    /// 终端字号 +/-（U4 用户要求）：调整后更新所有现有终端行 + 新行用新字号
+    private void OnFontSmaller(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SetTermFont(_termFontSize - 1);
+    private void OnFontLarger(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SetTermFont(_termFontSize + 1);
+    private void SetTermFont(double size)
+    {
+        _termFontSize = System.Math.Clamp(size, 9, 22);
+        foreach (var child in TermOutput.Children)
+            if (child is TextBlock tb) tb.FontSize = _termFontSize;
+    }
+
     private void AppendTerm(string text, string color)
     {
         var line = new TextBlock
         {
             FontFamily = (FontFamily)(this.FindResource("MonoFont") ?? FontFamily.Default),
-            FontSize = 12.5, Margin = new Thickness(0, 1, 0, 0), TextWrapping = TextWrapping.Wrap
+            FontSize = _termFontSize, Margin = new Thickness(0, 1, 0, 0), TextWrapping = TextWrapping.Wrap
         };
         // 解析 ANSI SGR 转义（\x1b[..m）分段着色；无转义则整段默认色
         if (text.Contains('\x1b'))

@@ -1330,6 +1330,18 @@ impl eframe::App for TermindApp {
                                 let _ = tx.send(r);
                             });
                         }
+                        // 磁盘分区（SSH df -h 全分区 → 终端展示，监控补全，对照 windows）
+                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::HARD_DRIVES).size(14.0).color(TEXT_SECONDARY())).frame(false))
+                            .on_hover_text("磁盘分区（全分区使用率）").clicked() {
+                            self.term_lines.push("# 磁盘分区（df -h）…".to_string());
+                            let (host, user, tx) = (active_host.clone(), active_user.clone(), self.term_tx.clone());
+                            std::thread::spawn(move || {
+                                let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+                                if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+                                let r = ssh_exec(&host, 22, &user, &pass, "df -hP -x tmpfs -x devtmpfs -x overlay 2>/dev/null");
+                                let _ = tx.send(r);
+                            });
+                        }
                         // 终端输出导出到文件（运维留存会话记录，对照 windows）
                         if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::DOWNLOAD_SIMPLE).size(14.0).color(TEXT_SECONDARY())).frame(false))
                             .on_hover_text("导出终端输出到文件").clicked() {

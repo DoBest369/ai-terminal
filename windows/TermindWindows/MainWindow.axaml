@@ -231,6 +231,19 @@
                             </Flyout>
                         </Button.Flyout>
                     </Button>
+                    <!-- 磁盘分区详情面板（SSH df -h 全分区，监控补全）-->
+                    <Button Click="OnDiskParts" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="磁盘分区（全分区使用率）">
+                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
+                                  Data="M6,2H18A2,2 0 0,1 20,4V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2M12,4A6,6 0 0,0 6,10A6,6 0 0,0 12,16A6,6 0 0,0 18,10A6,6 0 0,0 12,4M12,6A4,4 0 0,1 16,10A4,4 0 0,1 12,14A4,4 0 0,1 8,10A4,4 0 0,1 12,6M12,8A2,2 0 0,0 10,10A2,2 0 0,0 12,12A2,2 0 0,0 14,10A2,2 0 0,0 12,8M7,18H9V20H7V18M11,18H13V20H11V18Z"/>
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedRight">
+                                <StackPanel Width="380" Spacing="2">
+                                    <TextBlock Text="磁盘分区（df -h）" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <StackPanel x:Name="DiskPartsList" Spacing="1"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                     <Border Background="#0D0E1A" CornerRadius="4" Width="130">
                         <TextBox x:Name="TermSearchBox" PlaceholderText="搜索输出…" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" Padding="8,3" CaretBrush="#FF4B6E" TextChanged="OnTermSearch"/>
                     </Border>

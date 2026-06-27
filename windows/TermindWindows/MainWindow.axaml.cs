@@ -353,6 +353,36 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { TopProcsList.Children.Clear(); TopProcsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
+    /// 磁盘分区详情面板：SSH df -h 取全分区 → 展示使用率（监控补全，对照状态条聚合磁盘）
+    private async void OnDiskParts(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DiskPartsList.Children.Clear();
+        DiskPartsList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        try
+        {
+            // df -hP：真实文件系统分区（排除 tmpfs/overlay 等虚拟）
+            var outp = await SshExecAsync("df -hP -x tmpfs -x devtmpfs -x overlay 2>/dev/null | awk 'NR>1{print $5\" \"$6\" \"$3\"/\"$2}'");
+            var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
+            DiskPartsList.Children.Clear();
+            foreach (var line in lines)
+            {
+                var cols = line.Trim().Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+                if (cols.Length < 3) continue;
+                int.TryParse(cols[0].TrimEnd('%'), out var pct);
+                var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,80,Auto"), Margin = new Thickness(2, 2) };
+                var mount = new TextBlock { Text = cols[1], Foreground = Brush.Parse("#C9D1D9"), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextTrimming = TextTrimming.CharacterEllipsis };
+                var bar = new Border { Width = 70, Height = 5, Background = Brush.Parse("#1AFFFFFF"), CornerRadius = new Avalonia.CornerRadius(2), VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left };
+                bar.Child = new Border { Width = 70.0 * System.Math.Clamp(pct, 0, 100) / 100, Height = 5, Background = Brush.Parse(pct > 80 ? "#F85149" : pct > 60 ? "#F59E0B" : "#3FB950"), CornerRadius = new Avalonia.CornerRadius(2), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left };
+                var info = new TextBlock { Text = $"{cols[0]} · {cols[2]}", Foreground = Brush.Parse(pct > 80 ? "#F85149" : "#8B92A8"), FontSize = 10, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center, Margin = new Thickness(6, 0, 0, 0) };
+                Grid.SetColumn(mount, 0); Grid.SetColumn(bar, 1); Grid.SetColumn(info, 2);
+                grid.Children.Add(mount); grid.Children.Add(bar); grid.Children.Add(info);
+                DiskPartsList.Children.Add(grid);
+            }
+            if (DiskPartsList.Children.Count == 0) DiskPartsList.Children.Add(new TextBlock { Text = "（未取到分区，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        }
+        catch (System.Exception ex) { DiskPartsList.Children.Clear(); DiskPartsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+    }
+
     /// 网络端口监听面板：SSH ss 取监听端口 + 进程 → 展示（深化监控，对照 apple/快捷命令 ss -tlnp）
     private async void OnListenPorts(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 52 — AI 快捷追问可自定义双端（2026-06-28）
+
+- **AI 快捷追问自定义（windows/linux）**：快捷追问栏从硬编码 → 默认 3 条 + 用户自定义（增删 + 持久化）。windows Flyout 输入添加、自定义 chip 右键删除；linux egui menu_button + context_menu。与快捷命令自定义同模式，运维定制高频追问。
+- **意义**：定制能力双端完整——快捷命令 + 快捷追问都可增删持久化，运维按习惯配置高频操作。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，946 提交。
+
 ## 阶段 51 — AI 搜索 + 导出体验统一（2026-06-28）
 
 - **AI 对话搜索（windows/linux）**：AI 面板搜索框 → 匹配气泡橙色描边高亮 + 首个滚动到可见。至此搜索能力补全：连接 / 终端输出 / AI 对话全部可搜，windows/linux 双端对齐。

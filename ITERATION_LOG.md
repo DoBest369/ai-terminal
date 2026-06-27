@@ -6,6 +6,14 @@
 
 ---
 
+## linux 连接卡片探测中状态（优化真实探测 UX）
+- **内容**：linux `ServerConn` 加 `probed` 字段（false=探测中）；TCP 探测回传时设 `probed=true`；连接卡片可达指示分三态——探测中 ⏳ / 可达 ✓（绿）/ 不可达 ✕（灰）。消除「探测前显 mock 状态」的歧义（启动到探测完成的 ~2s 显「探测中」）。
+- **改动**：`linux/src/main.rs`(ServerConn probed + 探测回传 + 可达指示三态)。
+- **验证**：`cargo build` **0 error/warning**（0.64s 增量，带 proxy，build 通过后提交）。推送 7d2af80。
+- **意义**：真实 TCP 探测 UX 更清晰——探测期间显「探测中」而非 mock 状态，探测完更新真实结果。下一步 windows 探测中状态对齐。
+
+---
+
 ## 🏆 70 项 UI 现代化里程碑 + 质量基线收口
 - **质量基线**（70 项 UI + 真实交互 + 真实逻辑后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；PARITY **103 项 ✅✅**；累计 625 次提交。五端 build 全绿，核心逻辑历经 30+ 轮迭代零回归。
 - **🏆 三阶段进展沉淀**：

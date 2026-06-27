@@ -3629,3 +3629,11 @@
 - **改动**：`MainWindow.axaml.cs`(OnCmdKeyDown 命令执行走 ExecuteCommand)。
 - **验证**：`dotnet build` 0 错误；run 16s 存活。推送 b52c536。
 - **意义**：windows 终端从「mock 展示」→「真正可用的 SSH 终端」（手输/AI 命令都真实执行）。windows 端智能运维 + 真实终端全打通。下一步 Auto 模式结果回喂 AI（自主闭环）+ 真实环境注入。
+
+---
+
+## 🎯 windows AI 真实环境注入（Z3 环境感知）
+- **内容**：windows `FetchServerEnvAsync`——AI 提问前 SSH 取服务器系统/CPU 核/内存/负载/磁盘/服务摘要（缓存，避免每次连），注入 AI 系统提示；`CallAiAsync` 用「真实环境 + 运维提示词」让 AI 结合真实配置回答。
+- **改动**：`MainWindow.axaml.cs`(FetchServerEnvAsync + CallAiAsync 环境注入)。
+- **验证**：`dotnet build` 0 错误；run 16s 存活；**端到端验证（关键）**：注入真实配置（2核/899MB）→ AI 精准指出「内存不足 OOM 风险 + 给低配 JVM 方案 -Xms256」，对比无环境时只能空泛回答。推送 06bcba6。
+- **🎯 护城河 Z3 环境感知落地 windows**：AI 从「泛泛建议」→「基于这台机器真实配置的针对性建议」。windows 智能运维护城河能力（真实 AI + 真实 SSH + 三模式 + 环境感知 + 安全拦截）成体系。下一步 Auto 模式结果回喂 AI 自主闭环 + linux 同等落地。

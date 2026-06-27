@@ -4476,3 +4476,11 @@
 - **改动**：`App.axaml`(ThemeCardBg)、`MainWindow.axaml`(4 处次级面板 DynamicResource)、`MainWindow.axaml.cs`(Themes 6 色 + ApplyTheme)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 83117fe。
 - **意义**：windows U3 主题切换视觉更彻底（6 个色位随主题变）。下一步 终端搜索 / 多会话管理 / 新功能。
+
+---
+
+## windows 搜索框真实过滤连接列表 + 去 emoji 搜索图标（U1）
+- **内容**：windows 搜索框加 x:Name + TextChanged=OnSearchConn：按名称/地址/备注过滤 _conns → ConnList；空则全显；搜索 🔍 emoji → PathIcon 矢量（U1 合规，去残留 emoji）。
+- **改动**：`MainWindow.axaml`(搜索框 x:Name + PathIcon)、`MainWindow.axaml.cs`(OnSearchConn)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 d6cc81e。
+- **意义**：windows 连接搜索过滤（连接多时快速查找）+ 顺带清理搜索框 emoji（U1）。下一步 终端搜索 / AI 多会话 / 新功能。

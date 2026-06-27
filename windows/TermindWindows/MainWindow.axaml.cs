@@ -178,6 +178,25 @@ public partial class MainWindow : Window
     private string? _activeHost;   // 当前选中连接的 host（驱动 SSH 执行；null=用 env/默认）
     private string? _activeUser;
 
+    /// 命令历史面板打开：填充最近命令列表，点击重用填入输入框（对照 apple/linux history）
+    private void OnHistoryOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        HistoryList.Children.Clear();
+        if (_cmdHistory.Count == 0)
+        {
+            HistoryList.Children.Add(new TextBlock { Text = "（暂无历史命令）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+            return;
+        }
+        foreach (var cmd in _cmdHistory.Take(20))
+        {
+            var btn = new Button { Background = Brush.Parse("#22FFFFFF"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(4), Padding = new Thickness(8, 5), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left };
+            btn.Content = new TextBlock { Text = cmd, Foreground = Brush.Parse("#C9D1D9"), FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis };
+            var c = cmd;
+            btn.Click += (_, _) => { CmdInput.Text = c; CmdInput.Focus(); };
+            HistoryList.Children.Add(btn);
+        }
+    }
+
     /// 服务管理（状态条服务点 menu）：SSH systemctl start/stop/restart → 终端显示结果 + 刷新状态
     private async void OnServiceAction(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

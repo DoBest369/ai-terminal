@@ -4809,3 +4809,12 @@
 - **CHANGELOG 阶段56**：AI 多会话（独立上下文，切换/新建/删除）windows/linux 双端；对照 apple ai-conv。
 - **改动**：`CHANGELOG.md`(阶段56)。
 - **意义**：CHANGELOG 至阶段56。AI 能力丰富（多会话双端）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## AI 多会话持久化（windows+linux，存盘重启恢复，对照 apple ai-persist）
+- **内容**：独立 sessions.json（避免 config 膨胀）；会话切换/新建/删除 + 每轮对话后 SaveSessions；启动 LoadSessions 恢复。windows JsonSerializer 序列化 _sessions；linux save_sessions/load_sessions 序列化 Vec<Vec>(u:bool,t:string)。
+- **改动**：`windows MainWindow.axaml.cs`(SessionsPath + SaveSessions/LoadSessions + 调用点)、`linux main.rs`(sessions_path/save_sessions/load_sessions + Default + 调用)。
+- **踩坑**：linux config_path 返回 String，sessions_path 用 Path::new(&p).with_file_name。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 932a4b2。
+- **意义**：AI 多会话重启不丢（持久化），双端。AI 多会话完善（会话+持久化）。下一步 质量收口 CHANGELOG 阶段57 / 新功能。

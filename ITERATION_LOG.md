@@ -6,6 +6,14 @@
 
 ---
 
+## windows AI 提问后追加占位 AI 回复气泡（双端 AI 成对回复对齐）
+- **内容**：windows AppendAiAsk 追加用户提问气泡后，再追加占位 AI 回复（✦ AI 标签[Run 内联粉红 ✦] + 灰气泡「已收到，正在结合服务器环境分析…（接入 API Key 后回复）」），对话成对显示。对照 linux。
+- **改动**：`MainWindow.axaml.cs`(AppendAiAsk 加 AI 回复气泡)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）；`dotnet run` 无 exception。推送 53cce46。
+- **🎯 windows/linux 双端 AI 成对回复对齐**：AI 提问 → 用户气泡 + AI 占位回复成对显示。windows/linux AI 对话交互完全一致，文案体现护城河（AI 结合服务器环境）。
+
+---
+
 ## linux AI 提问后追加占位 AI 回复气泡（深化对话交互）
 - **内容**：linux 每条用户提问气泡后追加占位 AI 回复（✦ AI 标签 + 气泡「已收到，正在结合服务器环境分析…（接入 API Key 后回复）」），对话成对显示。后续接真实 AI 流式回复。
 - **改动**：`linux/src/main.rs`(ai_msgs 渲染加配对 AI 回复气泡)。

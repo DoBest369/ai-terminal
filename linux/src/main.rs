@@ -371,7 +371,10 @@ impl eframe::App for TermindApp {
                     ui.colored_label(TEXT_SECONDARY, sel_host);
                     // CPU/内存 mini 进度条（绿<60/橙60-80/红>80 三档，对齐 apple/android）
                     ui.colored_label(TEXT_SECONDARY, "CPU");
-                    ui.add(egui::ProgressBar::new(0.47).desired_width(54.0).text("47%").fill(usage_color(47)));
+                    // 真实逻辑核数（available_parallelism）；CPU% 瞬时占用需 /proc/stat 采样留后续
+                    let cores = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(8);
+                    ui.add(egui::ProgressBar::new(0.47).desired_width(54.0).text("47%").fill(usage_color(47)))
+                        .on_hover_text(format!("{} 核", cores));
                     ui.colored_label(TEXT_SECONDARY, "内存");
                     // 真实本机内存（/proc/meminfo）；非 Linux/读失败回退占位
                     let (mem_used, mem_total, mem_pct) = read_mem().unwrap_or((9.0, 16.0, 56));

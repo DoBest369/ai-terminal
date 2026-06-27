@@ -744,14 +744,44 @@ public partial class MainWindow : Window
     }
 
     /// 追加一行到终端输出（插入光标行前）
+    // ANSI SGR 前景色 → hex（30-37 标准 / 90-97 亮色，对照常见终端配色）
+    private static readonly Dictionary<int, string> AnsiFg = new()
+    {
+        [30] = "#6B7280", [31] = "#F87171", [32] = "#3FB950", [33] = "#F59E0B", [34] = "#60A5FA", [35] = "#C084FC", [36] = "#22D3EE", [37] = "#C9D1D9",
+        [90] = "#8B92A8", [91] = "#FCA5A5", [92] = "#86EFAC", [93] = "#FCD34D", [94] = "#93C5FD", [95] = "#D8B4FE", [96] = "#67E8F9", [97] = "#FFFFFF",
+    };
+
     private void AppendTerm(string text, string color)
     {
         var line = new TextBlock
         {
-            Text = text, Foreground = Brush.Parse(color),
             FontFamily = (FontFamily)(this.FindResource("MonoFont") ?? FontFamily.Default),
             FontSize = 12.5, Margin = new Thickness(0, 1, 0, 0), TextWrapping = TextWrapping.Wrap
         };
+        // 解析 ANSI SGR 转义（\x1b[..m）分段着色；无转义则整段默认色
+        if (text.Contains('\x1b'))
+        {
+            var cur = color;
+            bool bold = false;
+            foreach (var seg in Regex.Split(text, @"(\x1b\[[0-9;]*m)"))
+            {
+                if (seg.Length == 0) continue;
+                var m = Regex.Match(seg, @"^\x1b\[([0-9;]*)m$");
+                if (m.Success)
+                {
+                    foreach (var codeStr in m.Groups[1].Value.Split(';'))
+                    {
+                        if (!int.TryParse(codeStr, out var code)) { cur = color; bold = false; continue; }
+                        if (code == 0) { cur = color; bold = false; }
+                        else if (code == 1) bold = true;
+                        else if (AnsiFg.TryGetValue(code, out var hex)) cur = hex;
+                    }
+                    continue;
+                }
+                line.Inlines!.Add(new Run(seg) { Foreground = Brush.Parse(cur), FontWeight = bold ? FontWeight.Bold : FontWeight.Normal });
+            }
+        }
+        else { line.Text = text; line.Foreground = Brush.Parse(color); }
         TermOutput.Children.Insert(TermOutput.Children.Count - 1, line);
         TermScroll.ScrollToEnd();
     }

@@ -4719,3 +4719,11 @@
 - **CHANGELOG 阶段52**：AI 快捷追问自定义（增删+持久化）windows/linux 双端；定制能力完整（快捷命令+追问）。
 - **改动**：`CHANGELOG.md`(阶段52)。
 - **意义**：CHANGELOG 至阶段52。定制能力双端完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## 进程 Top 面板（windows+linux，SSH ps 取高占用进程，深化监控）
+- **内容**：终端工具区加进程 Top 按钮 → SSH `ps -eo pid,%cpu,%mem,comm --sort=-%cpu | head` 取 top 进程；windows Flyout 结构化表格（PID/CPU%/MEM%/命令，CPU>50 红/>20 橙），linux 终端展示（复用 term_tx spawn）。
+- **改动**：`windows MainWindow.axaml`(进程按钮 Flyout)、`MainWindow.axaml.cs`(OnTopProcs 解析表格)、`linux main.rs`(进程按钮 + spawn ssh ps)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 e2bd4da。
+- **意义**：进程 Top 面板（运维查高占用进程定位资源消耗，对照 apple Z6），双端。监控深化（状态条聚合指标 + 进程级明细）。下一步 网络端口面板 / 质量收口 / 新功能。

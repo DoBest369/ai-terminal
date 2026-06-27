@@ -4826,3 +4826,11 @@
 - **CHANGELOG 阶段57**：AI 多会话持久化（独立 sessions.json，重启恢复）windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段57)。
 - **意义**：CHANGELOG 至阶段57。AI 多会话完善（会话+持久化双端）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## 防火墙状态面板（windows+linux，SSH ufw/iptables，安全运维监控套件扩展）
+- **内容**：工具区加防火墙按钮（盾图标）→ SSH ufw status 优先 / iptables -L 摘要；windows Flyout 着色（active/ACCEPT 绿/inactive 橙/DROP/REJECT 红），linux 终端展示（复用 term_tx）。安全运维查防火墙规则。
+- **改动**：`windows MainWindow.axaml`(防火墙按钮 Flyout)、`MainWindow.axaml.cs`(OnFirewall 着色)、`linux main.rs`(防火墙按钮 + spawn ufw/iptables)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（SHIELD 图标）。推送 763f646。
+- **意义**：防火墙面板（安全运维查规则），双端。监控套件五维明细（进程/端口/磁盘/登录用户/防火墙）。下一步 质量收口 CHANGELOG 阶段58 / 新功能。

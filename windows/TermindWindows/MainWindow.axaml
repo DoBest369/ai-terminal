@@ -221,7 +221,14 @@
         <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto,Auto" Background="#10121F">
             <Border Grid.Row="0" Padding="14,10">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="✦ AI 助手" Foreground="#FF4B6E" FontSize="14" FontWeight="Bold"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="✦ AI 助手" Foreground="#FF4B6E" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Click="OnClearChat" Background="Transparent" BorderThickness="0" Padding="4"
+                                ToolTip.Tip="清空对话（新建会话）">
+                            <PathIcon Width="14" Height="14" Foreground="#8B92A8"
+                                      Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+                        </Button>
+                    </Grid>
                     <!-- AI 三模式切换器（Chat/Agent/Auto，安全梯度，对齐用户设计）-->
                     <Border Background="#16182A" CornerRadius="8" Padding="3" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal" Spacing="2">

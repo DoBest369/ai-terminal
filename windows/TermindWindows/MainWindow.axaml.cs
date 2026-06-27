@@ -188,6 +188,14 @@ public partial class MainWindow : Window
     /// AI 发送按钮点击 → 追加提问气泡
     private void OnAiSend(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => AppendAiAsk();
 
+    /// 清空 AI 对话（新建会话）：清空消息 UI + 多轮历史 + 待执行命令
+    private void OnClearChat(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        AiMessages.Children.Clear();
+        _aiHistory.Clear();
+        _autoLoopDepth = 0;
+    }
+
     // 真实 AI（S3）：HttpClient 调 Anthropic 兼容接口（nexcores）
     private static readonly HttpClient _http = new() { Timeout = System.TimeSpan.FromSeconds(60) };
     private const string AiBaseUrl = "https://www.nexcores.net/v1/messages";

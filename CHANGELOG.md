@@ -199,6 +199,15 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 26 — 真实连接管理 + 配置/交互细节双端对齐（2026-06-27）
+
+S7 深化打磨继续，把真实连接管理在 windows/linux 落地，AI 配置/交互细节双端对齐。
+
+- **真实连接切换（windows/linux）**：连接列表选中项驱动 SSH 执行目标（host/user，优先级 选中连接 > env > 默认），点不同连接在不同主机执行命令/巡检/报错；windows 切换重置复用会话 + 环境缓存，linux 每帧预取 active target。首项为真实测试机。
+- **AI 配置 UI 生效 + 持久化（windows）**：API Key/地址 UI 可填（优先环境变量），存 AppData 跨重启。
+- **命令填入终端 + AI 对话导出 Markdown（windows/linux）**：AI 命令一键填入可编辑；对话导出存档/分享。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，775 提交。
+
 ## 阶段 25 — 🎯 AI 三模式 + Auto 自主闭环五端全对齐（2026-06-27）
 
 里程碑：用户核心设计的 AI 三模式（Chat / Agent / Auto Agent，安全梯度）+ Auto 自主闭环在**五端全部真正完整落地**。

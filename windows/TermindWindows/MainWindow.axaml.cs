@@ -67,6 +67,41 @@ public partial class MainWindow : Window
         // 真实 TCP 可达性探测（对照 linux probe_tcp）：异步探测每个连接，结果回 UI 线程更新
         foreach (var item in (List<ConnItem>)ConnList.ItemsSource)
             _ = ProbeReachabilityAsync(item);
+        // 加载持久化配置（API Key/地址）→ 填回设置框；失焦自动保存
+        LoadConfig();
+        ApiKeyBox.LostFocus += (_, _) => SaveConfig();
+        BaseUrlBox.LostFocus += (_, _) => SaveConfig();
+    }
+
+    /// 配置文件路径（用户 AppData，跨重启持久化）
+    private static string ConfigPath =>
+        System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "Termind", "config.json");
+
+    /// 加载持久化配置（API Key/地址）填回设置框
+    private void LoadConfig()
+    {
+        try
+        {
+            if (!System.IO.File.Exists(ConfigPath)) return;
+            using var doc = JsonDocument.Parse(System.IO.File.ReadAllText(ConfigPath));
+            var root = doc.RootElement;
+            if (root.TryGetProperty("apiKey", out var k)) ApiKeyBox.Text = k.GetString() ?? "";
+            if (root.TryGetProperty("baseUrl", out var u)) BaseUrlBox.Text = u.GetString() ?? "";
+        }
+        catch { /* 配置损坏忽略，用默认 */ }
+    }
+
+    /// 保存配置（API Key/地址）到配置文件
+    private void SaveConfig()
+    {
+        try
+        {
+            var dir = System.IO.Path.GetDirectoryName(ConfigPath)!;
+            System.IO.Directory.CreateDirectory(dir);
+            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "" });
+            System.IO.File.WriteAllText(ConfigPath, json);
+        }
+        catch { /* 写失败忽略，不影响运行 */ }
     }
 
     /// 真实 TCP 可达性探测（对照 linux）：ConnectAsync + 2s 超时，结果更新连接状态点/可达指示

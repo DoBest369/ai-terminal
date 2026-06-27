@@ -4534,3 +4534,11 @@
 - **踩坑**：usage_color 接 u8（mock 是字面量），cpu_pct/mem_pct 用 u8 不加 as u64。
 - **验证**：`cargo build` **0 error/warning**（0.68s，带 proxy）。推送 af9096f。
 - **意义**：状态条真实指标 windows/linux 双端对齐（都取选中远程服务器 /proc，CPU 两次采样算占用率）。去本机 mock，状态条语义正确（反映被运维服务器）。下一步 服务状态点真实 / 定时刷新 / 质量收口。
+
+---
+
+## 服务状态点真实（windows+linux，SSH systemctl is-active 替换 mock，去状态条最后 mock）
+- **内容**：取指标命令加 `for s in nginx docker mysql redis sshd; systemctl is-active` → 解析 svc:active；windows StatusServices 动态填充（绿 active/灰非）；linux services 字段 + metrics channel 扩展（含 Vec<(String,bool)>）+ 动态渲染。复用连接切换触发，与 CPU/内存/负载一条命令取齐。
+- **改动**：`windows MainWindow.axaml`(StatusServices 容器)、`MainWindow.axaml.cs`(解析+填充)、`linux main.rs`(services 字段+channel+渲染)。
+- **验证**：windows `dotnet build` 0 错误 + run 存活 + 截图；linux `cargo build` 0 warning。推送 dced50e。
+- **意义**：状态条全部去 mock——CPU/内存/负载/服务点全部真实 SSH 取（选中远程服务器，对照 apple Z6）。windows/linux 双端对齐。Termind 真实性彻底（无任何 mock 指标）。下一步 定时刷新 / 质量收口 / 新功能。

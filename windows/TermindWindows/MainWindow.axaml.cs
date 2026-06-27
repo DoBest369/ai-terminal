@@ -6,7 +6,10 @@ using Avalonia.Controls.Documents;
 using Avalonia.Threading;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net.Http;
 using System.Net.Sockets;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace TermindWindows;
@@ -193,13 +196,28 @@ public partial class MainWindow : Window
     /// AI 发送按钮点击 → 追加提问气泡
     private void OnAiSend(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => AppendAiAsk();
 
-    private void AppendAiAsk()
+    // 真实 AI（S3）：HttpClient 调 Anthropic 兼容接口（nexcores）
+    private static readonly HttpClient _http = new() { Timeout = System.TimeSpan.FromSeconds(60) };
+    private const string AiBaseUrl = "https://www.nexcores.net/v1/messages";
+    private const string AiModel = "claude-opus-4-8";
+
+    /// 系统级运维提示词（优化 AI 智能运维能力，对齐 apple/android 护城河）
+    private const string SysPrompt =
+        "你是 Termind 的资深 Linux/SSH 服务器运维专家，精通系统排障、性能调优、安全加固、服务与进程管理、网络与防火墙。\n" +
+        "工作原则：\n" +
+        "1. 结合用户服务器的真实环境（系统版本/CPU/内存/磁盘/负载/运行中的服务）给出针对性建议，不空泛套话。\n" +
+        "2. 给可直接执行的命令，用 ```bash 代码块；复杂操作分步骤并说明每步作用与预期输出。\n" +
+        "3. 危险操作（删除/格式化/dd/重启或停服务/改 SSH 或防火墙/kill 进程/改权限）必须：⚠️ 标注风险等级（注意/高风险/极高危）+ 说明影响范围 + 建议先备份或快照。\n" +
+        "4. 排障遵循：先诊断（看日志/服务状态/资源占用）→ 定位根因 → 给最小化修复 → 给验证恢复的方法。\n" +
+        "5. 识别常见故障：502/Permission denied/磁盘满/端口占用/OOM/Nginx/SSL/MySQL 连接等，直接点出可能原因。\n" +
+        "6. 回答精炼专业、用中文，不啰嗦。需在终端执行命令时可用 [EXECUTE]命令[/EXECUTE] 标记（供 Agent 模式自动执行）。";
+
+    private async void AppendAiAsk()
     {
         var ask = AiInput.Text?.Trim();
         if (string.IsNullOrEmpty(ask)) return;
-        // 角色标签「你」（右对齐）
+        // 用户提问气泡（蓝，右对齐）
         var label = new TextBlock { Text = "你", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right };
-        // 提问气泡（蓝，右对齐）
         var bubble = new Border
         {
             Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
@@ -208,19 +226,53 @@ public partial class MainWindow : Window
         };
         AiMessages.Children.Add(label);
         AiMessages.Children.Add(bubble);
-        // 占位 AI 回复（✦ AI 标签 + 灰气泡，后续接真实 AI 流式回复，对照 linux）
+        // AI 回复气泡（先显「思考中…」，真实回复后更新）
         var aiLabel = new TextBlock { Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left };
         aiLabel.Inlines!.Add(new Run("✦") { Foreground = Brush.Parse("#FF4B6E") });
         aiLabel.Inlines!.Add(new Run(" AI"));
+        var aiText = new TextBlock { Text = "思考中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap };
         var aiBubble = new Border
         {
             Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290,
-            Child = new TextBlock { Text = "已收到，正在结合服务器环境分析…（接入 API Key 后回复）", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290, Child = aiText
         };
         AiMessages.Children.Add(aiLabel);
         AiMessages.Children.Add(aiBubble);
         AiInput.Text = "";
         AiScroll.ScrollToEnd();
+        // 真实 AI 调用（async）→ 更新气泡
+        var reply = await CallAiAsync(ask);
+        aiText.Text = reply;
+        AiScroll.ScrollToEnd();
+    }
+
+    /// 调 Anthropic 兼容接口（nexcores）；key 从环境变量 TERMIND_AI_KEY 读（不硬编码）
+    private async Task<string> CallAiAsync(string userMsg)
+    {
+        var key = System.Environment.GetEnvironmentVariable("TERMIND_AI_KEY") ?? "";
+        if (string.IsNullOrEmpty(key)) return "⚠️ 未配置 API Key（设置 TERMIND_AI_KEY 环境变量，或在设置面板填入）";
+        try
+        {
+            var payload = new
+            {
+                model = AiModel,
+                max_tokens = 1024,
+                system = SysPrompt,
+                messages = new[] { new { role = "user", content = userMsg } }
+            };
+            using var req = new HttpRequestMessage(HttpMethod.Post, AiBaseUrl);
+            req.Headers.Add("x-api-key", key);
+            req.Headers.Add("anthropic-version", "2023-06-01");
+            req.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            using var resp = await _http.SendAsync(req);
+            var body = await resp.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(body);
+            if (doc.RootElement.TryGetProperty("content", out var content) && content.GetArrayLength() > 0)
+                return content[0].GetProperty("text").GetString() ?? "(无回复)";
+            if (doc.RootElement.TryGetProperty("error", out var err) && err.TryGetProperty("message", out var msg))
+                return "⚠️ " + msg.GetString();
+            return "(无回复)";
+        }
+        catch (System.Exception ex) { return "⚠️ 请求失败：" + ex.Message; }
     }
 }

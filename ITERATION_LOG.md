@@ -4423,3 +4423,11 @@
 - **改动**：`linux/src/main.rs`(ai_font_size + AI 标题 A-/A+ + AI 气泡字号 + render_ai_reply size)。
 - **验证**：`cargo build` **0 error/warning**（0.98s，带 proxy）。推送 e7ac184。
 - **意义**：AI 字号可调 U4 windows/linux 双端对齐。字号体系双端完整（终端 + AI 都可调，windows 含持久化）。下一步 linux AI 字号持久化 / windows U3 主题 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段41 AI字号双端+连接CRUD完整
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；877 提交。五端 build 全绿。
+- **CHANGELOG 阶段41**：AI 字号可调双端（字号体系终端+AI完整）+ windows 连接编辑（CRUD 完整）。
+- **改动**：`CHANGELOG.md`(阶段41)。
+- **意义**：CHANGELOG 至阶段41。用户全部核心需求（智能运维全平台+AI三模式+护城河+UI品质U1-U4）实现，持续细节打磨（字号体系双端、连接CRUD）。Termind 全平台真实智能运维工作台成熟。

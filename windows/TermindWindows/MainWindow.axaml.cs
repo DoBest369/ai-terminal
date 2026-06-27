@@ -329,7 +329,7 @@ public partial class MainWindow : Window
     /// 一键报错分析（Z2）：SSH 取最近错误日志 → AI 诊断（现象→原因→修复）真闭环
     private async void RunErrorAnalysis()
     {
-        AiMessages.Children.Add(new TextBlock { Text = "你", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right });
+        AiMessages.Children.Add(new TextBlock { Text = $"你 · {System.DateTime.Now:HH:mm}", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right });
         AiMessages.Children.Add(new Border
         {
             Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
@@ -364,7 +364,7 @@ public partial class MainWindow : Window
     private async void RunHealthCheck()
     {
         // 用户气泡（标识本次巡检）
-        AiMessages.Children.Add(new TextBlock { Text = "你", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right });
+        AiMessages.Children.Add(new TextBlock { Text = $"你 · {System.DateTime.Now:HH:mm}", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right });
         AiMessages.Children.Add(new Border
         {
             Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
@@ -519,7 +519,7 @@ public partial class MainWindow : Window
         var ask = AiInput.Text?.Trim();
         if (string.IsNullOrEmpty(ask)) return;
         // 用户提问气泡（蓝，右对齐）
-        var label = new TextBlock { Text = "你", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right };
+        var label = new TextBlock { Text = $"你 · {System.DateTime.Now:HH:mm}", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right };
         var bubble = new Border
         {
             Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
@@ -531,7 +531,7 @@ public partial class MainWindow : Window
         // AI 回复气泡（先显「思考中…」，真实回复后更新）
         var aiLabel = new TextBlock { Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left };
         aiLabel.Inlines!.Add(new Run("✦") { Foreground = Brush.Parse("#FF4B6E") });
-        aiLabel.Inlines!.Add(new Run(" AI"));
+        aiLabel.Inlines!.Add(new Run($" AI · {System.DateTime.Now:HH:mm}"));
         var aiPanel = new StackPanel { Spacing = 2 };
         aiPanel.Children.Add(new TextBlock { Text = "思考中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
         var aiBubble = new Border

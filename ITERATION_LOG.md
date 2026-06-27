@@ -3579,3 +3579,11 @@
 - **改动**：`linux/src/main.rs`(可达指示 phosphor)。
 - **验证**：`cargo build` **0 error/warning**（带 proxy，phosphor 常量名正确）；grep emoji 残留 = 0。推送 9188061。
 - **🎯 U1 linux 图标库化完成**：linux 全 UI 用 Phosphor 矢量图标字体（顶栏/搜索/AI/发送/备注/SFTP/可达），无 emoji。下一步 U1 windows 可达指示/SFTP 图标矢量化（windows 还有 emoji）。
+
+---
+
+## U1 windows SFTP 列表图标 emoji→PathIcon
+- **内容**：windows SFTP Flyout 文件类型 emoji（📁 文件夹/⌨ 脚本/⚙ 配置/🗜 压缩/📄 文档）→ PathIcon + Material Design path data，按类型着色（文件夹蓝/脚本绿/压缩橙/配置灰/文档灰）。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(SFTP 列表 8 行图标 PathIcon)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 17s 存活无崩溃。推送 f8e6860。
+- **意义**：windows SFTP 图标矢量化。windows 剩余 emoji：可达指示 ✓✕⏳（符号，code-behind）+ 搜索 🔍 + 服务状态 ●。下一步 windows 搜索图标 + 可达指示矢量化完成 U1 windows。

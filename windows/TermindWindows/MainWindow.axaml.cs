@@ -173,6 +173,21 @@ public partial class MainWindow : Window
     private string? _activeHost;   // 当前选中连接的 host（驱动 SSH 执行；null=用 env/默认）
     private string? _activeUser;
 
+    /// 终端输出搜索：匹配行背景高亮（黄），首个匹配滚动到可见
+    private void OnTermSearch(object? sender, Avalonia.Controls.TextChangedEventArgs e)
+    {
+        var q = TermSearchBox.Text?.Trim().ToLowerInvariant() ?? "";
+        Control? firstHit = null;
+        foreach (var child in TermOutput.Children)
+        {
+            if (child is not TextBlock tb) continue;
+            var hit = q.Length > 0 && (tb.Text?.ToLowerInvariant().Contains(q) ?? false);
+            tb.Background = hit ? Brush.Parse("#33F59E0B") : null;   // 命中行橙色半透明高亮
+            if (hit && firstHit == null) firstHit = tb;
+        }
+        firstHit?.BringIntoView();
+    }
+
     /// 搜索框过滤连接列表（名称/地址匹配，对照 linux/apple 搜索）
     private void OnSearchConn(object? sender, Avalonia.Controls.TextChangedEventArgs e)
     {

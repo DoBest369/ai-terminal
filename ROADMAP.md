@@ -23,6 +23,12 @@
 | Windows | **C# + WinUI 3 / .NET**（待建） | `windows/` | ❌ 需 Windows |
 | Linux | **Rust + egui/eframe**（🟡 骨架已搭，未本机验证） | `linux/` | ❌ 本机无 Rust，需 Linux+cargo |
 
+### 🎨 UI 品质专项（2026-06-27 用户新要求，最高优先级）
+- [ ] **U1 图标库/SVG 化**：所有端图标禁用 emoji，改图标库/矢量。linux egui→egui-phosphor 图标字体；windows Avalonia→PathIcon+Geometry 或 Projektanker.Icons.Avalonia。apple SF Symbols / android Material Icons 已合规。
+- [x] **U2 整窗配色协调**：windows mac 上浅色标题栏割裂 → `ExtendClientAreaToDecorationsHint` 整窗深色（aa5f51b）。其余端检查无浅/深撞色。
+- [ ] **U3 主题可调 + 首启选风格**：像 VSCode 首次启动让用户选界面风格；配色方案多套可切换（apple 已有 5 套 AppColorScheme，推广到 windows/linux + 首启引导）。
+- [ ] **U4 字体可调 + 字体库**：字号可调（apple 终端字号已有，推广五端）；引入/选用好看的等宽字体（如 JetBrains Mono / Fira Code）。
+
 ### 🐧 Linux 原生 backlog（linux/ Rust+egui）
 - [x] **L0** 工程骨架（Cargo.toml eframe/egui+ssh2+ureq；src/main.rs TermindApp 连接列表占位 UI；README 构建说明+路线；⚠️ 本机无 cargo 未编译验证，需 Linux+Rust 环境；推送 9550426）
 - [ ] **L1** 真实 SSH（ssh2 crate）+ 交互终端 / **L2** 连接管理持久化 / **L3** AI 助手(ureq) / **L4** 智能运维逻辑移植

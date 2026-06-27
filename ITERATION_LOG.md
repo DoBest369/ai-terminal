@@ -3523,3 +3523,11 @@
 - **内容**：从 Electron 重写为 SwiftUI 原生（macOS + iOS）。核心包 AITerminalCore（SSHService/AIService/SystemMonitor/Connection/ConnectionStore）；App（侧边栏/多会话标签/终端/状态栏/AI 面板/设置/连接编辑）；xcodegen 工程 + 双 scheme。
 - **改动**：新增整个 `apple/` 目录。
 - **验证**：Core + App `swift build` 通过；Xcode 工程生成。
+
+---
+
+## 🛠️ 用户反馈处理：崩溃修复 + 配色协调 + 真实 SSH 验证 + UI 品质专项规划
+- **崩溃修复**（用户报告 3 个 SIGABRT 崩溃报告）：根因双重——① fire-and-forget TCP 探测异常防护不足（ProbeReachabilityAsync 包 try/catch + Program.Main 全局 UnobservedTaskException/UnhandledException 兜底，5a85939）；② `ExtendClientAreaChromeHints` 属性 XAML 不支持（AVLN2000）导致 build 失败 + 误用 `dotnet run --no-build` 跳过 XAML 预编译 → XamlLoadException（去掉该属性，永不用 --no-build，aa5f51b）。修复后 run 18s 存活无崩溃。
+- **配色协调**（用户反馈「头部白色界面黑色不协调」）：windows mac 上系统浅色标题栏 + 深色内容割裂 → `ExtendClientAreaToDecorationsHint=True` 整窗统一深色，截图确认协调（aa5f51b）。
+- **真实 SSH 验证**（用户提供授权测试机 47.85.19.31）：TCP 可达 + linux read_loadavg/read_mem/read_uptime/available_parallelism/服务状态点解析逻辑在真实 Ubuntu 20.04 上**全部正确**。测试机存入记忆 [[test-ssh-server]]，后续 SSH 测试都用它。
+- **UI 品质专项**（用户新要求记入 ROADMAP U1-U4）：U1 图标库/SVG 化（禁 emoji）、U2 整窗配色协调✅、U3 主题可调+首启选风格（像 VSCode）、U4 字体可调+字体库。

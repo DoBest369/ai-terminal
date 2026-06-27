@@ -6,6 +6,13 @@
 
 ---
 
+## 质量基线收口 + linux 命令输入回车→追加终端输出
+- **质量基线**（54 项 UI + 多轮真实交互后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo build Finished；PARITY **103 项 ✅✅**。真实交互改动未伤核心逻辑。
+- **linux 命令"执行"**：struct 加 `term_lines`；命令输入框回车（lost_focus + Enter）→ push「提示符 + 命令」到终端历史 + 清空 + 保持焦点；终端输出遍历 `term_lines` 显示用户输入历史。命令输入真正「执行」回显（mock 回显，对照真实终端体验）。cargo build 0 error/warning（build 通过后提交）。推送 7276eba。
+- **意义**：linux 终端区从「填入命令」→「回车执行回显」，交互更接近真实终端。下一步 windows 命令回车追加对齐。
+
+---
+
 ## windows AI 快捷追问点击→填入 AI 输入框（双端 AI 追问可用）
 - **内容**：windows AI 追问 chip 从 Border 动作（重新生成/存为方案）→ Button 追问问题（如何排查？/给我具体命令/有什么风险？），Click=OnQuickAsk → 填入 `AiInput.Text` + 聚焦。AiInput 加 x:Name，对照 linux。
 - **改动**：`MainWindow.axaml`(AI 追问 Button + AiInput x:Name)、`MainWindow.axaml.cs`(OnQuickAsk)。

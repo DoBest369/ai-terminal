@@ -4390,3 +4390,11 @@
 - **改动**：`linux/src/main.rs`(主题系统 + 120 处函数调用 + 设置切换)。
 - **验证**：`cargo build` **0 error/warning**（0.78s，带 proxy）。推送 b7931d5。
 - **🎯 U3 用户明确要求落地（linux 先行）**：「配色可调像 VSCode」——linux 4 套主题实时切换。下一步 windows U3 主题切换（颜色硬编码多，评估 DynamicResource）/ 主题持久化 / 连接编辑。
+
+---
+
+## linux U3 主题切换持久化（主题选择存config，重启恢复）
+- **内容**：linux save_config 加 theme_idx；load_theme_idx 读 config.json；Default 启动恢复 THEME_IDX；主题切换时 save_config 持久化；主题选择跨重启不丢。
+- **改动**：`linux/src/main.rs`(save_config theme_idx + load_theme_idx + Default 恢复 + 切换保存)。
+- **验证**：`cargo build` **0 error/warning**（0.88s，带 proxy）。推送 23d3739。
+- **意义**：U3 linux 主题切换 + 持久化完整（4 套主题午夜/Dracula/Nord/Solarized，实时切换 + 重启恢复）。响应用户「配色可调像 VSCode 首启选风格」。下一步 windows U3 主题切换 / 质量收口 CHANGELOG 阶段40。

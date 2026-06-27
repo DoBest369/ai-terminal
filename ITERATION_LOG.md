@@ -3829,3 +3829,11 @@
 - **截图归档**：`apple/screenshots/windows-smart-ops.png`（windows 三栏 + AI 三模式 + 运维快捷入口 + 代码块对话）。
 - **改动**：`CHANGELOG.md`、归档截图。
 - **意义**：深化打磨阶段成果沉淀。CHANGELOG 演进：...智能运维全链路真实(20)→S1-S5全完成(21)→**深化打磨对照apple护城河补齐(22)**。windows/linux 不仅核心能力对齐 apple，护城河细节（Z1-Z3/Z7）+ 体验 + 性能也对齐。
+
+---
+
+## windows/linux 终端快捷命令栏增强（更多运维命令，双端对齐）
+- **内容**：windows/linux 终端快捷命令栏加 `ps aux --sort=-%cpu`(进程)/`ss -tlnp`(网络)/`uptime`/`journalctl -xe`(日志)，对照常用运维诊断；linux 用 ScrollArea 横滚容纳；按风险配色（诊断红/谨慎橙）。
+- **改动**：`windows/MainWindow.axaml`、`linux/src/main.rs`(快捷命令栏)。
+- **验证**：windows dotnet build 0 错误 + run 14s 存活 + 截图确认；linux cargo build 0 error。推送 ef9f95e。
+- **意义**：终端快捷命令栏 windows/linux 双端对齐（磁盘/内存/进程/网络/日志/服务一键填入）。运维常用诊断命令触手可及。下一步 linux SSH 复用 / 健康巡检一键 / AI 命令复制。

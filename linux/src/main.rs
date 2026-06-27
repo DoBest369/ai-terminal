@@ -312,6 +312,35 @@ impl TermindApp {
             let _ = tx.send(ai_chat(&base, &key, "claude-opus-4-8", &sys, &user_msg));
         });
     }
+
+    /// 一键报错分析（Z2，对照 windows RunErrorAnalysis）：SSH 取错误日志 → AI 诊断 → ai_rx 回
+    fn run_error_analysis(&mut self) {
+        if self.ai_busy { return; }
+        self.ai_msgs.push((true, "一键分析最近报错".to_string()));
+        if self.api_key.is_empty() {
+            self.ai_msgs.push((false, "⚠️ 未配置 API Key（环境变量 TERMIND_AI_KEY 或设置面板）".to_string()));
+            return;
+        }
+        self.ai_busy = true;
+        let (base, key, sys, tx) = (self.base_url.clone(), self.api_key.clone(), self.sys_prompt.clone(), self.ai_tx.clone());
+        std::thread::spawn(move || {
+            // SSH 取系统错误日志（journalctl 优先，回退 dmesg）+ 失败服务
+            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+            let logs = if pass.is_empty() { String::new() } else {
+                let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
+                let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
+                ssh_exec(&host, 22, &user, &pass,
+                    "echo '== 最近错误日志 =='; journalctl -p err -n 40 --no-pager 2>/dev/null | tail -40 || dmesg -l err,crit 2>/dev/null | tail -40; \
+                     echo '== 失败的服务 =='; systemctl --failed --no-pager 2>/dev/null | head -15")
+            };
+            let user_msg = if logs.is_empty() || logs.starts_with('⚠') {
+                "分析这台服务器的报错，但当前未取到真实日志（未配置 SSH），请给出常见错误排查清单".to_string()
+            } else {
+                format!("以下是这台服务器最近的系统错误日志和失败服务，请按 现象 → 可能原因 → 修复步骤 诊断，给出可执行修复命令（高危用 ⚠️ 标注）。若日志为空说明暂无明显错误。\n\n{}", logs)
+            };
+            let _ = tx.send(ai_chat(&base, &key, "claude-opus-4-8", &sys, &user_msg));
+        });
+    }
 }
 
 impl eframe::App for TermindApp {
@@ -602,15 +631,17 @@ impl eframe::App for TermindApp {
                 // 运维快捷入口（对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检 + windows）
                 // 解释/报错 → 预填提问；健康巡检 → 一键真闭环（标记触发，循环外执行避免借用冲突）
                 let mut trigger_health = false;
+                let mut trigger_error = false;
                 ui.horizontal(|ui| {
-                    for (label, prefill) in [
-                        ("解释命令", "解释这条命令的作用、参数含义和潜在风险："),
-                        ("分析报错", "分析这段报错/日志，按 现象 → 可能原因 → 修复步骤 给出诊断："),
-                    ] {
-                        if ui.add(egui::Button::new(egui::RichText::new(label).size(11.0).color(ACCENT))
-                            .fill(ACCENT.linear_multiply(0.12)).rounding(14.0)).clicked() {
-                            self.ai_input = prefill.to_string();
-                        }
+                    // 解释命令：预填提问
+                    if ui.add(egui::Button::new(egui::RichText::new("解释命令").size(11.0).color(ACCENT))
+                        .fill(ACCENT.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                        self.ai_input = "解释这条命令的作用、参数含义和潜在风险：".to_string();
+                    }
+                    // 分析报错：一键触发（SSH 取错误日志 → AI 诊断）
+                    if ui.add(egui::Button::new(egui::RichText::new("分析报错").size(11.0).color(SUCCESS))
+                        .fill(SUCCESS.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                        trigger_error = true;
                     }
                     // 健康巡检：一键触发（SSH 取真实指标 → AI 分析）
                     if ui.add(egui::Button::new(egui::RichText::new("健康巡检").size(11.0).color(SUCCESS))
@@ -619,6 +650,7 @@ impl eframe::App for TermindApp {
                     }
                 });
                 if trigger_health { self.run_health_check(); }
+                if trigger_error { self.run_error_analysis(); }
                 ui.add_space(6.0);
                 // 快捷追问 chips（点击填入 AI 输入框，对照 apple/windows AI 面板 + 快捷命令交互）
                 ui.horizontal(|ui| {

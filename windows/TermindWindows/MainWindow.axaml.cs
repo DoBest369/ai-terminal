@@ -188,6 +188,49 @@ public partial class MainWindow : Window
         StatusDot.Foreground = online ? Brush.Parse("#3FB950") : Brush.Parse("#6B7280");
     }
 
+    /// SFTP 打开：SSH 取选中连接 home 目录真实文件列表（替换 mock，对照 apple/android）
+    private async void OnSftpOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        SftpList.Children.Clear();
+        SftpList.Children.Add(new TextBlock { Text = "加载中…", Foreground = Brush.Parse("#8B92A8"), FontSize = 12 });
+        SftpPath.Text = "~";
+        // ls -la $HOME：解析权限/大小/名（第一字符 d=目录），目录蓝色文件绿色
+        var result = await SshExecAsync("cd ~ && pwd && ls -la --time-style=long-iso");
+        SftpList.Children.Clear();
+        if (result.StartsWith("⚠")) { SftpList.Children.Add(new TextBlock { Text = result, Foreground = Brush.Parse("#F59E0B"), FontSize = 12, TextWrapping = TextWrapping.Wrap }); return; }
+        var lines = result.Split('\n');
+        if (lines.Length > 0) SftpPath.Text = lines[0].Trim();   // pwd
+        var mono = (FontFamily)(this.FindResource("MonoFont") ?? FontFamily.Default);
+        foreach (var line in lines.Skip(1))
+        {
+            // 形如：drwxr-xr-x 2 root root 4096 2026-06-22 18:00 projects
+            var parts = line.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length < 8 || line.StartsWith("total") || line.StartsWith("合计")) continue;
+            var isDir = parts[0].StartsWith("d");
+            var size = parts[4];
+            var date = parts.Length >= 7 ? $"{parts[5]} {parts[6]}" : "";
+            var name = string.Join(" ", parts.Skip(7));
+            if (name == "." ) continue;
+            var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto,Auto"), Margin = new Thickness(0, 3) };
+            var icon = new PathIcon
+            {
+                Width = 13, Height = 13, Margin = new Thickness(0, 0, 8, 0),
+                Foreground = Brush.Parse(isDir ? "#3B82F6" : "#8B92A8"),
+                Data = Avalonia.Media.Geometry.Parse(isDir
+                    ? "M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"
+                    : "M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z")
+            };
+            Grid.SetColumn(icon, 0); grid.Children.Add(icon);
+            var nameTb = new TextBlock { Text = name, Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextTrimming = TextTrimming.CharacterEllipsis };
+            Grid.SetColumn(nameTb, 1); grid.Children.Add(nameTb);
+            if (!isDir) { var sz = new TextBlock { Text = size, Foreground = Brush.Parse("#6B7280"), FontSize = 11, FontFamily = mono }; Grid.SetColumn(sz, 2); grid.Children.Add(sz); }
+            var dt = new TextBlock { Text = date, Foreground = Brush.Parse("#5A6270"), FontSize = 10, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) };
+            Grid.SetColumn(dt, 3); grid.Children.Add(dt);
+            SftpList.Children.Add(grid);
+        }
+        if (SftpList.Children.Count == 0) SftpList.Children.Add(new TextBlock { Text = "(空目录)", Foreground = Brush.Parse("#6B7280"), FontSize = 12 });
+    }
+
     /// 新建连接：读表单 name/host/user/port → 加入连接列表（ObservableCollection 自动刷新）
     private void OnAddConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

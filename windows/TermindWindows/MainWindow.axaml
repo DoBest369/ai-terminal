@@ -20,23 +20,17 @@
                     <TextBlock Grid.Column="0" Text="Termind" FontSize="20" FontWeight="Bold"
                                Foreground="#FFFFFF" VerticalAlignment="Center"/>
                     <Button Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="6"
-                            ToolTip.Tip="SFTP 文件">
+                            ToolTip.Tip="SFTP 文件" Click="OnSftpOpen">
                         <PathIcon Width="16" Height="16" Foreground="#8B92A8"
                                   Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
-                        <!-- SFTP 文件浏览 Flyout（对照 apple/android/linux SFTP） -->
+                        <!-- SFTP 文件浏览 Flyout（真实 SSH ls 取选中连接目录，对照 apple/android/linux） -->
                         <Button.Flyout>
                             <Flyout Placement="BottomEdgeAlignedLeft">
                                 <StackPanel Width="320" Spacing="2">
                                     <TextBlock Text="SFTP 文件" Foreground="#FFFFFF" FontSize="14" FontWeight="Bold" Margin="0,0,0,4"/>
-                                    <TextBlock Text="↑ /home/deploy" Foreground="#8B92A8" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,6"/>
+                                    <TextBlock x:Name="SftpPath" Text="~" Foreground="#8B92A8" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,6"/>
                                     <Border Height="1" Background="#2A2D3E" Margin="0,0,0,4"/>
-                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4"><PathIcon Grid.Column="0" Width="14" Height="14" Foreground="#3B82F6" Margin="0,0,8,0" Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/><TextBlock Grid.Column="1" Text=".." Foreground="#C9D1D9" FontSize="13"/></Grid>
-                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4"><PathIcon Grid.Column="0" Width="14" Height="14" Foreground="#3B82F6" Margin="0,0,8,0" Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/><TextBlock Grid.Column="1" Text="projects" Foreground="#C9D1D9" FontSize="13"/><TextBlock Grid.Column="3" Text="06-22 18:00" Foreground="#5A6270" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/></Grid>
-                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4"><PathIcon Grid.Column="0" Width="14" Height="14" Foreground="#3B82F6" Margin="0,0,8,0" Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/><TextBlock Grid.Column="1" Text="logs" Foreground="#C9D1D9" FontSize="13"/><TextBlock Grid.Column="3" Text="06-22 17:30" Foreground="#5A6270" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/></Grid>
-                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4"><PathIcon Grid.Column="0" Width="14" Height="14" Foreground="#3FB950" Margin="0,0,8,0" Data="M20,19V7H4V19H20M20,3A2,2 0 0,1 22,5V19A2,2 0 0,1 20,21H4A2,2 0 0,1 2,19V5C2,3.89 2.9,3 4,3H20M13,17V15H18V17H13M9.58,13L5.57,9H8.4L11.7,12.3C12.09,12.69 12.09,13.33 11.7,13.72L8.42,17H5.59L9.58,13Z"/><TextBlock Grid.Column="1" Text="deploy.sh" Foreground="#C9D1D9" FontSize="13"/><TextBlock Grid.Column="2" Text="1.0 KB" Foreground="#6B7280" FontSize="11"/><TextBlock Grid.Column="3" Text="06-22 17:30" Foreground="#5A6270" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/></Grid>
-                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4"><PathIcon Grid.Column="0" Width="14" Height="14" Foreground="#8B92A8" Margin="0,0,8,0" Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/><TextBlock Grid.Column="1" Text=".bashrc" Foreground="#C9D1D9" FontSize="13"/><TextBlock Grid.Column="2" Text="220 B" Foreground="#6B7280" FontSize="11"/><TextBlock Grid.Column="3" Text="06-10 09:12" Foreground="#5A6270" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/></Grid>
-                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4"><PathIcon Grid.Column="0" Width="14" Height="14" Foreground="#F59E0B" Margin="0,0,8,0" Data="M14,17H12V15H10V13H12V15H14M14,9H12V11H14V13H12V11H10V9H12V7H10V5H12V7H14M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z"/><TextBlock Grid.Column="1" Text="backup.tar.gz" Foreground="#C9D1D9" FontSize="13"/><TextBlock Grid.Column="2" Text="48.2 MB" Foreground="#6B7280" FontSize="11"/><TextBlock Grid.Column="3" Text="06-21 02:00" Foreground="#5A6270" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/></Grid>
-                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4"><PathIcon Grid.Column="0" Width="14" Height="14" Foreground="#8B92A8" Margin="0,0,8,0" Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M16,11H8V13H16V11M16,15H8V17H16V15Z"/><TextBlock Grid.Column="1" Text="notes.md" Foreground="#C9D1D9" FontSize="13"/><TextBlock Grid.Column="2" Text="3.4 KB" Foreground="#6B7280" FontSize="11"/><TextBlock Grid.Column="3" Text="06-22 14:20" Foreground="#5A6270" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/></Grid>
+                                    <StackPanel x:Name="SftpList" Spacing="2"/>
                                 </StackPanel>
                             </Flyout>
                         </Button.Flyout>

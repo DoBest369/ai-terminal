@@ -84,4 +84,32 @@ public partial class MainWindow : Window
         CmdInput.Text = "";
         TermScroll.ScrollToEnd();
     }
+
+    /// AI 输入回车 → 追加提问气泡（AI 区真实交互，对照 linux/终端）
+    private void OnAiKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter) AppendAiAsk();
+    }
+
+    /// AI 发送按钮点击 → 追加提问气泡
+    private void OnAiSend(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => AppendAiAsk();
+
+    private void AppendAiAsk()
+    {
+        var ask = AiInput.Text?.Trim();
+        if (string.IsNullOrEmpty(ask)) return;
+        // 角色标签「你」（右对齐）
+        var label = new TextBlock { Text = "你", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right };
+        // 提问气泡（蓝，右对齐）
+        var bubble = new Border
+        {
+            Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260,
+            Child = new TextBlock { Text = ask, Foreground = Brush.Parse("#FFFFFF"), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+        };
+        AiMessages.Children.Add(label);
+        AiMessages.Children.Add(bubble);
+        AiInput.Text = "";
+        AiScroll.ScrollToEnd();
+    }
 }

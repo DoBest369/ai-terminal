@@ -203,8 +203,8 @@
             <Border Grid.Row="0" Padding="14,12">
                 <TextBlock Text="✦ AI 助手" Foreground="#FF4B6E" FontSize="14" FontWeight="Bold"/>
             </Border>
-            <ScrollViewer Grid.Row="1" Margin="12,0">
-                <StackPanel Spacing="8">
+            <ScrollViewer x:Name="AiScroll" Grid.Row="1" Margin="12,0">
+                <StackPanel x:Name="AiMessages" Spacing="8">
                     <!-- 第一轮对话 -->
                     <TextBlock Text="你" Foreground="#8B92A8" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right"/>
                     <Border Background="#3B82F6" CornerRadius="10" Padding="12,9" HorizontalAlignment="Right" MaxWidth="260">
@@ -248,9 +248,9 @@
             <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="12,0,12,12" Padding="4,2">
                 <Grid ColumnDefinitions="*,Auto">
                     <TextBox x:Name="AiInput" Grid.Column="0" PlaceholderText="输入指令…" Background="Transparent" BorderThickness="0"
-                             Foreground="#C9D1D9" FontSize="13" VerticalAlignment="Center" Padding="8,7" CaretBrush="#FF4B6E"/>
+                             Foreground="#C9D1D9" FontSize="13" VerticalAlignment="Center" Padding="8,7" CaretBrush="#FF4B6E" KeyDown="OnAiKeyDown"/>
                     <Button Grid.Column="1" Background="#FF4B6E" CornerRadius="14" Width="28" Height="28" Padding="0"
-                            VerticalAlignment="Center" Margin="4,0">
+                            VerticalAlignment="Center" Margin="4,0" Click="OnAiSend">
                         <TextBlock Text="↑" Foreground="#FFFFFF" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Button>
                 </Grid>

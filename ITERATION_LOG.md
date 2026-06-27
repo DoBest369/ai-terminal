@@ -4218,3 +4218,11 @@
 - **ROADMAP S9**：标记进行中（SFTP 双端深化 + 时间戳 + 命令历史持久化已完成；连接编辑/SFTP 上传 mkdir/batch 移植/主题切换待办）。
 - **改动**：`CHANGELOG.md`(阶段32)、`ROADMAP.md`(S9)。
 - **意义**：CHANGELOG 至阶段32。windows/linux SFTP 能力一致并靠拢 apple 标杆。Termind 全平台真实智能运维工作台功能完整度持续提升。
+
+---
+
+## 🎯 windows 批量群发命令（护城河 batch 移植，多连接并发执行聚合）
+- **内容**：windows 命令输入旁加批量按钮（群组 PathIcon）→ OnBatchExec：对 _conns 各连接并发 SshExecToHostAsync（解析 user@host，8s 超时）→ Task.WhenAll 聚合 → 分段显示（连接名/host/✓✕ + 结果）+ 成功率统计。`SshExecToHostAsync` 指定主机 exec（不复用 _sshClient 避免并发冲突）。
+- **改动**：`MainWindow.axaml`(批量按钮)、`MainWindow.axaml.cs`(OnBatchExec + SshExecToHostAsync)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 7cfc470。
+- **🎯 护城河 batch 批量运维移植 windows**（对照 apple batch-test）：多机群发命令 + 结果聚合，智能运维深化。windows 护城河能力再扩展（Z1-Z3 + batch 批量）。下一步 linux batch / SFTP 新建目录 / 连接编辑。

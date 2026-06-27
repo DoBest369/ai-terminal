@@ -4752,3 +4752,11 @@
 - **改动**：`windows MainWindow.axaml.cs`(OnTopProcs 数据行 ContextFlyout kill)。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 7c897a0。
 - **意义**：windows 进程管理操作深化（看到高占用进程一键终止，对照服务管理）。监控 → 操作闭环（看进程 → kill）。下一步 linux 进程 kill 对齐 / 磁盘分区面板 / 质量收口。
+
+---
+
+## 磁盘分区详情面板（windows+linux，SSH df -h 全分区，监控补全）
+- **内容**：工具区加磁盘分区按钮 → SSH `df -hP -x tmpfs -x devtmpfs -x overlay` 取真实分区；windows Flyout 结构化（挂载点 + 进度条三档色 + 使用%/容量），linux 终端展示（复用 term_tx）。监控从状态条聚合磁盘 → 全分区明细。
+- **改动**：`windows MainWindow.axaml`(磁盘分区按钮 Flyout)、`MainWindow.axaml.cs`(OnDiskParts 解析+进度条)、`linux main.rs`(磁盘分区按钮 + spawn df)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（HARD_DRIVES 图标）。推送 7877b41。
+- **意义**：磁盘分区面板（运维查全分区使用率，非只根分区，定位哪个分区满），双端对称。监控明细完整（进程/端口/磁盘分区）。下一步 质量收口 CHANGELOG 阶段54 / 新功能。

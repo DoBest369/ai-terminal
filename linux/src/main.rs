@@ -28,15 +28,16 @@ struct ServerConn {
     port: u16,
     group: &'static str,
     online: bool,
+    probed: bool,          // 是否已完成 TCP 可达性探测（false=探测中）
     note: &'static str,
     last_used: &'static str,
 }
 
 fn demo_conns() -> Vec<ServerConn> {
     vec![
-        ServerConn { name: "生产 Web 01", host: "web01.example.com", user: "deploy", port: 22, group: "生产环境", online: true, note: "官网 + API", last_used: "5 分钟前" },
-        ServerConn { name: "数据库主机", host: "db.internal.net", user: "admin", port: 22, group: "生产环境", online: true, note: "MySQL 主库", last_used: "1 小时前" },
-        ServerConn { name: "开发机", host: "dev.example.com", user: "deploy", port: 2222, group: "开发环境", online: false, note: "", last_used: "" },
+        ServerConn { name: "生产 Web 01", host: "web01.example.com", user: "deploy", port: 22, group: "生产环境", online: true, probed: false, note: "官网 + API", last_used: "5 分钟前" },
+        ServerConn { name: "数据库主机", host: "db.internal.net", user: "admin", port: 22, group: "生产环境", online: true, probed: false, note: "MySQL 主库", last_used: "1 小时前" },
+        ServerConn { name: "开发机", host: "dev.example.com", user: "deploy", port: 2222, group: "开发环境", online: false, probed: false, note: "", last_used: "" },
     ]
 }
 
@@ -97,7 +98,7 @@ impl eframe::App for TermindApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // 应用后台 TCP 探测结果（真实可达性）→ 更新连接 online 状态
         while let Ok((i, ok)) = self.reach_rx.try_recv() {
-            if let Some(c) = self.conns.get_mut(i) { c.online = ok; }
+            if let Some(c) = self.conns.get_mut(i) { c.online = ok; c.probed = true; }
         }
         // 探测期间保持低频重绘以接收后台线程结果
         ctx.request_repaint_after(std::time::Duration::from_millis(500));
@@ -435,9 +436,11 @@ fn server_card(ui: &mut egui::Ui, c: &ServerConn, selected: bool) -> egui::Respo
                         ui.colored_label(TEXT_SECONDARY.linear_multiply(0.8), format!("上次使用 · {}", c.last_used));
                     }
                 });
-                // 右侧可达指示（对照 apple/android wifi/wifi.slash）
+                // 右侧可达指示（探测中 ⏳ / 可达 ✓ / 不可达 ✕，真实 TCP 探测）
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if c.online {
+                    if !c.probed {
+                        ui.colored_label(TEXT_SECONDARY.linear_multiply(0.7), "⏳");
+                    } else if c.online {
                         ui.colored_label(SUCCESS, egui::RichText::new("✓").strong());
                     } else {
                         ui.colored_label(TEXT_SECONDARY, "✕");

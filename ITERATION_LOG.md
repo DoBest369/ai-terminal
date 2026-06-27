@@ -3788,3 +3788,11 @@
 - **改动**：`MainWindow.axaml`(运维快捷入口行)、`MainWindow.axaml.cs`(OnOpsQuick)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 15s 存活；截图确认运维快捷入口（红）+ 快捷追问（蓝）两行。推送 67d7acb。
 - **意义**：对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检，降低 windows 智能运维使用门槛（一键预填专业运维提问，结合真实环境）。下一步 linux 同步运维快捷入口 / 风险四级分级。
+
+---
+
+## linux AI 运维快捷入口 + 清空对话（对照 windows，双端对齐）
+- **内容**：linux 运维快捷入口（解释命令/分析报错/健康巡检）→ 预填专用运维提问（对照 apple Z1-Z3 + windows）；清空对话按钮（TRASH phosphor 图标，清 ai_msgs + pending_cmds，三模式切换器行右侧）。
+- **改动**：`linux/src/main.rs`(运维快捷入口 + 清空对话)。
+- **验证**：`cargo build` **0 error/warning**（1.27s，带 proxy）。推送 be0c09c。
+- **意义**：运维快捷入口 + 清空对话 windows/linux 双端对齐。linux AI 面板体验对齐 windows（三模式+运维入口+快捷追问+清空+代码块+Z3）。下一步 风险四级分级 / windows SSH 连接复用。

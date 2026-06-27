@@ -78,6 +78,7 @@ public partial class MainWindow : Window
         timer.Tick += (_, _) => { if (_activeHost != null) _ = RefreshMetricsAsync(); };
         timer.Start();
         _ = RefreshMetricsAsync();   // 启动先取一次（SelectedIndex=0 已选中测试机）
+        RenderQuickCmds();           // 渲染快捷命令栏（默认 + 自定义，覆盖 axaml 默认）
     }
 
     /// 配置文件路径（用户 AppData，跨重启持久化）
@@ -97,6 +98,7 @@ public partial class MainWindow : Window
             if (root.TryGetProperty("fontSize", out var fs) && fs.TryGetDouble(out var fsv)) _termFontSize = System.Math.Clamp(fsv, 9, 22);
             if (root.TryGetProperty("aiFontSize", out var afs) && afs.TryGetDouble(out var afsv)) _aiFontSize = System.Math.Clamp(afsv, 10, 22);
             if (root.TryGetProperty("themeIdx", out var ti) && ti.TryGetInt32(out var tiv)) ApplyTheme(tiv);
+            if (root.TryGetProperty("customCmds", out var cc) && cc.ValueKind == JsonValueKind.Array) { _customCmds.Clear(); foreach (var x in cc.EnumerateArray()) { var s = x.GetString(); if (!string.IsNullOrEmpty(s)) _customCmds.Add(s); } }
             // 恢复命令历史（上下键回溯，重启可用）
             if (root.TryGetProperty("cmdHistory", out var ch) && ch.ValueKind == JsonValueKind.Array)
                 foreach (var c in ch.EnumerateArray())
@@ -132,7 +134,7 @@ public partial class MainWindow : Window
             // 只持久化用户新建的连接（"我的连接" 组），默认演示连接不存
             var userConns = _conns.Where(c => c.GroupName == "我的连接")
                 .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note }).ToArray();
-            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize, aiFontSize = _aiFontSize, themeIdx = _themeIdx });
+            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize, aiFontSize = _aiFontSize, themeIdx = _themeIdx, customCmds = _customCmds.ToArray() });
             System.IO.File.WriteAllText(ConfigPath, json);
         }
         catch { /* 写失败忽略，不影响运行 */ }
@@ -177,6 +179,40 @@ public partial class MainWindow : Window
 
     private string? _activeHost;   // 当前选中连接的 host（驱动 SSH 执行；null=用 env/默认）
     private string? _activeUser;
+
+    // 快捷命令：默认运维命令 + 用户自定义（持久化），可增删
+    private static readonly string[] DefaultQuickCmds = { "ls -la", "df -h", "free -h", "ps aux --sort=-%cpu | head", "ss -tlnp", "uptime", "top", "journalctl -xe -n 50", "systemctl status nginx" };
+    private readonly List<string> _customCmds = new();
+
+    /// 渲染快捷命令栏（默认 + 自定义 chip + 末尾「+」添加按钮）；自定义可右键删除
+    private void RenderQuickCmds()
+    {
+        QuickCmds.Children.Clear();
+        foreach (var cmd in DefaultQuickCmds) QuickCmds.Children.Add(MakeChip(cmd, "#FF4B6E", false));
+        foreach (var cmd in _customCmds) QuickCmds.Children.Add(MakeChip(cmd, "#3FB950", true));
+        // 末尾「+」添加按钮（Flyout 输入自定义命令）
+        var add = new Button { Background = Brush.Parse("#22FFFFFF"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(14), Padding = new Thickness(11, 5), Content = "+", Foreground = Brush.Parse("#8B92A8"), FontSize = 12 };
+        var box = new TextBox { Width = 220, PlaceholderText = "自定义命令…", FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, FontSize = 12 };
+        var ok = new Button { Content = "添加", Background = Brush.Parse("#3FB950"), Foreground = Brush.Parse("#FFFFFF"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(6), Padding = new Thickness(10, 6), Margin = new Thickness(0, 6, 0, 0), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
+        ok.Click += (_, _) => { var c = box.Text?.Trim(); if (!string.IsNullOrEmpty(c) && !_customCmds.Contains(c) && !DefaultQuickCmds.Contains(c)) { _customCmds.Add(c); SaveConfig(); RenderQuickCmds(); } add.Flyout?.Hide(); };
+        add.Flyout = new Flyout { Content = new StackPanel { Children = { new TextBlock { Text = "添加快捷命令", Foreground = Brush.Parse("#FFFFFF"), FontSize = 13, FontWeight = Avalonia.Media.FontWeight.Bold, Margin = new Thickness(0, 0, 0, 6) }, box, ok } } };
+        QuickCmds.Children.Add(add);
+    }
+
+    /// 生成单个快捷命令 chip（点击填入终端；自定义命令右键可删除）
+    private Button MakeChip(string cmd, string color, bool custom)
+    {
+        var chip = new Button { Background = Brush.Parse(custom ? "#1A3FB950" : "#1AFF4B6E"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(14), Padding = new Thickness(10, 5), Content = cmd, Foreground = Brush.Parse(color), FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, FontSize = 11 };
+        chip.Click += (_, _) => { CmdInput.Text = cmd; CmdInput.Focus(); };
+        if (custom)
+        {
+            var del = new MenuItem { Header = $"删除「{cmd}」", Foreground = Brush.Parse("#F85149") };
+            del.Click += (_, _) => { _customCmds.Remove(cmd); SaveConfig(); RenderQuickCmds(); };
+            chip.ContextFlyout = new MenuFlyout { Items = { del } };
+            ToolTip.SetTip(chip, "点击填入 · 右键删除");
+        }
+        return chip;
+    }
 
     /// 命令历史面板打开：填充最近命令列表，点击重用填入输入框（对照 apple/linux history）
     private void OnHistoryOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

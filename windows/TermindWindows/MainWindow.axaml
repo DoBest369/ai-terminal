@@ -232,9 +232,9 @@
                     </StackPanel>
                 </ScrollViewer>
             </Border>
-            <!-- 快捷命令 chip 横栏（点击填入，对照 apple/android） -->
+            <!-- 快捷命令 chip 横栏（点击填入，可自定义增删；代码动态生成覆盖以下默认）-->
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="10,0,10,6">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel x:Name="QuickCmds" Orientation="Horizontal" Spacing="6">
                     <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
                             Content="ls -la" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
                     <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"

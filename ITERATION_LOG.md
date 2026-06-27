@@ -6,6 +6,14 @@
 
 ---
 
+## windows SFTP 文件项加修改时间 → SFTP 文件信息五端对齐
+- **内容**：windows SFTP Flyout 文件行 Grid 从 3 列 → 4 列加时间列，文件夹/文件都显修改时间（淡化小字），对照 apple/android/linux SFTP。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(SFTP 文件行加时间 TextBlock)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）。推送 6f911b5。
+- **🎯 SFTP 文件信息五端对齐**：apple/android（真实接 SshClient）/ linux/windows（占位）SFTP 文件项都显「类型图标 + 名称 + 大小 + 修改时间」。SFTP 文件浏览信息五端一致。
+
+---
+
 ## 质量收口 + linux SFTP 文件项加修改时间
 - **质量基线**（66 项 UI + 多轮终端交互后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 错；PARITY **103 项 ✅✅**。终端交互改动未伤核心逻辑。
 - **linux SFTP 修改时间**：sftp_demo 加修改时间字段；SFTP 窗口文件项右侧显「大小 + 修改时间」（淡化小字），对照 apple/android SFTP（时间 + 大小）。android SFTP 已极完善（真实接 SshClient，图标/排序/批量操作/时间/大小）。cargo build 0 error/warning（build 通过后提交）。推送 f23a3ec。

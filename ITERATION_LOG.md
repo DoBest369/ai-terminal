@@ -3974,3 +3974,11 @@
 - **CHANGELOG 阶段24**：深化打磨 AI 配置 UI 生效+持久化（windows）、命令填入终端 + 对话导出 Markdown（windows/linux）、Avalonia12 clipboard 弃用踩坑。
 - **改动**：`CHANGELOG.md`(阶段24)。
 - **意义**：CHANGELOG 至阶段24。S7 深化打磨持续把 AI 配置/交互/导出在 windows/linux 补齐对齐。智能运维全平台落地（S1-S5）→ 护城河补齐（S6/阶段22-23）→ 配置/交互/导出细节（S7/阶段24）。Termind 全平台真实智能运维工作台日臻完善。
+
+---
+
+## 🎯🎯 apple Auto 自主闭环 agent loop（apple 三模式真正完整，五端对齐）
+- **内容**：apple runParsedCommands Auto 模式——注入命令前 startRecording 录制终端输出 → 延迟 2.5s 取 recordedText（去 ANSI）→ 回喂 sendAIMessage 决策下一步（agent loop）；限轮 autoLoopMax=5。复用 apple 真实终端输出录制（SSHTerminalSession startRecording/recordedText）+ 真实 AI 流式；危险命令仍待确认不绕过；非 Auto/到顶重置轮数。
+- **改动**：`apple/App/Sources/AppModel.swift`(runParsedCommands Auto 闭环 + autoLoopDepth)。
+- **验证**：swift build Build complete；8 自测无回归（SourceKit module 警告 IDE 误报）。推送 dad06d3。
+- **🎯 apple 三模式真正完整**：Chat（纯聊天）/ Agent（确认放行）/ Auto（自主闭环：注入→录制输出→回喂 AI→决策下一步）。**AI Auto 自主闭环五端对齐**（apple/windows/linux）。apple 基础最强（真实终端会话输出录制 + 注入）。智能运维 + AI 三模式全平台完整成型。下一步 主题切换 / 持续打磨。

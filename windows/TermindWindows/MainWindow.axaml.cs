@@ -65,23 +65,28 @@ public partial class MainWindow : Window
     }
 
     /// 真实 TCP 可达性探测（对照 linux）：ConnectAsync + 2s 超时，结果更新连接状态点/可达指示
+    /// 整体 try/catch 包裹：fire-and-forget 异步任何未预期异常都不得使进程 abort（修 dotnet run 崩溃隐患）
     private static async Task ProbeReachabilityAsync(ConnItem c)
     {
-        // 解析 user@host:port
-        var s = c.Addr;
-        var at = s.IndexOf('@'); if (at >= 0) s = s[(at + 1)..];
-        var host = s; var port = 22;
-        var colon = s.IndexOf(':');
-        if (colon >= 0) { host = s[..colon]; int.TryParse(s[(colon + 1)..], out port); }
-        bool ok = await TcpReachableAsync(host, port);
-        var green = Brush.Parse("#3FB950");
-        var gray = Brush.Parse("#6B7280");
-        Dispatcher.UIThread.Post(() =>
+        try
         {
-            c.Reach = ok ? "✓" : "✕";
-            c.ReachColor = ok ? green : gray;
-            c.Dot = ok ? green : gray;
-        });
+            // 解析 user@host:port
+            var s = c.Addr;
+            var at = s.IndexOf('@'); if (at >= 0) s = s[(at + 1)..];
+            var host = s; var port = 22;
+            var colon = s.IndexOf(':');
+            if (colon >= 0) { host = s[..colon]; int.TryParse(s[(colon + 1)..], out port); }
+            bool ok = await TcpReachableAsync(host, port);
+            var green = Brush.Parse("#3FB950");
+            var gray = Brush.Parse("#6B7280");
+            Dispatcher.UIThread.Post(() =>
+            {
+                c.Reach = ok ? "✓" : "✕";
+                c.ReachColor = ok ? green : gray;
+                c.Dot = ok ? green : gray;
+            });
+        }
+        catch { /* 探测失败静默：保持探测中状态，绝不让后台任务异常崩溃进程 */ }
     }
 
     private static async Task<bool> TcpReachableAsync(string host, int port)

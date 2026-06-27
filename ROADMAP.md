@@ -31,11 +31,11 @@
 
 ### 🧠 智能运维全平台落地 + AI Agent 终端接管（2026-06-27 用户追问，核心优先级）
 > 用户指出：智能运维目前只 apple/android 真实落地，windows/linux 仅 UI+mock（ssh2/ureq 有依赖但 0 调用）。核心价值必须**全平台落地**。用真实测试机 47.85.19.31 验证。
-- [ ] **S1 linux 真实 SSH**：main.rs 实际 use ssh2，连接 47.85.19.31 真实 exec，终端区显真实命令输出（替换 term_lines mock）。
-- [ ] **S2 linux 真实 AI**：ureq 调 Anthropic/OpenAI（用设置里的 api_key/base_url/sys_prompt），AI 气泡显真实流式回复（替换占位文案）。
-- [ ] **S3 windows 真实 SSH + AI**：SSH.NET（或 Renci.SshNet）+ HttpClient 调 AI，对照 linux。
-- [ ] **S4 智能运维能力移植 windows/linux**：命令解释/报错分析/环境感知/批量巡检（对照 apple/android 护城河 Z1-Z8）。
-- [ ] **🤖 S5 AI 三模式（Chat / Agent / Auto Agent）**（用户核心设计，安全梯度）：
+- [x] **S1 linux 真实 SSH** ✅：ssh2 连 47.85.19.31 真实 exec（ssh_exec + 命令回车后台执行 + channel 回结果），端到端验证 LINUX_SSH_OK。windows 同（SSH.NET，S3）。
+- [x] **S2 linux 真实 AI** ✅：ureq 调 nexcores（Anthropic 格式），AI 气泡真实回复 + Z3 环境注入 + 代码块渲染，端到端验证 LINUX_AI_OK。windows 同（HttpClient + 流式，S3）。
+- [x] **S3 windows 真实 SSH + AI** ✅：SSH.NET 连服务器真实 exec + HttpClient 流式调 AI，全链路端到端验证（CPU 排查问答 + 真实执行）。
+- [x] **S4 智能运维能力移植 windows/linux** ✅：环境感知（Z3，SSH 取真实配置注入 AI）+ 优化运维系统提示词（资深运维专家/风险分级/排障流程，五端对齐）+ 危险命令拦截。命令解释/报错分析靠优化提示词覆盖；批量巡检留后续。
+- [x] **🤖 S5 AI 三模式（Chat / Agent / Auto Agent）** ✅（用户核心设计，安全梯度，五端对齐 UI+逻辑；windows 更有 Auto 自主闭环 agent loop + 流式 + 代码块渲染）：
   - **Chat**：纯聊天，AI 只对话/建议/解释，**不读不碰终端**（现有 AI 对话即此模式）。
   - **Agent（代理）**：AI 读终端实时输出 + 生成指令，但**每条指令执行前必须人工确认放行**才执行。
   - **Auto Agent（全自动）**：AI 自主「读输出→决策命令→执行→读结果」闭环，无需逐条确认。

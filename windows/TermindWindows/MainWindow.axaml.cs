@@ -253,8 +253,14 @@ public partial class MainWindow : Window
         AiMessages.Children.Add(aiBubble);
         AiInput.Text = "";
         AiScroll.ScrollToEnd();
-        // 真实 AI 调用（async）→ 更新气泡 + 解析 [EXECUTE] 命令
-        var reply = await CallAiAsync(ask);
+        // 真实 AI 流式调用（逐字更新气泡）→ 完成后解析代码块 + [EXECUTE]
+        var streamText = (TextBlock)aiPanel.Children[0];
+        var reply = await CallAiAsync(ask, delta =>
+        {
+            // 流式逐字显示（隐藏未闭合的 [EXECUTE] 标记尾部）
+            streamText.Text = Regex.Replace(delta, @"\[EXECUTE\][\s\S]*$", "").TrimEnd();
+            AiScroll.ScrollToEnd();
+        });
         var cmds = Regex.Matches(reply, @"\[EXECUTE\]([\s\S]*?)\[/EXECUTE\]");
         // 渲染正文 + ```代码块（去 [EXECUTE] 标记）
         var text = Regex.Replace(reply, @"\[EXECUTE\][\s\S]*?\[/EXECUTE\]", "").Trim();
@@ -456,7 +462,7 @@ public partial class MainWindow : Window
 
     /// 调 Anthropic 兼容接口（nexcores）；key 从环境变量 TERMIND_AI_KEY 读（不硬编码）
     /// Z3 环境感知：提问前先 SSH 取服务器真实状态注入系统提示，AI 结合真实环境回答
-    private async Task<string> CallAiAsync(string userMsg)
+    private async Task<string> CallAiAsync(string userMsg, System.Action<string>? onDelta = null)
     {
         var key = System.Environment.GetEnvironmentVariable("TERMIND_AI_KEY") ?? "";
         if (string.IsNullOrEmpty(key)) return "⚠️ 未配置 API Key（设置 TERMIND_AI_KEY 环境变量，或在设置面板填入）";
@@ -468,10 +474,12 @@ public partial class MainWindow : Window
         _aiHistory.Add(("user", userMsg));
         try
         {
+            // 流式输出（stream=true，SSE 逐块解析 content_block_delta，逐字更新 UI）
             var payload = new
             {
                 model = AiModel,
                 max_tokens = 1024,
+                stream = true,
                 system = sys,
                 messages = _aiHistory.Select(h => new { role = h.role, content = h.content }).ToArray()
             };
@@ -479,19 +487,37 @@ public partial class MainWindow : Window
             req.Headers.Add("x-api-key", key);
             req.Headers.Add("anthropic-version", "2023-06-01");
             req.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-            using var resp = await _http.SendAsync(req);
-            var body = await resp.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(body);
-            if (doc.RootElement.TryGetProperty("content", out var content) && content.GetArrayLength() > 0)
+            using var resp = await _http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+            using var stream = await resp.Content.ReadAsStreamAsync();
+            using var reader = new System.IO.StreamReader(stream);
+            var sb = new StringBuilder();
+            string? line;
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-                var text = content[0].GetProperty("text").GetString() ?? "(无回复)";
-                _aiHistory.Add(("assistant", text));   // AI 回复入历史，下轮带上下文
-                if (_aiHistory.Count > 20) _aiHistory.RemoveRange(0, 2);  // 限长防膨胀
-                return text;
+                if (!line.StartsWith("data:")) continue;
+                var data = line.Substring(5).Trim();
+                if (data.Length == 0 || data == "[DONE]") continue;
+                try
+                {
+                    using var doc = JsonDocument.Parse(data);
+                    var type = doc.RootElement.TryGetProperty("type", out var t) ? t.GetString() : "";
+                    if (type == "content_block_delta"
+                        && doc.RootElement.TryGetProperty("delta", out var d)
+                        && d.TryGetProperty("text", out var txt))
+                    {
+                        sb.Append(txt.GetString());
+                        onDelta?.Invoke(sb.ToString());   // 逐字更新 UI（已在 UI 上下文）
+                    }
+                    else if (type == "error" && doc.RootElement.TryGetProperty("error", out var e)
+                        && e.TryGetProperty("message", out var em))
+                        return "⚠️ " + em.GetString();
+                }
+                catch { /* 跳过非 JSON 心跳行 */ }
             }
-            if (doc.RootElement.TryGetProperty("error", out var err) && err.TryGetProperty("message", out var msg))
-                return "⚠️ " + msg.GetString();
-            return "(无回复)";
+            var full = sb.Length == 0 ? "(无回复)" : sb.ToString();
+            _aiHistory.Add(("assistant", full));   // AI 回复入历史，下轮带上下文
+            if (_aiHistory.Count > 20) _aiHistory.RemoveRange(0, 2);  // 限长防膨胀
+            return full;
         }
         catch (System.Exception ex) { return "⚠️ 请求失败：" + ex.Message; }
     }

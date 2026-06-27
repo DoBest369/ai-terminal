@@ -6,6 +6,14 @@
 
 ---
 
+## android AI 系统提示词自定义（对齐 apple agentSystemPrompt）
+- **内容**：android 补齐 apple 的「AI 系统提示词」自定义——`SettingsStore.loadSystemPrompt/saveSystemPrompt`（空=默认 `AiClient.SYSTEM_PROMPT`）；AI 对话 `send` 默认 `basePrompt` 从硬编码常量 → `loadSystemPrompt(ctx)`；SettingsScreen 加「AI 系统提示词」设置行 + 多行编辑对话框（minLines 4/maxLines 8 + 恢复默认提示词按钮）。
+- **改动**：`SettingsStore.kt`、`MainActivity.kt`(send 默认参数 + SettingsScreen 状态/对话框/设置行)。
+- **验证**：android `assembleDebug` **BUILD SUCCESSFUL 28s 零 deprecated**（带 proxy，build 通过后提交）。推送 84e5adb。
+- **意义**：android AI 系统提示词可自定义（对齐 apple），用户可定制 AI 助手行为/语气/专长。连续两轮补齐 android 真实功能缺口（Base URL + 系统提示词），AI 配置能力对齐 apple。
+
+---
+
 ## android AI API 地址（Base URL）自定义（对齐 apple，真实功能补齐）
 - **内容**：android 补齐 apple 已有的「API 地址 Base URL」自定义——`SettingsStore.loadBaseUrl/saveBaseUrl`（默认 anthropic）；`AiClient.chat/chatStream` 加 `baseUrl` 参数替代硬编码 `.url`；5 个调用点（AI 对话/巡检总结/批量总结/工作流结论/命令解释）传 `loadBaseUrl(ctx)`；SettingsScreen 加「API 地址」设置行 + 编辑对话框（留空恢复默认）。
 - **改动**：`SettingsStore.kt`、`AiClient.kt`、`InspectScreen.kt`、`BatchScreen.kt`、`MainActivity.kt`。

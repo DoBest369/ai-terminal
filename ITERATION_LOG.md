@@ -6,6 +6,14 @@
 
 ---
 
+## windows 连接卡片探测中状态（双端探测 UX 对齐）
+- **内容**：windows ConnItem 初始可达 = ⏳ 探测中（灰点），`ProbeReachabilityAsync` 完成后才更新 ✓/✕。消除探测前 mock 状态歧义，对照 linux probed 三态。
+- **改动**：`MainWindow.axaml.cs`(ItemsSource 初始 Reach=⏳/灰)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）。推送 4049c5d。
+- **🎯 windows/linux 双端探测中状态对齐**：连接卡片可达指示 ⏳ 探测中 → ✓/✕ 真实结果。真实 TCP 探测 UX 双端一致（启动显探测中，~2s 后显真实可达性）。
+
+---
+
 ## linux 连接卡片探测中状态（优化真实探测 UX）
 - **内容**：linux `ServerConn` 加 `probed` 字段（false=探测中）；TCP 探测回传时设 `probed=true`；连接卡片可达指示分三态——探测中 ⏳ / 可达 ✓（绿）/ 不可达 ✕（灰）。消除「探测前显 mock 状态」的歧义（启动到探测完成的 ~2s 显「探测中」）。
 - **改动**：`linux/src/main.rs`(ServerConn probed + 探测回传 + 可达指示三态)。

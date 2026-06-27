@@ -213,10 +213,11 @@ impl eframe::App for TermindApp {
                 for (name, is_dir, size, time) in sftp_demo() {
                     ui.horizontal(|ui| {
                         // 类型图标（对照 apple/android 文件类型图标）
-                        let icon = if is_dir { "📁" } else if name.ends_with(".sh") { "⌨" }
-                            else if name.ends_with(".gz") || name.ends_with(".zip") { "🗜" }
-                            else if name.ends_with(".md") || name.ends_with(".txt") { "📄" }
-                            else { "⚙" };
+                        use egui_phosphor::regular as ph;
+                        let icon = if is_dir { ph::FOLDER } else if name.ends_with(".sh") { ph::TERMINAL_WINDOW }
+                            else if name.ends_with(".gz") || name.ends_with(".zip") { ph::FILE_ZIP }
+                            else if name.ends_with(".md") || name.ends_with(".txt") { ph::FILE_TEXT }
+                            else { ph::GEAR };
                         ui.colored_label(if is_dir { ACCENT } else { TEXT_SECONDARY }, icon);
                         ui.colored_label(TEXT_PRIMARY, name);
                         // 右侧：大小 + 修改时间（对照 apple/android SFTP）
@@ -241,7 +242,7 @@ impl eframe::App for TermindApp {
             .show(ctx, |ui| {
                 // 搜索框（对照 windows/apple 侧边栏，按名称/host 过滤）
                 ui.add(egui::TextEdit::singleline(&mut self.search)
-                    .hint_text("🔍 搜索连接").desired_width(f32::INFINITY));
+                    .hint_text(format!("{} 搜索连接", egui_phosphor::regular::MAGNIFYING_GLASS)).desired_width(f32::INFINITY));
                 ui.add_space(6.0);
                 ui.colored_label(TEXT_SECONDARY, "SSH 连接");
                 ui.add_space(6.0);
@@ -289,7 +290,7 @@ impl eframe::App for TermindApp {
                     .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, "这台机器装了什么服务？"); });
                 ui.add_space(6.0);
                 ui.horizontal(|ui| {
-                    ui.colored_label(ACCENT, egui::RichText::new("✦").size(10.0));
+                    ui.colored_label(ACCENT, egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
                     ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
                 });
                 egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0)
@@ -302,7 +303,7 @@ impl eframe::App for TermindApp {
                 ui.add_space(6.0);
                 // AI 消息：角色标签 + 气泡
                 ui.horizontal(|ui| {
-                    ui.colored_label(ACCENT, egui::RichText::new("✦").size(10.0));
+                    ui.colored_label(ACCENT, egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
                     ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
                 });
                 egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0).show(ui, |ui| {
@@ -321,7 +322,7 @@ impl eframe::App for TermindApp {
                     ui.add_space(4.0);
                     // 占位 AI 回复（后续接真实 AI 流式回复）
                     ui.horizontal(|ui| {
-                        ui.colored_label(ACCENT, egui::RichText::new("✦").size(10.0));
+                        ui.colored_label(ACCENT, egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
                         ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
                     });
                     egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0)
@@ -343,7 +344,7 @@ impl eframe::App for TermindApp {
                 ui.horizontal(|ui| {
                     let send = ui.add_sized(
                         [28.0, 28.0],
-                        egui::Button::new(egui::RichText::new("↑").size(15.0).color(TEXT_PRIMARY))
+                        egui::Button::new(egui::RichText::new(egui_phosphor::regular::PAPER_PLANE_TILT).size(15.0).color(TEXT_PRIMARY))
                             .fill(ACCENT).rounding(14.0));
                     let resp = ui.add_sized(
                         [ui.available_width(), 28.0],
@@ -487,7 +488,7 @@ fn server_card(ui: &mut egui::Ui, c: &ServerConn, selected: bool) -> egui::Respo
                     ui.colored_label(TEXT_PRIMARY, egui::RichText::new(c.name).strong());
                     ui.colored_label(TEXT_SECONDARY, format!("{}@{}:{}", c.user, c.host, c.port));
                     if !c.note.is_empty() {
-                        ui.colored_label(TEXT_SECONDARY, format!("📝 {}", c.note));
+                        ui.colored_label(TEXT_SECONDARY, format!("{} {}", egui_phosphor::regular::NOTE_PENCIL, c.note));
                     }
                     if !c.last_used.is_empty() {
                         ui.colored_label(TEXT_SECONDARY.linear_multiply(0.8), format!("上次使用 · {}", c.last_used));

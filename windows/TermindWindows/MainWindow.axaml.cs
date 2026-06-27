@@ -1,5 +1,8 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Controls.Documents;
 using System.Collections.Generic;
 
 namespace TermindWindows;
@@ -59,5 +62,26 @@ public partial class MainWindow : Window
             AiInput.Text = ask;
             AiInput.Focus();
         }
+    }
+
+    /// 命令输入回车 → 追加到终端输出（更深真实交互，对照 linux）
+    private void OnCmdKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        var cmd = CmdInput.Text?.Trim();
+        if (string.IsNullOrEmpty(cmd)) return;
+        var host = StatusHost.Text?.Replace("主机 ", "") ?? "prod-01";
+        var line = new TextBlock
+        {
+            Text = $"root@{host}:~$ {cmd}",
+            Foreground = Brush.Parse("#C9D1D9"),
+            FontFamily = new FontFamily("Consolas"),
+            FontSize = 12.5,
+            Margin = new Thickness(0, 4, 0, 0)
+        };
+        // 插入到光标行（最后一项）之前
+        TermOutput.Children.Insert(TermOutput.Children.Count - 1, line);
+        CmdInput.Text = "";
+        TermScroll.ScrollToEnd();
     }
 }

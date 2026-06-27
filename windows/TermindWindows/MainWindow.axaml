@@ -158,8 +158,8 @@
             </Border>
             <!-- 终端输出（可滚动） -->
             <Border Grid.Row="1" Background="#0A0B14" Margin="10">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                    <StackPanel Margin="14">
+                <ScrollViewer x:Name="TermScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="TermOutput" Margin="14">
                         <TextBlock Text="Last login: Sun Jun 22 19:00 on ttys001" Foreground="#8B92A8" FontFamily="Consolas,monospace" FontSize="12.5"/>
                         <TextBlock Text="root@prod-01:~$ ls -la" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
                         <TextBlock Text="total 32" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
@@ -171,7 +171,7 @@
                         <TextBlock Text="root@prod-01:~$ systemctl status nginx" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
                         <TextBlock Text="● nginx.service - A high performance web server" Foreground="#3FB950" FontFamily="Consolas,monospace" FontSize="12.5"/>
                         <TextBlock Text="   Active: active (running) since Mon 2026-06-22" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock Text="root@prod-01:~$ █" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
+                        <TextBlock x:Name="TermCursor" Text="root@prod-01:~$ █" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
@@ -194,7 +194,7 @@
             <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="10,0,10,10">
                 <TextBox x:Name="CmdInput" PlaceholderText="输入命令…" Background="Transparent" BorderThickness="0"
                          Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="13"
-                         Padding="12,9" CaretBrush="#FF4B6E"/>
+                         Padding="12,9" CaretBrush="#FF4B6E" KeyDown="OnCmdKeyDown"/>
             </Border>
         </Grid>
 

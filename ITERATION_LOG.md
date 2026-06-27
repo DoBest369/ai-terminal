@@ -4103,3 +4103,11 @@
 - **改动**：`linux/src/main.rs`(run_sftp_preview + 文件可点击 + sftp_preview 标志)。
 - **验证**：`cargo build` **0 error/warning**（0.76s，带 proxy，借用通过）。推送 0efa90e。
 - **意义**：SFTP 文件预览 windows/linux 双端对齐。windows/linux SFTP 完整交互全对齐（浏览 + 导航 + 预览，守门大小/二进制）。下一步 连接删除 / AI 时间戳 / 质量收口。
+
+---
+
+## windows 连接删除（右键菜单→移除+持久化，连接管理 CRUD 完整）
+- **内容**：windows 连接项加 ContextFlyout 右键菜单「删除连接」→ OnDeleteConn：从 _conns 移除 + SaveConfig 持久化（删除的用户连接不再恢复）；删后无选中则选首项。
+- **改动**：`MainWindow.axaml`(连接 ContextFlyout 删除菜单)、`MainWindow.axaml.cs`(OnDeleteConn)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 a8da661。
+- **意义**：windows 连接管理 CRUD 完整（列表/新建/删除/持久化/切换/真实执行）。下一步 AI 时间戳 / 质量收口 / 终端 ANSI 颜色。

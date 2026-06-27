@@ -199,6 +199,16 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 24 — 深化打磨：AI 配置 / 交互 / 导出双端补齐（2026-06-27）
+
+S7 深化打磨继续，把 AI 配置、命令交互、对话导出在 windows/linux 补齐对齐。
+
+- **AI 配置 UI 生效 + 持久化（windows）**：设置面板 API Key/API 地址可填（优先于环境变量），存 AppData/Termind/config.json 跨重启持久化（失焦自动保存）。
+- **命令卡片「填入终端」（windows/linux）**：AI 生成的命令一键填入终端输入框，可编辑后执行（Chat 模式也能用 AI 建议命令）。
+- **AI 对话导出 Markdown（windows/linux，对照 apple ai-md）**：一键把当前对话导出为 Markdown（你/AI 分节），运维对话可存档/分享。
+- **命令卡片复制/填入**：踩坑记录——Avalonia 12 clipboard API 大改（DataObject/DataFormats 弃用），改用「填入终端」更实用可靠。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，765 提交。
+
 ## 阶段 23 — 护城河 Z2/Z3 一键真闭环 + SSH 复用双端（2026-06-27）
 
 深化打磨继续，把 apple 护城河的「命令解释/报错分析/健康巡检」在 windows/linux 做到一键真闭环 + SSH 性能优化双端对齐。

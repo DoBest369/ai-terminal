@@ -51,12 +51,12 @@ public partial class MainWindow : Window
         InitializeComponent();
         var green = Brush.Parse("#3FB950");
         var gray = Brush.Parse("#6B7280");
-        // 连接列表（分组聚合 + 备注 + 可达 + 最近使用；ListBox 自带选中/hover/键盘导航）
+        // 连接列表（分组聚合 + 备注 + 可达 + 最近使用；初始可达=⏳探测中，TCP 探测完更新）
         ConnList.ItemsSource = new List<ConnItem>
         {
-            new("数据库主机", "admin@db.internal.net:22", Brush.Parse("#3B82F6"), green, "生产环境", true, "✓", green, "📝 MySQL 主库", true, "上次使用 · 5 分钟前", true),
-            new("生产服务器", "root@192.168.1.10:22", Brush.Parse("#EF4444"), gray, "生产环境", false, "✕", gray, "📝 官网 + API", true, "上次使用 · 1 小时前", true),
-            new("开发机", "deploy@dev.example.com:2222", green, green, "开发环境", true, "✓", green, "", false, "", false),
+            new("数据库主机", "admin@db.internal.net:22", Brush.Parse("#3B82F6"), gray, "生产环境", true, "⏳", gray, "📝 MySQL 主库", true, "上次使用 · 5 分钟前", true),
+            new("生产服务器", "root@192.168.1.10:22", Brush.Parse("#EF4444"), gray, "生产环境", false, "⏳", gray, "📝 官网 + API", true, "上次使用 · 1 小时前", true),
+            new("开发机", "deploy@dev.example.com:2222", gray, gray, "开发环境", true, "⏳", gray, "", false, "", false),
         };
         ConnList.SelectedIndex = 0;
         // 真实 TCP 可达性探测（对照 linux probe_tcp）：异步探测每个连接，结果回 UI 线程更新

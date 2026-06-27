@@ -199,6 +199,12 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 39 — AI 字号可调 + 字号体系完整（windows，2026-06-28）
+
+- **AI 面板字号可调（windows）**：三模式切换器旁 A-/A+ 调整 AI 对话字号（clamp 10-22），更新所有气泡 + 新气泡，持久化。windows 字号体系完整（终端 + AI 都可调+持久化）。
+- **U3 主题切换评估**：linux egui 颜色为 const（BG/SURFACE/ACCENT/SUCCESS/WARNING/TEXT_*），约 120 处调用，全主题切换需把 const 改动态（thread_local + 函数），属较大重构。记录为后续 UI 专项，先保证现有深色配色协调（U2 已完成）。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，865 提交。
+
 ## 阶段 38 — U4 字号可调 + 持久化双端完整（2026-06-28）
 
 UI 品质 U4（字号可调）双端完整落地，含持久化。

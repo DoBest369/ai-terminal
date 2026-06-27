@@ -854,20 +854,29 @@ public partial class MainWindow : Window
     /// 导出当前 AI 对话为 Markdown（对照 apple ai-md），保存到桌面
     private async void OnExportChat(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        var btn = sender as Button;
-        if (_aiHistory.Count == 0) { if (btn != null) ToolTip.SetTip(btn, "暂无对话可导出"); return; }
+        if (_aiHistory.Count == 0) { AppendAiBubble("暂无对话可导出", "#F59E0B"); return; }
         var sb = new StringBuilder();
         sb.AppendLine("# Termind AI 运维对话\n");
         foreach (var (role, content) in _aiHistory)
             sb.AppendLine($"## {(role == "user" ? "🧑 你" : "✦ AI")}\n\n{content}\n");
+        var top = TopLevel.GetTopLevel(this);
+        if (top?.StorageProvider == null) return;
         try
         {
-            var desktop = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-            var path = System.IO.Path.Combine(desktop, $"termind-chat-{_aiHistory.Count}.md");
-            await System.IO.File.WriteAllTextAsync(path, sb.ToString());
-            if (btn != null) ToolTip.SetTip(btn, $"已导出：{path}");
+            // StorageProvider 保存对话框（对照终端导出，让用户选保存位置）
+            var file = await top.StorageProvider.SaveFilePickerAsync(new Avalonia.Platform.Storage.FilePickerSaveOptions
+            {
+                Title = "导出 AI 对话为 Markdown",
+                SuggestedFileName = "termind-chat.md",
+                DefaultExtension = "md",
+            });
+            if (file == null) return;
+            await using var stream = await file.OpenWriteAsync();
+            await using var writer = new System.IO.StreamWriter(stream);
+            await writer.WriteAsync(sb.ToString());
+            AppendAiBubble($"✓ 对话已导出到 {file.Name}", "#3FB950");
         }
-        catch (System.Exception ex) { if (btn != null) ToolTip.SetTip(btn, "导出失败：" + ex.Message); }
+        catch (System.Exception ex) { AppendAiBubble("导出失败：" + ex.Message, "#F85149"); }
     }
 
     // 真实 AI（S3）：HttpClient 调 Anthropic 兼容接口（nexcores）

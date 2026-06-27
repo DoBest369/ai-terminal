@@ -661,7 +661,7 @@ impl TermindApp {
         });
     }
 
-    /// 导出当前 AI 对话为 Markdown（对照 windows OnExportChat），写到 $HOME
+    /// 导出当前 AI 对话为 Markdown（对照 windows OnExportChat）：rfd 文件对话框选保存位置
     fn export_chat(&mut self) {
         if self.ai_msgs.is_empty() {
             self.ai_msgs.push((false, "⚠️ 暂无对话可导出".to_string()));
@@ -671,10 +671,10 @@ impl TermindApp {
         for (is_user, text) in &self.ai_msgs {
             md.push_str(&format!("## {}\n\n{}\n\n", if *is_user { "🧑 你" } else { "✦ AI" }, text));
         }
-        if let Ok(home) = std::env::var("HOME") {
-            let path = format!("{}/termind-chat-{}.md", home, self.ai_msgs.len());
+        // rfd 保存对话框（对照终端导出，让用户选保存位置，非固定 $HOME）
+        if let Some(path) = rfd::FileDialog::new().set_file_name("termind-chat.md").save_file() {
             match std::fs::write(&path, md) {
-                Ok(_) => self.ai_msgs.push((false, format!("✓ 已导出对话：{}", path))),
+                Ok(_) => self.ai_msgs.push((false, format!("✓ 已导出对话：{}", path.display()))),
                 Err(e) => self.ai_msgs.push((false, format!("⚠️ 导出失败：{}", e))),
             }
         }

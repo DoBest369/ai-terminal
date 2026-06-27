@@ -3853,3 +3853,11 @@
 - **改动**：`linux/src/main.rs`(3 处 spawn 加耗时)。
 - **验证**：`cargo build` 0 error（1.50s，带 proxy）。推送 75ade86。
 - **意义**：命令耗时显示 windows/linux 双端对齐。下一步 linux SSH 复用 / 健康巡检一键 / AI 命令复制。
+
+---
+
+## 🎯 windows 一键健康巡检（Z3，SSH 取真实指标 → AI 分析真闭环）
+- **内容**：windows 运维快捷「健康巡检」从预填 → 一键直接触发 `RunHealthCheck`：SSH 取真实指标（负载/内存/磁盘/CPU Top5/服务状态）→ 流式发 AI 分析（资源水位→风险点→优化建议）；解释/报错仍预填。
+- **改动**：`MainWindow.axaml.cs`(OnOpsQuick health 分支 + RunHealthCheck)。
+- **验证**：`dotnet build` 0 错误；run 14s 存活；**端到端验证**：真实指标 → AI 专业巡检报告（资源水位表格 + 磁盘 88% 告警 + mysqld OOM 风险 + 服务异常，⚠️ 标注）。推送 30a4842。
+- **🎯 对照 apple 护城河 Z3 健康巡检，windows 一键真闭环**：取真实指标 + AI 专业诊断，无需手动输入。windows 智能运维护城河能力更深（Z3 巡检从「预填提问」→「一键真闭环」）。下一步 linux 一键巡检对齐 / linux SSH 复用。

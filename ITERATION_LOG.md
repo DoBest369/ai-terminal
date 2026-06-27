@@ -6,6 +6,14 @@
 
 ---
 
+## linux 状态条真实本机负载（读 /proc/loadavg，真实系统指标）🎯
+- **内容**：linux `read_loadavg()` 读 `/proc/loadavg` 取 1/5/15 分钟负载；终端区状态条「负载」从 mock「0.82」→ 真实本机负载（真 Linux）；非 Linux / 读失败回退占位。
+- **改动**：`linux/src/main.rs`(read_loadavg + 状态条真实负载)。
+- **验证**：`cargo build` **0 error/warning**（0.57s 增量，带 proxy，build 通过后提交）。mac 上 /proc 不存在→回退占位，真 Linux 显真实负载。推送 2029640。
+- **意义**：linux 真实系统指标第一步——状态条负载从 mock → 真实读 /proc/loadavg。继 TCP 探测后，本地状态采集也真实化。下一步可扩展 /proc/meminfo（内存）/proc/stat（CPU）。
+
+---
+
 ## CHANGELOG 阶段19（真实逻辑接入 + AI 配置五端对齐）+ 质量收口
 - **质量基线**：apple swift build + **8 自测全 true 无回归**；linux cargo Finished；PARITY **103 项 ✅✅**。
 - **CHANGELOG 阶段19**：windows/linux 真实逻辑接入（真实 TCP 探测双端 + 探测中三态 UX + windows ConnItem observable class）+ AI 配置能力五端完整对齐（API Key/模型/Base URL/系统提示词）。

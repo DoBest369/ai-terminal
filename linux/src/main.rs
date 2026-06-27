@@ -66,6 +66,21 @@ fn read_loadavg() -> Option<String> {
     if parts.len() == 3 { Some(parts.join(" ")) } else { None }
 }
 
+/// 读本机真实内存占用（/proc/meminfo：(已用GB, 总GB, 占用%)；非 Linux/读失败返回 None）
+fn read_mem() -> Option<(f64, f64, u8)> {
+    let s = std::fs::read_to_string("/proc/meminfo").ok()?;
+    let kb = |key: &str| -> Option<f64> {
+        s.lines().find(|l| l.starts_with(key))?
+            .split_whitespace().nth(1)?.parse::<f64>().ok()
+    };
+    let total = kb("MemTotal:")?;
+    let avail = kb("MemAvailable:")?;
+    if total <= 0.0 { return None; }
+    let used = total - avail;
+    let pct = ((used / total) * 100.0).round() as u8;
+    Some((used / 1024.0 / 1024.0, total / 1024.0 / 1024.0, pct))
+}
+
 /// TCP 可达性探测（真实逻辑第一步，std::net 无需额外依赖）：connect_timeout 2s
 fn probe_tcp(host: &str, port: u16) -> bool {
     use std::net::ToSocketAddrs;
@@ -349,7 +364,11 @@ impl eframe::App for TermindApp {
                     ui.colored_label(TEXT_SECONDARY, "CPU");
                     ui.add(egui::ProgressBar::new(0.47).desired_width(54.0).text("47%").fill(usage_color(47)));
                     ui.colored_label(TEXT_SECONDARY, "内存");
-                    ui.add(egui::ProgressBar::new(0.56).desired_width(54.0).text("56%").fill(usage_color(56)));
+                    // 真实本机内存（/proc/meminfo）；非 Linux/读失败回退占位
+                    let (mem_used, mem_total, mem_pct) = read_mem().unwrap_or((9.0, 16.0, 56));
+                    ui.add(egui::ProgressBar::new(mem_pct as f32 / 100.0).desired_width(54.0)
+                        .text(format!("{}%", mem_pct)).fill(usage_color(mem_pct)))
+                        .on_hover_text(format!("{:.1} / {:.1} GB", mem_used, mem_total));
                     // 真实本机负载（/proc/loadavg）；非 Linux/读失败回退占位
                     let load = read_loadavg().unwrap_or_else(|| "0.82 0.45 0.30".to_string());
                     ui.colored_label(TEXT_SECONDARY, format!("负载 {}", load));

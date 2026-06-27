@@ -3547,3 +3547,11 @@
 - **改动**：`Assets/Fonts/JetBrainsMono-Regular.ttf`(新增)、`TermindWindows.csproj`、`App.axaml`、`MainWindow.axaml`(22 处字体)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 存活无崩溃；截图确认 JetBrains Mono 渲染清晰。推送 46f35ef。
 - **意义**：U4 字体库起步。下一步 linux 引入 JetBrains Mono（egui 加载 ttf）+ 字号可调推广。
+
+---
+
+## U4 字体库双端：linux 引入 JetBrains Mono
+- **内容**：linux 嵌入 `JetBrainsMono-Regular.ttf` 到 `linux/assets`；`setup_fonts` 用 `include_bytes!` 加载，设为 egui `Monospace` 首选 + `Proportional` 兜底；eframe 启动 `cc.egui_ctx.set_fonts`。终端/代码等宽区用 JetBrains Mono，对照 windows。
+- **改动**：`linux/assets/JetBrainsMono-Regular.ttf`(新增)、`linux/src/main.rs`(setup_fonts + main cc)。
+- **验证**：`cargo build` **0 error/warning**（1.40s，字体嵌入，带 proxy）。推送 972e068。
+- **🎯 字体库 windows/linux 双端对齐**：都用 JetBrains Mono 好看等宽字体。下一步字号可调（U4 余项）+ U1 图标继续 / U3 主题可调。

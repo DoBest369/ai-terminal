@@ -280,6 +280,13 @@ public partial class MainWindow : Window
                 StatusDisk.Text = $"磁盘 {diskPct}%"; StatusDiskBar.Width = 54.0 * System.Math.Clamp(diskPct, 0, 100) / 100;
                 StatusDiskBar.Background = Brush.Parse(diskPct > 80 ? "#F85149" : diskPct > 60 ? "#F59E0B" : "#3FB950");
                 StatusLoad.Text = $"负载 {load}";
+                // 指标超阈值告警（>90% 预警，运维主动发现风险）
+                var alerts = new System.Collections.Generic.List<string>();
+                if (cpuPct > 90) alerts.Add($"CPU {cpuPct}%");
+                if (memPct > 90) alerts.Add($"内存 {memPct}%");
+                if (diskPct > 90) alerts.Add($"磁盘 {diskPct}%");
+                StatusAlert.IsVisible = alerts.Count > 0;
+                if (alerts.Count > 0) StatusAlertText.Text = $"⚠ {string.Join(" / ", alerts)}";
                 // 服务状态点真实填充（绿=active / 灰=非）
                 StatusServices.Children.Clear();
                 foreach (var s in svcs)

@@ -1197,6 +1197,15 @@ impl eframe::App for TermindApp {
                         .text(format!("{}%", disk_pct)).fill(usage_color(disk_pct)))
                         .on_hover_text("选中服务器根分区使用率（df /）");
                     ui.colored_label(TEXT_SECONDARY(), format!("负载 {}", load));
+                    // 指标超阈值告警（>90% 预警，运维主动发现风险，对照 windows）
+                    let mut alerts = Vec::new();
+                    if cpu_pct > 90 { alerts.push(format!("CPU {}%", cpu_pct)); }
+                    if mem_pct > 90 { alerts.push(format!("内存 {}%", mem_pct)); }
+                    if disk_pct > 90 { alerts.push(format!("磁盘 {}%", disk_pct)); }
+                    if !alerts.is_empty() {
+                        egui::Frame::default().fill(egui::Color32::from_rgba_unmultiplied(0xF8, 0x51, 0x49, 0x33)).rounding(4.0).inner_margin(egui::vec2(6.0, 2.0))
+                            .show(ui, |ui| { ui.colored_label(egui::Color32::from_rgb(0xF8, 0x51, 0x49), format!("⚠ {}", alerts.join(" / "))); });
+                    }
                     // 关键服务真实运行状态点 + 服务管理（点击 menu 启停/重启，对照 windows/apple Z6）
                     let mut svc_action: Option<(String, String)> = None;
                     if !self.services.is_empty() {

@@ -5,6 +5,15 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 46 — 状态条实时监控 + 服务管理双端（2026-06-28）
+
+状态条从真实只读 → 实时监控 + 服务运维操作，护城河从「看」到「管」。
+
+- **指标定时自动刷新（windows/linux）**：每 30s SSH 重取状态条指标（windows DispatcherTimer / linux ctx.input time + last_refresh + request_repaint_after），实时反映远程服务器，非只连接切换时刷。
+- **服务管理（windows/linux）**：状态条服务点点击 → menu（重启/启动/停止）→ SSH `systemctl` 真实执行 → 终端回显结果 + 刷新状态点；stop/restart 橙色警示（影响线上服务）。windows MenuFlyout + PointerPressed，linux egui menu_button。
+- **意义**：状态条进化为实时真实监控 + 服务管理面板，护城河深化（点服务点即可启停/重启真实服务）。windows/linux 双端对齐。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，912 提交。
+
 ## 阶段 45 — 🎯 状态条彻底去 mock（全真实 SSH 指标，2026-06-28）
 
 windows/linux 状态条从混合 mock/本机指标 → 全部真实 SSH 取选中远程服务器数据。

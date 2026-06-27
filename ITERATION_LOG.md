@@ -6,6 +6,14 @@
 
 ---
 
+## windows AI 快捷追问点击→填入 AI 输入框（双端 AI 追问可用）
+- **内容**：windows AI 追问 chip 从 Border 动作（重新生成/存为方案）→ Button 追问问题（如何排查？/给我具体命令/有什么风险？），Click=OnQuickAsk → 填入 `AiInput.Text` + 聚焦。AiInput 加 x:Name，对照 linux。
+- **改动**：`MainWindow.axaml`(AI 追问 Button + AiInput x:Name)、`MainWindow.axaml.cs`(OnQuickAsk)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）。推送 7aa9674。
+- **意义**：windows/linux 双端 AI 追问可用（点追问→填入 AI 输入框）。windows/linux 双区交互闭环（终端快捷命令 + AI 快捷追问 都可点击填入），交互体验对齐 apple/android。
+
+---
+
 ## linux AI 快捷追问点击→填入 AI 输入框（深化 AI 交互）
 - **内容**：linux AI 快捷追问 chip 从动作按钮（重新生成/存为方案）→ 追问问题（如何排查？/给我具体命令/有什么风险？），`clicked()` → 填入 `self.ai_input`。对照快捷命令交互模式，AI 追问真正可用。
 - **改动**：`linux/src/main.rs`(AI 追问 chip + clicked 填入 ai_input)。

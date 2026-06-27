@@ -494,14 +494,15 @@ fn server_card(ui: &mut egui::Ui, c: &ServerConn, selected: bool) -> egui::Respo
                         ui.colored_label(TEXT_SECONDARY.linear_multiply(0.8), format!("上次使用 · {}", c.last_used));
                     }
                 });
-                // 右侧可达指示（探测中 ⏳ / 可达 ✓ / 不可达 ✕，真实 TCP 探测）
+                // 右侧可达指示（探测中 / 可达 / 不可达，真实 TCP 探测；phosphor 矢量图标）
+                use egui_phosphor::regular as ph;
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if !c.probed {
-                        ui.colored_label(TEXT_SECONDARY.linear_multiply(0.7), "⏳");
+                        ui.colored_label(TEXT_SECONDARY.linear_multiply(0.7), ph::CIRCLE_DASHED);
                     } else if c.online {
-                        ui.colored_label(SUCCESS, egui::RichText::new("✓").strong());
+                        ui.colored_label(SUCCESS, egui::RichText::new(ph::CHECK_CIRCLE).strong());
                     } else {
-                        ui.colored_label(TEXT_SECONDARY, "✕");
+                        ui.colored_label(TEXT_SECONDARY, ph::X_CIRCLE);
                     }
                 });
             });

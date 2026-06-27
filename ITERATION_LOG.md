@@ -4484,3 +4484,11 @@
 - **改动**：`MainWindow.axaml`(搜索框 x:Name + PathIcon)、`MainWindow.axaml.cs`(OnSearchConn)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 d6cc81e。
 - **意义**：windows 连接搜索过滤（连接多时快速查找）+ 顺带清理搜索框 emoji（U1）。下一步 终端搜索 / AI 多会话 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段43 主题更彻底+连接搜索
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；890 提交。五端 build 全绿。
+- **CHANGELOG 阶段43**：U3 主题切换更彻底（windows 6 色位）+ 连接搜索过滤（windows，名称/地址/备注）。
+- **改动**：`CHANGELOG.md`(阶段43)。
+- **意义**：CHANGELOG 至阶段43。用户全部需求实现后持续打磨细节（主题彻底、连接搜索）。Termind 全平台真实智能运维工作台日臻完善，质量基线持续扎实。

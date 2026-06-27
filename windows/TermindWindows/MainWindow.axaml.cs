@@ -497,7 +497,11 @@ public partial class MainWindow : Window
         return _envCache;
     }
 
+    private Renci.SshNet.SshClient? _sshClient;   // 复用的持久 SSH 会话（避免每次 exec 重连）
+    private readonly object _sshLock = new();
+
     /// 真实 SSH exec（S1：连真实服务器，SSH.NET）；密码从环境变量 TERMIND_SSH_PASS（不硬编码）
+    /// 复用持久 Session：连接+握手+认证只在首次或断线后做，多命令/Auto 闭环显著提速
     private async Task<string> SshExecAsync(string cmd)
     {
         var host = System.Environment.GetEnvironmentVariable("TERMIND_SSH_HOST") ?? "47.85.19.31";
@@ -506,17 +510,28 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(pass)) return "⚠️ 未配置 SSH 密码（环境变量 TERMIND_SSH_PASS）";
         return await Task.Run(() =>
         {
-            try
+            lock (_sshLock)
             {
-                using var client = new Renci.SshNet.SshClient(host, 22, user, pass);
-                client.Connect();
-                using var c = client.RunCommand(cmd);
-                client.Disconnect();
-                var outp = c.Result ?? "";
-                if (!string.IsNullOrEmpty(c.Error)) outp += c.Error;
-                return outp.Length == 0 ? "(无输出)" : outp.TrimEnd();
+                try
+                {
+                    // 未连接或已断线 → 建立/重建会话（断线重连）
+                    if (_sshClient == null || !_sshClient.IsConnected)
+                    {
+                        _sshClient?.Dispose();
+                        _sshClient = new Renci.SshNet.SshClient(host, 22, user, pass);
+                        _sshClient.Connect();
+                    }
+                    using var c = _sshClient.RunCommand(cmd);
+                    var outp = c.Result ?? "";
+                    if (!string.IsNullOrEmpty(c.Error)) outp += c.Error;
+                    return outp.Length == 0 ? "(无输出)" : outp.TrimEnd();
+                }
+                catch (System.Exception ex)
+                {
+                    _sshClient?.Dispose(); _sshClient = null;   // 重置以便下次干净重连
+                    return "⚠️ SSH 失败：" + ex.Message;
+                }
             }
-            catch (System.Exception ex) { return "⚠️ SSH 失败：" + ex.Message; }
         });
     }
 

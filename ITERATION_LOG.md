@@ -6,6 +6,14 @@
 
 ---
 
+## linux 真实 TCP 可达性探测（真实逻辑第一步，非 mock）🎯
+- **内容**：linux `probe_tcp(host, port)` 用 `std::net::TcpStream::connect_timeout`（2s）真实探测；`TermindApp::default` 启动后台线程并发探测每个连接，`mpsc::channel` 回传；`update` 开头 try_recv 应用结果更新 `conn.online`（真实可达性）。连接卡片 online 状态从 mock → 真实 TCP 探测结果。低频重绘（500ms）接收后台线程结果。
+- **改动**：`linux/src/main.rs`(probe_tcp + reach_rx channel + 后台线程探测 + update 应用)。
+- **验证**：`cargo build` **0 error/warning**（0.64s 增量，带 proxy，build 通过后提交）。推送 d2e2c6c。
+- **意义**：**真实逻辑接入阶段第一步落地**——linux 连接可达性从 mock bool → 真实 TCP 探测（std::net 无需额外依赖）。下一步可扩展真实 SSH（ssh2 依赖已在 Cargo.toml）。windows/linux 从「真实交互 + mock 数据」向「真实数据」推进。
+
+---
+
 ## ROADMAP 全平台对齐节点达成 + 真实交互阶段
 - **内容**：ROADMAP「全平台对齐节点」从 `[ ]`（进行中，linux Rust 装中 / windows Avalonia 待建）→ `[x]` 达成（**五端本机编译全打通** + windows/linux 全功能区 UI + 真实交互，68 项 UI 现代化）。新增「真实逻辑接入节点」作为下一阶段（windows/linux mock → 真实 SSH/AI）。迭代日志加「五端真实交互阶段」摘要。
 - **改动**：`ROADMAP.md`(节点状态 + 下一阶段 + 迭代日志摘要)。

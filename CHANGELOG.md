@@ -199,6 +199,15 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 27 — windows 全模块真实化：连接管理 + SFTP（2026-06-27）
+
+windows 端从「能编译的 mock UI」打磨到全模块真实（连接、终端、AI 运维、SFTP 都接真实 SSH/AI）。
+
+- **连接管理完整闭环（windows）**：连接列表（分组+TCP 可达探测）→ 新建连接（工具栏填表 name/host/user/port）→ 持久化（用户连接存 AppData 跨重启恢复）→ 选中切换驱动 SSH 目标 → 在选中主机真实执行命令/巡检/报错。
+- **SFTP 真实文件浏览（windows）**：SFTP 面板 SSH `ls -la` 取选中连接 home 真实文件，解析权限（d=目录）/大小/日期/名，动态渲染（目录蓝/文件灰图标），SftpPath 显真实 pwd。
+- **windows 端真实化总览**：真实 AI（HttpClient 流式 nexcores）+ 真实 SSH（SSH.NET Session 复用）+ 三模式 Auto 闭环 + 护城河 Z1-Z3 一键真闭环 + 风险四级 + 真实连接管理 + 真实 SFTP，全模块不再有 mock。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，785 提交。
+
 ## 阶段 26 — 真实连接管理 + 配置/交互细节双端对齐（2026-06-27）
 
 S7 深化打磨继续，把真实连接管理在 windows/linux 落地，AI 配置/交互细节双端对齐。

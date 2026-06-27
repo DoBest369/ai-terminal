@@ -236,12 +236,20 @@ impl eframe::App for TermindApp {
                         ui.colored_label(SUCCESS, egui::RichText::new("tail -n 50 /var/log/nginx/error.log").monospace());
                     });
                 });
-                // 用户回车追加的提问气泡（对照终端命令回车交互）
+                // 用户回车追加的提问气泡 + 占位 AI 回复（对照终端命令回车交互）
                 for msg in &self.ai_msgs {
                     ui.add_space(6.0);
                     ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());
                     egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
                         .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, msg); });
+                    ui.add_space(4.0);
+                    // 占位 AI 回复（后续接真实 AI 流式回复）
+                    ui.horizontal(|ui| {
+                        ui.colored_label(ACCENT, egui::RichText::new("✦").size(10.0));
+                        ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
+                    });
+                    egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0)
+                        .show(ui, |ui| { ui.colored_label(TEXT_SECONDARY, "已收到，正在结合服务器环境分析…（接入 API Key 后回复）"); });
                 }
                 ui.add_space(10.0);
                 // 快捷追问 chips（点击填入 AI 输入框，对照 apple/windows AI 面板 + 快捷命令交互）

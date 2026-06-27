@@ -121,7 +121,7 @@ struct ServerConn {
 
 fn demo_conns() -> Vec<ServerConn> {
     vec![
-        ServerConn { name: "生产 Web 01", host: "web01.example.com", user: "deploy", port: 22, group: "生产环境", online: true, probed: false, note: "官网 + API", last_used: "5 分钟前" },
+        ServerConn { name: "测试服务器", host: "47.85.19.31", user: "root", port: 22, group: "生产环境", online: true, probed: false, note: "Ubuntu 测试机", last_used: "5 分钟前" },
         ServerConn { name: "数据库主机", host: "db.internal.net", user: "admin", port: 22, group: "生产环境", online: true, probed: false, note: "MySQL 主库", last_used: "1 小时前" },
         ServerConn { name: "开发机", host: "dev.example.com", user: "deploy", port: 2222, group: "开发环境", online: false, probed: false, note: "", last_used: "" },
     ]
@@ -199,7 +199,7 @@ fn ssh_exec(host: &str, port: u16, user: &str, pass: &str, cmd: &str) -> String 
 fn fetch_server_env() -> String {
     let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
     if pass.is_empty() { return String::new(); }
-    let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
+    let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());  // 独立函数：环境感知用 env/默认
     let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
     let probe = "echo 系统:$(uname -sr); echo CPU核数:$(nproc); \
         echo 内存:$(free -m 2>/dev/null|awk '/Mem:/{print $3\"/\"$2\"MB\"}'); \
@@ -304,6 +304,16 @@ fn sftp_demo() -> Vec<(&'static str, bool, &'static str, &'static str)> {
 }
 
 impl TermindApp {
+    /// 当前 SSH 执行目标（选中连接 > env > 默认测试机，对照 windows _activeHost）
+    fn ssh_target(&self) -> (String, String) {
+        if let Some(c) = self.selected.and_then(|i| self.conns.get(i)) {
+            (c.host.to_string(), c.user.to_string())
+        } else {
+            (std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string()),
+             std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string()))
+        }
+    }
+
     /// 一键健康巡检（Z3，对照 windows RunHealthCheck）：后台线程 SSH 取真实指标 → AI 分析 → ai_rx 回
     fn run_health_check(&mut self) {
         if self.ai_busy { return; }
@@ -313,13 +323,12 @@ impl TermindApp {
             return;
         }
         self.ai_busy = true;
+        let (host, user) = self.ssh_target();   // 选中连接驱动 SSH 目标
         let (base, key, sys, tx) = (self.base_url.clone(), self.api_key.clone(), self.sys_prompt.clone(), self.ai_tx.clone());
         std::thread::spawn(move || {
             // SSH 取真实指标（负载/内存/磁盘/CPU Top5/服务状态）
             let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
             let metrics = if pass.is_empty() { String::new() } else {
-                let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
-                let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
                 ssh_exec(&host, 22, &user, &pass,
                     "echo '== 负载 =='; uptime; echo '== 内存 =='; free -h; echo '== 磁盘 =='; df -h; \
                      echo '== CPU Top5 =='; ps -eo pid,%cpu,%mem,comm --sort=-%cpu | head -6; \
@@ -343,13 +352,12 @@ impl TermindApp {
             return;
         }
         self.ai_busy = true;
+        let (host, user) = self.ssh_target();   // 选中连接驱动 SSH 目标
         let (base, key, sys, tx) = (self.base_url.clone(), self.api_key.clone(), self.sys_prompt.clone(), self.ai_tx.clone());
         std::thread::spawn(move || {
             // SSH 取系统错误日志（journalctl 优先，回退 dmesg）+ 失败服务
             let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
             let logs = if pass.is_empty() { String::new() } else {
-                let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
-                let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
                 ssh_exec(&host, 22, &user, &pass,
                     "echo '== 最近错误日志 =='; journalctl -p err -n 40 --no-pager 2>/dev/null | tail -40 || dmesg -l err,crit 2>/dev/null | tail -40; \
                      echo '== 失败的服务 =='; systemctl --failed --no-pager 2>/dev/null | head -15")
@@ -385,6 +393,8 @@ impl TermindApp {
 
 impl eframe::App for TermindApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // 当前 SSH 执行目标（选中连接驱动，对照 windows _activeHost）；本帧各命令执行用
+        let (active_host, active_user) = self.ssh_target();
         // 应用后台 TCP 探测结果（真实可达性）→ 更新连接 online 状态
         while let Ok((i, ok)) = self.reach_rx.try_recv() {
             if let Some(c) = self.conns.get_mut(i) { c.online = ok; c.probed = true; }
@@ -402,8 +412,7 @@ impl eframe::App for TermindApp {
                         self.term_lines.push(format!("$ {}", cmd));
                         let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
                         if !pass.is_empty() {
-                            let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
-                            let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
+                            let (host, user) = (active_host.clone(), active_user.clone());
                             let (tx, c) = (self.term_tx.clone(), cmd.clone());
                             std::thread::spawn(move || {
                                 let start = std::time::Instant::now();
@@ -624,8 +633,7 @@ impl eframe::App for TermindApp {
                     self.term_lines.push(format!("$ {}", cmd));
                     let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
                     if !pass.is_empty() {
-                        let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
-                        let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
+                        let (host, user) = (active_host.clone(), active_user.clone());
                         let (tx, c) = (self.term_tx.clone(), cmd);
                         std::thread::spawn(move || { let _ = tx.send(ssh_exec(&host, 22, &user, &pass, &c)); });
                     }
@@ -865,8 +873,7 @@ impl eframe::App for TermindApp {
                             if pass.is_empty() {
                                 self.term_lines.push("⚠️ 未配置 SSH 密码（环境变量 TERMIND_SSH_PASS）".to_string());
                             } else {
-                                let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
-                                let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
+                                let (host, user) = (active_host.clone(), active_user.clone());
                                 let (tx, c) = (self.term_tx.clone(), cmd.clone());
                                 std::thread::spawn(move || {
                                 let start = std::time::Instant::now();

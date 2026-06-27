@@ -4243,3 +4243,11 @@
 - **ROADMAP S9**：batch 批量运维移植完成。待办：连接编辑 / SFTP 上传 mkdir / 主题切换 U3。
 - **改动**：`CHANGELOG.md`(阶段33)、`ROADMAP.md`(S9)。
 - **意义**：CHANGELOG 至阶段33。windows/linux 护城河能力与 apple/android 完全一致（命令解释/报错分析/健康巡检/风险分级/批量运维）。智能运维全平台落地彻底完成且能力对齐。
+
+---
+
+## windows SFTP 新建目录（输入名→mkdir+刷新，对照 apple sftpMakeDirectory）
+- **内容**：windows SFTP 面板加新建目录行（TextBox + 新建按钮）→ OnMkdir：ssh mkdir -p 当前目录下 → 刷新 LoadSftp；终端显进度/结果；路径单引号防注入。
+- **改动**：`MainWindow.axaml`(新建目录行)、`MainWindow.axaml.cs`(OnMkdir)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 56c89a1。
+- **意义**：windows SFTP 写操作再扩展（下载/删除/新建目录），对照 apple sftpMakeDirectory。windows SFTP 能力进一步靠拢 apple 标杆（浏览/导航/预览/下载/删除/新建目录）。下一步 linux SFTP 新建目录 / 连接编辑 / 质量收口。

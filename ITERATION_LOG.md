@@ -4318,3 +4318,11 @@
 - **ROADMAP S9**：SFTP 深化完成（文件操作全覆盖双端 + ANSI 彩色）。剩余打磨项：连接编辑/主题切换 U3/android iOS SFTP 增强。
 - **改动**：`CHANGELOG.md`(阶段36)、`ROADMAP.md`(S9)、截图归档。
 - **意义**：里程碑——windows/linux 双端功能完整度达 apple 标杆。智能运维全平台落地从「核心能力」到「护城河」到「全模块体验」彻底完成。Termind 全平台真实智能运维工作台成熟。
+
+---
+
+## windows 终端字号可调 A-/A+（U4 用户要求字号可调）
+- **内容**：windows 状态条右侧加 A-/A+ 字号按钮 → SetTermFont：_termFontSize 调整（clamp 9-22）+ 更新所有现有终端行 + 新行用新字号；AppendTerm 用 _termFontSize。
+- **改动**：`MainWindow.axaml`(状态条字号控制)、`MainWindow.axaml.cs`(_termFontSize + OnFontSmaller/Larger + SetTermFont)。
+- **验证**：`dotnet build` 0 错误；run 存活 + 截图确认字号控制。推送 64b7be5。
+- **意义**：响应用户 U4「字号可调」要求——windows 终端字号 A-/A+ 实时调整。下一步 linux 终端字号 / 连接编辑 / 主题切换 U3。

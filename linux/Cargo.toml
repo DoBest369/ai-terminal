@@ -20,5 +20,7 @@ ssh2 = "0.9"
 ureq = { version = "2.9", features = ["json"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-# SFTP 文件下载：base64 解码（经 SSH 传输内容）
+# SFTP 文件下载/上传：base64 解/编码（经 SSH 传输内容）
 base64 = "0.22"
+# SFTP 上传：原生文件选择对话框（对照 windows StorageProvider）
+rfd = "0.14"

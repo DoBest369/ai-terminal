@@ -382,6 +382,28 @@ impl TermindApp {
         });
     }
 
+    /// SFTP 文件上传（对照 windows OnSftpUpload / apple sftpUpload）：rfd 选本地文件→base64→ssh 写远程
+    fn run_sftp_upload(&mut self) {
+        let Some(local) = rfd::FileDialog::new().set_title("上传到当前目录").pick_file() else { return; };
+        let fname = local.file_name().and_then(|n| n.to_str()).unwrap_or("upload").to_string();
+        let bytes = match std::fs::read(&local) { Ok(b) => b, Err(e) => { self.term_lines.push(format!("⚠️ 读文件失败：{}", e)); return; } };
+        if bytes.len() > 5_000_000 { self.term_lines.push(format!("# 上传 {}：文件 {}MB 过大（base64 经命令行限 5MB）", fname, bytes.len() / 1024 / 1024)); return; }
+        use base64::Engine;
+        let b64 = base64::engine::general_purpose::STANDARD.encode(&bytes);
+        let cwd = if self.sftp_path.is_empty() { "~".to_string() } else { self.sftp_path.clone() };
+        let remote = format!("{}/{}", cwd, fname).replace('\'', "");
+        self.term_lines.push(format!("# 上传 {} → {} …", fname, cwd));
+        let (host, user) = self.ssh_target();
+        let (tx, len) = (self.term_tx.clone(), bytes.len());
+        std::thread::spawn(move || {
+            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+            if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+            let r = ssh_exec(&host, 22, &user, &pass, &format!("printf '%s' '{}' | base64 -d > '{}' && echo TERMIND_UP_OK", b64, remote));
+            let _ = tx.send(if r.contains("TERMIND_UP_OK") { format!("✓ 已上传（{} 字节）", len) } else { format!("✕ 上传失败：{}", r) });
+        });
+        self.run_sftp_ls(&cwd);
+    }
+
     /// SFTP 文件重命名（对照 windows / apple sftpRename）：ssh mv 原→同目录新名 + 刷新
     fn run_sftp_rename(&mut self) {
         let new = self.new_dir_name.trim().to_string();
@@ -753,19 +775,26 @@ impl eframe::App for TermindApp {
             .show(ctx, |ui| {
                 let path = if self.sftp_path.is_empty() { "~".to_string() } else { self.sftp_path.clone() };
                 ui.colored_label(TEXT_SECONDARY, egui::RichText::new(&path).monospace());
-                // 新建目录 / 重命名（输入框复用；有 sftp_renaming 则重命名，对照 windows）
+                // 新建目录 / 重命名（输入框复用）+ 上传（rfd 选本地文件，对照 windows）
                 let mut trigger_mkdir = false;
+                let mut trigger_upload = false;
                 let renaming = self.sftp_renaming.is_some();
                 ui.horizontal(|ui| {
                     let hint = if renaming { "输入新名…" } else { "新建目录名…" };
-                    ui.add(egui::TextEdit::singleline(&mut self.new_dir_name).hint_text(hint).desired_width(180.0).font(egui::TextStyle::Monospace));
+                    ui.add(egui::TextEdit::singleline(&mut self.new_dir_name).hint_text(hint).desired_width(150.0).font(egui::TextStyle::Monospace));
                     let label = if renaming { "重命名" } else { "新建" };
                     if ui.add(egui::Button::new(egui::RichText::new(label).size(11.0).color(SUCCESS))
                         .fill(SUCCESS.linear_multiply(0.12)).rounding(6.0)).clicked() {
                         trigger_mkdir = true;
                     }
+                    let blue = egui::Color32::from_rgb(0x60, 0xA5, 0xFA);
+                    if ui.add(egui::Button::new(egui::RichText::new("上传").size(11.0).color(blue))
+                        .fill(blue.linear_multiply(0.12)).rounding(6.0)).on_hover_text("上传本地文件到当前目录").clicked() {
+                        trigger_upload = true;
+                    }
                 });
                 if trigger_mkdir { if renaming { self.run_sftp_rename(); } else { self.run_sftp_mkdir(); } }
+                if trigger_upload { self.run_sftp_upload(); }
                 ui.separator();
                 if self.sftp_loading { ui.colored_label(TEXT_SECONDARY, "加载中…"); }
                 else if self.sftp_files.is_empty() { ui.colored_label(TEXT_SECONDARY, "(空目录或未配置 SSH)"); }

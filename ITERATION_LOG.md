@@ -3692,3 +3692,11 @@
 - **改动**：`apple/App/Sources/AppModel.swift`(AIMode 枚举 + aiMode + runParsedCommands 三模式 + runPendingCommand)。
 - **验证**：swift build Build complete（SourceKit module 警告 IDE 误报不影响）。推送 9990c6c。
 - **🎯 AI 三模式五端对齐**：apple/windows/linux 都有 Chat/Agent/Auto 三模式（iOS 同 apple）。apple 基础最强（真实终端会话注入 injectCommand，比 windows/linux 的填入输入框更直接）。下一步 apple AIAgentView 三模式切换器 UI + pendingCommands 确认卡片 + Showcase 渲染。
+
+---
+
+## 🎯 apple AI 三模式切换器 UI + 待确认命令卡片 → 三模式 UI 五端对齐
+- **内容**：apple AIAgentView 顶部 `modeSwitcher`（Chat/Agent/Auto 三档，SF Symbols 图标 + hint + Theme 配色，绑 model.aiMode）；`pendingCommandsBar`（Agent 模式待确认命令逐条「执行」放行→runPendingCommand 注入真实终端，危险命令 ⚠ 橙标注）。
+- **改动**：`apple/App/Sources/Views/AIAgentView.swift`(modeSwitcher + pendingCommandsBar)。
+- **验证**：swift build Build complete（Theme 配色不写死 + SF Symbols 合规）。推送 6a154da。
+- **🎯 AI 三模式切换器 UI 五端对齐**：apple/windows/linux（+iOS 同 apple）AI 面板都有 Chat/Agent/Auto 三档切换器。apple 的待确认卡片「执行」直接注入真实终端会话（injectCommand），基础最强。**用户的 Chat/Agent/Auto 三模式设计五端完整落地（UI + 逻辑）**。下一步 apple Auto 自主闭环 / windows AI 代码块渲染。

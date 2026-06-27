@@ -4382,3 +4382,11 @@
 - **CHANGELOG 阶段39**：windows AI 字号可调（字号体系完整）+ U3 主题切换评估（linux 120 处颜色 const，全主题切换属大重构，记录后续专项）。
 - **改动**：`CHANGELOG.md`(阶段39)。
 - **意义**：CHANGELOG 至阶段39。UI 品质 U1/U2/U4 完整，U3 评估为后续专项（颜色 const 重构）。Termind 全平台真实智能运维工作台功能+UI品质成熟，持续打磨细节。
+
+---
+
+## 🎯 linux U3 主题切换（4 套主题实时切换，用户要求"配色可调像 VSCode"）
+- **内容**：linux const 颜色（BG/SURFACE/ACCENT/TEXT_*/SUCCESS/WARNING）→ Theme 结构体 + THEMES[4]（午夜/Dracula/Nord/Solarized）+ THEME_IDX 全局原子；大写函数 BG()/ACCENT() 等读当前主题（调用处仅加括号，perl 批量 120 处替换，BSD sed 不支持 \b 改用 perl + 负向前查避免双替换）；设置面板配色主题点击切换 THEME_IDX → 全窗主题实时生效。
+- **改动**：`linux/src/main.rs`(主题系统 + 120 处函数调用 + 设置切换)。
+- **验证**：`cargo build` **0 error/warning**（0.78s，带 proxy）。推送 b7931d5。
+- **🎯 U3 用户明确要求落地（linux 先行）**：「配色可调像 VSCode」——linux 4 套主题实时切换。下一步 windows U3 主题切换（颜色硬编码多，评估 DynamicResource）/ 主题持久化 / 连接编辑。

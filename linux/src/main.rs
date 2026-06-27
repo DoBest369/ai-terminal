@@ -32,6 +32,26 @@ fn is_dangerous(cmd: &str) -> bool {
         || c.contains(":(){") || c.contains("chmod -r 777") || c.contains("iptables -f")
 }
 
+/// 渲染 AI 回复：```代码块→等宽代码框，正文→普通文本（对照 windows RenderAiReply）
+fn render_ai_reply(ui: &mut egui::Ui, text: &str) {
+    for (i, seg) in text.split("```").enumerate() {
+        if i % 2 == 1 {
+            // 代码块：去首行语言标识
+            let code = match seg.split_once('\n') {
+                Some((lang, rest)) if lang.trim().len() < 12 && !lang.contains(' ') => rest,
+                _ => seg,
+            }.trim();
+            if !code.is_empty() {
+                egui::Frame::default().fill(egui::Color32::from_rgb(0x05, 0x06, 0x0C)).rounding(6.0).inner_margin(8.0)
+                    .show(ui, |ui| { ui.colored_label(SUCCESS, egui::RichText::new(code).monospace()); });
+            }
+        } else {
+            let body = seg.trim();
+            if !body.is_empty() { ui.colored_label(TEXT_PRIMARY, body); }
+        }
+    }
+}
+
 /// 解析 AI 回复里的 [EXECUTE]cmd[/EXECUTE]，返回命令列表
 fn parse_execute(reply: &str) -> Vec<String> {
     let mut cmds = Vec::new();
@@ -485,7 +505,7 @@ impl eframe::App for TermindApp {
                             ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
                         });
                         egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0)
-                            .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, text); });
+                            .show(ui, |ui| { render_ai_reply(ui, text); });
                     }
                 }
                 if self.ai_busy {

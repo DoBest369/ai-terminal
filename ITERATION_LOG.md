@@ -3958,3 +3958,11 @@
 - **改动**：`MainWindow.axaml`(导出按钮)、`MainWindow.axaml.cs`(OnExportChat)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 4bb8af6。
 - **意义**：windows 运维对话可导出 Markdown 存档/分享（对照 apple ai-md-test）。windows AI 面板功能完整（三模式/清空/导出/运维快捷入口/代码块/流式/填入终端）。下一步 linux 对话导出对齐 / apple Auto 闭环 / windows 真实连接管理。
+
+---
+
+## linux AI 对话导出 Markdown（对照 windows/apple，双端对齐）
+- **内容**：linux 清空按钮旁加导出按钮（EXPORT phosphor）→ export_chat：ai_msgs 转 Markdown（你/AI 分节）写 $HOME/termind-chat-N.md；trigger_export 标志循环外执行；空对话/失败提示入对话。
+- **改动**：`linux/src/main.rs`(export_chat + 导出按钮)。
+- **验证**：`cargo build` 0 error/warning（0.71s，带 proxy）。推送 25d1d4f。
+- **意义**：AI 对话导出 windows/linux 双端对齐（运维对话可存档/分享）。linux AI 面板功能对齐 windows（三模式/清空/导出/运维快捷入口 Z1-Z3/代码块/Z3 巡检/Z2 报错/命令填入/风险四级）。下一步 apple Auto 闭环 / CHANGELOG 阶段24。

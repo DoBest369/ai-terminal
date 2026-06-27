@@ -6,6 +6,14 @@
 
 ---
 
+## linux 状态条真实本机运行时长（读 /proc/uptime）
+- **内容**：linux `read_uptime()` 读 `/proc/uptime` 格式化「X天Y时」；状态条负载后显真实运行时长（真 Linux）；非 Linux 跳过（不显示，不占位）。
+- **改动**：`linux/src/main.rs`(read_uptime + 状态条运行时长)。
+- **验证**：`cargo build` **0 error/warning**（0.54s 增量，带 proxy，build 通过后提交）。推送 6187403。
+- **🎯 linux 真实系统指标三项**：负载（/proc/loadavg）+ 内存（/proc/meminfo）+ 运行时长（/proc/uptime）都真实采集。linux 端本机状态采集真实化基本完整（仅 CPU% 需采样留后续）。
+
+---
+
 ## linux 状态条真实本机内存（读 /proc/meminfo，真实系统指标）
 - **内容**：linux `read_mem()` 读 `/proc/meminfo` 算 MemTotal/MemAvailable → (已用 GB, 总 GB, 占用%)；状态条内存进度条从 mock 56% → 真实占用%（hover 显 x.x/y.y GB，颜色按 usage_color 绿/橙/红）；非 Linux/读失败回退占位。
 - **改动**：`linux/src/main.rs`(read_mem + 状态条真实内存)。

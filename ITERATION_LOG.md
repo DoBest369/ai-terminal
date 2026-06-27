@@ -6,6 +6,14 @@
 
 ---
 
+## linux 状态条真实本机内存（读 /proc/meminfo，真实系统指标）
+- **内容**：linux `read_mem()` 读 `/proc/meminfo` 算 MemTotal/MemAvailable → (已用 GB, 总 GB, 占用%)；状态条内存进度条从 mock 56% → 真实占用%（hover 显 x.x/y.y GB，颜色按 usage_color 绿/橙/红）；非 Linux/读失败回退占位。
+- **改动**：`linux/src/main.rs`(read_mem + 状态条真实内存)。
+- **验证**：`cargo build` **0 error/warning**（0.55s 增量，带 proxy，build 通过后提交）。推送 b34508e。
+- **意义**：linux 真实系统指标扩展——负载（/proc/loadavg）+ 内存（/proc/meminfo）都真实采集。本机状态从 mock → 真实数据持续推进。下一步 CPU（/proc/stat 两次采样）。
+
+---
+
 ## linux 状态条真实本机负载（读 /proc/loadavg，真实系统指标）🎯
 - **内容**：linux `read_loadavg()` 读 `/proc/loadavg` 取 1/5/15 分钟负载；终端区状态条「负载」从 mock「0.82」→ 真实本机负载（真 Linux）；非 Linux / 读失败回退占位。
 - **改动**：`linux/src/main.rs`(read_loadavg + 状态条真实负载)。

@@ -3837,3 +3837,11 @@
 - **改动**：`windows/MainWindow.axaml`、`linux/src/main.rs`(快捷命令栏)。
 - **验证**：windows dotnet build 0 错误 + run 14s 存活 + 截图确认；linux cargo build 0 error。推送 ef9f95e。
 - **意义**：终端快捷命令栏 windows/linux 双端对齐（磁盘/内存/进程/网络/日志/服务一键填入）。运维常用诊断命令触手可及。下一步 linux SSH 复用 / 健康巡检一键 / AI 命令复制。
+
+---
+
+## windows 命令执行耗时显示（运维参考）
+- **内容**：windows ExecuteCommand 用 Stopwatch 计时，结果后显示「✓/✕ 耗时 Xms」（成功灰/失败橙）；命令慢可作资源/网络问题排查参考。
+- **改动**：`MainWindow.axaml.cs`(ExecuteCommand 计时显示)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 0af0cbf。
+- **意义**：终端命令执行带耗时反馈（运维参考，SSH 复用后能看出提速效果）。下一步 linux SSH 复用 / 健康巡检一键 / AI 命令复制。

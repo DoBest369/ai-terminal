@@ -136,14 +136,48 @@ public partial class MainWindow : Window
     {
         if (sender is not Button b || b.Tag is not string tag) return;
         if (tag == "health") { RunHealthCheck(); return; }
+        if (tag == "error") { RunErrorAnalysis(); return; }
         AiInput.Text = tag switch
         {
             "explain" => "解释这条命令的作用、参数含义和潜在风险：",
-            "error" => "分析这段报错/日志，按 现象 → 可能原因 → 修复步骤 给出诊断：",
             _ => ""
         };
         AiInput.Focus();
         AiInput.CaretIndex = AiInput.Text.Length;
+    }
+
+    /// 一键报错分析（Z2）：SSH 取最近错误日志 → AI 诊断（现象→原因→修复）真闭环
+    private async void RunErrorAnalysis()
+    {
+        AiMessages.Children.Add(new TextBlock { Text = "你", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right });
+        AiMessages.Children.Add(new Border
+        {
+            Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260,
+            Child = new TextBlock { Text = "一键分析最近报错", Foreground = Brush.Parse("#FFFFFF"), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+        });
+        var aiPanel = new StackPanel { Spacing = 2 };
+        aiPanel.Children.Add(new TextBlock { Text = "采集最近错误日志中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
+        AiMessages.Children.Add(new Border
+        {
+            Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290, Child = aiPanel
+        });
+        AiScroll.ScrollToEnd();
+        // SSH 取系统级错误日志 + 失败服务（journalctl 优先，兼容无 systemd 回退 dmesg）
+        var logs = await SshExecAsync(
+            "echo '== 最近错误日志 =='; journalctl -p err -n 40 --no-pager 2>/dev/null | tail -40 || dmesg -l err,crit 2>/dev/null | tail -40; " +
+            "echo '== 失败的服务 =='; systemctl --failed --no-pager 2>/dev/null | head -15");
+        ((TextBlock)aiPanel.Children[0]).Text = "诊断中…";
+        var reply = await CallAiAsync($"以下是这台服务器最近的系统错误日志和失败服务，请按 现象 → 可能原因 → 修复步骤 诊断，给出可执行的修复命令（高危用 ⚠️ 标注）。若日志为空说明系统暂无明显错误。\n\n{logs}",
+            delta => { ((TextBlock)aiPanel.Children[0]).Text = delta; AiScroll.ScrollToEnd(); });
+        RenderAiReply(aiPanel, reply);
+        foreach (Match m in Regex.Matches(reply, @"\[EXECUTE\]([\s\S]*?)\[/EXECUTE\]"))
+        {
+            var cmd = m.Groups[1].Value.Trim();
+            if (cmd.Length > 0) AddCommandCard(cmd);
+        }
+        AiScroll.ScrollToEnd();
     }
 
     /// 一键健康巡检（Z3）：SSH 取真实指标 → 直接发 AI 分析（无需手动输入）

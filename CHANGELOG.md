@@ -5,6 +5,13 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 48 — 运维体验：指标告警 + 命令历史面板双端（2026-06-28）
+
+- **指标超阈值告警（windows/linux）**：状态条任一 CPU/内存/磁盘 >90% → 红色聚合告警「⚠ CPU x% / 内存 y%...」，运维主动发现资源风险（监控→预警）。
+- **命令历史面板（windows/linux）**：命令输入行加历史按钮（时钟图标）→ 列最近 20 条命令，点击重用填入输入框；windows Flyout，linux egui menu_button。补充 ↑↓ 回溯，运维快速复用命令。
+- **意义**：运维体验持续打磨，状态条从监控升级到预警，命令复用更便捷，windows/linux 双端对齐。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，924 提交。
+
 ## 阶段 47 — 状态条磁盘指标（监控全景，2026-06-28）
 
 - **磁盘指标（windows/linux）**：状态条加磁盘进度条，SSH `df /` 取选中远程服务器根分区使用率（三档色绿<60/橙60-80/红>80）。至此状态条监控全景：CPU/内存/磁盘/负载 + 服务状态/管理，全部真实 SSH 取 + 每 30s 定时刷新。

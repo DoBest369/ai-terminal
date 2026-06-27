@@ -3637,3 +3637,11 @@
 - **改动**：`MainWindow.axaml.cs`(FetchServerEnvAsync + CallAiAsync 环境注入)。
 - **验证**：`dotnet build` 0 错误；run 16s 存活；**端到端验证（关键）**：注入真实配置（2核/899MB）→ AI 精准指出「内存不足 OOM 风险 + 给低配 JVM 方案 -Xms256」，对比无环境时只能空泛回答。推送 06bcba6。
 - **🎯 护城河 Z3 环境感知落地 windows**：AI 从「泛泛建议」→「基于这台机器真实配置的针对性建议」。windows 智能运维护城河能力（真实 AI + 真实 SSH + 三模式 + 环境感知 + 安全拦截）成体系。下一步 Auto 模式结果回喂 AI 自主闭环 + linux 同等落地。
+
+---
+
+## windows AI 多轮对话历史（上下文累积，Auto 闭环前提）
+- **内容**：windows `_aiHistory` 累积 (role,content)；CallAiAsync 发整段历史而非单条，AI 记住上下文多轮对话；AI 回复入历史；限长 20 条防膨胀。
+- **改动**：`MainWindow.axaml.cs`(_aiHistory + CallAiAsync 历史累积 + using System.Linq)。
+- **验证**：`dotnet build` 0 错误；run 15s 存活。推送 1ff28ce。
+- **意义**：AI 多轮对话（记住上下文）。为 Auto 模式自主闭环（命令结果回喂续对话）铺好基础。下一步 S5 Auto 闭环：命令 exec 结果→自动回喂 AI→AI 决策下一步（agent loop，限轮防失控）。

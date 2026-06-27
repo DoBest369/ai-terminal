@@ -4326,3 +4326,11 @@
 - **改动**：`MainWindow.axaml`(状态条字号控制)、`MainWindow.axaml.cs`(_termFontSize + OnFontSmaller/Larger + SetTermFont)。
 - **验证**：`dotnet build` 0 错误；run 存活 + 截图确认字号控制。推送 64b7be5。
 - **意义**：响应用户 U4「字号可调」要求——windows 终端字号 A-/A+ 实时调整。下一步 linux 终端字号 / 连接编辑 / 主题切换 U3。
+
+---
+
+## linux 终端字号可调 A-/A+（U4，对照 windows，双端对齐）
+- **内容**：linux `term_font_size` 字段（默认 13，clamp 9-22）；状态条右侧 A-/A+ 按钮调整；终端 term_lines 渲染用动态字号（ansi_to_job 加 size 参数 + colored_label .size()）；实时生效。
+- **改动**：`linux/src/main.rs`(term_font_size 字段 + 状态条 A-/A+ + ansi_to_job size 参数 + 终端渲染动态字号)。
+- **验证**：`cargo build` **0 error/warning**（0.98s，带 proxy）。推送 a801360。
+- **意义**：终端字号可调 U4 windows/linux 双端对齐。响应用户 U4「字号可调」要求双端落地。下一步 主题切换 U3 / 连接编辑 / 质量收口。

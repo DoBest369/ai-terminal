@@ -4590,3 +4590,11 @@
 - **改动**：`windows MainWindow.axaml`(磁盘指标)、`MainWindow.axaml.cs`(cmd+解析+更新)、`linux main.rs`(metrics 类型+cmd+渲染)。
 - **验证**：windows `dotnet build` 0 错误 + run 存活 + 截图；linux `cargo build` 0 warning。推送 d7cabdd。
 - **意义**：状态条监控更全（CPU/内存/磁盘/负载全真实 SSH 取），windows/linux 双端对齐。下一步 网络/连接数指标 / AI 多会话 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段47 状态条磁盘指标监控全景
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；916 提交。五端 build 全绿。
+- **CHANGELOG 阶段47**：状态条磁盘指标（df 根分区）+ 监控全景（CPU/内存/磁盘/负载 + 服务状态/管理全真实 + 定时刷新）。
+- **改动**：`CHANGELOG.md`(阶段47)。
+- **意义**：CHANGELOG 至阶段47。状态条成为完整实时真实运维监控面板，windows/linux 双端接近 apple Z6。后续持续打磨/新功能。

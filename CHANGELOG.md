@@ -199,6 +199,18 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 25 — 🎯 AI 三模式 + Auto 自主闭环五端全对齐（2026-06-27）
+
+里程碑：用户核心设计的 AI 三模式（Chat / Agent / Auto Agent，安全梯度）+ Auto 自主闭环在**五端全部真正完整落地**。
+
+- **🎯 apple Auto 自主闭环 agent loop**：runParsedCommands Auto 模式注入命令前 startRecording 录制**真实终端输出** → 延迟取 recordedText（去 ANSI）→ 回喂 sendAIMessage 决策下一步（限轮 5）。apple 基础最强——真实终端会话输出录制 + 注入，是真正的 agentic 终端操作。
+- **三模式五端对齐总览**：
+  - **Chat**：纯聊天，AI 只建议不碰终端（五端）。
+  - **Agent**：AI 生成命令，每条人工确认放行才执行（五端）。
+  - **Auto Agent**：AI 自主「读输出→决策→执行→回喂」闭环（五端：apple 录制终端输出 / windows·linux SSH exec 结果回喂）。
+- **安全梯度一致**：危险命令（风险四级 high/critical）即使 Auto 也强制人工确认，不被自主闭环绕过（五端）。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，769 提交。
+
 ## 阶段 24 — 深化打磨：AI 配置 / 交互 / 导出双端补齐（2026-06-27）
 
 S7 深化打磨继续，把 AI 配置、命令交互、对话导出在 windows/linux 补齐对齐。

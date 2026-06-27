@@ -90,6 +90,7 @@ public partial class MainWindow : Window
             if (root.TryGetProperty("apiKey", out var k)) ApiKeyBox.Text = k.GetString() ?? "";
             if (root.TryGetProperty("baseUrl", out var u)) BaseUrlBox.Text = u.GetString() ?? "";
             if (root.TryGetProperty("fontSize", out var fs) && fs.TryGetDouble(out var fsv)) _termFontSize = System.Math.Clamp(fsv, 9, 22);
+            if (root.TryGetProperty("aiFontSize", out var afs) && afs.TryGetDouble(out var afsv)) _aiFontSize = System.Math.Clamp(afsv, 10, 22);
             // 恢复命令历史（上下键回溯，重启可用）
             if (root.TryGetProperty("cmdHistory", out var ch) && ch.ValueKind == JsonValueKind.Array)
                 foreach (var c in ch.EnumerateArray())
@@ -125,7 +126,7 @@ public partial class MainWindow : Window
             // 只持久化用户新建的连接（"我的连接" 组），默认演示连接不存
             var userConns = _conns.Where(c => c.GroupName == "我的连接")
                 .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note }).ToArray();
-            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize });
+            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize, aiFontSize = _aiFontSize });
             System.IO.File.WriteAllText(ConfigPath, json);
         }
         catch { /* 写失败忽略，不影响运行 */ }
@@ -480,10 +481,10 @@ public partial class MainWindow : Window
         {
             Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260,
-            Child = new TextBlock { Text = "一键分析最近报错", Foreground = Brush.Parse("#FFFFFF"), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+            Child = new TextBlock { Text = "一键分析最近报错", Foreground = Brush.Parse("#FFFFFF"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap }
         });
         var aiPanel = new StackPanel { Spacing = 2 };
-        aiPanel.Children.Add(new TextBlock { Text = "采集最近错误日志中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
+        aiPanel.Children.Add(new TextBlock { Text = "采集最近错误日志中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap });
         AiMessages.Children.Add(new Border
         {
             Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
@@ -515,11 +516,11 @@ public partial class MainWindow : Window
         {
             Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260,
-            Child = new TextBlock { Text = "一键健康巡检", Foreground = Brush.Parse("#FFFFFF"), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+            Child = new TextBlock { Text = "一键健康巡检", Foreground = Brush.Parse("#FFFFFF"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap }
         });
         // AI 气泡（先采集真实指标，再交 AI 分析）
         var aiPanel = new StackPanel { Spacing = 2 };
-        aiPanel.Children.Add(new TextBlock { Text = "采集服务器指标中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
+        aiPanel.Children.Add(new TextBlock { Text = "采集服务器指标中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap });
         AiMessages.Children.Add(new Border
         {
             Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
@@ -670,7 +671,7 @@ public partial class MainWindow : Window
         {
             Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260,
-            Child = new TextBlock { Text = ask, Foreground = Brush.Parse("#FFFFFF"), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+            Child = new TextBlock { Text = ask, Foreground = Brush.Parse("#FFFFFF"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap }
         };
         AiMessages.Children.Add(label);
         AiMessages.Children.Add(bubble);
@@ -679,7 +680,7 @@ public partial class MainWindow : Window
         aiLabel.Inlines!.Add(new Run("✦") { Foreground = Brush.Parse("#FF4B6E") });
         aiLabel.Inlines!.Add(new Run($" AI · {System.DateTime.Now:HH:mm}"));
         var aiPanel = new StackPanel { Spacing = 2 };
-        aiPanel.Children.Add(new TextBlock { Text = "思考中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
+        aiPanel.Children.Add(new TextBlock { Text = "思考中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap });
         var aiBubble = new Border
         {
             Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
@@ -743,11 +744,11 @@ public partial class MainWindow : Window
             {
                 var body = seg.Trim('\n', ' ');
                 if (body.Length == 0) continue;
-                panel.Children.Add(new TextBlock { Text = body, Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
+                panel.Children.Add(new TextBlock { Text = body, Foreground = Brush.Parse("#C9D1D9"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap });
             }
         }
         if (panel.Children.Count == 0)
-            panel.Children.Add(new TextBlock { Text = text, Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
+            panel.Children.Add(new TextBlock { Text = text, Foreground = Brush.Parse("#C9D1D9"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap });
     }
 
     /// 命令风险四级分级（对照 apple CommandRisk Z7）：安全/注意/高风险/极高危
@@ -888,7 +889,7 @@ public partial class MainWindow : Window
             Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290,
             Margin = new Thickness(0, 4, 0, 0),
-            Child = new TextBlock { Text = text, Foreground = Brush.Parse(color), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+            Child = new TextBlock { Text = text, Foreground = Brush.Parse(color), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap }
         };
         AiMessages.Children.Add(bubble);
         AiScroll.ScrollToEnd();
@@ -903,6 +904,23 @@ public partial class MainWindow : Window
     };
 
     private double _termFontSize = 12.5;   // 终端字号（U4 可调）
+    private double _aiFontSize = 13;       // AI 对话字号（U4 可调）
+
+    /// AI 对话字号 +/-（U4）：调整后更新所有 AI 气泡文本 + 新气泡用新字号 + 持久化
+    private void OnAiFontSmaller(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SetAiFont(_aiFontSize - 1);
+    private void OnAiFontLarger(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SetAiFont(_aiFontSize + 1);
+    private void SetAiFont(double size)
+    {
+        _aiFontSize = System.Math.Clamp(size, 10, 22);
+        foreach (var child in AiMessages.Children)
+        {
+            if (child is TextBlock tb && tb.FontSize >= 12) tb.FontSize = _aiFontSize;   // 气泡正文（跳过小号角色标签）
+            else if (child is Border b && b.Child is TextBlock t) t.FontSize = _aiFontSize;
+            else if (child is Border bp && bp.Child is StackPanel sp)
+                foreach (var c in sp.Children) if (c is TextBlock st) st.FontSize = _aiFontSize;
+        }
+        SaveConfig();
+    }
 
     /// 终端字号 +/-（U4 用户要求）：调整后更新所有现有终端行 + 新行用新字号
     private void OnFontSmaller(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SetTermFont(_termFontSize - 1);

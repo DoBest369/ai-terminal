@@ -278,17 +278,23 @@
                                       Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
                         </Button>
                     </Grid>
-                    <!-- AI 三模式切换器（Chat/Agent/Auto，安全梯度，对齐用户设计）-->
-                    <Border Background="#16182A" CornerRadius="8" Padding="3" HorizontalAlignment="Left">
-                        <StackPanel Orientation="Horizontal" Spacing="2">
-                            <Button x:Name="ModeChat" Click="OnModeChat" Background="#FF4B6E" BorderThickness="0" CornerRadius="6" Padding="10,4"
-                                    Content="聊天" Foreground="#FFFFFF" FontSize="11" ToolTip.Tip="纯聊天：AI 只建议，不碰终端"/>
-                            <Button x:Name="ModeAgent" Click="OnModeAgent" Background="Transparent" BorderThickness="0" CornerRadius="6" Padding="10,4"
-                                    Content="代理" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="代理：AI 生成命令，每条需你确认放行"/>
-                            <Button x:Name="ModeAuto" Click="OnModeAuto" Background="Transparent" BorderThickness="0" CornerRadius="6" Padding="10,4"
-                                    Content="全自动" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="全自动：AI 自主读输出→决策→执行→闭环（高危仍需确认）"/>
+                    <!-- AI 三模式切换器（Chat/Agent/Auto，安全梯度，对齐用户设计）+ AI 字号 -->
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Border Grid.Column="0" Background="#16182A" CornerRadius="8" Padding="3" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal" Spacing="2">
+                                <Button x:Name="ModeChat" Click="OnModeChat" Background="#FF4B6E" BorderThickness="0" CornerRadius="6" Padding="10,4"
+                                        Content="聊天" Foreground="#FFFFFF" FontSize="11" ToolTip.Tip="纯聊天：AI 只建议，不碰终端"/>
+                                <Button x:Name="ModeAgent" Click="OnModeAgent" Background="Transparent" BorderThickness="0" CornerRadius="6" Padding="10,4"
+                                        Content="代理" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="代理：AI 生成命令，每条需你确认放行"/>
+                                <Button x:Name="ModeAuto" Click="OnModeAuto" Background="Transparent" BorderThickness="0" CornerRadius="6" Padding="10,4"
+                                        Content="全自动" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="全自动：AI 自主读输出→决策→执行→闭环（高危仍需确认）"/>
+                            </StackPanel>
+                        </Border>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                            <Button Click="OnAiFontSmaller" Background="#22FFFFFF" BorderThickness="0" CornerRadius="4" Padding="6,2" Content="A-" Foreground="#8B92A8" FontSize="10" ToolTip.Tip="缩小 AI 字号"/>
+                            <Button Click="OnAiFontLarger" Background="#22FFFFFF" BorderThickness="0" CornerRadius="4" Padding="6,2" Content="A+" Foreground="#8B92A8" FontSize="10" ToolTip.Tip="放大 AI 字号"/>
                         </StackPanel>
-                    </Border>
+                    </Grid>
                 </StackPanel>
             </Border>
             <ScrollViewer x:Name="AiScroll" Grid.Row="1" Margin="12,0">

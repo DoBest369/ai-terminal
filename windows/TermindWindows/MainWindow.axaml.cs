@@ -339,23 +339,58 @@ public partial class MainWindow : Window
             panel.Children.Add(new TextBlock { Text = text, Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
     }
 
-    /// 危险命令检测（复用风险分级思路）：极高危必须二次确认，Auto 也不绕过
-    private static bool IsDangerous(string cmd)
+    /// 命令风险四级分级（对照 apple CommandRisk Z7）：安全/注意/高风险/极高危
+    private enum RiskLevel { Safe = 0, Notice = 1, High = 2, Critical = 3 }
+
+    private static RiskLevel CommandRiskOf(string cmd)
     {
         var c = cmd.ToLowerInvariant();
-        return c.Contains("rm -rf") || c.Contains("mkfs") || c.StartsWith("dd ") || c.Contains(" dd ")
-            || c.Contains("shutdown") || c.Contains("reboot") || c.Contains("> /dev/")
-            || c.Contains(":(){") || c.Contains("chmod -r 777") || c.Contains("iptables -f");
+        // 极高危：删除/格式化/关 SSH/清防火墙/关机等不可逆或致命
+        if (c.Contains("rm -rf") || c.Contains("rm -fr") || c.Contains(":(){") || c.Contains("mkfs")
+            || c.Contains("dd if=") || c.Contains("> /dev/") || c.Contains("shutdown") || c.Contains("reboot")
+            || c.Contains("halt") || c.Contains("init 0") || c.Contains("systemctl stop ssh") || c.Contains("iptables -f")
+            || c.Contains("ufw disable") || c.Contains("wipefs") || c.Contains("drop database") || c.Contains("> /etc/"))
+            return RiskLevel.Critical;
+        // 高风险：重启/重载服务、改权限递归、改防火墙、kill、删容器/卸载
+        if (c.Contains("systemctl restart") || c.Contains("systemctl reload") || c.Contains("systemctl stop")
+            || c.Contains("systemctl start") || c.StartsWith("service ") || c.Contains("nginx -s")
+            || c.Contains("ufw ") || c.Contains("iptables ") || c.Contains("firewall-cmd") || c.Contains("chown -r")
+            || c.Contains("chmod -r") || c.Contains("chmod 777") || c.StartsWith("kill ") || c.Contains("killall")
+            || c.Contains("pkill") || c.Contains("docker rm") || c.Contains("docker stop") || c.Contains("apt remove")
+            || c.Contains("apt purge") || c.Contains("yum remove") || c.Contains("userdel"))
+            return RiskLevel.High;
+        // 注意：改单文件/编辑/移动/安装
+        if (c.StartsWith("vim ") || c.StartsWith("vi ") || c.StartsWith("nano ") || c.Contains("sed -i")
+            || c.StartsWith("cp ") || c.StartsWith("mv ") || c.Contains("chmod ") || c.Contains("chown ")
+            || c.StartsWith("mkdir ") || c.StartsWith("touch ") || c.Contains("apt install") || c.Contains("yum install")
+            || c.Contains("pip install") || c.Contains("npm install") || c.Contains("git push") || c.Contains("git reset")
+            || c.Contains("docker run"))
+            return RiskLevel.Notice;
+        return RiskLevel.Safe;
     }
+
+    private static (string label, string color) RiskStyle(RiskLevel r) => r switch
+    {
+        RiskLevel.Critical => ("极高危", "#E74C3C"),
+        RiskLevel.High => ("高风险", "#E67E22"),
+        RiskLevel.Notice => ("注意", "#F39C12"),
+        _ => ("", "#3FB950"),
+    };
+
+    /// 危险命令检测：高/极高即危险（Auto 也不自动执行，强制确认；委托四级分级）
+    private static bool IsDangerous(string cmd) => CommandRiskOf(cmd) >= RiskLevel.High;
 
     /// AI 回复里的命令 → 可执行卡片（Chat=建议+复制 / Agent=▶执行确认 / Auto=自动执行）
     private void AddCommandCard(string cmd)
     {
-        var danger = IsDangerous(cmd);
+        var risk = CommandRiskOf(cmd);
+        var danger = risk >= RiskLevel.High;
+        var (riskLabel, riskColor) = RiskStyle(risk);
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
         var cmdText = new TextBlock
         {
-            Text = (danger ? "⚠ " : "") + cmd, Foreground = Brush.Parse(danger ? "#F59E0B" : "#3FB950"),
+            // 风险级别前缀（注意/高风险/极高危 + ⚠），按四级配色（对照 apple）
+            Text = (riskLabel.Length > 0 ? $"[{riskLabel}] " : "") + cmd, Foreground = Brush.Parse(riskColor),
             FontFamily = (FontFamily)(this.FindResource("MonoFont") ?? FontFamily.Default),
             FontSize = 12, TextWrapping = TextWrapping.Wrap, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
         };

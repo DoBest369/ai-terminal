@@ -61,17 +61,17 @@ impl Default for TermindApp {
     }
 }
 
-/// SFTP 文件项（占位）：name/是否目录/大小/类型图标
-fn sftp_demo() -> Vec<(&'static str, bool, &'static str)> {
+/// SFTP 文件项（占位）：name/是否目录/大小/修改时间（对照 apple/android SFTP）
+fn sftp_demo() -> Vec<(&'static str, bool, &'static str, &'static str)> {
     vec![
-        ("..", true, ""),
-        ("projects", true, ""),
-        (".ssh", true, ""),
-        ("logs", true, ""),
-        ("deploy.sh", false, "1.0 KB"),
-        (".bashrc", false, "220 B"),
-        ("backup.tar.gz", false, "48.2 MB"),
-        ("notes.md", false, "3.4 KB"),
+        ("..", true, "", ""),
+        ("projects", true, "", "06-22 18:00"),
+        (".ssh", true, "", "06-10 09:12"),
+        ("logs", true, "", "06-22 17:30"),
+        ("deploy.sh", false, "1.0 KB", "06-22 17:30"),
+        (".bashrc", false, "220 B", "06-10 09:12"),
+        ("backup.tar.gz", false, "48.2 MB", "06-21 02:00"),
+        ("notes.md", false, "3.4 KB", "06-22 14:20"),
     ]
 }
 
@@ -140,7 +140,7 @@ impl eframe::App for TermindApp {
             .show(ctx, |ui| {
                 ui.colored_label(TEXT_SECONDARY, egui::RichText::new("↑ /home/deploy").monospace());
                 ui.separator();
-                for (name, is_dir, size) in sftp_demo() {
+                for (name, is_dir, size, time) in sftp_demo() {
                     ui.horizontal(|ui| {
                         // 类型图标（对照 apple/android 文件类型图标）
                         let icon = if is_dir { "📁" } else if name.ends_with(".sh") { "⌨" }
@@ -149,11 +149,15 @@ impl eframe::App for TermindApp {
                             else { "⚙" };
                         ui.colored_label(if is_dir { ACCENT } else { TEXT_SECONDARY }, icon);
                         ui.colored_label(TEXT_PRIMARY, name);
-                        if !size.is_empty() {
-                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        // 右侧：大小 + 修改时间（对照 apple/android SFTP）
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            if !size.is_empty() {
                                 ui.colored_label(TEXT_SECONDARY, size);
-                            });
-                        }
+                            }
+                            if !time.is_empty() {
+                                ui.colored_label(TEXT_SECONDARY.linear_multiply(0.7), egui::RichText::new(time).size(10.0));
+                            }
+                        });
                     });
                 }
             });

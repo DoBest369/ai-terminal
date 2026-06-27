@@ -15,6 +15,9 @@ public record ConnItem(string Name, string Addr, IBrush Bar, IBrush Dot, string 
 
 public partial class MainWindow : Window
 {
+    private readonly List<string> _cmdHistory = new();   // 命令历史（最近优先），供上下键回溯
+    private int _histIdx = -1;                            // 当前回溯位置（-1=未回溯）
+
     public MainWindow()
     {
         InitializeComponent();
@@ -67,9 +70,30 @@ public partial class MainWindow : Window
     /// 命令输入回车 → 追加到终端输出（更深真实交互，对照 linux）
     private void OnCmdKeyDown(object? sender, KeyEventArgs e)
     {
+        // ↑/↓ 键回溯命令历史（终端常用交互，对照 linux）
+        if (e.Key == Key.Up && _cmdHistory.Count > 0)
+        {
+            _histIdx = System.Math.Min(_histIdx + 1, _cmdHistory.Count - 1);
+            CmdInput.Text = _cmdHistory[_histIdx];
+            CmdInput.CaretIndex = CmdInput.Text.Length;
+            e.Handled = true;
+            return;
+        }
+        if (e.Key == Key.Down && _histIdx >= 0)
+        {
+            _histIdx--;
+            CmdInput.Text = _histIdx < 0 ? "" : _cmdHistory[_histIdx];
+            CmdInput.CaretIndex = CmdInput.Text.Length;
+            e.Handled = true;
+            return;
+        }
         if (e.Key != Key.Enter) return;
         var cmd = CmdInput.Text?.Trim();
         if (string.IsNullOrEmpty(cmd)) return;
+        // 入历史（最近优先，去重）
+        _cmdHistory.Remove(cmd);
+        _cmdHistory.Insert(0, cmd);
+        _histIdx = -1;
         // clear 清屏（对照 linux）：移除光标行外所有输出
         if (cmd == "clear")
         {

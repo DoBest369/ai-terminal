@@ -242,11 +242,12 @@ public partial class MainWindow : Window
         var aiLabel = new TextBlock { Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left };
         aiLabel.Inlines!.Add(new Run("✦") { Foreground = Brush.Parse("#FF4B6E") });
         aiLabel.Inlines!.Add(new Run(" AI"));
-        var aiText = new TextBlock { Text = "思考中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap };
+        var aiPanel = new StackPanel { Spacing = 2 };
+        aiPanel.Children.Add(new TextBlock { Text = "思考中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
         var aiBubble = new Border
         {
             Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290, Child = aiText
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290, Child = aiPanel
         };
         AiMessages.Children.Add(aiLabel);
         AiMessages.Children.Add(aiBubble);
@@ -255,9 +256,10 @@ public partial class MainWindow : Window
         // 真实 AI 调用（async）→ 更新气泡 + 解析 [EXECUTE] 命令
         var reply = await CallAiAsync(ask);
         var cmds = Regex.Matches(reply, @"\[EXECUTE\]([\s\S]*?)\[/EXECUTE\]");
-        // 气泡显示去掉 [EXECUTE] 标记的正文
-        aiText.Text = Regex.Replace(reply, @"\[EXECUTE\][\s\S]*?\[/EXECUTE\]", "").Trim();
-        if (aiText.Text.Length == 0 && cmds.Count > 0) aiText.Text = "建议执行以下命令：";
+        // 渲染正文 + ```代码块（去 [EXECUTE] 标记）
+        var text = Regex.Replace(reply, @"\[EXECUTE\][\s\S]*?\[/EXECUTE\]", "").Trim();
+        if (text.Length == 0 && cmds.Count > 0) text = "建议执行以下命令：";
+        RenderAiReply(aiPanel, text);
         // 每条 [EXECUTE] 命令 → 命令卡片（按 AI 模式：Chat 仅建议 / Agent 确认执行 / Auto 自动）
         foreach (Match m in cmds)
         {
@@ -265,6 +267,45 @@ public partial class MainWindow : Window
             if (cmd.Length > 0) AddCommandCard(cmd);
         }
         AiScroll.ScrollToEnd();
+    }
+
+    /// 渲染 AI 回复：```代码块→等宽深色代码框，其余→正文（Markdown 轻量）
+    private void RenderAiReply(StackPanel panel, string text)
+    {
+        panel.Children.Clear();
+        var parts = text.Split(new[] { "```" }, System.StringSplitOptions.None);
+        for (int i = 0; i < parts.Length; i++)
+        {
+            var seg = parts[i];
+            if (i % 2 == 1)
+            {
+                // 代码块：去首行语言标识
+                var lines = seg.Split('\n');
+                var code = (lines.Length > 1 && lines[0].Trim().Length < 12 && !lines[0].Contains(' '))
+                    ? string.Join("\n", lines[1..]) : seg;
+                code = code.Trim('\n', ' ');
+                if (code.Length == 0) continue;
+                panel.Children.Add(new Border
+                {
+                    Background = Brush.Parse("#05060C"), CornerRadius = new CornerRadius(6),
+                    Padding = new Thickness(10, 8), Margin = new Thickness(0, 4, 0, 4),
+                    Child = new TextBlock
+                    {
+                        Text = code, Foreground = Brush.Parse("#3FB950"),
+                        FontFamily = (FontFamily)(this.FindResource("MonoFont") ?? FontFamily.Default),
+                        FontSize = 12, TextWrapping = TextWrapping.Wrap
+                    }
+                });
+            }
+            else
+            {
+                var body = seg.Trim('\n', ' ');
+                if (body.Length == 0) continue;
+                panel.Children.Add(new TextBlock { Text = body, Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
+            }
+        }
+        if (panel.Children.Count == 0)
+            panel.Children.Add(new TextBlock { Text = text, Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
     }
 
     /// 危险命令检测（复用风险分级思路）：极高危必须二次确认，Auto 也不绕过

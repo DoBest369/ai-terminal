@@ -3732,3 +3732,12 @@
 - **改动**：`linux/src/main.rs`(render_ai_reply + AI 回复气泡)。
 - **验证**：`cargo build` **0 error/warning**（0.77s，带 proxy）。推送 48dddb1。
 - **🎯 AI 代码块渲染 windows/linux 双端对齐**：AI 运维回复命令以等宽代码框呈现。windows/linux 双端智能运维体验一致（真实 AI+SSH+三模式+Z3+危险拦截+代码块渲染）。下一步 apple Auto 闭环 / windows 流式输出。
+
+---
+
+## 质量收口（全量）+ MATURITY 更新智能运维全平台真实落地
+- **质量基线**（智能运维全平台 + 三模式 + 代码块/Z3 双端后收口）：apple swift build + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；PARITY **103 项 ✅✅**；707 提交。五端 build 全绿。
+- **MATURITY 更新**：windows/linux 从「完整 UI + mock 数据」→「智能运维全平台真实落地」（真实 AI + 真实 SSH + 三模式 + Z3 环境感知 + 危险拦截，能力体系对齐 apple/android，端到端验证）。AI 三模式五端对齐。诚实记录边界（windows mac 跑通，linux 逻辑端到端验证待真 Linux 整体运行）。
+- **改动**：`docs/MATURITY.md`。
+- **验证**：五端 build 全绿，apple 8 自测无回归。
+- **意义**：文档准确反映「智能运维全平台真实落地」的真实进展（windows/linux 不再是 mock）。Termind 核心价值在全平台成型，文档体系（CHANGELOG 20/MATURITY/ROADMAP/记忆）全部对齐。

@@ -199,7 +199,9 @@ fun InspectScreen(conns: List<ServerConn>, onBack: () -> Unit) {
                                 Spacer(Modifier.height(4.dp))
                                 if (it.error != null) Text("⚠️ ${it.error}", color = Danger, fontSize = 11.sp)
                                 else it.status?.let { s ->
-                                    Text("CPU ${s.cpu} · 内存 ${s.mem} · 磁盘 ${s.disk}", color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+                                    // 巡检卡片显示 CPU/内存/磁盘 + 负载（有则显示，对齐 healthSummary 完整字段）
+                                    val line = "CPU ${s.cpu} · 内存 ${s.mem} · 磁盘 ${s.disk}" + if (s.load != "—") " · 负载 ${s.load}" else ""
+                                    Text(line, color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
                                 }
                             }
                         }

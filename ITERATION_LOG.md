@@ -3812,3 +3812,11 @@
 - **改动**：`linux/src/main.rs`(RiskLevel + risk_level + risk_style + 命令卡片四级配色)。
 - **验证**：`cargo build` **0 error/warning**（0.74s，带 proxy）。推送 8dda1d6。
 - **🎯 命令风险四级分级 windows/linux 双端对齐 + 对齐 apple Z7**：安全分级五端统一（注意/高风险/极高危四级，命令卡片按风险配色）。windows/linux 智能运维安全能力对齐 apple 护城河。下一步 SSH 连接复用 / 终端快捷命令增强。
+
+---
+
+## windows SSH Session 复用（持久会话提速）
+- **内容**：windows `_sshClient` 持久会话 + `_sshLock` 线程安全；exec 复用已连接会话，连接+握手+认证只在首次或断线后做；IsConnected 检测断线重连；异常重置以便下次干净重连。
+- **改动**：`MainWindow.axaml.cs`(SshExecAsync 复用持久 Session)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 cad4442。
+- **意义**：避免每次 exec 新建 SshClient（原每次连接~1-2s），Auto 闭环多命令/手输连续命令显著提速。windows 智能运维性能体验提升。下一步 终端快捷命令增强 / CHANGELOG 阶段22 深化打磨小结。

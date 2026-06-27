@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 56 — AI 对话多会话双端（2026-06-28）
+
+- **AI 多会话（windows/linux）**：AI 对话从单会话 → 多会话（独立上下文）。会话按钮列所有会话（标题=首条提问，当前 ● 标），点击切换、新建、删除；切换重渲染气泡。windows _sessions + RenderSession，linux sessions/cur_session + ai_msgs 存档同步（16 处用法不变）。对照 apple ai-conv。
+- **意义**：运维可同时维护多个独立上下文对话（排查不同问题分开），AI 能力丰富，windows/linux 双端对齐。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，968 提交。
+
 ## 阶段 55 — 监控套件扩展安全维度：登录用户面板（2026-06-28）
 
 - **登录用户/最近登录面板（windows/linux）**：SSH `who`（在线会话）+ `last`（最近登录）；windows Flyout 分组（在线绿/最近灰），linux 终端展示。安全运维查谁在线、最近登录来源 IP，排查异常登录。

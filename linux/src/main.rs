@@ -51,11 +51,13 @@ struct TermindApp {
     cmd_input: String,
     term_lines: Vec<String>,   // 用户输入回车后追加的终端历史行
     ai_msgs: Vec<String>,      // AI 区用户输入回车后追加的提问气泡
+    cmd_history: Vec<String>,  // 命令历史（去重最近优先），供上下键回溯
+    hist_idx: Option<usize>,   // 当前回溯位置（None=未回溯）
 }
 
 impl Default for TermindApp {
     fn default() -> Self {
-        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new() }
+        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None }
     }
 }
 
@@ -351,8 +353,25 @@ impl eframe::App for TermindApp {
                     ui.colored_label(SUCCESS, egui::RichText::new(format!("{} ", prompt)).monospace());
                     let resp = ui.add_sized([ui.available_width(), 24.0],
                         egui::TextEdit::singleline(&mut self.cmd_input).hint_text("输入命令…").font(egui::TextStyle::Monospace));
+                    // ↑/↓ 键回溯命令历史（终端常用交互）
+                    if resp.has_focus() && !self.cmd_history.is_empty() {
+                        if ui.input(|i| i.key_pressed(egui::Key::ArrowUp)) {
+                            let idx = self.hist_idx.map_or(0, |i| (i + 1).min(self.cmd_history.len() - 1));
+                            self.hist_idx = Some(idx);
+                            self.cmd_input = self.cmd_history[idx].clone();
+                        } else if ui.input(|i| i.key_pressed(egui::Key::ArrowDown)) {
+                            match self.hist_idx {
+                                Some(0) | None => { self.hist_idx = None; self.cmd_input.clear(); }
+                                Some(i) => { let n = i - 1; self.hist_idx = Some(n); self.cmd_input = self.cmd_history[n].clone(); }
+                            }
+                        }
+                    }
                     if resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) && !self.cmd_input.trim().is_empty() {
-                        let cmd = self.cmd_input.trim();
+                        let cmd = self.cmd_input.trim().to_string();
+                        // 入历史（最近优先，去重）
+                        self.cmd_history.retain(|c| c != &cmd);
+                        self.cmd_history.insert(0, cmd.clone());
+                        self.hist_idx = None;
                         if cmd == "clear" {
                             self.term_lines.clear();   // clear 清屏（终端常用命令）
                         } else {

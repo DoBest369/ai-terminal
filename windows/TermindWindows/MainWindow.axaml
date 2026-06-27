@@ -318,7 +318,10 @@
                                         Content="全自动" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="全自动：AI 自主读输出→决策→执行→闭环（高危仍需确认）"/>
                             </StackPanel>
                         </Border>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <Border Background="#0D0E1A" CornerRadius="4" Width="96">
+                                <TextBox x:Name="AiSearchBox" PlaceholderText="搜索对话…" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="10" Padding="6,2" CaretBrush="#FF4B6E" TextChanged="OnAiSearch"/>
+                            </Border>
                             <Button Click="OnAiFontSmaller" Background="#22FFFFFF" BorderThickness="0" CornerRadius="4" Padding="6,2" Content="A-" Foreground="#8B92A8" FontSize="10" ToolTip.Tip="缩小 AI 字号"/>
                             <Button Click="OnAiFontLarger" Background="#22FFFFFF" BorderThickness="0" CornerRadius="4" Padding="6,2" Content="A+" Foreground="#8B92A8" FontSize="10" ToolTip.Tip="放大 AI 字号"/>
                         </StackPanel>

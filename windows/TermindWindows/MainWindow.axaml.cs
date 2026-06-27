@@ -276,6 +276,31 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { AppendTerm($"✕ 导出失败：{ex.Message}", "#F85149"); }
     }
 
+    /// AI 对话搜索：匹配气泡橙色描边高亮 + 首个滚动到可见（对照终端搜索）
+    private void OnAiSearch(object? sender, Avalonia.Controls.TextChangedEventArgs e)
+    {
+        var q = AiSearchBox.Text?.Trim().ToLowerInvariant() ?? "";
+        Control? firstHit = null;
+        foreach (var child in AiMessages.Children)
+        {
+            if (child is not Border b) continue;   // 气泡是 Border（含 TextBlock 或 StackPanel）
+            var text = BubbleText(b).ToLowerInvariant();
+            var hit = q.Length > 0 && text.Contains(q);
+            b.BorderBrush = hit ? Brush.Parse("#F59E0B") : null;
+            b.BorderThickness = new Thickness(hit ? 1.5 : 0);
+            if (hit && firstHit == null) firstHit = b;
+        }
+        firstHit?.BringIntoView();
+    }
+
+    /// 提取气泡内文本（Border 内可能是 TextBlock 或 StackPanel of TextBlock）
+    private static string BubbleText(Border b) => b.Child switch
+    {
+        TextBlock tb => tb.Text ?? "",
+        StackPanel sp => string.Join(" ", sp.Children.OfType<TextBlock>().Select(t => t.Text ?? "")),
+        _ => "",
+    };
+
     /// 终端输出搜索：匹配行背景高亮（黄），首个匹配滚动到可见
     private void OnTermSearch(object? sender, Avalonia.Controls.TextChangedEventArgs e)
     {

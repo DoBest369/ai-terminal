@@ -221,6 +221,7 @@ struct TermindApp {
     term_font_size: f32,                       // 终端字号（U4 可调，对照 windows）
     ai_font_size: f32,                         // AI 对话字号（U4 可调，对照 windows）
     term_search: String,                       // 终端输出搜索（匹配行高亮，对照 windows）
+    ai_search: String,                         // AI 对话搜索（匹配气泡高亮，对照终端搜索）
     custom_cmds: Vec<String>,                  // 自定义快捷命令（增删+持久化，对照 windows）
     new_cmd_input: String,                     // 新增自定义快捷命令输入框
     metrics: (u8, u8, u8, String),             // 状态条远程真实指标 (CPU%, 内存%, 磁盘%, 负载)，对照 windows
@@ -403,7 +404,7 @@ impl Default for TermindApp {
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
         THEME_IDX.store(load_theme_idx(), std::sync::atomic::Ordering::Relaxed);   // U3 恢复持久化主题
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), custom_cmds: load_custom_cmds(), new_cmd_input: String::new(), metrics: (0, 0, 0, "--".to_string()), services: Vec::new(), metrics_target: String::new(), last_refresh: 0.0, metrics_tx, metrics_rx }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), ai_search: String::new(), custom_cmds: load_custom_cmds(), new_cmd_input: String::new(), metrics: (0, 0, 0, "--".to_string()), services: Vec::new(), metrics_target: String::new(), last_refresh: 0.0, metrics_tx, metrics_rx }
     }
 }
 
@@ -1027,6 +1028,8 @@ impl eframe::App for TermindApp {
                             .fill(egui::Color32::TRANSPARENT)).on_hover_text("导出对话为 Markdown").clicked() {
                             trigger_export = true;
                         }
+                        // AI 对话搜索（匹配气泡高亮，对照终端搜索）
+                        ui.add(egui::TextEdit::singleline(&mut self.ai_search).hint_text("搜索对话…").desired_width(100.0).font(egui::TextStyle::Small));
                     });
                     if trigger_export { self.export_chat(); }
                 });
@@ -1092,18 +1095,22 @@ impl eframe::App for TermindApp {
                 });
                 // AI 真实对话（true=用户提问蓝气泡 / false=AI 真实回复气泡）；字号 U4 可调
                 let aifs = self.ai_font_size;
+                let aiq = self.ai_search.trim().to_lowercase();   // AI 对话搜索关键词
                 for (is_user, text) in &self.ai_msgs {
                     ui.add_space(6.0);
+                    // 搜索命中气泡：橙色描边高亮（对照终端搜索）
+                    let hit = !aiq.is_empty() && text.to_lowercase().contains(&aiq);
+                    let stroke = if hit { egui::Stroke::new(1.5, egui::Color32::from_rgb(0xF5, 0x9E, 0x0B)) } else { egui::Stroke::NONE };
                     if *is_user {
                         ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("你").size(10.0).strong());
-                        egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
+                        egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0).stroke(stroke)
                             .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(text).size(aifs)); });
                     } else {
                         ui.horizontal(|ui| {
                             ui.colored_label(ACCENT(), egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
                             ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("AI").size(10.0).strong());
                         });
-                        egui::Frame::default().fill(BG()).rounding(10.0).inner_margin(10.0)
+                        egui::Frame::default().fill(BG()).rounding(10.0).inner_margin(10.0).stroke(stroke)
                             .show(ui, |ui| { render_ai_reply(ui, text, aifs); });
                     }
                 }

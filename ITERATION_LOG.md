@@ -3845,3 +3845,11 @@
 - **改动**：`MainWindow.axaml.cs`(ExecuteCommand 计时显示)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 0af0cbf。
 - **意义**：终端命令执行带耗时反馈（运维参考，SSH 复用后能看出提速效果）。下一步 linux SSH 复用 / 健康巡检一键 / AI 命令复制。
+
+---
+
+## linux 命令执行耗时显示（对照 windows，双端对齐）
+- **内容**：linux 3 处 ssh_exec spawn（命令回车/pending 确认/Auto 自动执行）统一 Instant 计时，结果后附「✓/✕ 耗时 Xms」（运维参考）。
+- **改动**：`linux/src/main.rs`(3 处 spawn 加耗时)。
+- **验证**：`cargo build` 0 error（1.50s，带 proxy）。推送 75ade86。
+- **意义**：命令耗时显示 windows/linux 双端对齐。下一步 linux SSH 复用 / 健康巡检一键 / AI 命令复制。

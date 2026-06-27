@@ -79,6 +79,13 @@
                                         <TextBlock Text="模型" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>
                                         <TextBlock Text="claude-opus-4-8" Foreground="#C9D1D9" FontSize="12" FontFamily="Consolas,monospace"/>
                                     </StackPanel>
+                                    <!-- API 地址（Base URL，对齐 apple/android；OpenAI 兼容/代理/自托管） -->
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="API 地址" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>
+                                        <Border Background="#0D0E1A" CornerRadius="6">
+                                            <TextBox Text="https://api.anthropic.com/v1/messages" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" FontFamily="Consolas,monospace" Padding="10,7"/>
+                                        </Border>
+                                    </StackPanel>
                                 </StackPanel>
                             </Flyout>
                         </Button.Flyout>

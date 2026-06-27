@@ -4566,3 +4566,11 @@
 - **改动**：`windows MainWindow.axaml.cs`(服务点 ContextFlyout + PointerPressed + OnServiceAction)。
 - **验证**：`dotnet build` 0 错误；run 存活。推送 c65eb51。
 - **意义**：windows 服务管理（点服务点即可启停/重启，真实运维操作，护城河深化）。从「看服务状态」升级到「管服务」。下一步 linux 服务管理对齐 / 质量收口 / 磁盘指标。
+
+---
+
+## linux 服务管理（状态条服务点 menu_button 启停/重启，对照 windows，双端对齐）
+- **内容**：linux 服务点 svc 改 egui menu_button → 重启/启动/停止；svc_action 局部变量收集（闭包内 set）→ 闭包外 spawn ssh_exec systemctl 真实执行 → term_tx 回显；stop/restart 橙色警示；metrics_target.clear 触发指标+服务状态刷新。
+- **改动**：`linux main.rs`(服务点 menu_button + svc_action 收集 + spawn systemctl)。
+- **验证**：`cargo build` **0 error/warning**（0.96s，带 proxy）。推送 d3b2637。
+- **意义**：服务管理 windows/linux 双端对齐（点服务点启停/重启真实运维操作）。护城河深化双端——从「看服务」到「管服务」。下一步 质量收口 CHANGELOG 阶段46 / 磁盘指标 / 新功能。

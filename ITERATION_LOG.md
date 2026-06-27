@@ -3893,3 +3893,11 @@
 - **改动**：`linux/src/main.rs`(run_error_analysis + 分析报错一键触发)。
 - **验证**：`cargo build` **0 error/warning**（0.74s，带 proxy）。推送 377be2b。
 - **🎯 Z2 报错分析 + Z3 健康巡检一键真闭环 windows/linux 双端对齐**：取真实日志/指标 + AI 专业诊断，无需手动。windows/linux 护城河 Z2/Z3 都一键闭环（Z1 解释命令预填）。下一步 linux SSH 复用 / AI 命令复制 / apple Auto 闭环。
+
+---
+
+## linux SSH Session 复用（持久会话，对照 windows，双端对齐）
+- **内容**：linux `ssh_session_cache`（OnceLock<Mutex<Option<Session>>>）全局复用会话 + `ssh_connect` 抽建连；ssh_exec 复用已认证会话，authenticated() 检测失效→重连；通道/执行失败重置以便断线重连。多后台线程经 Mutex 串行复用（对照 windows _sshLock）。
+- **改动**：`linux/src/main.rs`(ssh_session_cache + ssh_connect + ssh_exec 复用)。
+- **验证**：`cargo build` **0 error/warning**（0.68s，带 proxy，ssh2 Session Send + Mutex 线程安全通过）。推送 982913d。
+- **意义**：SSH Session 复用 windows/linux 双端对齐（多命令/一键巡检/报错分析提速，连接+握手+认证只首次/断线后做）。下一步 CHANGELOG 阶段23 / AI 命令复制 / apple Auto 闭环。

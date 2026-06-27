@@ -4647,3 +4647,11 @@
 - **改动**：`linux main.rs`(custom_cmds 字段 + 快捷栏自定义 + load/save + 5 调用)。
 - **验证**：`cargo build` **0 error/warning**（1.11s，带 proxy）。推送 5f95de5。
 - **意义**：快捷命令自定义 windows/linux 双端对齐（运维定制高频命令 + 持久化）。下一步 质量收口 CHANGELOG 阶段49 / AI 搜索 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段49 快捷命令栏可自定义双端
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；930 提交。五端 build 全绿。
+- **CHANGELOG 阶段49**：快捷命令栏可自定义（增删+持久化）windows/linux 双端；运维体验全面对齐（历史/快捷/搜索/告警/服务管理）。
+- **改动**：`CHANGELOG.md`(阶段49)。
+- **意义**：CHANGELOG 至阶段49。运维体验双端全面对齐接近 apple 标杆。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

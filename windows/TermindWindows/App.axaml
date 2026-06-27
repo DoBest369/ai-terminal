@@ -4,6 +4,11 @@
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+    <Application.Resources>
+        <!-- U4：JetBrains Mono 等宽字体（终端/代码区用，比 Consolas 更好看） -->
+        <FontFamily x:Key="MonoFont">avares://TermindWindows/Assets/Fonts#JetBrains Mono</FontFamily>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>

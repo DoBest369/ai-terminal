@@ -28,7 +28,7 @@
                             <Flyout Placement="BottomEdgeAlignedLeft">
                                 <StackPanel Width="320" Spacing="2">
                                     <TextBlock Text="SFTP 文件" Foreground="#FFFFFF" FontSize="14" FontWeight="Bold" Margin="0,0,0,4"/>
-                                    <TextBlock Text="↑ /home/deploy" Foreground="#8B92A8" FontFamily="Consolas,monospace" FontSize="12" Margin="0,0,0,6"/>
+                                    <TextBlock Text="↑ /home/deploy" Foreground="#8B92A8" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,6"/>
                                     <Border Height="1" Background="#2A2D3E" Margin="0,0,0,4"/>
                                     <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4"><TextBlock Grid.Column="0" Text="📁" Margin="0,0,8,0"/><TextBlock Grid.Column="1" Text=".." Foreground="#C9D1D9" FontSize="13"/></Grid>
                                     <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4"><TextBlock Grid.Column="0" Text="📁" Margin="0,0,8,0"/><TextBlock Grid.Column="1" Text="projects" Foreground="#C9D1D9" FontSize="13"/><TextBlock Grid.Column="3" Text="06-22 18:00" Foreground="#5A6270" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/></Grid>
@@ -82,13 +82,13 @@
                                     <!-- 模型 -->
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="模型" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>
-                                        <TextBlock Text="claude-opus-4-8" Foreground="#C9D1D9" FontSize="12" FontFamily="Consolas,monospace"/>
+                                        <TextBlock Text="claude-opus-4-8" Foreground="#C9D1D9" FontSize="12" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                     <!-- API 地址（Base URL，对齐 apple/android；OpenAI 兼容/代理/自托管） -->
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="API 地址" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>
                                         <Border Background="#0D0E1A" CornerRadius="6">
-                                            <TextBox Text="https://api.anthropic.com/v1/messages" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" FontFamily="Consolas,monospace" Padding="10,7"/>
+                                            <TextBox Text="https://api.anthropic.com/v1/messages" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" FontFamily="{StaticResource MonoFont}" Padding="10,7"/>
                                         </Border>
                                     </StackPanel>
                                     <!-- AI 系统提示词（可自定义，对齐 apple/android/linux） -->
@@ -179,18 +179,18 @@
             <Border Grid.Row="1" Background="#0A0B14" Margin="10">
                 <ScrollViewer x:Name="TermScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                     <StackPanel x:Name="TermOutput" Margin="14">
-                        <TextBlock Text="Last login: Sun Jun 22 19:00 on ttys001" Foreground="#8B92A8" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock Text="root@prod-01:~$ ls -la" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
-                        <TextBlock Text="total 32" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock Text="drwxr-xr-x  6 root root 4096 Jun 22 18:00 ." Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock Text="drwxr-xr-x 18 root root 4096 Jun 10 09:12 .." Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock Text="-rw-r--r--  1 root root  220 Jun 10 09:12 .bashrc" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock Text="-rwxr-xr-x  1 root root 1024 Jun 22 17:30 deploy.sh" Foreground="#3FB950" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock Text="drwxr-xr-x  4 root root 4096 Jun 22 18:00 projects" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock Text="root@prod-01:~$ systemctl status nginx" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
-                        <TextBlock Text="● nginx.service - A high performance web server" Foreground="#3FB950" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock Text="   Active: active (running) since Mon 2026-06-22" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5"/>
-                        <TextBlock x:Name="TermCursor" Text="root@prod-01:~$ █" Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="12.5" Margin="0,4,0,0"/>
+                        <TextBlock Text="Last login: Sun Jun 22 19:00 on ttys001" Foreground="#8B92A8" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>
+                        <TextBlock Text="root@prod-01:~$ ls -la" Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="12.5" Margin="0,4,0,0"/>
+                        <TextBlock Text="total 32" Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>
+                        <TextBlock Text="drwxr-xr-x  6 root root 4096 Jun 22 18:00 ." Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>
+                        <TextBlock Text="drwxr-xr-x 18 root root 4096 Jun 10 09:12 .." Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>
+                        <TextBlock Text="-rw-r--r--  1 root root  220 Jun 10 09:12 .bashrc" Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>
+                        <TextBlock Text="-rwxr-xr-x  1 root root 1024 Jun 22 17:30 deploy.sh" Foreground="#3FB950" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>
+                        <TextBlock Text="drwxr-xr-x  4 root root 4096 Jun 22 18:00 projects" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>
+                        <TextBlock Text="root@prod-01:~$ systemctl status nginx" Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="12.5" Margin="0,4,0,0"/>
+                        <TextBlock Text="● nginx.service - A high performance web server" Foreground="#3FB950" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>
+                        <TextBlock Text="   Active: active (running) since Mon 2026-06-22" Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>
+                        <TextBlock x:Name="TermCursor" Text="root@prod-01:~$ █" Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="12.5" Margin="0,4,0,0"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
@@ -198,21 +198,21 @@
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="10,0,10,6">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
-                            Content="ls -la" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/>
+                            Content="ls -la" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
                     <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
-                            Content="df -h" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/>
+                            Content="df -h" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
                     <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
-                            Content="free -h" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/>
+                            Content="free -h" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
                     <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
-                            Content="top" Foreground="#FF4B6E" FontFamily="Consolas,monospace" FontSize="11"/>
+                            Content="top" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
                     <Button Background="#1AF59E0B" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
-                            Content="systemctl status nginx" Foreground="#F59E0B" FontFamily="Consolas,monospace" FontSize="11"/>
+                            Content="systemctl status nginx" Foreground="#F59E0B" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
                 </StackPanel>
             </ScrollViewer>
             <!-- 命令输入（可真实输入） -->
             <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="10,0,10,10">
                 <TextBox x:Name="CmdInput" PlaceholderText="输入命令…" Background="Transparent" BorderThickness="0"
-                         Foreground="#C9D1D9" FontFamily="Consolas,monospace" FontSize="13"
+                         Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="13"
                          Padding="12,9" CaretBrush="#FF4B6E" KeyDown="OnCmdKeyDown"/>
             </Border>
         </Grid>
@@ -248,7 +248,7 @@
                         <StackPanel Spacing="6">
                             <TextBlock Text="用下面的命令查看最近的 Nginx 错误日志：" Foreground="#C9D1D9" FontSize="13" TextWrapping="Wrap"/>
                             <Border Background="#000000" CornerRadius="6" Padding="8">
-                                <TextBlock Text="tail -n 50 /var/log/nginx/error.log" Foreground="#3FB950" FontFamily="Consolas,monospace" FontSize="12" TextWrapping="Wrap"/>
+                                <TextBlock Text="tail -n 50 /var/log/nginx/error.log" Foreground="#3FB950" FontFamily="{StaticResource MonoFont}" FontSize="12" TextWrapping="Wrap"/>
                             </Border>
                         </StackPanel>
                     </Border>

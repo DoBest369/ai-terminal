@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- 嵌入 JetBrains Mono 等宽字体（U4：好看的字体库，终端/代码区用）-->
+    <AvaloniaResource Include="Assets/Fonts/*.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.0.5" />
     <PackageReference Include="Avalonia.Desktop" Version="12.0.5" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.5" />

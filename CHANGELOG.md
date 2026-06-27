@@ -199,6 +199,18 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 40 — 🎯 UI 品质 U3 主题切换（linux）+ U1-U4 里程碑（2026-06-28）
+
+里程碑：用户 UI 品质要求 U1-U4 全部启动落地。
+
+- **🎯 U3 主题切换（linux）**：linux 4 套精选主题（午夜 / Dracula / Nord / Solarized，含 VSCode 经典配色），设置面板点击实时切换全窗配色 + 持久化（重启恢复）。响应用户「配色可调像 VSCode 首启选风格」。技术：const 颜色 → Theme 结构体 + THEME_IDX 全局原子 + 大写访问函数（BG()/ACCENT() 等读当前主题），perl 批量替换 120 处调用。
+- **UI 品质专项里程碑（用户最初要求）**：
+  - U1 图标库化（去 emoji，五端：apple SF Symbols / windows Material PathIcon / linux Phosphor）✅
+  - U2 配色协调（头白身黑割裂 → 整窗深色协调）✅
+  - U3 配色可调（linux 4 套主题实时切换 + 持久化；windows 待对齐）✅（linux）
+  - U4 字号可调 + 持久化（windows 终端+AI / linux 终端）✅
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，871 提交。
+
 ## 阶段 39 — AI 字号可调 + 字号体系完整（windows，2026-06-28）
 
 - **AI 面板字号可调（windows）**：三模式切换器旁 A-/A+ 调整 AI 对话字号（clamp 10-22），更新所有气泡 + 新气泡，持久化。windows 字号体系完整（终端 + AI 都可调+持久化）。

@@ -4063,3 +4063,11 @@
 - **改动**：`linux/src/main.rs`(sftp 状态字段 + channel + run_sftp_ls + parse_sftp + 窗口渲染 + 删 sftp_demo)。
 - **验证**：`cargo build` **0 error/warning**（0.62s，带 proxy）。推送 b36088c。
 - **意义**：SFTP 真实文件 windows/linux 双端对齐（从 mock → 真实 SSH 文件浏览）。windows/linux 双端全模块真实（连接管理 + 终端 + AI 运维 + SFTP）。下一步 SFTP 目录导航 / 连接删除 / 质量收口。
+
+---
+
+## windows SFTP 目录导航（点击目录进入/.. 返回，浏览文件树）
+- **内容**：windows OnSftpOpen → LoadSftp(path)；目录项变可点击 Button → cd 该目录 ls 子目录（.. 返回上级）；_sftpCwd 跟踪当前目录；真实 pwd 显示；路径单引号防注入。
+- **改动**：`MainWindow.axaml.cs`(LoadSftp 接受 path + 目录可点击导航 + _sftpCwd)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 038adbd。
+- **意义**：windows SFTP 从「只看 home」→「可浏览整个文件树」（点目录进入/.. 返回）。SFTP 交互完整。下一步 linux SFTP 目录导航对齐 / 连接删除 / 质量收口。

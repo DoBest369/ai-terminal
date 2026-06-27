@@ -576,6 +576,7 @@ impl eframe::App for TermindApp {
                 });
                 // 待执行命令卡片（Agent 确认放行 / Auto 危险命令确认）
                 let mut run_idx: Option<usize> = None;
+                let mut fill_cmd: Option<String> = None;
                 for (i, cmd) in self.pending_cmds.iter().enumerate() {
                     let (rlabel, rcolor) = risk_style(risk_level(cmd));   // 四级风险配色+标签（对照 apple/windows）
                     ui.horizontal(|ui| {
@@ -585,8 +586,14 @@ impl eframe::App for TermindApp {
                             .fill(ACCENT).rounding(6.0)).clicked() {
                             run_idx = Some(i);
                         }
+                        // 填入终端（命令填入输入框可编辑后执行，对照 windows）
+                        if ui.add(egui::Button::new(egui::RichText::new("填入").size(10.0).color(TEXT_SECONDARY))
+                            .fill(SURFACE).rounding(6.0)).clicked() {
+                            fill_cmd = Some(cmd.clone());
+                        }
                     });
                 }
+                if let Some(c) = fill_cmd { self.cmd_input = c; }
                 if let Some(i) = run_idx {
                     let cmd = self.pending_cmds.remove(i);
                     self.term_lines.push(format!("$ {}", cmd));

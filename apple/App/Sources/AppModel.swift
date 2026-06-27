@@ -2,6 +2,33 @@ import Foundation
 import SwiftUI
 import AITerminalCore
 
+/// AI 三模式（安全梯度，对齐 windows/linux）：Chat 纯聊天 / Agent 每条确认 / Auto 自主闭环
+enum AIMode: String, CaseIterable, Identifiable {
+    case chat, agent, autoAgent
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .chat: return "聊天"
+        case .agent: return "代理"
+        case .autoAgent: return "全自动"
+        }
+    }
+    var icon: String {
+        switch self {
+        case .chat: return "bubble.left.and.bubble.right"
+        case .agent: return "checkmark.shield"
+        case .autoAgent: return "bolt.badge.automatic"
+        }
+    }
+    var hint: String {
+        switch self {
+        case .chat: return "只对话建议，不执行命令"
+        case .agent: return "AI 生成命令，每条需你确认放行"
+        case .autoAgent: return "AI 自主执行闭环（高危仍需确认）"
+        }
+    }
+}
+
 /// 应用主状态。
 @MainActor
 final class AppModel: ObservableObject {
@@ -119,6 +146,13 @@ final class AppModel: ObservableObject {
         }
     }
     private static let systemPromptKey = "ai_system_prompt"
+
+    /// AI 工作模式（chat/agent/autoAgent，持久化，对齐 windows/linux 三模式）
+    @Published var aiMode: AIMode = AIMode(rawValue: UserDefaults.standard.string(forKey: "ai_mode") ?? "chat") ?? .chat {
+        didSet { UserDefaults.standard.set(aiMode.rawValue, forKey: "ai_mode") }
+    }
+    /// Agent 模式待确认放行的命令（UI 显示「执行」按钮）
+    @Published var pendingCommands: [String] = []
 
     /// 恢复默认系统提示词
     func resetAgentSystemPrompt() {
@@ -870,18 +904,29 @@ final class AppModel: ObservableObject {
     /// AI 多轮上下文窗口：发送时携带的最近消息条数
     static let contextWindow = 20
 
-    /// 把 AI 回复里的 [EXECUTE] 命令注入当前活动终端会话
+    /// 把 AI 回复里的 [EXECUTE] 命令按 AI 模式处理（chat 不执行 / agent 待确认 / auto 自动）
     private func runParsedCommands(from reply: String) {
         let commands = AIService.parseCommands(from: reply)
-        guard !commands.isEmpty, let session = activeSession else { return }
+        guard !commands.isEmpty else { return }
+        // Chat 模式：纯聊天，不碰终端
+        if aiMode == .chat { return }
         for cmd in commands {
-            if cmd.isDangerous {
-                aiMessages.append(ChatMessage(role: .assistant, content: "⚠️ 检测到高危命令，已跳过自动执行：\(cmd.command)"))
+            // 危险命令：即使 Auto 也不自动执行，进待确认（安全铁律）
+            if cmd.isDangerous || aiMode == .agent {
+                pendingCommands.append(cmd.command)
                 continue
             }
-            session.injectCommand?(cmd.command + "\n")
+            // Auto 模式非危险命令：自动注入终端执行
+            activeSession?.injectCommand?(cmd.command + "\n")
             recordCommand(cmd.command)   // N-History
         }
+    }
+
+    /// 确认放行待执行命令（Agent 模式「执行」按钮 / 危险命令二次确认）
+    func runPendingCommand(_ cmd: String) {
+        activeSession?.injectCommand?(cmd + "\n")
+        recordCommand(cmd)
+        pendingCommands.removeAll { $0 == cmd }
     }
 
     func clearAIMessages() {

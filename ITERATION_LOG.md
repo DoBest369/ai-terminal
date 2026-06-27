@@ -4711,3 +4711,11 @@
 - **改动**：`linux main.rs`(custom_asks 字段 + 快捷追问自定义 + load/save 第6参数)。
 - **验证**：`cargo build` **0 error/warning**（0.96s，带 proxy）。推送 d131809。
 - **意义**：快捷追问自定义 windows/linux 双端对齐（运维定制高频追问 + 持久化）。快捷命令 + 快捷追问双端均可定制。下一步 质量收口 CHANGELOG 阶段52 / 进程 Top 面板 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段52 AI快捷追问可自定义双端
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；946 提交。五端 build 全绿。
+- **CHANGELOG 阶段52**：AI 快捷追问自定义（增删+持久化）windows/linux 双端；定制能力完整（快捷命令+追问）。
+- **改动**：`CHANGELOG.md`(阶段52)。
+- **意义**：CHANGELOG 至阶段52。定制能力双端完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

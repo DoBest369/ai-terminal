@@ -3749,3 +3749,11 @@
 - **改动**：`MainWindow.axaml.cs`(CallAiAsync 流式 + AppendAiAsk onDelta)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 15s 存活；**端到端验证**：nexcores 流式 SSE 返回 content_block_delta 事件（逐块 delta.text `"1"`→`", 2, 3, 4, 5"`），windows 逐字解析正确。推送 bcd0ff5。
 - **意义**：AI 长回复逐字流式显示，不用等几秒（体验对齐 ChatGPT/Claude）。windows 智能运维 AI 体验完整（真实 AI + 流式 + 代码块 + 三模式 + Z3 + Auto 闭环 + 安全）。下一步 apple Auto 闭环 / linux 流式。
+
+---
+
+## windows AI 对话清空/新建会话按钮
+- **内容**：windows AI 助手标题旁加清空按钮（垃圾桶 PathIcon）；OnClearChat 清 AiMessages + _aiHistory + _autoLoopDepth（新建会话，对话多了可重开）。
+- **改动**：`MainWindow.axaml`(清空按钮)、`MainWindow.axaml.cs`(OnClearChat)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 15s 存活；截图确认 AI 面板完整（✦ AI 助手 + 清空按钮 + 三模式切换器[聊天高亮] + 代码块对话），整窗深色协调。推送 5de16de。
+- **意义**：windows AI 面板功能完整（标题/清空/三模式/对话代码块/快捷追问/流式输入）。windows 智能运维工作台 UI + 功能体验都成熟。下一步 apple Auto 闭环 / linux 体验对齐。

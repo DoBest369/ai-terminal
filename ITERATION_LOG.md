@@ -6,6 +6,16 @@
 
 ---
 
+## 🏆 70 项 UI 现代化里程碑 + 质量基线收口
+- **质量基线**（70 项 UI + 真实交互 + 真实逻辑后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；PARITY **103 项 ✅✅**；累计 625 次提交。五端 build 全绿，核心逻辑历经 30+ 轮迭代零回归。
+- **🏆 三阶段进展沉淀**：
+  - **阶段一 · 五端编译打通**（CHANGELOG 16）：代理 1082 + 国外官方源 → Xcode 26.4/Rust/.NET 装齐，mac/iOS/Linux/Windows/Android 全本机编译。
+  - **阶段二 · 五端 UI 设计语言统一**（CHANGELOG 17，70 项 UI 现代化）：连接列表(全信息)/状态面板(进度条+服务状态)/终端区(快捷命令+滚动)/AI 面板(角色标签+气泡+代码块+追问+输入+多轮)/设置页/SFTP 全功能区五端对齐。
+  - **阶段三 · windows/linux 真实交互 + 真实逻辑**（CHANGELOG 18）：选连接联动 + 快捷命令/追问填入 + 命令回车执行/clear/历史回溯 + AI 成对回复 + **真实 TCP 可达性探测**（双端）。
+- **意义**：从「五端能编译」→「五端 UI 一致」→「windows/linux 真实交互+真实数据」，70 项 UI 现代化里程碑，质量基线扎实。下一步真实 SSH/AI 逻辑接入（ssh2/SSH.NET 依赖已备）。
+
+---
+
 ## windows 真实 TCP 可达性探测（双端真实可达性对齐）🎯
 - **内容**：windows `ConnItem` 从 record → observable class（INotifyPropertyChanged，Dot/Reach/ReachColor 可通知）；`ProbeReachabilityAsync` 解析 user@host:port → `TcpClient.ConnectAsync` + 2s 超时（Task.WhenAny）真实探测，`Dispatcher.UIThread.Post` 更新状态点/可达指示。连接可达从 mock → 真实 TCP 探测，对照 linux probe_tcp。
 - **改动**：`MainWindow.axaml.cs`(ConnItem observable class + ProbeReachabilityAsync + TcpReachableAsync)。

@@ -6,14 +6,14 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
         x:Class="TermindWindows.MainWindow"
         Title="Termind" Width="1200" Height="760"
-        Background="#0D0E1A"
+        Background="{DynamicResource ThemeWindowBg}"
         ExtendClientAreaToDecorationsHint="True">
     <!-- Termind 智能 SSH 服务器运维工作台（Windows · Avalonia，三栏工作台对齐 apple/android）-->
     <!-- 扩展客户区到标题栏：消除系统浅色标题栏与深色内容割裂，整窗统一深色；顶部留 30px 给红绿灯按钮 -->
     <Grid ColumnDefinitions="280,*,340" Margin="0,30,0,0">
 
         <!-- ① 侧边栏：品牌+工具栏 + 搜索 + 连接列表 -->
-        <Border Grid.Column="0" Background="#16182A">
+        <Border Grid.Column="0" Background="{DynamicResource ThemeSideBg}">
             <StackPanel>
                 <!-- 品牌 + 工具栏（新建连接 / 设置） -->
                 <Grid ColumnDefinitions="*,Auto,Auto,Auto" Margin="16,16,10,12">
@@ -71,13 +71,14 @@
                             <Flyout Placement="BottomEdgeAlignedLeft">
                                 <StackPanel Width="280" Spacing="12">
                                     <TextBlock Text="设置" Foreground="#FFFFFF" FontSize="15" FontWeight="Bold"/>
-                                    <!-- 配色主题 -->
+                                    <!-- 配色主题（U3：点击切换，像 VSCode；对照 apple/linux）-->
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="配色主题" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>
+                                        <TextBlock Text="配色主题（点击切换）" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <Border Background="#1A3B82F6" CornerRadius="6" Padding="10,5"><TextBlock Text="午夜" Foreground="#3B82F6" FontSize="12"/></Border>
-                                            <Border Background="#22000000" CornerRadius="6" Padding="10,5"><TextBlock Text="Dracula" Foreground="#8B92A8" FontSize="12"/></Border>
-                                            <Border Background="#22000000" CornerRadius="6" Padding="10,5"><TextBlock Text="Nord" Foreground="#8B92A8" FontSize="12"/></Border>
+                                            <Button Tag="0" Click="OnTheme" Background="#22000000" BorderThickness="0" CornerRadius="6" Padding="10,5" Content="午夜" Foreground="#C9D1D9" FontSize="12"/>
+                                            <Button Tag="1" Click="OnTheme" Background="#22000000" BorderThickness="0" CornerRadius="6" Padding="10,5" Content="Dracula" Foreground="#C9D1D9" FontSize="12"/>
+                                            <Button Tag="2" Click="OnTheme" Background="#22000000" BorderThickness="0" CornerRadius="6" Padding="10,5" Content="Nord" Foreground="#C9D1D9" FontSize="12"/>
+                                            <Button Tag="3" Click="OnTheme" Background="#22000000" BorderThickness="0" CornerRadius="6" Padding="10,5" Content="Solarized" Foreground="#C9D1D9" FontSize="12"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <!-- AI 服务商 -->
@@ -161,7 +162,7 @@
         </Border>
 
         <!-- ② 终端区：状态条 + 输出 + 快捷命令 + 输入 -->
-        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto,Auto" Background="#0D0E1A">
+        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto,Auto" Background="{DynamicResource ThemeTermBg}">
             <!-- 状态条（CPU/内存 mini 进度条，绿/橙/红三档，对齐 apple/android/linux） -->
             <Border Grid.Row="0" Background="#16182A" Padding="14,8">
               <Grid ColumnDefinitions="*,Auto">
@@ -263,7 +264,7 @@
         </Grid>
 
         <!-- ③ AI 面板：对话 + 快捷追问 + 输入 -->
-        <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto,Auto" Background="#10121F">
+        <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto,Auto" Background="{DynamicResource ThemeAiBg}">
             <Border Grid.Row="0" Padding="14,10">
                 <StackPanel Spacing="8">
                     <Grid ColumnDefinitions="*,Auto,Auto">

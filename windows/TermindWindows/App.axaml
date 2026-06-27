@@ -7,6 +7,12 @@
     <Application.Resources>
         <!-- U4：JetBrains Mono 等宽字体（终端/代码区用，比 Consolas 更好看） -->
         <FontFamily x:Key="MonoFont">avares://TermindWindows/Assets/Fonts#JetBrains Mono</FontFamily>
+        <!-- U3：主题色资源（DynamicResource，代码切换；默认午夜，对照 apple/linux）-->
+        <SolidColorBrush x:Key="ThemeWindowBg" Color="#1A1A2E"/>
+        <SolidColorBrush x:Key="ThemeSideBg" Color="#16213E"/>
+        <SolidColorBrush x:Key="ThemeTermBg" Color="#0D0E1A"/>
+        <SolidColorBrush x:Key="ThemeAiBg" Color="#10121F"/>
+        <SolidColorBrush x:Key="ThemeAccent" Color="#FF4B6E"/>
     </Application.Resources>
 
     <Application.Styles>

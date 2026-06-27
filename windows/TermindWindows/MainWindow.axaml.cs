@@ -91,6 +91,7 @@ public partial class MainWindow : Window
             if (root.TryGetProperty("baseUrl", out var u)) BaseUrlBox.Text = u.GetString() ?? "";
             if (root.TryGetProperty("fontSize", out var fs) && fs.TryGetDouble(out var fsv)) _termFontSize = System.Math.Clamp(fsv, 9, 22);
             if (root.TryGetProperty("aiFontSize", out var afs) && afs.TryGetDouble(out var afsv)) _aiFontSize = System.Math.Clamp(afsv, 10, 22);
+            if (root.TryGetProperty("themeIdx", out var ti) && ti.TryGetInt32(out var tiv)) ApplyTheme(tiv);
             // 恢复命令历史（上下键回溯，重启可用）
             if (root.TryGetProperty("cmdHistory", out var ch) && ch.ValueKind == JsonValueKind.Array)
                 foreach (var c in ch.EnumerateArray())
@@ -126,7 +127,7 @@ public partial class MainWindow : Window
             // 只持久化用户新建的连接（"我的连接" 组），默认演示连接不存
             var userConns = _conns.Where(c => c.GroupName == "我的连接")
                 .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note }).ToArray();
-            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize, aiFontSize = _aiFontSize });
+            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize, aiFontSize = _aiFontSize, themeIdx = _themeIdx });
             System.IO.File.WriteAllText(ConfigPath, json);
         }
         catch { /* 写失败忽略，不影响运行 */ }
@@ -417,6 +418,38 @@ public partial class MainWindow : Window
             catch (System.Exception ex) { return "⚠️ " + ex.Message; }
         });
     }
+
+    // U3 主题：4 套（午夜/Dracula/Nord/Solarized），各主要背景色（窗口/侧栏/终端/AI）+ 强调色
+    private static readonly string[][] Themes =
+    {
+        new[] { "#1A1A2E", "#16213E", "#0D0E1A", "#10121F", "#FF4B6E" },   // 午夜
+        new[] { "#282A36", "#343746", "#21222C", "#282A36", "#FF79C6" },   // Dracula
+        new[] { "#2E3440", "#3B4252", "#272C36", "#2E3440", "#88C0D0" },   // Nord
+        new[] { "#002B36", "#073642", "#002028", "#002B36", "#D33682" },   // Solarized
+    };
+
+    /// U3 主题切换（点击配色主题）：改 Application.Resources 主要背景/强调色资源 + 持久化
+    private void OnTheme(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is not Button b || b.Tag is not string tag || !int.TryParse(tag, out var idx)) return;
+        ApplyTheme(idx);
+        SaveConfig();
+    }
+
+    private void ApplyTheme(int idx)
+    {
+        if (idx < 0 || idx >= Themes.Length) idx = 0;
+        _themeIdx = idx;
+        var t = Themes[idx];
+        var res = Application.Current!.Resources;
+        res["ThemeWindowBg"] = new SolidColorBrush(Color.Parse(t[0]));
+        res["ThemeSideBg"] = new SolidColorBrush(Color.Parse(t[1]));
+        res["ThemeTermBg"] = new SolidColorBrush(Color.Parse(t[2]));
+        res["ThemeAiBg"] = new SolidColorBrush(Color.Parse(t[3]));
+        res["ThemeAccent"] = new SolidColorBrush(Color.Parse(t[4]));
+    }
+
+    private int _themeIdx = 0;
 
     /// 编辑连接（右键菜单）：解析 user@host:port 填入新建表单 + 移除原项，改后点「添加」重加（CRUD 的 U）
     private void OnEditConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

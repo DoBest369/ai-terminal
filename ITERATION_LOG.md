@@ -3765,3 +3765,10 @@
 - **改动**：`apple/AITerminalCore/Sources/AITerminalCore/AIService.swift`(defaultAgentSystemPrompt)。
 - **验证**：swift build Core + App Build complete；**8 自测全过无回归**。推送 7074ae7。
 - **🎯 AI 运维系统提示词五端对齐**：apple/windows/linux（iOS/android 同源）AI 都用资深运维专家提示词（结合环境/风险分级/排障流程/[EXECUTE]）。AI 运维专业能力五端一致。windows/linux 双端真实 AI + 优化提示词，apple/android 真实 AI + 优化提示词。下一步 linux 体验对齐（清空对话）/ apple Auto 闭环。
+
+---
+
+## 🎯 ROADMAP S1-S5 智能运维全部标记完成（文档收口）
+- **内容**：ROADMAP S1-S5 全部 [x] 完成——S1 linux 真实 SSH(ssh2) / S2 linux 真实 AI(ureq) / S3 windows 真实 SSH+AI(SSH.NET/HttpClient 流式) / S4 智能运维移植(Z3 环境感知+优化运维提示词+危险拦截) / S5 AI 三模式(Chat/Agent/Auto 五端对齐 UI+逻辑,windows Auto 闭环+流式+代码块)。都端到端验证（真实 AI nexcores + 真实 SSH 47.85.19.31）。
+- **改动**：`ROADMAP.md`(S1-S5 标记完成)。
+- **意义**：用户核心需求「智能运维全平台落地 + AI 三模式」**S1-S5 全部完成**。从「智能运维只 apple/android 真实」→「全平台真实落地，能力体系一致，端到端验证」。Termind 核心价值（智能 SSH 运维 + AI Agent 三模式安全梯度）全平台成型。后续转向：批量巡检移植 windows/linux / apple Auto 闭环 / 持续打磨细节。

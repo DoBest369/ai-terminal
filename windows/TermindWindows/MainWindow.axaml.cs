@@ -193,6 +193,22 @@ public partial class MainWindow : Window
     /// SFTP 打开按钮 → 浏览 home 目录
     private void OnSftpOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => LoadSftp("~");
 
+    /// SFTP 文件预览：SSH 判断文本/大小，文本则 head 前 200 行到终端区显示
+    private async void PreviewFile(string filePath)
+    {
+        var p = filePath.Replace("'", "");
+        AppendTerm($"# 预览 {filePath}", "#8B92A8");
+        // file 判类型 + 大小守门：>1MB 或二进制不预览
+        var meta = await SshExecAsync($"stat -c %s '{p}' 2>/dev/null; file -b '{p}' 2>/dev/null");
+        var mlines = meta.Split('\n');
+        long.TryParse(mlines.Length > 0 ? mlines[0].Trim() : "0", out var size);
+        var ftype = mlines.Length > 1 ? mlines[1] : "";
+        if (size > 1_000_000) { AppendTerm($"  （文件 {size / 1024}KB 过大，跳过预览）", "#F59E0B"); return; }
+        if (ftype.Contains("executable") || ftype.Contains("binary") || ftype.Contains("data")) { AppendTerm($"  （{ftype.Trim()}，二进制不预览）", "#F59E0B"); return; }
+        var content = await SshExecAsync($"head -n 200 '{p}'");
+        foreach (var line in content.Split('\n')) AppendTerm(line.TrimEnd(), "#A0A0A0");
+    }
+
     /// SFTP 真实文件列表（SSH ls 指定目录）；目录可点击导航，".." 返回上级
     private async void LoadSftp(string path)
     {
@@ -239,7 +255,14 @@ public partial class MainWindow : Window
                 btn.Click += (_, _) => LoadSftp(target);
                 SftpList.Children.Add(btn);
             }
-            else SftpList.Children.Add(grid);
+            else
+            {
+                // 文件可点击预览（cat 前 200 行，到终端区显示）
+                var fbtn = new Button { Background = Brush.Parse("#00000000"), BorderThickness = new Thickness(0), Padding = new Thickness(2), Content = grid, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left, Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand) };
+                var fpath = $"{_sftpCwd}/{name}";
+                fbtn.Click += (_, _) => PreviewFile(fpath);
+                SftpList.Children.Add(fbtn);
+            }
         }
         if (SftpList.Children.Count == 0) SftpList.Children.Add(new TextBlock { Text = "(空目录)", Foreground = Brush.Parse("#6B7280"), FontSize = 12 });
     }

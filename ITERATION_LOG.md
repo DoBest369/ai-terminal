@@ -4415,3 +4415,11 @@
 - **改动**：`MainWindow.axaml`(编辑菜单)、`MainWindow.axaml.cs`(OnEditConn)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 9662ecf。
 - **意义**：windows 连接管理 CRUD 完整（增/删/改/查 + 持久化 + 切换）。连接编辑（CRUD 的 U）补齐。下一步 windows U3 主题切换（颜色硬编码专项）/ 持续打磨。
+
+---
+
+## linux AI 气泡字号可调 A-/A+（U4，对照 windows，双端对齐）
+- **内容**：linux `ai_font_size` 字段（默认 13）；AI 助手标题行右侧 A-/A+ 按钮调整（clamp 10-22）；AI 气泡（用户 + render_ai_reply 正文/代码块）用动态字号；render_ai_reply 加 size 参数。
+- **改动**：`linux/src/main.rs`(ai_font_size + AI 标题 A-/A+ + AI 气泡字号 + render_ai_reply size)。
+- **验证**：`cargo build` **0 error/warning**（0.98s，带 proxy）。推送 e7ac184。
+- **意义**：AI 字号可调 U4 windows/linux 双端对齐。字号体系双端完整（终端 + AI 都可调，windows 含持久化）。下一步 linux AI 字号持久化 / windows U3 主题 / 质量收口。

@@ -60,7 +60,9 @@
 ## ⑦ 已知边界（如实）
 
 - 五端**编译**已全部本机打通，**UI 设计语言高度一致**（47+ 项 UI 现代化，多数五端对齐）。windows/linux 端 UI 已对齐 apple/android **全功能区**（连接列表[色条/状态点/名称/地址/备注/可达/最近使用] + 状态面板[CPU/内存进度条/服务状态点] + 终端区[快捷命令栏/可滚动输出] + AI 面板[角色标签/气泡/代码块/快捷追问/输入框/多轮] + 设置页[主题/AI服务商/API Key/模型] + SFTP 文件浏览[类型图标/大小]）。
-- **功能完整度**仍以 apple/android 最高：护城河 Z1-Z8 + 批量运维 + 知识沉淀闭环为**真实实现**（接 SSH/AI）；windows/linux 端为**完整 UI + mock 数据**，真实 SSH/AI 逻辑待接入（对照 apple/android 逐步实现，编译验证已就绪）。
+- **🎯 智能运维全平台真实落地（2026-06-27 更新）**：windows/linux 已从「完整 UI + mock」→ **真实 AI（windows HttpClient / linux ureq 调 Anthropic 兼容接口）+ 真实 SSH（windows SSH.NET / linux ssh2 连真实服务器 exec）+ AI 三模式（Chat/Agent/Auto）+ Z3 环境感知 + 危险命令拦截**，能力体系与 apple/android 一致，端到端验证（真实 AI 接口 + 真实测试服务器）。apple/android 仍最完整（护城河 Z1-Z8 + 批量运维 + 知识沉淀闭环）。
+- **AI 三模式五端对齐**：Chat（纯聊天）/ Agent（每条确认放行）/ Auto（自主闭环 agent loop，读输出→决策→执行→回喂），安全梯度——危险命令各端强制确认不被 Auto 绕过。windows 更有 Auto 自主闭环。
+- **边界**：windows/linux 整 app 真机运行验证：windows mac 上 dotnet run 已端到端跑通；linux 因 egui/icrate macOS 26 兼容 bug 在 mac 不能整体 run，但真实 AI/SSH 逻辑已在 mac 独立端到端验证，等真 Linux/CI 整体运行。
 - iOS 真机/上架需 Apple 开发者签名；linux 端真机运行验证留 CI/真 Linux（egui 依赖 icrate 0.0.4 在 macOS 26 有 NSScreen 兼容 bug，仅影响 mac 上运行，不影响编译与真 Linux）。
 - 工具链下载依赖系统代理（端口 1082 走国外）+ 国外官方源；无代理或仅国内镜像时大文件下载会失败。
 - 移动/网页 SSH 中继（`relay/`）需自托管，仅可信网络。

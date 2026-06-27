@@ -4516,3 +4516,12 @@
 - **CHANGELOG 阶段44**：搜索能力双端对齐（连接搜索过滤 + 终端输出搜索高亮，windows/linux）。
 - **改动**：`CHANGELOG.md`(阶段44)。
 - **意义**：CHANGELOG 至阶段44。用户全部需求实现后持续打磨新功能双端对齐（搜索/主题/字号）。Termind 全平台真实智能运维工作台日臻完善，windows/linux 双端体验一致接近 apple 标杆。
+
+---
+
+## windows 状态条真实指标（SSH 取 CPU/内存/负载替换 mock，对齐 linux/proc）
+- **内容**：windows 状态条 CPU 47%/内存 56%/负载 0.82 mock → x:Name 真实绑定；选中连接 → RefreshMetricsAsync：SSH 一条命令取 /proc/loadavg + free + /proc/stat 两次采样（sleep 0.4）→ 解析 CPU%/内存%/负载 → 更新进度条；进度条宽度+颜色三档（绿<60/橙60-80/红>80）；UI 线程 Dispatcher.Post 更新；失败保留上次值不打断。
+- **改动**：`MainWindow.axaml`(状态条 x:Name)、`MainWindow.axaml.cs`(RefreshMetricsAsync + OnConnSelected 触发)。
+- **踩坑**：windows 无 using System，Math/StringSplitOptions 需 System. 全限定（perl 批量，注意已有 System. 前缀勿重复加）。
+- **验证**：`dotnet build` 0 错误；run 存活 + 截图（状态条真实指标标签）。推送 6a9c44f。
+- **意义**：windows 状态条接真实 SSH /proc 指标（CPU 两次采样算占用率，对齐 linux/proc 与 apple Z6），去最后的 mock。下一步 linux 状态条确认 / 定时刷新 / 新功能。

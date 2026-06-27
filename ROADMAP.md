@@ -29,6 +29,14 @@
 - [ ] **U3 主题可调 + 首启选风格**：像 VSCode 首次启动让用户选界面风格；配色方案多套可切换（apple 已有 5 套 AppColorScheme，推广到 windows/linux + 首启引导）。
 - [ ] **U4 字体可调 + 字体库**：字号可调（apple 终端字号已有，推广五端）；引入/选用好看的等宽字体（如 JetBrains Mono / Fira Code）。
 
+### 🧠 智能运维全平台落地 + AI Agent 终端接管（2026-06-27 用户追问，核心优先级）
+> 用户指出：智能运维目前只 apple/android 真实落地，windows/linux 仅 UI+mock（ssh2/ureq 有依赖但 0 调用）。核心价值必须**全平台落地**。用真实测试机 47.85.19.31 验证。
+- [ ] **S1 linux 真实 SSH**：main.rs 实际 use ssh2，连接 47.85.19.31 真实 exec，终端区显真实命令输出（替换 term_lines mock）。
+- [ ] **S2 linux 真实 AI**：ureq 调 Anthropic/OpenAI（用设置里的 api_key/base_url/sys_prompt），AI 气泡显真实流式回复（替换占位文案）。
+- [ ] **S3 windows 真实 SSH + AI**：SSH.NET（或 Renci.SshNet）+ HttpClient 调 AI，对照 linux。
+- [ ] **S4 智能运维能力移植 windows/linux**：命令解释/报错分析/环境感知/批量巡检（对照 apple/android 护城河 Z1-Z8）。
+- [ ] **🤖 S5 AI Agent 终端接管**（用户重点）：AI 读终端实时输出→决策命令→执行→读结果的闭环 agent loop。`[EXECUTE]cmd[/EXECUTE]` 解析 + 自动/确认执行 + 结果回喂 AI + 危险命令风险拦截。先 apple（已有基础）跑通，再全平台。安全：危险命令必须二次确认 + 可回滚。
+
 ### 🐧 Linux 原生 backlog（linux/ Rust+egui）
 - [x] **L0** 工程骨架（Cargo.toml eframe/egui+ssh2+ureq；src/main.rs TermindApp 连接列表占位 UI；README 构建说明+路线；⚠️ 本机无 cargo 未编译验证，需 Linux+Rust 环境；推送 9550426）
 - [ ] **L1** 真实 SSH（ssh2 crate）+ 交互终端 / **L2** 连接管理持久化 / **L3** AI 助手(ureq) / **L4** 智能运维逻辑移植

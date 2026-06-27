@@ -49,6 +49,7 @@ struct TermindApp {
     show_settings: bool,
     api_key: String,
     base_url: String,
+    sys_prompt: String,
     show_sftp: bool,
     cmd_input: String,
     term_lines: Vec<String>,   // 用户输入回车后追加的终端历史行
@@ -77,7 +78,7 @@ impl Default for TermindApp {
             let (host, port, tx) = (c.host, c.port, tx.clone());
             std::thread::spawn(move || { let _ = tx.send((i, probe_tcp(host, port))); });
         }
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), base_url: "https://api.anthropic.com/v1/messages".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), base_url: "https://api.anthropic.com/v1/messages".to_string(), sys_prompt: "你是 Termind 的 SSH 运维助手。请结合服务器环境，给出安全、可直接执行的运维建议。危险操作（删除/格式化/重启服务/改防火墙）必须警示风险并建议先备份。回答精炼、用中文，命令用代码块。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx }
     }
 }
 
@@ -161,6 +162,11 @@ impl eframe::App for TermindApp {
                 ui.add(egui::TextEdit::singleline(&mut self.base_url)
                     .hint_text("https://api.anthropic.com/v1/messages").desired_width(f32::INFINITY)
                     .font(egui::TextStyle::Monospace));
+                ui.add_space(8.0);
+                // AI 系统提示词（可自定义，对齐 apple/android）
+                ui.colored_label(TEXT_SECONDARY, "AI 系统提示词");
+                ui.add(egui::TextEdit::multiline(&mut self.sys_prompt)
+                    .desired_width(f32::INFINITY).desired_rows(4));
             });
         self.show_settings = open;
 

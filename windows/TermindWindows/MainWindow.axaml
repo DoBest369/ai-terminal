@@ -6,9 +6,11 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
         x:Class="TermindWindows.MainWindow"
         Title="Termind" Width="1200" Height="760"
-        Background="#0D0E1A">
+        Background="#0D0E1A"
+        ExtendClientAreaToDecorationsHint="True">
     <!-- Termind 智能 SSH 服务器运维工作台（Windows · Avalonia，三栏工作台对齐 apple/android）-->
-    <Grid ColumnDefinitions="280,*,340">
+    <!-- 扩展客户区到标题栏：消除系统浅色标题栏与深色内容割裂，整窗统一深色；顶部留 30px 给红绿灯按钮 -->
+    <Grid ColumnDefinitions="280,*,340" Margin="0,30,0,0">
 
         <!-- ① 侧边栏：品牌+工具栏 + 搜索 + 连接列表 -->
         <Border Grid.Column="0" Background="#16182A">

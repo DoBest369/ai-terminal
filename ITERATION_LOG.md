@@ -4431,3 +4431,11 @@
 - **CHANGELOG 阶段41**：AI 字号可调双端（字号体系终端+AI完整）+ windows 连接编辑（CRUD 完整）。
 - **改动**：`CHANGELOG.md`(阶段41)。
 - **意义**：CHANGELOG 至阶段41。用户全部核心需求（智能运维全平台+AI三模式+护城河+UI品质U1-U4）实现，持续细节打磨（字号体系双端、连接CRUD）。Termind 全平台真实智能运维工作台成熟。
+
+---
+
+## linux AI 字号持久化（U4，对照 windows，字号持久化双端完整）
+- **内容**：linux save_config 加 ai_font_size 参数（4 参数）；load_ai_font_size 读 config；Default 用 load；AI 字号 A-/A+ 调整后 save_config 持久化；AI 字号跨重启不丢。
+- **改动**：`linux/src/main.rs`(save_config ai_font_size + load_ai_font_size + Default + AI 字号保存，sed/perl 批量更新 5 处调用)。
+- **验证**：`cargo build` **0 error/warning**（0.75s，带 proxy）。推送 d5b8af9。
+- **意义**：字号持久化双端完整（终端+AI，windows/linux）。U4 字号可调 + 持久化完整体系双端。下一步 windows U3 主题对齐 / apple UI 检查 / 新功能。

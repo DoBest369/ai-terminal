@@ -31,6 +31,11 @@ object SettingsStore {
     fun loadBaseUrl(ctx: Context): String = (prefs(ctx).getString(K_BASE_URL, DEFAULT_BASE_URL) ?: DEFAULT_BASE_URL).ifBlank { DEFAULT_BASE_URL }
     fun saveBaseUrl(ctx: Context, url: String) = prefs(ctx).edit().putString(K_BASE_URL, url.trim()).apply()
 
+    // AI 系统提示词（可自定义，对齐 apple agentSystemPrompt；空=用默认 AiClient.SYSTEM_PROMPT）
+    private const val K_SYS_PROMPT = "ai_system_prompt"
+    fun loadSystemPrompt(ctx: Context): String = (prefs(ctx).getString(K_SYS_PROMPT, "") ?: "").ifBlank { AiClient.SYSTEM_PROMPT }
+    fun saveSystemPrompt(ctx: Context, p: String) = prefs(ctx).edit().putString(K_SYS_PROMPT, p.trim()).apply()
+
     private const val K_TERM_FONT = "term_font"
     fun loadTermFont(ctx: Context): Int = prefs(ctx).getInt(K_TERM_FONT, 12)
     fun saveTermFont(ctx: Context, sp: Int) = prefs(ctx).edit().putInt(K_TERM_FONT, sp.coerceIn(8, 22)).apply()

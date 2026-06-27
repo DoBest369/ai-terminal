@@ -621,7 +621,7 @@ fun AIAssistantScreen(onGoSettings: () -> Unit, profile: ServerProfile? = null, 
     )
     var promptGroupIdx by remember { mutableStateOf(0) }
 
-    fun send(text: String, basePrompt: String = AiClient.SYSTEM_PROMPT) {
+    fun send(text: String, basePrompt: String = SettingsStore.loadSystemPrompt(ctx)) {
         val t = text.trim(); if (t.isEmpty() || sending) return
         if (!SettingsStore.isConfigured(ctx)) { onGoSettings(); return }
         lastSent = t to basePrompt   // A-Regen 记录
@@ -953,6 +953,10 @@ fun SettingsScreen() {
     var baseUrl by remember { mutableStateOf(SettingsStore.loadBaseUrl(ctx)) }
     var editingBaseUrl by remember { mutableStateOf(false) }
     var baseUrlInput by remember { mutableStateOf("") }
+    // AI 系统提示词自定义（对齐 apple agentSystemPrompt）
+    var sysPrompt by remember { mutableStateOf(SettingsStore.loadSystemPrompt(ctx)) }
+    var editingSysPrompt by remember { mutableStateOf(false) }
+    var sysPromptInput by remember { mutableStateOf("") }
 
     // A-Model：AI 模型选择
     if (pickingModel) {
@@ -1048,6 +1052,25 @@ fun SettingsScreen() {
         )
     }
 
+    if (editingSysPrompt) {
+        AlertDialog(
+            onDismissRequest = { editingSysPrompt = false },
+            title = { Text("AI 系统提示词", color = TextPrimary) },
+            text = {
+                Column {
+                    OutlinedTextField(sysPromptInput, { sysPromptInput = it }, minLines = 4, maxLines = 8,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = SurfaceLight, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = Accent))
+                    Spacer(Modifier.height(6.dp))
+                    TextButton(onClick = { sysPromptInput = AiClient.SYSTEM_PROMPT }) { Text("恢复默认提示词", color = Accent, fontSize = 12.sp) }
+                }
+            },
+            confirmButton = { TextButton(onClick = { SettingsStore.saveSystemPrompt(ctx, sysPromptInput); sysPrompt = SettingsStore.loadSystemPrompt(ctx); editingSysPrompt = false }) { Text("保存", color = Accent) } },
+            dismissButton = { TextButton(onClick = { editingSysPrompt = false }) { Text("取消", color = TextSecondary) } },
+            containerColor = Surface
+        )
+    }
+
     Column {
         TopBar("设置")
         Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1058,6 +1081,8 @@ fun SettingsScreen() {
             SettingRow(Icons.Filled.Key, "API Key", if (apiKey.isBlank()) "未配置（点击设置）" else "已配置 ••••${apiKey.takeLast(4)}") { keyInput = apiKey; editingKey = true }
             // API 地址（Base URL，对齐 apple）
             SettingRow(Icons.Filled.Link, "API 地址", if (baseUrl == SettingsStore.DEFAULT_BASE_URL) "默认（Anthropic）" else baseUrl) { baseUrlInput = baseUrl; editingBaseUrl = true }
+            // AI 系统提示词自定义（对齐 apple）
+            SettingRow(Icons.Filled.Tune, "AI 系统提示词", if (sysPrompt == AiClient.SYSTEM_PROMPT) "默认" else "已自定义") { sysPromptInput = sysPrompt; editingSysPrompt = true }
             // N-CronAuto：定时后台巡检开关
             var autoInspect by remember { mutableStateOf(SettingsStore.loadAutoInspect(ctx)) }
             val notifPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }

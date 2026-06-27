@@ -6,6 +6,14 @@
 
 ---
 
+## linux AI 提问后追加占位 AI 回复气泡（深化对话交互）
+- **内容**：linux 每条用户提问气泡后追加占位 AI 回复（✦ AI 标签 + 气泡「已收到，正在结合服务器环境分析…（接入 API Key 后回复）」），对话成对显示。后续接真实 AI 流式回复。
+- **改动**：`linux/src/main.rs`(ai_msgs 渲染加配对 AI 回复气泡)。
+- **验证**：`cargo build` **0 error/warning**（0.53s 增量，带 proxy，build 通过后提交）。推送 e19b6ae。
+- **意义**：linux AI 对话交互更完整（提问→成对显示 AI 回复占位），交互体验更接近真实对话。文案体现护城河（AI 结合服务器环境）。下一步 windows mock AI 回复对齐。
+
+---
+
 ## 质量收口 + CHANGELOG 阶段18（真实交互阶段梳理）+ 顶部边界声明更新
 - **质量基线**：apple swift build + **8 自测全 true 无回归** + linux cargo + windows dotnet 0 错；PARITY **103 项 ✅✅**。五端 build 全绿。
 - **CHANGELOG 顶部边界声明更新**：从过时的「无完整 Xcode / 双端原生 / Linux Windows 骨架」→「Xcode 26.4 + Rust + .NET 五端编译打通 + windows/linux 全功能区 UI + 真实交互（mock）」，准确反映现状。

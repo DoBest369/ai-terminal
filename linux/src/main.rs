@@ -235,13 +235,15 @@ impl eframe::App for TermindApp {
                     });
                 });
                 ui.add_space(10.0);
-                // 快捷追问 chips（对照 apple/windows AI 面板）
+                // 快捷追问 chips（点击填入 AI 输入框，对照 apple/windows AI 面板 + 快捷命令交互）
                 ui.horizontal(|ui| {
                     let blue = egui::Color32::from_rgb(0x3B, 0x82, 0xF6);
-                    let _ = ui.add(egui::Button::new(egui::RichText::new("重新生成").size(11.0).color(blue))
-                        .fill(blue.linear_multiply(0.12)).rounding(14.0));
-                    let _ = ui.add(egui::Button::new(egui::RichText::new("存为方案").size(11.0).color(SUCCESS))
-                        .fill(SUCCESS.linear_multiply(0.12)).rounding(14.0));
+                    for q in ["如何排查？", "给我具体命令", "有什么风险？"] {
+                        if ui.add(egui::Button::new(egui::RichText::new(q).size(11.0).color(blue))
+                            .fill(blue.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                            self.ai_input = q.to_string();
+                        }
+                    }
                 });
                 ui.add_space(8.0);
                 // AI 输入框 + 发送按钮（对照 apple/windows）

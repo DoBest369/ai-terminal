@@ -199,6 +199,14 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 33 — 护城河 batch 批量群发双端对齐（2026-06-27）
+
+windows/linux 移植 apple 的 batch 批量运维能力，护城河能力完全一致。
+
+- **batch 批量群发命令（windows/linux）**：命令输入旁批量按钮 → 对所有连接并发 SSH 执行同一命令（windows Task.WhenAll / linux 多线程 spawn）→ 结果按连接分段聚合显示（连接名/host/✓✕ + 输出），windows 另带成功率统计。各连接独立连接（不复用会话避免并发冲突），超时保护。
+- **windows/linux 护城河能力一致**：Z1 命令解释 / Z2 报错分析一键 / Z3 健康巡检一键 + 风险四级分级（Z7）+ batch 批量群发，对照 apple/android。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，831 提交。
+
 ## 阶段 32 — SFTP 文件下载/删除双端对齐（写操作，2026-06-27）
 
 windows/linux SFTP 增加文件下载与删除，能力一致覆盖浏览/导航/预览/下载/删除。

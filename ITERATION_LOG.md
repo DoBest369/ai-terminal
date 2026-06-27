@@ -4695,3 +4695,11 @@
 - **CHANGELOG 阶段51**：AI 对话搜索（搜索能力补全：连接/终端/AI 全可搜）+ AI 导出体验统一（文件对话框），windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段51)。
 - **意义**：CHANGELOG 至阶段51。搜索/导出能力双端完整统一。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## windows AI 快捷追问可自定义（增删+持久化，对照快捷命令自定义）
+- **内容**：快捷追问栏改动态生成（QuickAsks 容器）：默认 3 条（蓝 chip）+ 自定义（绿 chip）+ 末尾「+」按钮 Flyout 输入添加；自定义 chip 右键删除；customAsks 存 config 持久化 + 启动恢复；去重；点击填入 AI 输入框。
+- **改动**：`MainWindow.axaml`(QuickAsks x:Name)、`MainWindow.axaml.cs`(RenderQuickAsks + MakeAskChip + customAsks + 持久化)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 7ff6667。
+- **意义**：windows AI 快捷追问可定制（运维高频追问增删+持久化，复用快捷命令自定义模式）。下一步 linux 快捷追问自定义对齐 / 质量收口 / 新功能。

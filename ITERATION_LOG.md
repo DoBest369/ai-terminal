@@ -4301,3 +4301,11 @@
 - **改动**：`MainWindow.axaml`(上传按钮)、`MainWindow.axaml.cs`(OnSftpUpload)。
 - **验证**：`dotnet build` 0 错误；run 14s 存活；base64 上传逻辑（printf|base64 -d）验证正确。推送 d5c1b49。
 - **🎯 windows SFTP 完整（含上传）对齐 apple 全操作**：浏览/导航/预览/下载/上传/删除/新建目录/重命名。windows SFTP 文件操作全覆盖。下一步 linux SFTP 上传 / 连接编辑 / 质量收口。
+
+---
+
+## 🎯🎯 linux SFTP 文件上传（rfd 选本地文件→base64→ssh写，对照 windows）→ 双端 SFTP 完整
+- **内容**：linux `run_sftp_upload`——rfd::FileDialog 选本地文件 → 读字节 base64 编码 → 后台 ssh `printf|base64 -d>远程` + 刷新；大小守门 5MB；SFTP 窗口上传按钮 → trigger_upload 标志循环外执行。Cargo.toml 加 rfd="0.14"（原生文件对话框）。
+- **改动**：`linux/src/main.rs`(run_sftp_upload + 上传按钮)、`linux/Cargo.toml`(rfd)。
+- **验证**：`cargo build` 0 error（30.24s 含 rfd 拉取）。推送 9ebb414。
+- **🎯 SFTP 上传 windows/linux 双端对齐——双端 SFTP 完整对齐 apple 全操作**：浏览/导航/预览/下载/上传/删除/新建目录/重命名。windows/linux SFTP 文件操作全覆盖（ls + base64 + 命令模拟达到与 apple 真 SFTP 功能对等）。S9 SFTP 深化完成。下一步 连接编辑 / 主题切换 U3 / 质量收口。

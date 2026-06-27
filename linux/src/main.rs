@@ -220,6 +220,7 @@ struct TermindApp {
     sftp_renaming: Option<String>,             // 待重命名文件原路径（非空=重命名模式）
     term_font_size: f32,                       // 终端字号（U4 可调，对照 windows）
     ai_font_size: f32,                         // AI 对话字号（U4 可调，对照 windows）
+    term_search: String,                       // 终端输出搜索（匹配行高亮，对照 windows）
 }
 
 /// 全局复用的 SSH 会话缓存（对照 windows _sshClient；多后台线程经 Mutex 串行复用）
@@ -412,7 +413,7 @@ impl Default for TermindApp {
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
         THEME_IDX.store(load_theme_idx(), std::sync::atomic::Ordering::Relaxed);   // U3 恢复持久化主题
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size() }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new() }
     }
 }
 
@@ -1199,6 +1200,8 @@ impl eframe::App for TermindApp {
                             self.term_font_size = (self.term_font_size - 1.0).max(9.0);
                             save_config(&self.api_key, &self.base_url, self.term_font_size, self.ai_font_size);
                         }
+                        // 终端输出搜索（匹配行高亮，对照 windows）
+                        ui.add(egui::TextEdit::singleline(&mut self.term_search).hint_text("搜索输出…").desired_width(120.0).font(egui::TextStyle::Small));
                     });
                 });
                 ui.add_space(8.0);
@@ -1218,8 +1221,17 @@ impl eframe::App for TermindApp {
                             ui.colored_label(TEXT_PRIMARY(), egui::RichText::new("   Active: active (running) since Mon 2026-06-22").monospace());
                             // 用户输入回车后追加的历史命令行（ANSI 转义→彩色，对照 windows）
                             let fsz = self.term_font_size;   // U4 可调字号
+                            let q = self.term_search.trim().to_lowercase();   // 终端搜索
                             for line in &self.term_lines {
-                                if line.contains('\u{1b}') { ui.label(ansi_to_job(line, TEXT_PRIMARY(), fsz)); }
+                                // 搜索命中行：橙色半透明高亮背景（对照 windows）
+                                let hit = !q.is_empty() && line.to_lowercase().contains(&q);
+                                if hit {
+                                    egui::Frame::default().fill(egui::Color32::from_rgba_unmultiplied(0xF5, 0x9E, 0x0B, 0x33))
+                                        .show(ui, |ui| {
+                                            if line.contains('\u{1b}') { ui.label(ansi_to_job(line, TEXT_PRIMARY(), fsz)); }
+                                            else { ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(line).monospace().size(fsz)); }
+                                        });
+                                } else if line.contains('\u{1b}') { ui.label(ansi_to_job(line, TEXT_PRIMARY(), fsz)); }
                                 else { ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(line).monospace().size(fsz)); }
                             }
                             ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(format!("{} \u{2588}", prompt)).monospace());

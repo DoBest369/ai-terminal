@@ -4407,3 +4407,11 @@
 - **记忆更新**：ui-modern 记 U1-U4 落地状态 + windows U3 颜色硬编码注意（后续专项）。
 - **改动**：`CHANGELOG.md`(阶段40)、记忆 ui-modern。
 - **意义**：用户最初提的全部 UI 品质要求（U1 图标库/U2 配色协调/U3 配色可调像 VSCode/U4 字号可调）基本全部落地。Termind 智能运维全平台落地 + AI 三模式 + UI 品质 U1-U4 = 用户全部核心需求实现。后续 windows U3 主题对齐 / 连接编辑 / 持续打磨。
+
+---
+
+## windows 连接编辑（右键编辑→填表单+移除原项，连接 CRUD 完整含 U）
+- **内容**：windows 连接右键菜单加「编辑连接」→ OnEditConn：解析 user@host:port 填入新建表单（NewConn*）+ _conns.Remove 原项 + SaveConfig；终端提示「修改后点添加」；改后点工具栏 + 添加重加。
+- **改动**：`MainWindow.axaml`(编辑菜单)、`MainWindow.axaml.cs`(OnEditConn)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 9662ecf。
+- **意义**：windows 连接管理 CRUD 完整（增/删/改/查 + 持久化 + 切换）。连接编辑（CRUD 的 U）补齐。下一步 windows U3 主题切换（颜色硬编码专项）/ 持续打磨。

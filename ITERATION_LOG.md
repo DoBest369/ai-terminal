@@ -3555,3 +3555,11 @@
 - **改动**：`linux/assets/JetBrainsMono-Regular.ttf`(新增)、`linux/src/main.rs`(setup_fonts + main cc)。
 - **验证**：`cargo build` **0 error/warning**（1.40s，字体嵌入，带 proxy）。推送 972e068。
 - **🎯 字体库 windows/linux 双端对齐**：都用 JetBrains Mono 好看等宽字体。下一步字号可调（U4 余项）+ U1 图标继续 / U3 主题可调。
+
+---
+
+## U1 linux 图标库化起步：egui-phosphor 图标字体
+- **内容**：linux Cargo 加 `egui-phosphor 0.5`（对齐 egui 0.27，带 proxy 拉取编译成功）；`setup_fonts` 用 `add_to_fonts` 加载 Phosphor 图标字体。顶栏品牌 ⚡/设置 ⚙/SFTP 📁/新建 ＋ emoji → phosphor 矢量图标（LIGHTNING/GEAR/FOLDER/PLUS）。
+- **改动**：`linux/Cargo.toml`(egui-phosphor 依赖)、`linux/src/main.rs`(add_to_fonts + 顶栏图标)。
+- **验证**：`cargo build` **0 error/warning**（带 proxy）。推送 c996c0e。
+- **意义**：U1 linux 图标库化起步（emoji→Phosphor 矢量图标字体）。下一步继续替换 linux 其余 emoji（可达 ✓✕⏳/AI ✦/备注/SFTP 文件类型）+ windows 可达图标。

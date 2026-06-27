@@ -4350,3 +4350,11 @@
 - **改动**：`MainWindow.axaml.cs`(SaveConfig/LoadConfig fontSize + SetTermFont 保存)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 784bd36。
 - **意义**：U4 字号可调 + 持久化完整（windows 字号调整后重启恢复）。windows 配置持久化完整（AI Key/地址 + 连接 + 命令历史 + 字号）。下一步 linux 字号持久化 / 主题切换 U3 / 连接编辑。
+
+---
+
+## linux 终端字号持久化（U4 字号存config，对照 windows，双端对齐）
+- **内容**：linux save_config 加 font_size 参数；load_font_size 读 config.json（clamp 9-22 默认 13）；Default 用 load_font_size；字号 A-/A+ 调整后 + 设置失焦 save_config 持久化；字号跨重启不丢。
+- **改动**：`linux/src/main.rs`(save_config font_size + load_font_size + Default + 字号按钮/设置保存)。
+- **验证**：`cargo build` **0 error/warning**（0.75s，带 proxy，save_config 签名 + 3 处调用更新）。推送 94b13ed。
+- **意义**：字号持久化 U4 windows/linux 双端对齐。U4 字号可调 + 持久化双端完整。下一步 U3 主题切换 / 连接编辑 / AI 字号可调。

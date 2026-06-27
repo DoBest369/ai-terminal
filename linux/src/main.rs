@@ -140,18 +140,18 @@ impl eframe::App for TermindApp {
         egui::TopBottomPanel::top("topbar").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.add_space(6.0);
-                ui.colored_label(ACCENT, "⚡");
+                ui.colored_label(ACCENT, egui_phosphor::regular::LIGHTNING);
                 ui.heading(egui::RichText::new("Termind").color(TEXT_PRIMARY).strong());
                 ui.colored_label(TEXT_SECONDARY, "智能 SSH 运维");
                 // 右侧工具栏：新建连接 / SFTP / 设置（对照 windows 顶部工具栏）
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if ui.add(egui::Button::new(egui::RichText::new("⚙").size(15.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
+                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::GEAR).size(16.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
                         self.show_settings = !self.show_settings;
                     }
-                    if ui.add(egui::Button::new(egui::RichText::new("📁").size(14.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
+                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::FOLDER).size(16.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
                         self.show_sftp = !self.show_sftp;
                     }
-                    let _ = ui.add(egui::Button::new(egui::RichText::new("＋").size(16.0).color(ACCENT)).frame(false));
+                    let _ = ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::PLUS).size(16.0).color(ACCENT)).frame(false));
                 });
             });
             ui.add_space(4.0);
@@ -519,6 +519,8 @@ fn setup_fonts(ctx: &egui::Context) {
     // JetBrains Mono 作为等宽字体首选；也加到比例字体兜底（含 ASCII 更清晰）
     fonts.families.entry(egui::FontFamily::Monospace).or_default().insert(0, "jbmono".to_owned());
     fonts.families.entry(egui::FontFamily::Proportional).or_default().push("jbmono".to_owned());
+    // Phosphor 图标字体（U1：禁 emoji，UI 图标用矢量图标字体）
+    egui_phosphor::add_to_fonts(&mut fonts, egui_phosphor::Variant::Regular);
     ctx.set_fonts(fonts);
 }
 

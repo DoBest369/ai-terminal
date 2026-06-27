@@ -12,6 +12,8 @@ path = "src/main.rs"
 # 原生 GUI（纯 Rust，跨平台立即模式 UI）
 eframe = "0.27"
 egui = "0.27"
+# 图标字体（Phosphor Icons，U1：禁 emoji 用矢量图标字体，对齐 egui 0.27）
+egui-phosphor = "0.5"
 # SSH（纯 C 绑定，连接/exec/SFTP）；需系统 libssh2 + openssl
 ssh2 = "0.9"
 # HTTP（AI：Anthropic/OpenAI），rustls 避免 OpenSSL 链接

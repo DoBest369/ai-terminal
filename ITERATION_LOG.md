@@ -3645,3 +3645,12 @@
 - **改动**：`MainWindow.axaml.cs`(_aiHistory + CallAiAsync 历史累积 + using System.Linq)。
 - **验证**：`dotnet build` 0 错误；run 15s 存活。推送 1ff28ce。
 - **意义**：AI 多轮对话（记住上下文）。为 Auto 模式自主闭环（命令结果回喂续对话）铺好基础。下一步 S5 Auto 闭环：命令 exec 结果→自动回喂 AI→AI 决策下一步（agent loop，限轮防失控）。
+
+---
+
+## 🎯🎯 S5 windows Auto 模式自主闭环 agent loop（全自动 AI Agent 核心）
+- **内容**：windows ExecuteCommand 执行后，Auto 模式把结果自动回喂 AI（user 消息）→ AI 决策下一步命令 → 继续执行（AddCommandCard 自动执行）；`AppendAiBubble` 显 AI 自主分析。**防失控**：限轮 `AutoLoopMax=5` + SSH 出错中断 + 危险命令仍需确认（AddCommandCard 危险不自动执行）。
+- **改动**：`MainWindow.axaml.cs`(ExecuteCommand Auto 回喂 + _autoLoopDepth 限轮 + AppendAiBubble)。
+- **验证**：`dotnet build` 0 错误；run 15s 存活；**端到端验证（关键）**：回喂 ps 结果（java 占 95%）→ AI 自主决策下一步 `top -Hp 1234 查线程`，完整 agentic 运维闭环。推送 75b744d。
+- **🎯 用户核心设计 Auto Agent 全自动模式落地**：AI 读输出→决策→执行→读结果的自主循环（像 Claude Code），限轮+危险中断保安全。windows 智能运维 **AI Agent 三模式全部完整**（Chat 建议 / Agent 确认 / Auto 自主闭环）。
+- **里程碑**：windows 端智能运维护城河**全部落地**——真实 AI + 真实 SSH + 三模式（含 Auto 自主闭环）+ Z3 环境感知 + 多轮历史 + 危险拦截。Termind 核心价值在 windows 端完整成型。下一步 linux 同等落地（编译验证）+ apple 三模式对齐。

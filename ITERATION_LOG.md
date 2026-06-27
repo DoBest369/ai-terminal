@@ -4276,3 +4276,11 @@
 - **改动**：`MainWindow.axaml.cs`(_sftpRenaming + 文件右键重命名 + OnMkdir 模式判断)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 331032e。
 - **意义**：windows SFTP 写操作齐全（下载/删除/新建目录/重命名）。windows SFTP 能力对照 apple sftpRename 再补一项。windows SFTP 接近完整（浏览/导航/预览/下载/删除/新建目录/重命名）。下一步 linux SFTP 重命名 / 连接编辑 / 质量收口。
+
+---
+
+## 🎯 linux SFTP 文件重命名（右键重命名→mv，对照 windows，双端对齐）→ 双端 SFTP 写操作齐全
+- **内容**：linux `sftp_renaming` 字段 + 文件右键「重命名」→ sftp_start_rename 标志 → 进入重命名模式（填原名到 new_dir_name）；输入框按钮判断模式（新建/重命名）；`run_sftp_rename`：ssh mv + 刷新 + 清标志。
+- **改动**：`linux/src/main.rs`(sftp_renaming + run_sftp_rename + 文件右键重命名 + 输入框模式判断)。
+- **验证**：`cargo build` **0 error/warning**（0.82s，带 proxy）。推送 48ebe0b。
+- **🎯 SFTP 重命名 windows/linux 双端对齐——双端 SFTP 写操作齐全**：浏览/导航/预览/下载/删除/新建目录/重命名。windows/linux SFTP 能力完整一致，接近 apple 真 SFTP 标杆（仅剩上传）。下一步 SFTP 上传 / 连接编辑 / 质量收口。

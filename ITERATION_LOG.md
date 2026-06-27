@@ -6,6 +6,14 @@
 
 ---
 
+## linux 设置窗口加 AI 系统提示词（对照 apple/android）
+- **内容**：linux `TermindApp` 加 `sys_prompt` 字段（默认运维助手提示）；设置窗口 API 地址后加「AI 系统提示词」多行 `TextEdit`（desired_rows 4），对照 apple/android 系统提示词自定义。
+- **改动**：`linux/src/main.rs`(sys_prompt 字段 + 设置窗口多行输入框)。
+- **验证**：`cargo build` **0 error/warning**（0.54s 增量，带 proxy，build 通过后提交）。推送 a2b488a。
+- **意义**：linux 设置面板加系统提示词自定义入口（对照 apple/android）。linux 设置面板（主题/AI服务商/API Key/模型/API 地址/系统提示词）向 apple 完整度靠拢。下一步 windows 系统提示词入口对齐。
+
+---
+
 ## linux 设置窗口加 API 地址 → Base URL 设置五端对齐
 - **内容**：linux `TermindApp` 加 `base_url` 字段（默认 anthropic）；设置窗口模型后加「API 地址」TextEdit（等宽），对照 apple/android/windows Base URL 自定义。
 - **改动**：`linux/src/main.rs`(base_url 字段 + 设置窗口 API 地址输入框)。

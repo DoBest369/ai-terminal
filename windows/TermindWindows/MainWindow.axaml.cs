@@ -89,18 +89,38 @@ public partial class MainWindow : Window
             var root = doc.RootElement;
             if (root.TryGetProperty("apiKey", out var k)) ApiKeyBox.Text = k.GetString() ?? "";
             if (root.TryGetProperty("baseUrl", out var u)) BaseUrlBox.Text = u.GetString() ?? "";
+            // 恢复用户新建的连接
+            if (root.TryGetProperty("conns", out var conns) && conns.ValueKind == JsonValueKind.Array)
+            {
+                var gray = Brush.Parse("#6B7280");
+                bool first = true;
+                foreach (var c in conns.EnumerateArray())
+                {
+                    var name = c.TryGetProperty("name", out var n) ? n.GetString() : null;
+                    var addr = c.TryGetProperty("addr", out var a) ? a.GetString() : null;
+                    if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(addr)) continue;
+                    var note = c.TryGetProperty("note", out var nt) ? (nt.GetString() ?? "") : "";
+                    var item = new ConnItem(name, addr, Brush.Parse("#3FB950"), gray, "我的连接", first, "⏳", gray, note, note.Length > 0, "", false);
+                    _conns.Add(item);
+                    _ = ProbeReachabilityAsync(item);
+                    first = false;
+                }
+            }
         }
         catch { /* 配置损坏忽略，用默认 */ }
     }
 
-    /// 保存配置（API Key/地址）到配置文件
+    /// 保存配置（API Key/地址 + 用户新建的连接）到配置文件
     private void SaveConfig()
     {
         try
         {
             var dir = System.IO.Path.GetDirectoryName(ConfigPath)!;
             System.IO.Directory.CreateDirectory(dir);
-            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "" });
+            // 只持久化用户新建的连接（"我的连接" 组），默认演示连接不存
+            var userConns = _conns.Where(c => c.GroupName == "我的连接")
+                .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note }).ToArray();
+            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns });
             System.IO.File.WriteAllText(ConfigPath, json);
         }
         catch { /* 写失败忽略，不影响运行 */ }
@@ -181,6 +201,7 @@ public partial class MainWindow : Window
         _conns.Add(item);
         ConnList.SelectedItem = item;
         _ = ProbeReachabilityAsync(item);   // 新连接异步探测可达性
+        SaveConfig();                        // 持久化新连接（重启恢复）
         NewConnName.Text = ""; NewConnHost.Text = ""; NewConnUser.Text = ""; NewConnPort.Text = "22";
     }
 

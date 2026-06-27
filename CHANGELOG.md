@@ -199,6 +199,14 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 35 — SFTP 重命名 + 写操作齐全双端（2026-06-27）
+
+windows/linux SFTP 增加文件重命名，文件读写常用操作齐全。
+
+- **SFTP 文件重命名（windows/linux）**：文件右键「重命名」→ 复用新建目录输入框（重命名模式标志，避免新 UI）→ SSH `mv` 原→同目录新名 + 刷新；对照 apple sftpRename，路径单引号防注入。
+- **windows/linux SFTP 写操作齐全**：浏览 → 目录导航 → 文件预览 → 下载 → 删除（确认）→ 新建目录 → 重命名，覆盖文件读写常用操作。与 apple 真 SFTP 标杆仅差上传。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，843 提交。
+
 ## 阶段 34 — SFTP 新建目录 + 写操作能力齐备双端（2026-06-27）
 
 windows/linux SFTP 增加新建目录，文件读写常用操作齐备。

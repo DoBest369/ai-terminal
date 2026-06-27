@@ -4727,3 +4727,12 @@
 - **改动**：`windows MainWindow.axaml`(进程按钮 Flyout)、`MainWindow.axaml.cs`(OnTopProcs 解析表格)、`linux main.rs`(进程按钮 + spawn ssh ps)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 e2bd4da。
 - **意义**：进程 Top 面板（运维查高占用进程定位资源消耗，对照 apple Z6），双端。监控深化（状态条聚合指标 + 进程级明细）。下一步 网络端口面板 / 质量收口 / 新功能。
+
+---
+
+## 网络端口监听面板（windows+linux，SSH ss 取监听端口+进程，深化监控）
+- **内容**：进程 Top 旁加端口按钮 → SSH `ss -tlnp` 取监听端口；windows Flyout 结构化（端口绿 + 进程名，正则提取 users:(("proc"))），linux 终端展示（复用 term_tx）。windows 用 ss -tlnpH + awk 解析地址/进程。
+- **改动**：`windows MainWindow.axaml`(端口按钮 Flyout)、`MainWindow.axaml.cs`(OnListenPorts 解析)、`linux main.rs`(端口按钮 + spawn ss)。
+- **踩坑**：linux egui-phosphor 无 NETWORK 图标 → PLUGS_CONNECTED（网络连接语义）。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 b54791f。
+- **意义**：网络端口监听面板（运维查端口占用/服务监听，定位网络服务），双端。监控深化（进程 + 端口明细）。下一步 质量收口 CHANGELOG 阶段53 / 新功能。

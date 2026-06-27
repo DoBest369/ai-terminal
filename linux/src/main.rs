@@ -509,6 +509,19 @@ fn server_card(ui: &mut egui::Ui, c: &ServerConn, selected: bool) -> egui::Respo
         .interact(egui::Sense::click())
 }
 
+/// 加载 JetBrains Mono 等宽字体（U4：好看的字体库，对照 windows）
+fn setup_fonts(ctx: &egui::Context) {
+    let mut fonts = egui::FontDefinitions::default();
+    fonts.font_data.insert(
+        "jbmono".to_owned(),
+        egui::FontData::from_static(include_bytes!("../assets/JetBrainsMono-Regular.ttf")),
+    );
+    // JetBrains Mono 作为等宽字体首选；也加到比例字体兜底（含 ASCII 更清晰）
+    fonts.families.entry(egui::FontFamily::Monospace).or_default().insert(0, "jbmono".to_owned());
+    fonts.families.entry(egui::FontFamily::Proportional).or_default().push("jbmono".to_owned());
+    ctx.set_fonts(fonts);
+}
+
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default().with_inner_size([1200.0, 760.0]),
@@ -517,6 +530,9 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "Termind",
         options,
-        Box::new(|_cc| Box::<TermindApp>::default()),
+        Box::new(|cc| {
+            setup_fonts(&cc.egui_ctx);
+            Box::<TermindApp>::default()
+        }),
     )
 }

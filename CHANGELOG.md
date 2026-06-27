@@ -1,9 +1,9 @@
 # Termind 演进历程
 
-> Termind — 智能 SSH 服务器运维工作台。本文档梳理项目从早期工具到双端原生智能运维工作台的演进里程碑。
+> Termind — 智能 SSH 服务器运维工作台。本文档梳理项目从早期工具到**五端原生**智能运维工作台的演进里程碑。
 > 详细每轮记录见 [`ITERATION_LOG.md`](ITERATION_LOG.md)，能力对照见 [`docs/PARITY.md`](docs/PARITY.md)。
 >
-> 边界声明（真实）：开发机为 macOS + Command Line Tools（无完整 Xcode），故 apple 端可 `swift build` 编译校验 + Showcase 渲染 + Shots 自测，但**未出 iOS/macOS 安装包、未真机实测**；android 端可 `gradle assembleDebug` 出 APK，但**真实连接/AI 对话需真机或模拟器 + 目标服务器 + API Key**。Linux/Windows 端为骨架/待建。
+> 边界声明（真实，2026-06-27 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：apple/android 最高（护城河 Z1-Z8 + 批量运维 + 知识沉淀**真实接 SSH/AI**）；windows/linux 为**全功能区 UI + 真实交互（mock 数据）**，真实 SSH/AI 逻辑待接入。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
 ## 阶段 0 — 起点（Electron + 原生雏形）
 
@@ -179,6 +179,17 @@
 - **windows/linux 从骨架→功能完整工作台**：windows（ListBox 可交互连接列表/输入框/侧边栏工具栏/服务状态/可滚动终端/连接分组/可达指示/AI 多轮）· linux（搜索框/AI 输入+发送/服务状态/卡片备注/角色标签/分组折叠/顶栏工具栏/可达指示/AI 多轮）。
 - **质量基线**：30+ 轮 UI 迭代后 apple 18 自测全集无回归，PARITY **103 项 ✅✅**；流程修正「build 通过再 push」。
 - **工具链**：全程靠系统代理 1082 + 国外官方源支撑五端编译验证（带 proxy env）。
+
+## 阶段 18 — windows/linux 真实交互（mock 数据驱动）（2026-06-27）
+
+UI 对齐后，给 windows/linux 从「静态 mock 展示」打磨到「数据驱动真实交互」，交互体验对齐 apple/android。
+
+- **选连接联动**：点连接列表 → 终端区状态条（host + 在线状态）+ 终端提示符（user@host:~$）反映选中连接（windows SelectionChanged / linux self.selected）。
+- **快捷命令/追问填入**：终端快捷命令 chip 点击 → 填入命令输入框；AI 快捷追问 chip 点击 → 填入 AI 输入框（windows Button Click / linux egui clicked）。
+- **回车执行/提问**：终端命令输入回车 → 追加到终端输出（带选中连接 host 提示符）；AI 输入回车/发送 → 追加提问气泡（windows code-behind 动态加 TextBlock/Border / linux Vec 状态 + egui 渲染）。
+- **windows/linux 双端双区回车交互完整**：终端区（命令执行回显）+ AI 区（提问追加气泡）都支持回车。
+- **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅。58 项 UI 现代化。
+- **流程修正**：严格「build 通过再 commit+push」（一次 android 漏 import 误推后建立）。
 
 ## 当前状态
 

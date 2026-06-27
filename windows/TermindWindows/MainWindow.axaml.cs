@@ -89,6 +89,10 @@ public partial class MainWindow : Window
             var root = doc.RootElement;
             if (root.TryGetProperty("apiKey", out var k)) ApiKeyBox.Text = k.GetString() ?? "";
             if (root.TryGetProperty("baseUrl", out var u)) BaseUrlBox.Text = u.GetString() ?? "";
+            // 恢复命令历史（上下键回溯，重启可用）
+            if (root.TryGetProperty("cmdHistory", out var ch) && ch.ValueKind == JsonValueKind.Array)
+                foreach (var c in ch.EnumerateArray())
+                { var s = c.GetString(); if (!string.IsNullOrEmpty(s)) _cmdHistory.Add(s); }
             // 恢复用户新建的连接
             if (root.TryGetProperty("conns", out var conns) && conns.ValueKind == JsonValueKind.Array)
             {
@@ -120,7 +124,7 @@ public partial class MainWindow : Window
             // 只持久化用户新建的连接（"我的连接" 组），默认演示连接不存
             var userConns = _conns.Where(c => c.GroupName == "我的连接")
                 .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note }).ToArray();
-            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns });
+            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray() });
             System.IO.File.WriteAllText(ConfigPath, json);
         }
         catch { /* 写失败忽略，不影响运行 */ }
@@ -421,10 +425,11 @@ public partial class MainWindow : Window
         if (e.Key != Key.Enter) return;
         var cmd = CmdInput.Text?.Trim();
         if (string.IsNullOrEmpty(cmd)) return;
-        // 入历史（最近优先，去重）
+        // 入历史（最近优先，去重）+ 持久化（重启可上下键回溯）
         _cmdHistory.Remove(cmd);
         _cmdHistory.Insert(0, cmd);
         _histIdx = -1;
+        SaveConfig();
         // clear 清屏（对照 linux）：移除光标行外所有输出
         if (cmd == "clear")
         {

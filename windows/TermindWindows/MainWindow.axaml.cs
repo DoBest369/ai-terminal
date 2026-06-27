@@ -73,6 +73,11 @@ public partial class MainWindow : Window
         LoadConfig();
         ApiKeyBox.LostFocus += (_, _) => SaveConfig();
         BaseUrlBox.LostFocus += (_, _) => SaveConfig();
+        // 状态条指标定时自动刷新（每 30s SSH 重取，实时反映远程服务器，对照 apple 周期巡检）
+        var timer = new Avalonia.Threading.DispatcherTimer { Interval = System.TimeSpan.FromSeconds(30) };
+        timer.Tick += (_, _) => { if (_activeHost != null) _ = RefreshMetricsAsync(); };
+        timer.Start();
+        _ = RefreshMetricsAsync();   // 启动先取一次（SelectedIndex=0 已选中测试机）
     }
 
     /// 配置文件路径（用户 AppData，跨重启持久化）

@@ -338,6 +338,37 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { TopProcsList.Children.Clear(); TopProcsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
+    /// 网络端口监听面板：SSH ss 取监听端口 + 进程 → 展示（深化监控，对照 apple/快捷命令 ss -tlnp）
+    private async void OnListenPorts(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        ListenPortsList.Children.Clear();
+        ListenPortsList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        try
+        {
+            // ss -tlnp：监听 TCP + 进程；提取 本地地址:端口 + 进程名
+            var outp = await SshExecAsync("ss -tlnpH 2>/dev/null | awk '{print $4\" \"$6}' | head -20");
+            var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
+            ListenPortsList.Children.Clear();
+            foreach (var line in lines)
+            {
+                var parts = line.Trim().Split(' ', 2, System.StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 0) continue;
+                var addr = parts[0];
+                var port = addr.Contains(':') ? addr[(addr.LastIndexOf(':') + 1)..] : addr;
+                // 进程名从 users:(("nginx",pid=123,...)) 提取
+                var proc = "";
+                if (parts.Length > 1) { var m = System.Text.RegularExpressions.Regex.Match(parts[1], "\"([^\"]+)\""); if (m.Success) proc = m.Groups[1].Value; }
+                var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("70,*"), Margin = new Thickness(2, 1) };
+                var p = new TextBlock { Text = ":" + port, Foreground = Brush.Parse("#3FB950"), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]! };
+                var c = new TextBlock { Text = proc.Length > 0 ? proc : addr, Foreground = Brush.Parse("#C9D1D9"), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextTrimming = TextTrimming.CharacterEllipsis };
+                Grid.SetColumn(p, 0); Grid.SetColumn(c, 1); grid.Children.Add(p); grid.Children.Add(c);
+                ListenPortsList.Children.Add(grid);
+            }
+            if (ListenPortsList.Children.Count == 0) ListenPortsList.Children.Add(new TextBlock { Text = "（未取到监听端口，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        }
+        catch (System.Exception ex) { ListenPortsList.Children.Clear(); ListenPortsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+    }
+
     /// AI 对话搜索：匹配气泡橙色描边高亮 + 首个滚动到可见（对照终端搜索）
     private void OnAiSearch(object? sender, Avalonia.Controls.TextChangedEventArgs e)
     {

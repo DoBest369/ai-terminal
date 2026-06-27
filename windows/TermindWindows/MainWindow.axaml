@@ -218,6 +218,19 @@
                             </Flyout>
                         </Button.Flyout>
                     </Button>
+                    <!-- 网络端口监听面板（SSH ss 取监听端口+进程，深化监控）-->
+                    <Button Click="OnListenPorts" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="监听端口（网络服务）">
+                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
+                                  Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,19.93C7.05,19.44 4,16.08 4,12C4,11.38 4.08,10.79 4.21,10.21L9,15V16A2,2 0 0,0 11,18M17.89,17.4C17.63,16.59 16.89,16 16,16H15V13A1,1 0 0,0 14,12H8V10H10A1,1 0 0,0 11,9V7H13A2,2 0 0,0 15,5V4.59C17.93,5.77 20,8.64 20,12C20,14.08 19.2,15.97 17.89,17.4Z"/>
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedRight">
+                                <StackPanel Width="360" Spacing="2">
+                                    <TextBlock Text="监听端口（TCP）" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <StackPanel x:Name="ListenPortsList" Spacing="1"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                     <Border Background="#0D0E1A" CornerRadius="4" Width="130">
                         <TextBox x:Name="TermSearchBox" PlaceholderText="搜索输出…" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" Padding="8,3" CaretBrush="#FF4B6E" TextChanged="OnTermSearch"/>
                     </Border>

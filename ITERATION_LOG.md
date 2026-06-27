@@ -3918,3 +3918,11 @@
 - **改动**：`MainWindow.axaml.cs`(AddCommandCard 填入终端按钮)。
 - **验证**：`dotnet build` 0 错误（修正后）；完整 `dotnet run` 14s 存活。推送 7f47272。
 - **意义**：AI 命令一键填入终端可编辑执行（Chat 模式也能用 AI 建议的命令）。下一步 linux 命令卡片填入终端 / 设置页 AI 配置生效。
+
+---
+
+## linux 命令卡片「填入」按钮（对照 windows，双端对齐）
+- **内容**：linux pending 命令卡片加「填入」按钮 → 命令填入 cmd_input 可编辑后执行；fill_cmd 标志循环外赋值避免借用冲突。
+- **改动**：`linux/src/main.rs`(pending 命令卡片填入按钮)。
+- **验证**：`cargo build` 0 error/warning（0.70s，带 proxy）。推送 9ca6fa6。
+- **意义**：命令填入终端 windows/linux 双端对齐（AI 命令一键填入可编辑执行）。下一步 设置页 AI 配置 UI 生效 / apple Auto 闭环。

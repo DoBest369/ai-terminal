@@ -3741,3 +3741,11 @@
 - **改动**：`docs/MATURITY.md`。
 - **验证**：五端 build 全绿，apple 8 自测无回归。
 - **意义**：文档准确反映「智能运维全平台真实落地」的真实进展（windows/linux 不再是 mock）。Termind 核心价值在全平台成型，文档体系（CHANGELOG 20/MATURITY/ROADMAP/记忆）全部对齐。
+
+---
+
+## windows AI 流式输出（SSE 逐字显示，体验提升）
+- **内容**：windows `CallAiAsync` 改 stream=true，SSE 逐行解析 content_block_delta → delta.text 累积，onDelta 回调逐字更新 aiPanel（隐藏未闭合 [EXECUTE] 尾部）；完成后 RenderAiReply 代码块 + [EXECUTE] 命令卡片。
+- **改动**：`MainWindow.axaml.cs`(CallAiAsync 流式 + AppendAiAsk onDelta)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 15s 存活；**端到端验证**：nexcores 流式 SSE 返回 content_block_delta 事件（逐块 delta.text `"1"`→`", 2, 3, 4, 5"`），windows 逐字解析正确。推送 bcd0ff5。
+- **意义**：AI 长回复逐字流式显示，不用等几秒（体验对齐 ChatGPT/Claude）。windows 智能运维 AI 体验完整（真实 AI + 流式 + 代码块 + 三模式 + Z3 + Auto 闭环 + 安全）。下一步 apple Auto 闭环 / linux 流式。

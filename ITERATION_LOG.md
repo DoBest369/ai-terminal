@@ -4671,3 +4671,11 @@
 - **CHANGELOG 阶段50里程碑**：终端导出双端 + 运维体验双端对齐全景（阶段40-50累积：状态条监控/服务管理/终端/命令/连接/AI/UI 全对齐 apple）。
 - **改动**：`CHANGELOG.md`(阶段50里程碑)。
 - **意义**：阶段50整数里程碑——windows/linux 运维体验已全面对齐 apple 标杆。从「智能运维全平台落地」核心需求出发，双端功能完整真实 + 运维体验细节对齐。Termind 成熟全平台真实智能 SSH 运维工作台。后续持续打磨/新功能。
+
+---
+
+## AI 对话导出改用文件对话框（windows+linux，对照终端导出，用户选保存位置）
+- **内容**：windows OnExportChat 从固定写桌面 + 仅 tooltip 提示 → StorageProvider.SaveFilePicker 文件对话框 + AI 气泡提示成功/失败；linux export_chat 从固定 $HOME → rfd::FileDialog.save_file 让用户选位置。与终端导出体验一致。
+- **改动**：`windows MainWindow.axaml.cs`(OnExportChat StorageProvider)、`linux main.rs`(export_chat rfd)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 0993018。
+- **意义**：AI 导出与终端导出体验一致（文件对话框选位置 + 友好提示），双端。导出能力完善（终端+AI 都可导出到任意位置）。下一步 AI 对话搜索 / 质量收口 / 新功能。

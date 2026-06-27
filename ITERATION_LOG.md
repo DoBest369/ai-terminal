@@ -3563,3 +3563,11 @@
 - **改动**：`linux/Cargo.toml`(egui-phosphor 依赖)、`linux/src/main.rs`(add_to_fonts + 顶栏图标)。
 - **验证**：`cargo build` **0 error/warning**（带 proxy）。推送 c996c0e。
 - **意义**：U1 linux 图标库化起步（emoji→Phosphor 矢量图标字体）。下一步继续替换 linux 其余 emoji（可达 ✓✕⏳/AI ✦/备注/SFTP 文件类型）+ windows 可达图标。
+
+---
+
+## U1 linux 继续 emoji→phosphor（搜索/AI/发送/备注/SFTP 文件类型）
+- **内容**：linux 剩余 emoji → Phosphor 矢量图标——搜索 🔍→MAGNIFYING_GLASS、AI ✦→SPARKLE（3 处气泡角色标签）、发送 ↑→PAPER_PLANE_TILT、备注 📝→NOTE_PENCIL、SFTP 文件类型（📁 FOLDER/⌨ TERMINAL_WINDOW/🗜 FILE_ZIP/📄 FILE_TEXT/⚙ GEAR）。
+- **改动**：`linux/src/main.rs`(批量 emoji→phosphor 常量)。
+- **验证**：`cargo build` **0 error/warning**（带 proxy，全部 phosphor 常量名正确）。推送 7d4eede。
+- **意义**：linux 主要 UI emoji 已矢量图标化（仅剩可达 ✓✕⏳ + 服务状态点 ● 下轮）。U1 linux 接近完成。下一步 linux 可达指示 phosphor + windows 可达图标。

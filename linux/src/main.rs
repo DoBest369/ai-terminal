@@ -282,6 +282,38 @@ fn sftp_demo() -> Vec<(&'static str, bool, &'static str, &'static str)> {
     ]
 }
 
+impl TermindApp {
+    /// 一键健康巡检（Z3，对照 windows RunHealthCheck）：后台线程 SSH 取真实指标 → AI 分析 → ai_rx 回
+    fn run_health_check(&mut self) {
+        if self.ai_busy { return; }
+        self.ai_msgs.push((true, "一键健康巡检".to_string()));
+        if self.api_key.is_empty() {
+            self.ai_msgs.push((false, "⚠️ 未配置 API Key（环境变量 TERMIND_AI_KEY 或设置面板）".to_string()));
+            return;
+        }
+        self.ai_busy = true;
+        let (base, key, sys, tx) = (self.base_url.clone(), self.api_key.clone(), self.sys_prompt.clone(), self.ai_tx.clone());
+        std::thread::spawn(move || {
+            // SSH 取真实指标（负载/内存/磁盘/CPU Top5/服务状态）
+            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+            let metrics = if pass.is_empty() { String::new() } else {
+                let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
+                let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
+                ssh_exec(&host, 22, &user, &pass,
+                    "echo '== 负载 =='; uptime; echo '== 内存 =='; free -h; echo '== 磁盘 =='; df -h; \
+                     echo '== CPU Top5 =='; ps -eo pid,%cpu,%mem,comm --sort=-%cpu | head -6; \
+                     echo '== 服务 =='; for s in nginx docker mysql redis sshd; do printf '%s:' $s; systemctl is-active $s 2>/dev/null; done")
+            };
+            let user_msg = if metrics.is_empty() || metrics.starts_with('⚠') {
+                "对这台服务器做健康巡检，但当前未取到真实指标（未配置 SSH），请给出通用巡检清单".to_string()
+            } else {
+                format!("以下是这台服务器的当前真实状态，请做健康巡检：按 资源水位 → 风险点 → 优化建议 给出诊断，异常用 ⚠️ 标注。\n\n{}", metrics)
+            };
+            let _ = tx.send(ai_chat(&base, &key, "claude-opus-4-8", &sys, &user_msg));
+        });
+    }
+}
+
 impl eframe::App for TermindApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // 应用后台 TCP 探测结果（真实可达性）→ 更新连接 online 状态
@@ -568,18 +600,25 @@ impl eframe::App for TermindApp {
                 }
                 ui.add_space(10.0);
                 // 运维快捷入口（对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检 + windows）
+                // 解释/报错 → 预填提问；健康巡检 → 一键真闭环（标记触发，循环外执行避免借用冲突）
+                let mut trigger_health = false;
                 ui.horizontal(|ui| {
                     for (label, prefill) in [
                         ("解释命令", "解释这条命令的作用、参数含义和潜在风险："),
                         ("分析报错", "分析这段报错/日志，按 现象 → 可能原因 → 修复步骤 给出诊断："),
-                        ("健康巡检", "对这台服务器做一次健康巡检（结合 CPU/内存/磁盘/负载/关键服务运行状态），指出风险点和优化建议"),
                     ] {
                         if ui.add(egui::Button::new(egui::RichText::new(label).size(11.0).color(ACCENT))
                             .fill(ACCENT.linear_multiply(0.12)).rounding(14.0)).clicked() {
                             self.ai_input = prefill.to_string();
                         }
                     }
+                    // 健康巡检：一键触发（SSH 取真实指标 → AI 分析）
+                    if ui.add(egui::Button::new(egui::RichText::new("健康巡检").size(11.0).color(SUCCESS))
+                        .fill(SUCCESS.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                        trigger_health = true;
+                    }
                 });
+                if trigger_health { self.run_health_check(); }
                 ui.add_space(6.0);
                 // 快捷追问 chips（点击填入 AI 输入框，对照 apple/windows AI 面板 + 快捷命令交互）
                 ui.horizontal(|ui| {

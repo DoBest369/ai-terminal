@@ -4598,3 +4598,11 @@
 - **CHANGELOG 阶段47**：状态条磁盘指标（df 根分区）+ 监控全景（CPU/内存/磁盘/负载 + 服务状态/管理全真实 + 定时刷新）。
 - **改动**：`CHANGELOG.md`(阶段47)。
 - **意义**：CHANGELOG 至阶段47。状态条成为完整实时真实运维监控面板，windows/linux 双端接近 apple Z6。后续持续打磨/新功能。
+
+---
+
+## 指标超阈值告警（windows+linux，CPU/内存/磁盘>90% 红色聚合提示，运维预警）
+- **内容**：状态条任一指标 >90% → 红色告警标识「⚠ CPU x% / 内存 y%...」（聚合多项）；定时刷新触发；windows StatusAlert Border（IsVisible 切换）+ 计算，linux egui Frame 红底告警 label。
+- **改动**：`windows MainWindow.axaml`(StatusAlert)、`MainWindow.axaml.cs`(告警计算)、`linux main.rs`(状态条告警 Frame)。
+- **验证**：windows `dotnet build` 0 错误 + run 存活；linux `cargo build` 0 warning。推送 ea0151c。
+- **意义**：运维主动发现资源风险（CPU/内存/磁盘超阈值预警），状态条从监控到预警，windows/linux 双端对齐。下一步 命令历史面板 / AI 多会话 / 质量收口。

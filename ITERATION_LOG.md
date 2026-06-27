@@ -3571,3 +3571,11 @@
 - **改动**：`linux/src/main.rs`(批量 emoji→phosphor 常量)。
 - **验证**：`cargo build` **0 error/warning**（带 proxy，全部 phosphor 常量名正确）。推送 7d4eede。
 - **意义**：linux 主要 UI emoji 已矢量图标化（仅剩可达 ✓✕⏳ + 服务状态点 ● 下轮）。U1 linux 接近完成。下一步 linux 可达指示 phosphor + windows 可达图标。
+
+---
+
+## U1 linux 可达指示 phosphor → linux 图标库化完成
+- **内容**：linux server_card 可达指示 探测中 ⏳→CIRCLE_DASHED/可达 ✓→CHECK_CIRCLE/不可达 ✕→X_CIRCLE。至此 linux **emoji 清零**（仅留 ● 服务状态几何圆点，非 emoji，合理保留）。
+- **改动**：`linux/src/main.rs`(可达指示 phosphor)。
+- **验证**：`cargo build` **0 error/warning**（带 proxy，phosphor 常量名正确）；grep emoji 残留 = 0。推送 9188061。
+- **🎯 U1 linux 图标库化完成**：linux 全 UI 用 Phosphor 矢量图标字体（顶栏/搜索/AI/发送/备注/SFTP/可达），无 emoji。下一步 U1 windows 可达指示/SFTP 图标矢量化（windows 还有 emoji）。

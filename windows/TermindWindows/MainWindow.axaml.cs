@@ -197,6 +197,29 @@ public partial class MainWindow : Window
     /// SFTP 打开按钮 → 浏览 home 目录
     private void OnSftpOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => LoadSftp("~");
 
+    /// SFTP 文件下载（对照 apple sftpDownload）：SSH base64 取内容 → 存本地 Downloads
+    private async void DownloadFile(string filePath, string fileName)
+    {
+        var p = filePath.Replace("'", "");
+        AppendTerm($"# 下载 {filePath} …", "#8B92A8");
+        // 大小守门（>10MB 不下，base64 经终端传输适合中小文件）
+        var sizeStr = await SshExecAsync($"stat -c %s '{p}' 2>/dev/null");
+        long.TryParse(sizeStr.Trim(), out var size);
+        if (size > 10_000_000) { AppendTerm($"  （文件 {size / 1024 / 1024}MB 过大，跳过下载）", "#F59E0B"); return; }
+        var b64 = await SshExecAsync($"base64 '{p}' 2>/dev/null");
+        if (b64.StartsWith("⚠") || b64.Length == 0) { AppendTerm("  下载失败", "#F59E0B"); return; }
+        try
+        {
+            var bytes = System.Convert.FromBase64String(b64.Replace("\n", "").Replace("\r", ""));
+            var dir = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
+            System.IO.Directory.CreateDirectory(dir);
+            var local = System.IO.Path.Combine(dir, fileName);
+            await System.IO.File.WriteAllBytesAsync(local, bytes);
+            AppendTerm($"  ✓ 已下载到 {local}（{bytes.Length} 字节）", "#3FB950");
+        }
+        catch (System.Exception ex) { AppendTerm($"  ✕ 下载失败：{ex.Message}", "#F59E0B"); }
+    }
+
     /// SFTP 文件预览：SSH 判断文本/大小，文本则 head 前 200 行到终端区显示
     private async void PreviewFile(string filePath)
     {
@@ -265,6 +288,13 @@ public partial class MainWindow : Window
                 var fbtn = new Button { Background = Brush.Parse("#00000000"), BorderThickness = new Thickness(0), Padding = new Thickness(2), Content = grid, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left, Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand) };
                 var fpath = $"{_sftpCwd}/{name}";
                 fbtn.Click += (_, _) => PreviewFile(fpath);
+                // 右键菜单：下载到本地（对照 apple sftpDownload）
+                var fname = name;
+                var menu = new MenuFlyout();
+                var dl = new MenuItem { Header = "下载到本地" };
+                dl.Click += (_, _) => DownloadFile(fpath, fname);
+                menu.Items.Add(dl);
+                fbtn.ContextFlyout = menu;
                 SftpList.Children.Add(fbtn);
             }
         }

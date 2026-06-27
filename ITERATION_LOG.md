@@ -3596,3 +3596,11 @@
 - **改动**：`windows/TermindWindows/MainWindow.axaml.cs`(CallAiAsync + SysPrompt + async AppendAiAsk)。
 - **验证**：`dotnet build` 0 错误；run 存活；**端到端真实问答**：「CPU 飙到 95% 怎么排查」→ AI 给出三步走专业方案（top/ps 命令 + 代码块 + 自动生成 `[EXECUTE]ps -eo...[/EXECUTE]` 标记）。推送 c212704。
 - **意义**：智能运维从 mock → **真实落地 windows**（全平台落地第一端可端到端验证）。优化提示词产出专业运维回复 + [EXECUTE] 标记为 Agent 模式铺好基础。下一步：linux 真实 AI（ureq，编译验证）+ AI 三模式切换器 + [EXECUTE] 解析执行。
+
+---
+
+## S5 windows AI 三模式切换器（Chat/Agent/Auto，用户核心设计）
+- **内容**：windows AI 面板标题下加三档分段切换器——聊天（纯聊天不碰终端）/代理（每条命令确认放行）/全自动（自主闭环）。code-behind `_aiMode` 枚举状态 + `SetAiMode` 高亮当前模式（粉红底）+ 各档 ToolTip 说明。聊天默认高亮。
+- **改动**：`MainWindow.axaml`(三模式切换器 UI)、`MainWindow.axaml.cs`(AiMode 枚举 + OnMode* + SetAiMode)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 16s 存活；截图确认三档切换器（聊天默认高亮粉红）。推送 8201d2a。
+- **意义**：AI 三模式 UI 落地（用户核心设计的安全梯度）。下一步执行逻辑：Agent 模式 [EXECUTE] 解析→确认条放行执行；Auto 模式自动执行+结果回喂；危险命令风险拦截。

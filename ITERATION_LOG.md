@@ -4744,3 +4744,11 @@
 - **CHANGELOG 阶段53**：进程 Top（ps 高占用）+ 网络端口（ss 监听）面板，监控从聚合下钻到进程/端口明细，windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段53)。
 - **意义**：CHANGELOG 至阶段53。监控护城河深化（聚合→进程/端口下钻）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## windows 进程 Top 行右键终止进程（kill，运维操作深化）
+- **内容**：windows 进程 Top 数据行右键 → MenuFlyout「终止进程 PID（名）」红色 → SSH kill PID → 终端提示成功/失败；hand 光标 + tooltip；危险操作（kill）用右键明确选择 + 橙色执行提示。
+- **改动**：`windows MainWindow.axaml.cs`(OnTopProcs 数据行 ContextFlyout kill)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 7c897a0。
+- **意义**：windows 进程管理操作深化（看到高占用进程一键终止，对照服务管理）。监控 → 操作闭环（看进程 → kill）。下一步 linux 进程 kill 对齐 / 磁盘分区面板 / 质量收口。

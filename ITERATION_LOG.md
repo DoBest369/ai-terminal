@@ -3604,3 +3604,11 @@
 - **改动**：`MainWindow.axaml`(三模式切换器 UI)、`MainWindow.axaml.cs`(AiMode 枚举 + OnMode* + SetAiMode)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 16s 存活；截图确认三档切换器（聊天默认高亮粉红）。推送 8201d2a。
 - **意义**：AI 三模式 UI 落地（用户核心设计的安全梯度）。下一步执行逻辑：Agent 模式 [EXECUTE] 解析→确认条放行执行；Auto 模式自动执行+结果回喂；危险命令风险拦截。
+
+---
+
+## 🎯 S5 windows [EXECUTE] 解析 + 命令卡片 + 三模式执行（Agent 闭环核心）
+- **内容**：windows AI 回复 regex 解析 `[EXECUTE]cmd[/EXECUTE]` → 命令卡片（等宽绿字）；气泡正文去标记。**三模式行为**：Chat=仅建议不执行 / Agent=「▶ 执行」按钮（点击=确认放行→填入终端命令输入框）/ Auto=非危险命令自动执行。**安全铁律** `IsDangerous`：rm-rf/mkfs/dd/shutdown/reboot/fork 炸弹/chmod777 等极高危，即使 Auto 也强制点确认不自动绕过，危险命令 ⚠ 橙色标注。
+- **改动**：`MainWindow.axaml.cs`(EXECUTE 解析 + AddCommandCard + IsDangerous + ExecuteCommand)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 16s 存活无崩溃。推送 76b0aee。
+- **意义**：AI 三模式**核心闭环落地**（读 AI 回复→解析命令→按模式执行）。`ExecuteCommand` 当前填入 CmdInput（真实 SSH exec + Auto 结果回喂待 S1）。用户 Chat/Agent/Auto 设计 + 安全梯度完整成形。下一步 S1 真实 SSH（连 47.85.19.31）让命令真正执行 + Auto 闭环。

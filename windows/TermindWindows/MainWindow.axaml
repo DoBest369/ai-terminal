@@ -29,12 +29,13 @@
                                 <StackPanel Width="320" Spacing="2">
                                     <TextBlock Text="SFTP 文件" Foreground="#FFFFFF" FontSize="14" FontWeight="Bold" Margin="0,0,0,4"/>
                                     <TextBlock x:Name="SftpPath" Text="~" Foreground="#8B92A8" FontFamily="{StaticResource MonoFont}" FontSize="12" Margin="0,0,0,6"/>
-                                    <!-- 新建目录（对照 apple sftpMakeDirectory）-->
-                                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+                                    <!-- 新建目录（apple sftpMakeDirectory）+ 上传（apple sftpUpload）-->
+                                    <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,4">
                                         <Border Grid.Column="0" Background="#0D0E1A" CornerRadius="6" Margin="0,0,6,0">
                                             <TextBox x:Name="NewDirName" PlaceholderText="新建目录名…" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" FontFamily="{StaticResource MonoFont}" Padding="10,5"/>
                                         </Border>
-                                        <Button Grid.Column="1" Click="OnMkdir" Background="#1A3FB950" BorderThickness="0" CornerRadius="6" Padding="10,5" Content="新建" Foreground="#3FB950" FontSize="12"/>
+                                        <Button Grid.Column="1" Click="OnMkdir" Background="#1A3FB950" BorderThickness="0" CornerRadius="6" Padding="10,5" Content="新建" Foreground="#3FB950" FontSize="12" Margin="0,0,6,0"/>
+                                        <Button Grid.Column="2" Click="OnSftpUpload" Background="#1A60A5FA" BorderThickness="0" CornerRadius="6" Padding="10,5" Content="上传" Foreground="#60A5FA" FontSize="12" ToolTip.Tip="上传本地文件到当前目录"/>
                                     </Grid>
                                     <Border Height="1" Background="#2A2D3E" Margin="0,0,0,4"/>
                                     <StackPanel x:Name="SftpList" Spacing="2"/>

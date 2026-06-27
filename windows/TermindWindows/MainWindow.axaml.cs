@@ -198,6 +198,32 @@ public partial class MainWindow : Window
     /// SFTP 打开按钮 → 浏览 home 目录
     private void OnSftpOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => LoadSftp("~");
 
+    /// SFTP 上传（对照 apple sftpUpload）：选本地文件 → base64 → SSH 写到当前目录
+    private async void OnSftpUpload(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var top = TopLevel.GetTopLevel(this);
+        if (top?.StorageProvider == null) return;
+        var files = await top.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions { Title = "上传到 " + _sftpCwd, AllowMultiple = false });
+        if (files.Count == 0) return;
+        var f = files[0];
+        try
+        {
+            await using var stream = await f.OpenReadAsync();
+            using var ms = new System.IO.MemoryStream();
+            await stream.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+            if (bytes.Length > 5_000_000) { AppendTerm($"# 上传 {f.Name}：文件 {bytes.Length / 1024 / 1024}MB 过大（base64 经命令行限 5MB）", "#F59E0B"); return; }
+            AppendTerm($"# 上传 {f.Name} → {_sftpCwd} …", "#8B92A8");
+            var b64 = System.Convert.ToBase64String(bytes);
+            var remote = $"{_sftpCwd}/{f.Name}".Replace("'", "");
+            // base64 内容经 stdin 传输（printf 避免 echo 长度限制），远端 base64 -d 解码写文件
+            var r = await SshExecAsync($"printf '%s' '{b64}' | base64 -d > '{remote}' && echo TERMIND_UP_OK");
+            if (r.Contains("TERMIND_UP_OK")) { AppendTerm($"  ✓ 已上传（{bytes.Length} 字节）", "#3FB950"); LoadSftp(_sftpCwd); }
+            else AppendTerm($"  ✕ 上传失败：{r}", "#F59E0B");
+        }
+        catch (System.Exception ex) { AppendTerm($"  ✕ 上传失败：{ex.Message}", "#F59E0B"); }
+    }
+
     /// SFTP 新建目录 / 重命名（输入框复用）：有 _sftpRenaming 则 mv 重命名（对照 apple sftpRename），否则 mkdir
     private async void OnMkdir(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

@@ -4334,3 +4334,11 @@
 - **改动**：`linux/src/main.rs`(term_font_size 字段 + 状态条 A-/A+ + ansi_to_job size 参数 + 终端渲染动态字号)。
 - **验证**：`cargo build` **0 error/warning**（0.98s，带 proxy）。推送 a801360。
 - **意义**：终端字号可调 U4 windows/linux 双端对齐。响应用户 U4「字号可调」要求双端落地。下一步 主题切换 U3 / 连接编辑 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段37 UI品质U4字号可调
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；855 提交。五端 build 全绿。
+- **CHANGELOG 阶段37**：终端字号可调 U4（windows/linux）+ SFTP 上传双端；UI 品质专项进展（U1 图标/U2 配色/U4 字号完成，U3 主题进行中）。
+- **改动**：`CHANGELOG.md`(阶段37)。
+- **意义**：CHANGELOG 至阶段37。用户 UI 品质要求 U1/U2/U4 落地，U3 主题切换待做。Termind 全平台真实智能运维工作台功能 + UI 品质双线成熟。后续 U3 主题切换 / 连接编辑 / 持续打磨。

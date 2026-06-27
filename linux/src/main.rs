@@ -352,7 +352,12 @@ impl eframe::App for TermindApp {
                     let resp = ui.add_sized([ui.available_width(), 24.0],
                         egui::TextEdit::singleline(&mut self.cmd_input).hint_text("输入命令…").font(egui::TextStyle::Monospace));
                     if resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) && !self.cmd_input.trim().is_empty() {
-                        self.term_lines.push(format!("{} {}", prompt, self.cmd_input.trim()));
+                        let cmd = self.cmd_input.trim();
+                        if cmd == "clear" {
+                            self.term_lines.clear();   // clear 清屏（终端常用命令）
+                        } else {
+                            self.term_lines.push(format!("{} {}", prompt, cmd));
+                        }
                         self.cmd_input.clear();
                         resp.request_focus();   // 保持焦点便于连续输入
                     }

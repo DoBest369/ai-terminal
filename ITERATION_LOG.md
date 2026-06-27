@@ -4030,3 +4030,11 @@
 - **改动**：`MainWindow.axaml`(新建连接 Flyout 表单)、`MainWindow.axaml.cs`(_conns ObservableCollection + OnAddConn)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 167d23a。
 - **意义**：windows 连接管理可增（新建连接）→ 选中驱动真实 SSH 执行。真实连接管理完善（列表 + 新建 + 选中切换 + 真实执行）。下一步 linux 新建连接 / 主题切换 U3 / SFTP 真实文件。
+
+---
+
+## windows 连接持久化（新建连接存配置文件，重启恢复）
+- **内容**：windows SaveConfig 扩展存「我的连接」组的用户新建连接（name/addr/note）；LoadConfig 读回加入 _conns + 异步探测；OnAddConn 后 SaveConfig 持久化；默认演示连接不存。
+- **改动**：`MainWindow.axaml.cs`(SaveConfig/LoadConfig 含连接 + OnAddConn 保存)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 fe402ce。
+- **意义**：windows 新建连接跨重启不丢（连接管理完整：列表+新建+持久化+选中切换+真实执行）。下一步 SFTP 真实文件 / 主题切换 U3 / 质量收口。

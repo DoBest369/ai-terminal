@@ -368,6 +368,16 @@ fn load_font_size() -> f32 {
         .unwrap_or(13.0)
 }
 
+/// 加载持久化的 AI 字号（U4，对照 windows）；默认 13
+fn load_ai_font_size() -> f32 {
+    config_path()
+        .and_then(|p| std::fs::read_to_string(&p).ok())
+        .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
+        .and_then(|j| j["ai_font_size"].as_f64())
+        .map(|f| (f as f32).clamp(10.0, 22.0))
+        .unwrap_or(13.0)
+}
+
 /// 加载持久化的主题索引（U3）；默认 0（午夜）
 fn load_theme_idx() -> usize {
     config_path()
@@ -378,12 +388,12 @@ fn load_theme_idx() -> usize {
         .unwrap_or(0)
 }
 
-/// 保存配置（api_key/base_url + 终端字号 + 主题）到配置文件
-fn save_config(api_key: &str, base_url: &str, font_size: f32) {
+/// 保存配置（api_key/base_url + 终端/AI 字号 + 主题）到配置文件
+fn save_config(api_key: &str, base_url: &str, font_size: f32, ai_font_size: f32) {
     let Some(path) = config_path() else { return; };
     if let Some(dir) = std::path::Path::new(&path).parent() { let _ = std::fs::create_dir_all(dir); }
     let theme_idx = THEME_IDX.load(std::sync::atomic::Ordering::Relaxed);
-    let json = serde_json::json!({ "api_key": api_key, "base_url": base_url, "font_size": font_size, "theme_idx": theme_idx });
+    let json = serde_json::json!({ "api_key": api_key, "base_url": base_url, "font_size": font_size, "ai_font_size": ai_font_size, "theme_idx": theme_idx });
     let _ = std::fs::write(&path, json.to_string());
 }
 
@@ -402,7 +412,7 @@ impl Default for TermindApp {
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
         THEME_IDX.store(load_theme_idx(), std::sync::atomic::Ordering::Relaxed);   // U3 恢复持久化主题
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: 13.0 }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size() }
     }
 }
 
@@ -768,7 +778,7 @@ impl eframe::App for TermindApp {
                             .color(if sel { ACCENT() } else { TEXT_SECONDARY() }))
                             .fill(if sel { ACCENT().linear_multiply(0.15) } else { SURFACE() }).rounding(6.0)).clicked() {
                             THEME_IDX.store(i, std::sync::atomic::Ordering::Relaxed);   // 全窗主题实时切换
-                            save_config(&self.api_key, &self.base_url, self.term_font_size);   // 主题持久化
+                            save_config(&self.api_key, &self.base_url, self.term_font_size, self.ai_font_size);   // 主题持久化
                         }
                     }
                 });
@@ -785,7 +795,7 @@ impl eframe::App for TermindApp {
                 // 失焦后持久化（对照 windows LostFocus 保存）
                 if ui.add(egui::TextEdit::singleline(&mut self.api_key).password(true)
                     .hint_text("sk-ant-…").desired_width(f32::INFINITY)).lost_focus() {
-                    save_config(&self.api_key, &self.base_url, self.term_font_size);
+                    save_config(&self.api_key, &self.base_url, self.term_font_size, self.ai_font_size);
                 }
                 ui.add_space(8.0);
                 ui.colored_label(TEXT_SECONDARY(), "模型");
@@ -796,7 +806,7 @@ impl eframe::App for TermindApp {
                 if ui.add(egui::TextEdit::singleline(&mut self.base_url)
                     .hint_text("https://api.anthropic.com/v1/messages").desired_width(f32::INFINITY)
                     .font(egui::TextStyle::Monospace)).lost_focus() {
-                    save_config(&self.api_key, &self.base_url, self.term_font_size);
+                    save_config(&self.api_key, &self.base_url, self.term_font_size, self.ai_font_size);
                 }
                 ui.add_space(8.0);
                 // AI 系统提示词（可自定义，对齐 apple/android）
@@ -957,9 +967,11 @@ impl eframe::App for TermindApp {
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui.add(egui::Button::new(egui::RichText::new("A+").size(11.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("放大 AI 字号").clicked() {
                             self.ai_font_size = (self.ai_font_size + 1.0).min(22.0);
+                            save_config(&self.api_key, &self.base_url, self.term_font_size, self.ai_font_size);
                         }
                         if ui.add(egui::Button::new(egui::RichText::new("A-").size(11.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("缩小 AI 字号").clicked() {
                             self.ai_font_size = (self.ai_font_size - 1.0).max(10.0);
+                            save_config(&self.api_key, &self.base_url, self.term_font_size, self.ai_font_size);
                         }
                     });
                 });
@@ -1181,11 +1193,11 @@ impl eframe::App for TermindApp {
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui.add(egui::Button::new(egui::RichText::new("A+").size(11.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("放大终端字号").clicked() {
                             self.term_font_size = (self.term_font_size + 1.0).min(22.0);
-                            save_config(&self.api_key, &self.base_url, self.term_font_size);   // 字号持久化
+                            save_config(&self.api_key, &self.base_url, self.term_font_size, self.ai_font_size);   // 字号持久化
                         }
                         if ui.add(egui::Button::new(egui::RichText::new("A-").size(11.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("缩小终端字号").clicked() {
                             self.term_font_size = (self.term_font_size - 1.0).max(9.0);
-                            save_config(&self.api_key, &self.base_url, self.term_font_size);
+                            save_config(&self.api_key, &self.base_url, self.term_font_size, self.ai_font_size);
                         }
                     });
                 });

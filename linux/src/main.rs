@@ -50,11 +50,12 @@ struct TermindApp {
     show_sftp: bool,
     cmd_input: String,
     term_lines: Vec<String>,   // 用户输入回车后追加的终端历史行
+    ai_msgs: Vec<String>,      // AI 区用户输入回车后追加的提问气泡
 }
 
 impl Default for TermindApp {
     fn default() -> Self {
-        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new() }
+        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new() }
     }
 }
 
@@ -235,6 +236,13 @@ impl eframe::App for TermindApp {
                         ui.colored_label(SUCCESS, egui::RichText::new("tail -n 50 /var/log/nginx/error.log").monospace());
                     });
                 });
+                // 用户回车追加的提问气泡（对照终端命令回车交互）
+                for msg in &self.ai_msgs {
+                    ui.add_space(6.0);
+                    ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());
+                    egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
+                        .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, msg); });
+                }
                 ui.add_space(10.0);
                 // 快捷追问 chips（点击填入 AI 输入框，对照 apple/windows AI 面板 + 快捷命令交互）
                 ui.horizontal(|ui| {
@@ -253,11 +261,13 @@ impl eframe::App for TermindApp {
                         [28.0, 28.0],
                         egui::Button::new(egui::RichText::new("↑").size(15.0).color(TEXT_PRIMARY))
                             .fill(ACCENT).rounding(14.0));
-                    let _ = ui.add_sized(
+                    let resp = ui.add_sized(
                         [ui.available_width(), 28.0],
                         egui::TextEdit::singleline(&mut self.ai_input).hint_text("输入指令…"));
-                    if send.clicked() {
-                        // 发送逻辑占位（后续接 AI）：清空输入
+                    // 发送按钮点击 或 回车 → 追加提问气泡（后续接 AI 回复）
+                    let enter = resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
+                    if (send.clicked() || enter) && !self.ai_input.trim().is_empty() {
+                        self.ai_msgs.push(self.ai_input.trim().to_string());
                         self.ai_input.clear();
                     }
                 });

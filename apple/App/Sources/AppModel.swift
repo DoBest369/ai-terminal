@@ -904,21 +904,42 @@ final class AppModel: ObservableObject {
     /// AI 多轮上下文窗口：发送时携带的最近消息条数
     static let contextWindow = 20
 
-    /// 把 AI 回复里的 [EXECUTE] 命令按 AI 模式处理（chat 不执行 / agent 待确认 / auto 自动）
+    private var autoLoopDepth = 0          // Auto 自主闭环轮数（防失控）
+    private let autoLoopMax = 5
+
+    /// 把 AI 回复里的 [EXECUTE] 命令按 AI 模式处理（chat 不执行 / agent 待确认 / auto 自动+闭环）
     private func runParsedCommands(from reply: String) {
         let commands = AIService.parseCommands(from: reply)
-        guard !commands.isEmpty else { return }
+        guard !commands.isEmpty else { autoLoopDepth = 0; return }
         // Chat 模式：纯聊天，不碰终端
         if aiMode == .chat { return }
+        var autoExecuted = false
         for cmd in commands {
             // 危险命令：即使 Auto 也不自动执行，进待确认（安全铁律）
             if cmd.isDangerous || aiMode == .agent {
                 pendingCommands.append(cmd.command)
                 continue
             }
-            // Auto 模式非危险命令：自动注入终端执行
+            // Auto 模式非危险命令：自动注入终端执行（首条前开始录制输出）
+            if !autoExecuted { activeSession?.startRecording() }
             activeSession?.injectCommand?(cmd.command + "\n")
             recordCommand(cmd.command)   // N-History
+            autoExecuted = true
+        }
+        // S5 Auto 自主闭环：等命令输出 → 回喂 AI 决策下一步（限轮+危险中断防失控）
+        if aiMode == .autoAgent && autoExecuted && autoLoopDepth < autoLoopMax {
+            autoLoopDepth += 1
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 2_500_000_000)   // 等命令执行产生输出
+                let output = activeSession?.recordedText() ?? ""
+                activeSession?.stopRecording()
+                let trimmed = output.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    sendAIMessage("已执行命令，终端输出如下：\n\(trimmed)\n\n请判断是否需要下一步操作：需要则用 [EXECUTE]命令[/EXECUTE]，已完成则直接给结论不再给命令。")
+                }
+            }
+        } else {
+            autoLoopDepth = 0   // 非 Auto / 未执行 / 到顶 → 重置轮数
         }
     }
 

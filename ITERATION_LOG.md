@@ -6,6 +6,14 @@
 
 ---
 
+## windows 快捷命令点击→填入命令输入框（真实交互，对照 linux）
+- **内容**：windows 快捷命令 chip 从 `Border` → `Button`（Click=OnQuickCmd）；命令输入框加 `CmdInput` x:Name；code-behind OnQuickCmd 把 `b.Content`（命令文本）填入 `CmdInput.Text` + 聚焦。对照 linux/apple/android 快捷命令填入。
+- **改动**：`MainWindow.axaml`(快捷命令 Button + CmdInput x:Name)、`MainWindow.axaml.cs`(OnQuickCmd)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）；`dotnet run` 截图（快捷命令 chip Button 正常显示）。推送 582a3d4。
+- **意义**：windows 快捷命令从「纯展示」→「点击填入命令输入框」。windows/linux 双端快捷命令真正可用（终端区交互闭环：选连接→提示符联动→点快捷命令→填入输入）。
+
+---
+
 ## linux 命令输入框 + 快捷命令点击填入（真实交互，快捷命令可用）
 - **内容**：linux 终端区加命令输入框（提示符 `user@host:~$` + TextEdit，绑 `self.cmd_input`）；快捷命令栏 Button `clicked()` → 填入 `self.cmd_input`。快捷命令真正可用（点击→填入输入框，对照 windows/apple/android）。
 - **改动**：`linux/src/main.rs`(struct 加 cmd_input + 快捷命令 clicked 填入 + 命令输入框)。

@@ -6,6 +6,14 @@
 
 ---
 
+## linux 终端 clear 命令清屏（终端常用交互）
+- **内容**：linux 命令输入回车时若 cmd==`clear` → 清空 `self.term_lines`（清屏）而非追加，对照真实终端 clear 命令。
+- **改动**：`linux/src/main.rs`(回车逻辑加 clear 分支)。
+- **验证**：`cargo build` **0 error/warning**（0.49s 增量，带 proxy，build 通过后提交）。推送 f58a372。
+- **意义**：linux 终端支持 clear 清屏（终端最常用命令之一），交互更接近真实终端。下一步 windows clear 对齐。
+
+---
+
 ## windows AI 提问后追加占位 AI 回复气泡（双端 AI 成对回复对齐）
 - **内容**：windows AppendAiAsk 追加用户提问气泡后，再追加占位 AI 回复（✦ AI 标签[Run 内联粉红 ✦] + 灰气泡「已收到，正在结合服务器环境分析…（接入 API Key 后回复）」），对话成对显示。对照 linux。
 - **改动**：`MainWindow.axaml.cs`(AppendAiAsk 加 AI 回复气泡)。

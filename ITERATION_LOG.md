@@ -4574,3 +4574,11 @@
 - **改动**：`linux main.rs`(服务点 menu_button + svc_action 收集 + spawn systemctl)。
 - **验证**：`cargo build` **0 error/warning**（0.96s，带 proxy）。推送 d3b2637。
 - **意义**：服务管理 windows/linux 双端对齐（点服务点启停/重启真实运维操作）。护城河深化双端——从「看服务」到「管服务」。下一步 质量收口 CHANGELOG 阶段46 / 磁盘指标 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段46 状态条实时监控+服务管理双端
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；912 提交。五端 build 全绿。
+- **CHANGELOG 阶段46**：指标定时刷新（每30s SSH重取）+ 服务管理（点服务点 systemctl 启停），护城河从看到管，windows/linux 双端。
+- **改动**：`CHANGELOG.md`(阶段46)。
+- **意义**：CHANGELOG 至阶段46。状态条进化为实时真实监控 + 服务管理面板。Termind 护城河持续深化（实时监控 + 服务运维操作）。后续持续打磨/新功能。

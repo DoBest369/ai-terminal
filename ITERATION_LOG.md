@@ -4268,3 +4268,11 @@
 - **windows 整体巡检**（截图 Read 自查）：三栏 + 终端命令栏批量按钮 + AI 面板，深色协调。
 - **改动**：`CHANGELOG.md`、更新 `apple/screenshots/windows-smart-ops.png`。
 - **意义**：CHANGELOG 至阶段34。windows/linux SFTP 文件读写常用操作齐备，护城河能力一致。Termind 全平台真实智能运维工作台功能完整度高，windows/linux 双端接近 apple 标杆。
+
+---
+
+## windows SFTP 文件重命名（右键重命名→mv，对照 apple sftpRename）
+- **内容**：windows 文件右键「重命名」→ _sftpRenaming 标记 + 填原名到新建目录输入框（复用，避免新 UI）；OnMkdir 判断重命名模式 → ssh mv 原→新名 + 刷新，否则 mkdir；路径防注入。
+- **改动**：`MainWindow.axaml.cs`(_sftpRenaming + 文件右键重命名 + OnMkdir 模式判断)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 331032e。
+- **意义**：windows SFTP 写操作齐全（下载/删除/新建目录/重命名）。windows SFTP 能力对照 apple sftpRename 再补一项。windows SFTP 接近完整（浏览/导航/预览/下载/删除/新建目录/重命名）。下一步 linux SFTP 重命名 / 连接编辑 / 质量收口。

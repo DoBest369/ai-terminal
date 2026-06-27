@@ -6,6 +6,15 @@
 
 ---
 
+## CHANGELOG 阶段19（真实逻辑接入 + AI 配置五端对齐）+ 质量收口
+- **质量基线**：apple swift build + **8 自测全 true 无回归**；linux cargo Finished；PARITY **103 项 ✅✅**。
+- **CHANGELOG 阶段19**：windows/linux 真实逻辑接入（真实 TCP 探测双端 + 探测中三态 UX + windows ConnItem observable class）+ AI 配置能力五端完整对齐（API Key/模型/Base URL/系统提示词）。
+- **改动**：`CHANGELOG.md`(阶段19)。
+- **验证**：apple 8 自测无回归。推送 e44d1d1。
+- **意义**：CHANGELOG 至阶段 19，完整记录演进：编译打通(16) → UI 统一(17) → 真实交互(18) → 真实逻辑+AI 配置对齐(19)。文档体系准确反映真实逻辑接入阶段进展。
+
+---
+
 ## windows 设置加 AI 系统提示词 → 系统提示词设置五端对齐
 - **内容**：windows 设置 Flyout API 地址后加「AI 系统提示词」多行 TextBox（AcceptsReturn + TextWrapping + MinHeight 64/MaxHeight 100），对照 apple/android/linux 系统提示词自定义。
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(设置 Flyout 系统提示词 TextBox)。

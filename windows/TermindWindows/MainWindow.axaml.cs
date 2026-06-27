@@ -353,6 +353,40 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { TopProcsList.Children.Clear(); TopProcsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
+    /// 登录用户/最近登录面板：SSH who（在线）+ last（最近）→ 展示（安全运维，查谁在登录）
+    private async void OnLoginUsers(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        LoginUsersList.Children.Clear();
+        LoginUsersList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        try
+        {
+            // who：当前在线（user tty time from-ip）；last：最近登录 8 条
+            var outp = await SshExecAsync("echo '== 在线 =='; who; echo '== 最近 =='; last -n 8 2>/dev/null | head -8");
+            var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
+            LoginUsersList.Children.Clear();
+            foreach (var line in lines)
+            {
+                var t = line.TrimEnd();
+                if (t.Length == 0 || t.StartsWith("wtmp")) continue;
+                var isHeader = t.StartsWith("==");
+                var online = t.Contains("== 在线") ;
+                var tb = new TextBlock
+                {
+                    Text = isHeader ? t.Replace("==", "").Trim() : t,
+                    Foreground = Brush.Parse(isHeader ? (online ? "#3FB950" : "#8B92A8") : "#C9D1D9"),
+                    FontSize = isHeader ? 11 : 11,
+                    FontWeight = isHeader ? Avalonia.Media.FontWeight.SemiBold : Avalonia.Media.FontWeight.Normal,
+                    FontFamily = isHeader ? FontFamily.Default : (Avalonia.Media.FontFamily)Resources["MonoFont"]!,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    Margin = new Thickness(2, isHeader ? 4 : 1, 2, 1),
+                };
+                LoginUsersList.Children.Add(tb);
+            }
+            if (LoginUsersList.Children.Count == 0) LoginUsersList.Children.Add(new TextBlock { Text = "（未取到登录信息，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        }
+        catch (System.Exception ex) { LoginUsersList.Children.Clear(); LoginUsersList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+    }
+
     /// 磁盘分区详情面板：SSH df -h 取全分区 → 展示使用率（监控补全，对照状态条聚合磁盘）
     private async void OnDiskParts(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

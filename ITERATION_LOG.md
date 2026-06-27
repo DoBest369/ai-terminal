@@ -3621,3 +3621,11 @@
 - **验证**：`dotnet build` 0 错误；run 18s 存活；**SSH.NET 端到端验证**（临时控制台同逻辑）：真连 47.85.19.31 认证通过 + RunCommand 返回结果（RESULT_OK）。推送 9663c98。
 - **🎯 智能运维闭环完整**：AI 真实回复（nexcores）→ 解析 `[EXECUTE]` 命令 → 三模式（Chat 建议/Agent 确认/Auto 自动）→ **真实 SSH 在 47.85.19.31 执行** → 结果回终端。危险命令拦截守安全。windows 端智能运维从 mock → **全链路真实**。
 - **意义**：用户要的「智能运维全平台落地 + AI Agent 终端接管」在 windows 端**全链路打通**（真实 AI + 真实 SSH + 三模式 + 安全）。下一步：Auto 模式结果回喂 AI（闭环自主）+ linux 同等落地（编译验证）+ 命令输入回车也走真实 SSH。
+
+---
+
+## windows 命令输入回车→真实 SSH（终端真正可用）
+- **内容**：windows `OnCmdKeyDown` 命令回车从 mock 追加 → 调 `ExecuteCommand` 真实 SSH exec（连 47.85.19.31 → 结果回终端）；clear/历史回溯保留。手输命令 + AI 生成命令现在都真实在服务器执行。
+- **改动**：`MainWindow.axaml.cs`(OnCmdKeyDown 命令执行走 ExecuteCommand)。
+- **验证**：`dotnet build` 0 错误；run 16s 存活。推送 b52c536。
+- **意义**：windows 终端从「mock 展示」→「真正可用的 SSH 终端」（手输/AI 命令都真实执行）。windows 端智能运维 + 真实终端全打通。下一步 Auto 模式结果回喂 AI（自主闭环）+ 真实环境注入。

@@ -4160,3 +4160,12 @@
 - **ROADMAP 更新**：S7✅（护城河深化 + Auto 闭环全平台：linux SSH 复用/Z2 报错 Z3 巡检一键真闭环/apple Auto 闭环→三模式五端全对齐）；S8✅（全模块真实化 + 体验打磨：连接 CRUD/SFTP 完整/终端 ANSI 彩色/命令耗时/AI 流式代码块清空导出/风险四级/配置持久化）；S9 后续（apple/android SFTP 确认/连接编辑/SFTP 上传下载/batch 移植/主题切换 U3）。
 - **改动**：`ROADMAP.md`(S7/S8/S9)。
 - **意义**：ROADMAP 反映深化打磨完整进展。智能运维全平台落地（S1-S5）→ 护城河补齐 + Auto 闭环五端（S6/S7）→ 全模块真实化 + 体验打磨（S8）。Termind 核心 + 深化全部完成，方向清晰（S9）。
+
+---
+
+## apple SFTP 真实确认 + windows AI 气泡时间戳
+- **apple SFTP 确认（检查结果）**：apple SFTP **已真实且最完整**——FileBrowserView 用 SSHService 的 Citadel SFTPClient：sftpList/sftpHome/sftpDownload/sftpMakeDirectory/sftpRemove/sftpRename + 批量下载/批量删除，是**真 SFTP 协议**（远超 windows/linux 的 ls 解析模拟）。apple 是 SFTP 标杆，无需改；windows/linux SFTP 上传下载等可作 S9 深化。
+- **windows AI 气泡时间戳**：用户气泡 label「你 · HH:mm」+ AI label「✦ AI · HH:mm」（DateTime.Now）；健康巡检/报错分析气泡同。对话有时间参考。
+- **改动**：`MainWindow.axaml.cs`(3 处用户 label + AI label 时间戳)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 见下。
+- **意义**：确认 apple SFTP 标杆地位（真 SFTP 协议）；windows AI 对话加时间戳。下一步 windows/linux SFTP 上传下载（对齐 apple）/ 连接编辑。

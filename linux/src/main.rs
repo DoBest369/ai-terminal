@@ -60,6 +60,30 @@ struct TermindApp {
     ai_tx: std::sync::mpsc::Sender<String>,    // AI 真实回复回传（后台线程→UI）
     ai_rx: std::sync::mpsc::Receiver<String>,
     ai_busy: bool,                             // AI 请求进行中
+    term_tx: std::sync::mpsc::Sender<String>,  // SSH 执行结果回传（后台线程→UI）
+    term_rx: std::sync::mpsc::Receiver<String>,
+}
+
+/// 真实 SSH exec（S2：ssh2 连真实服务器，对照 windows SshExecAsync）
+/// host/user/pass 从环境变量 TERMIND_SSH_*（不硬编码）；返回命令输出或错误
+fn ssh_exec(host: &str, port: u16, user: &str, pass: &str, cmd: &str) -> String {
+    use std::io::Read;
+    let tcp = match std::net::TcpStream::connect((host, port)) {
+        Ok(t) => t, Err(e) => return format!("⚠️ 连接失败：{}", e),
+    };
+    let mut sess = match ssh2::Session::new() { Ok(s) => s, Err(e) => return format!("⚠️ 会话失败：{}", e) };
+    sess.set_tcp_stream(tcp);
+    if let Err(e) = sess.handshake() { return format!("⚠️ 握手失败：{}", e); }
+    if let Err(e) = sess.userauth_password(user, pass) { return format!("⚠️ 认证失败：{}", e); }
+    let mut ch = match sess.channel_session() { Ok(c) => c, Err(e) => return format!("⚠️ 通道失败：{}", e) };
+    if let Err(e) = ch.exec(cmd) { return format!("⚠️ 执行失败：{}", e); }
+    let mut out = String::new();
+    let _ = ch.read_to_string(&mut out);
+    let mut err = String::new();
+    let _ = ch.stderr().read_to_string(&mut err);
+    let _ = ch.wait_close();
+    let combined = format!("{}{}", out, err);
+    if combined.trim().is_empty() { "(无输出)".to_string() } else { combined.trim_end().to_string() }
 }
 
 /// 真实 AI（S2：ureq 调 Anthropic 兼容接口 nexcores，对照 windows CallAiAsync）
@@ -136,7 +160,8 @@ impl Default for TermindApp {
             std::thread::spawn(move || { let _ = tx.send((i, probe_tcp(host, port))); });
         }
         let (ai_tx, ai_rx) = std::sync::mpsc::channel();
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: std::env::var("TERMIND_AI_KEY").unwrap_or_default(), base_url: "https://www.nexcores.net/v1/messages".to_string(), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false }
+        let (term_tx, term_rx) = std::sync::mpsc::channel();
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: std::env::var("TERMIND_AI_KEY").unwrap_or_default(), base_url: "https://www.nexcores.net/v1/messages".to_string(), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx }
     }
 }
 
@@ -164,6 +189,10 @@ impl eframe::App for TermindApp {
         while let Ok(reply) = self.ai_rx.try_recv() {
             self.ai_msgs.push((false, reply));
             self.ai_busy = false;
+        }
+        // 接收 SSH 真实执行结果（后台线程 ssh_exec → term_rx）→ 追加终端
+        while let Ok(out) = self.term_rx.try_recv() {
+            for line in out.split('\n') { self.term_lines.push(line.to_string()); }
         }
         // 探测期间保持低频重绘以接收后台线程结果
         ctx.request_repaint_after(std::time::Duration::from_millis(500));
@@ -510,7 +539,17 @@ impl eframe::App for TermindApp {
                         if cmd == "clear" {
                             self.term_lines.clear();   // clear 清屏（终端常用命令）
                         } else {
+                            // 命令行回显 + 真实 SSH 在服务器执行（后台线程，结果经 term_tx 回传）
                             self.term_lines.push(format!("{} {}", prompt, cmd));
+                            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+                            if pass.is_empty() {
+                                self.term_lines.push("⚠️ 未配置 SSH 密码（环境变量 TERMIND_SSH_PASS）".to_string());
+                            } else {
+                                let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
+                                let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
+                                let (tx, c) = (self.term_tx.clone(), cmd.clone());
+                                std::thread::spawn(move || { let _ = tx.send(ssh_exec(&host, 22, &user, &pass, &c)); });
+                            }
                         }
                         self.cmd_input.clear();
                         resp.request_focus();   // 保持焦点便于连续输入

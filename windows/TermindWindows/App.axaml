@@ -12,6 +12,7 @@
         <SolidColorBrush x:Key="ThemeSideBg" Color="#16213E"/>
         <SolidColorBrush x:Key="ThemeTermBg" Color="#0D0E1A"/>
         <SolidColorBrush x:Key="ThemeAiBg" Color="#10121F"/>
+        <SolidColorBrush x:Key="ThemeCardBg" Color="#16182A"/>
         <SolidColorBrush x:Key="ThemeAccent" Color="#FF4B6E"/>
     </Application.Resources>
 

@@ -420,12 +420,13 @@ public partial class MainWindow : Window
     }
 
     // U3 主题：4 套（午夜/Dracula/Nord/Solarized），各主要背景色（窗口/侧栏/终端/AI）+ 强调色
+    // 各主题色：[窗口bg, 侧栏bg, 终端bg, AI bg, 强调色, 次级面板bg]
     private static readonly string[][] Themes =
     {
-        new[] { "#1A1A2E", "#16213E", "#0D0E1A", "#10121F", "#FF4B6E" },   // 午夜
-        new[] { "#282A36", "#343746", "#21222C", "#282A36", "#FF79C6" },   // Dracula
-        new[] { "#2E3440", "#3B4252", "#272C36", "#2E3440", "#88C0D0" },   // Nord
-        new[] { "#002B36", "#073642", "#002028", "#002B36", "#D33682" },   // Solarized
+        new[] { "#1A1A2E", "#16213E", "#0D0E1A", "#10121F", "#FF4B6E", "#16182A" },   // 午夜
+        new[] { "#282A36", "#343746", "#21222C", "#282A36", "#FF79C6", "#343746" },   // Dracula
+        new[] { "#2E3440", "#3B4252", "#272C36", "#2E3440", "#88C0D0", "#3B4252" },   // Nord
+        new[] { "#002B36", "#073642", "#002028", "#002B36", "#D33682", "#073642" },   // Solarized
     };
 
     /// U3 主题切换（点击配色主题）：改 Application.Resources 主要背景/强调色资源 + 持久化
@@ -447,6 +448,7 @@ public partial class MainWindow : Window
         res["ThemeTermBg"] = new SolidColorBrush(Color.Parse(t[2]));
         res["ThemeAiBg"] = new SolidColorBrush(Color.Parse(t[3]));
         res["ThemeAccent"] = new SolidColorBrush(Color.Parse(t[4]));
+        res["ThemeCardBg"] = new SolidColorBrush(Color.Parse(t[5]));
     }
 
     private int _themeIdx = 0;

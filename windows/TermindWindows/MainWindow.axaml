@@ -164,7 +164,7 @@
         <!-- ② 终端区：状态条 + 输出 + 快捷命令 + 输入 -->
         <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto,Auto" Background="{DynamicResource ThemeTermBg}">
             <!-- 状态条（CPU/内存 mini 进度条，绿/橙/红三档，对齐 apple/android/linux） -->
-            <Border Grid.Row="0" Background="#16182A" Padding="14,8">
+            <Border Grid.Row="0" Background="{DynamicResource ThemeCardBg}" Padding="14,8">
               <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16">
                     <TextBlock x:Name="StatusDot" Text="● 已连接" Foreground="#3FB950" FontSize="12" VerticalAlignment="Center"/>
@@ -249,7 +249,7 @@
                 </StackPanel>
             </ScrollViewer>
             <!-- 命令输入（可真实输入）+ 批量群发（护城河：多连接群发命令） -->
-            <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="10,0,10,10">
+            <Border Grid.Row="3" Background="{DynamicResource ThemeCardBg}" CornerRadius="8" Margin="10,0,10,10">
                 <Grid ColumnDefinitions="*,Auto">
                     <TextBox x:Name="CmdInput" Grid.Column="0" PlaceholderText="输入命令…" Background="Transparent" BorderThickness="0"
                              Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="13"
@@ -282,7 +282,7 @@
                     </Grid>
                     <!-- AI 三模式切换器（Chat/Agent/Auto，安全梯度，对齐用户设计）+ AI 字号 -->
                     <Grid ColumnDefinitions="Auto,*,Auto">
-                        <Border Grid.Column="0" Background="#16182A" CornerRadius="8" Padding="3" HorizontalAlignment="Left">
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeCardBg}" CornerRadius="8" Padding="3" HorizontalAlignment="Left">
                             <StackPanel Orientation="Horizontal" Spacing="2">
                                 <Button x:Name="ModeChat" Click="OnModeChat" Background="#FF4B6E" BorderThickness="0" CornerRadius="6" Padding="10,4"
                                         Content="聊天" Foreground="#FFFFFF" FontSize="11" ToolTip.Tip="纯聊天：AI 只建议，不碰终端"/>
@@ -351,7 +351,7 @@
                 </StackPanel>
             </StackPanel>
             <!-- AI 输入（可真实输入） -->
-            <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="12,0,12,12" Padding="4,2">
+            <Border Grid.Row="3" Background="{DynamicResource ThemeCardBg}" CornerRadius="8" Margin="12,0,12,12" Padding="4,2">
                 <Grid ColumnDefinitions="*,Auto">
                     <TextBox x:Name="AiInput" Grid.Column="0" PlaceholderText="输入指令…" Background="Transparent" BorderThickness="0"
                              Foreground="#C9D1D9" FontSize="13" VerticalAlignment="Center" Padding="8,7" CaretBrush="#FF4B6E" KeyDown="OnAiKeyDown"/>

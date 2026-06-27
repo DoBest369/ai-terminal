@@ -257,6 +257,19 @@
                             </Flyout>
                         </Button.Flyout>
                     </Button>
+                    <!-- 防火墙状态面板（SSH ufw/iptables，安全运维）-->
+                    <Button Click="OnFirewall" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="防火墙状态（ufw/iptables）">
+                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
+                                  Data="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.1 14.8,9.5V11C15.4,11 16,11.6 16,12.3V15.8C16,16.4 15.4,17 14.7,17H9.2C8.6,17 8,16.4 8,15.7V12.2C8,11.6 8.6,11 9.2,11V9.5C9.2,8.1 10.6,7 12,7M12,8.2C11.2,8.2 10.5,8.7 10.5,9.5V11H13.5V9.5C13.5,8.7 12.8,8.2 12,8.2Z"/>
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedRight">
+                                <StackPanel Width="380" Spacing="2">
+                                    <TextBlock Text="防火墙状态" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <StackPanel x:Name="FirewallList" Spacing="1"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                     <Border Background="#0D0E1A" CornerRadius="4" Width="130">
                         <TextBox x:Name="TermSearchBox" PlaceholderText="搜索输出…" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" Padding="8,3" CaretBrush="#FF4B6E" TextChanged="OnTermSearch"/>
                     </Border>

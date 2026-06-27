@@ -391,6 +391,33 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { TopProcsList.Children.Clear(); TopProcsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
+    /// 防火墙状态面板：SSH ufw status / iptables → 展示（安全运维，查防火墙规则）
+    private async void OnFirewall(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        FirewallList.Children.Clear();
+        FirewallList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        try
+        {
+            // ufw 优先；无则 iptables 摘要（需 root）
+            var outp = await SshExecAsync("ufw status 2>/dev/null || (echo 'iptables (filter):'; iptables -L -n 2>/dev/null | head -20) || echo '需 root 或未安装防火墙工具'");
+            var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
+            FirewallList.Children.Clear();
+            foreach (var line in lines)
+            {
+                var t = line.TrimEnd();
+                if (t.Length == 0) continue;
+                // 状态行高亮：active 绿 / inactive 灰 / ACCEPT 绿 / DROP/REJECT 红
+                var color = "#C9D1D9";
+                if (t.Contains("active") || t.Contains("ACCEPT")) color = "#3FB950";
+                else if (t.Contains("inactive")) color = "#F59E0B";
+                else if (t.Contains("DROP") || t.Contains("REJECT") || t.Contains("DENY")) color = "#F85149";
+                FirewallList.Children.Add(new TextBlock { Text = t, Foreground = Brush.Parse(color), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(2, 1) });
+            }
+            if (FirewallList.Children.Count == 0) FirewallList.Children.Add(new TextBlock { Text = "（未取到防火墙信息，检查连接/权限）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        }
+        catch (System.Exception ex) { FirewallList.Children.Clear(); FirewallList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+    }
+
     /// 登录用户/最近登录面板：SSH who（在线）+ last（最近）→ 展示（安全运维，查谁在登录）
     private async void OnLoginUsers(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

@@ -3966,3 +3966,11 @@
 - **改动**：`linux/src/main.rs`(export_chat + 导出按钮)。
 - **验证**：`cargo build` 0 error/warning（0.71s，带 proxy）。推送 25d1d4f。
 - **意义**：AI 对话导出 windows/linux 双端对齐（运维对话可存档/分享）。linux AI 面板功能对齐 windows（三模式/清空/导出/运维快捷入口 Z1-Z3/代码块/Z3 巡检/Z2 报错/命令填入/风险四级）。下一步 apple Auto 闭环 / CHANGELOG 阶段24。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段24 深化打磨小结
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；765 提交。五端 build 全绿。
+- **CHANGELOG 阶段24**：深化打磨 AI 配置 UI 生效+持久化（windows）、命令填入终端 + 对话导出 Markdown（windows/linux）、Avalonia12 clipboard 弃用踩坑。
+- **改动**：`CHANGELOG.md`(阶段24)。
+- **意义**：CHANGELOG 至阶段24。S7 深化打磨持续把 AI 配置/交互/导出在 windows/linux 补齐对齐。智能运维全平台落地（S1-S5）→ 护城河补齐（S6/阶段22-23）→ 配置/交互/导出细节（S7/阶段24）。Termind 全平台真实智能运维工作台日臻完善。

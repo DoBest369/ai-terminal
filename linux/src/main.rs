@@ -24,12 +24,52 @@ fn usage_color(pct: u8) -> egui::Color32 {
 #[derive(PartialEq, Clone, Copy)]
 enum AiMode { Chat, Agent, Auto }
 
-/// 危险命令检测（极高危必须确认，Auto 也不绕过；对照 windows IsDangerous）
-fn is_dangerous(cmd: &str) -> bool {
+/// 命令风险四级分级（对照 apple CommandRisk Z7 / windows）：0安全 1注意 2高风险 3极高危
+#[derive(PartialEq, PartialOrd, Clone, Copy)]
+enum RiskLevel { Safe = 0, Notice = 1, High = 2, Critical = 3 }
+
+fn risk_level(cmd: &str) -> RiskLevel {
     let c = cmd.to_lowercase();
-    c.contains("rm -rf") || c.contains("mkfs") || c.starts_with("dd ") || c.contains(" dd ")
-        || c.contains("shutdown") || c.contains("reboot") || c.contains("> /dev/")
-        || c.contains(":(){") || c.contains("chmod -r 777") || c.contains("iptables -f")
+    // 极高危：删除/格式化/关 SSH/清防火墙/关机等不可逆或致命
+    if c.contains("rm -rf") || c.contains("rm -fr") || c.contains(":(){") || c.contains("mkfs")
+        || c.contains("dd if=") || c.contains("> /dev/") || c.contains("shutdown") || c.contains("reboot")
+        || c.contains("halt") || c.contains("init 0") || c.contains("systemctl stop ssh") || c.contains("iptables -f")
+        || c.contains("ufw disable") || c.contains("wipefs") || c.contains("drop database") || c.contains("> /etc/") {
+        return RiskLevel::Critical;
+    }
+    // 高风险：重启/重载服务、改权限递归、改防火墙、kill、删容器/卸载
+    if c.contains("systemctl restart") || c.contains("systemctl reload") || c.contains("systemctl stop")
+        || c.contains("systemctl start") || c.starts_with("service ") || c.contains("nginx -s")
+        || c.contains("ufw ") || c.contains("iptables ") || c.contains("firewall-cmd") || c.contains("chown -r")
+        || c.contains("chmod -r") || c.contains("chmod 777") || c.starts_with("kill ") || c.contains("killall")
+        || c.contains("pkill") || c.contains("docker rm") || c.contains("docker stop") || c.contains("apt remove")
+        || c.contains("apt purge") || c.contains("yum remove") || c.contains("userdel") {
+        return RiskLevel::High;
+    }
+    // 注意：改单文件/编辑/移动/安装
+    if c.starts_with("vim ") || c.starts_with("vi ") || c.starts_with("nano ") || c.contains("sed -i")
+        || c.starts_with("cp ") || c.starts_with("mv ") || c.contains("chmod ") || c.contains("chown ")
+        || c.starts_with("mkdir ") || c.starts_with("touch ") || c.contains("apt install") || c.contains("yum install")
+        || c.contains("pip install") || c.contains("npm install") || c.contains("git push") || c.contains("git reset")
+        || c.contains("docker run") {
+        return RiskLevel::Notice;
+    }
+    RiskLevel::Safe
+}
+
+/// 风险级别标签 + 颜色（绿/橙/深橙/红，对照 apple）
+fn risk_style(r: RiskLevel) -> (&'static str, egui::Color32) {
+    match r {
+        RiskLevel::Critical => ("极高危", egui::Color32::from_rgb(0xE7, 0x4C, 0x3C)),
+        RiskLevel::High => ("高风险", egui::Color32::from_rgb(0xE6, 0x7E, 0x22)),
+        RiskLevel::Notice => ("注意", egui::Color32::from_rgb(0xF3, 0x9C, 0x12)),
+        RiskLevel::Safe => ("", SUCCESS),
+    }
+}
+
+/// 危险命令检测：高/极高即危险（Auto 不自动执行，强制确认；委托四级分级，对照 windows）
+fn is_dangerous(cmd: &str) -> bool {
+    risk_level(cmd) >= RiskLevel::High
 }
 
 /// 渲染 AI 回复：```代码块→等宽代码框，正文→普通文本（对照 windows RenderAiReply）
@@ -449,10 +489,10 @@ impl eframe::App for TermindApp {
                 // 待执行命令卡片（Agent 确认放行 / Auto 危险命令确认）
                 let mut run_idx: Option<usize> = None;
                 for (i, cmd) in self.pending_cmds.iter().enumerate() {
-                    let danger = is_dangerous(cmd);
+                    let (rlabel, rcolor) = risk_style(risk_level(cmd));   // 四级风险配色+标签（对照 apple/windows）
                     ui.horizontal(|ui| {
-                        ui.colored_label(if danger { WARNING } else { SUCCESS },
-                            egui::RichText::new(format!("{}{}", if danger { "⚠ " } else { "" }, cmd)).monospace().size(11.0));
+                        ui.colored_label(rcolor,
+                            egui::RichText::new(format!("{}{}", if rlabel.is_empty() { String::new() } else { format!("[{}] ", rlabel) }, cmd)).monospace().size(11.0));
                         if ui.add(egui::Button::new(egui::RichText::new("▶ 执行").size(10.0).color(TEXT_PRIMARY))
                             .fill(ACCENT).rounding(6.0)).clicked() {
                             run_idx = Some(i);

@@ -3676,3 +3676,11 @@
 - **内容**：linux `ssh_exec`（ssh2：TcpStream→Session→handshake→userauth_password→channel exec→读 stdout+stderr，对照 windows SshExecAsync）；命令回车从 mock → 真实 SSH 后台线程执行 → term_rx 回结果追加终端；密码/host/user 从环境变量。
 - **验证**：cargo build 0 error（带 proxy，ssh2 链接 OK）；**端到端验证**（临时 Rust 项目同逻辑）：ssh2 真连 47.85.19.31 认证通过 + 执行返回 `LINUX_SSH_OK:ssh2-OK`。
 - **🎯 智能运维真实 SSH 双端落地**：windows（SSH.NET）+ linux（ssh2）都端到端验证。linux 智能运维闭环逻辑完整（真实 AI ureq + 真实 SSH ssh2，都端到端跑通；linux 整 app 因 egui/icrate mac 不 run，等真 Linux/CI 实跑）。下一步 linux [EXECUTE] 解析+三模式 + apple 三模式对齐。
+
+---
+
+## 🎯 linux AI 三模式 + [EXECUTE] 解析 + 真实 SSH 执行（智能运维闭环 linux）
+- **内容**：linux `AiMode` 枚举（Chat/Agent/Auto）+ 切换器 UI；`parse_execute` 解析 AI 回复 [EXECUTE] 命令；`is_dangerous` 危险命令检测（对照 windows）。AI 回复解析 [EXECUTE]：Chat 仅展示 / Agent 待确认命令卡片（▶ 执行→ssh_exec 真实执行）/ Auto 非危险自动执行 + 危险命令仍需确认。待执行命令卡片（危险 ⚠ 橙标注）。
+- **改动**：`linux/src/main.rs`(AiMode + parse_execute + is_dangerous + 三模式切换器 + 待执行命令卡片 + update 解析执行)。
+- **验证**：`cargo build` **0 error/warning**（0.75s，带 proxy，borrow 通过）。推送 b2439f0。
+- **🎯 linux 智能运维闭环完整（对照 windows）**：AI 生成命令 → 三模式（Chat/Agent/Auto）→ 真实 SSH（ssh2）执行 → 结果回终端。windows + linux **双端智能运维闭环都完整**（真实 AI + 真实 SSH + 三模式 + 危险拦截）。下一步 apple 三模式对齐（apple 有最强基础）。

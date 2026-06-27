@@ -199,6 +199,14 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 44 — 搜索能力双端对齐（连接 + 终端输出，2026-06-28）
+
+windows/linux 搜索能力对齐，运维查找体验一致。
+
+- **连接搜索过滤（windows/linux）**：侧栏搜索框按名称/地址/备注过滤连接列表，连接多时快速查找。
+- **终端输出搜索高亮（windows/linux）**：终端状态条搜索框，输入关键词 → 匹配行橙色半透明高亮（windows TextBlock.Background + BringIntoView / linux egui Frame 高亮，支持 ANSI 彩色行）。运维查日志/命令输出快速定位。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，896 提交。
+
 ## 阶段 43 — 主题切换更彻底 + 连接搜索过滤（windows，2026-06-28）
 
 用户全部需求实现后持续打磨细节。

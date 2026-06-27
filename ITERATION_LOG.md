@@ -3926,3 +3926,11 @@
 - **改动**：`linux/src/main.rs`(pending 命令卡片填入按钮)。
 - **验证**：`cargo build` 0 error/warning（0.70s，带 proxy）。推送 9ca6fa6。
 - **意义**：命令填入终端 windows/linux 双端对齐（AI 命令一键填入可编辑执行）。下一步 设置页 AI 配置 UI 生效 / apple Auto 闭环。
+
+---
+
+## windows 设置页 AI 配置实际生效（UI 可配，优先于环境变量）
+- **内容**：windows 设置面板 API Key/API 地址 TextBox 加 x:Name（ApiKeyBox/BaseUrlBox）；CallAiAsync 配置优先级：设置面板填入 > 环境变量；baseUrl 同（留空用默认 nexcores）。用户可在 UI 配 AI 不必依赖 env。
+- **改动**：`MainWindow.axaml`(ApiKeyBox/BaseUrlBox x:Name)、`MainWindow.axaml.cs`(CallAiAsync 优先读设置框)。
+- **验证**：`dotnet build` 0 错误（Flyout 内 x:Name 字段正常生成）；完整 `dotnet run` 14s 存活。推送 ca6b2ce。
+- **意义**：windows AI 配置可在 UI 设置（API Key/地址），不必只靠环境变量，实用性提升；env 作为后备。下一步 windows 设置持久化(存配置文件重启恢复) / apple Auto 闭环。

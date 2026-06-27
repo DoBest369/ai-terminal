@@ -6,6 +6,14 @@
 
 ---
 
+## linux 设置窗口加 API 地址 → Base URL 设置五端对齐
+- **内容**：linux `TermindApp` 加 `base_url` 字段（默认 anthropic）；设置窗口模型后加「API 地址」TextEdit（等宽），对照 apple/android/windows Base URL 自定义。
+- **改动**：`linux/src/main.rs`(base_url 字段 + 设置窗口 API 地址输入框)。
+- **验证**：`cargo build` **0 error/warning**（0.61s 增量，带 proxy，build 通过后提交）。推送 83bfbc8。
+- **🎯 Base URL 设置五端对齐**：apple/android/windows/linux 设置都有 API 地址（Base URL）自定义（iOS 同 apple）。AI endpoint 配置能力五端一致（OpenAI 兼容/代理/自托管）。
+
+---
+
 ## 质量收口 + windows 设置面板加 API 地址（Base URL，对齐 apple/android）
 - **质量基线**（多轮 android 功能对齐后收口）：apple swift build + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；PARITY **103 项 ✅✅**。五端 build 全绿。
 - **windows 设置 Base URL**：设置 Flyout 模型后加「API 地址」输入框（默认 anthropic endpoint），对齐 apple/android Base URL 自定义（OpenAI 兼容/代理/自托管）。dotnet build 0 警告 0 错误（build 通过后提交）。推送 3835114。

@@ -6,6 +6,14 @@
 
 ---
 
+## linux AI 快捷追问点击→填入 AI 输入框（深化 AI 交互）
+- **内容**：linux AI 快捷追问 chip 从动作按钮（重新生成/存为方案）→ 追问问题（如何排查？/给我具体命令/有什么风险？），`clicked()` → 填入 `self.ai_input`。对照快捷命令交互模式，AI 追问真正可用。
+- **改动**：`linux/src/main.rs`(AI 追问 chip + clicked 填入 ai_input)。
+- **验证**：`cargo build` **0 error/warning**（0.53s 增量，带 proxy，build 通过后提交）。推送 6a45d9b。
+- **意义**：深化 linux AI 面板真实交互——快捷追问从「纯展示」→「点击填入 AI 输入框」。linux 双区交互闭环（终端区快捷命令 + AI 区快捷追问 都可点击填入）。
+
+---
+
 ## windows 快捷命令点击→填入命令输入框（真实交互，对照 linux）
 - **内容**：windows 快捷命令 chip 从 `Border` → `Button`（Click=OnQuickCmd）；命令输入框加 `CmdInput` x:Name；code-behind OnQuickCmd 把 `b.Content`（命令文本）填入 `CmdInput.Text` + 聚焦。对照 linux/apple/android 快捷命令填入。
 - **改动**：`MainWindow.axaml`(快捷命令 Button + CmdInput x:Name)、`MainWindow.axaml.cs`(OnQuickCmd)。

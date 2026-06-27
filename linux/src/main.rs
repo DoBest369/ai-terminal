@@ -152,19 +152,40 @@ struct TermindApp {
     pending_cmds: Vec<String>,                 // AI 生成待执行命令（Agent 确认 / Auto 自动）
 }
 
+/// 全局复用的 SSH 会话缓存（对照 windows _sshClient；多后台线程经 Mutex 串行复用）
+fn ssh_session_cache() -> &'static std::sync::Mutex<Option<ssh2::Session>> {
+    static CACHE: std::sync::OnceLock<std::sync::Mutex<Option<ssh2::Session>>> = std::sync::OnceLock::new();
+    CACHE.get_or_init(|| std::sync::Mutex::new(None))
+}
+
+/// 建立一个已认证的 ssh2 会话
+fn ssh_connect(host: &str, port: u16, user: &str, pass: &str) -> Result<ssh2::Session, String> {
+    let tcp = std::net::TcpStream::connect((host, port)).map_err(|e| format!("连接失败：{}", e))?;
+    let mut sess = ssh2::Session::new().map_err(|e| format!("会话失败：{}", e))?;
+    sess.set_tcp_stream(tcp);
+    sess.handshake().map_err(|e| format!("握手失败：{}", e))?;
+    sess.userauth_password(user, pass).map_err(|e| format!("认证失败：{}", e))?;
+    Ok(sess)
+}
+
 /// 真实 SSH exec（S2：ssh2 连真实服务器，对照 windows SshExecAsync）
-/// host/user/pass 从环境变量 TERMIND_SSH_*（不硬编码）；返回命令输出或错误
+/// 复用持久会话：连接+握手+认证只在首次或断线后做（对照 windows Session 复用）
 fn ssh_exec(host: &str, port: u16, user: &str, pass: &str, cmd: &str) -> String {
     use std::io::Read;
-    let tcp = match std::net::TcpStream::connect((host, port)) {
-        Ok(t) => t, Err(e) => return format!("⚠️ 连接失败：{}", e),
+    let mut guard = match ssh_session_cache().lock() { Ok(g) => g, Err(p) => p.into_inner() };
+    // 未连接或会话失效 → 建立/重建
+    if guard.as_ref().map(|s| !s.authenticated()).unwrap_or(true) {
+        match ssh_connect(host, port, user, pass) {
+            Ok(s) => *guard = Some(s),
+            Err(e) => { *guard = None; return format!("⚠️ {}", e); }
+        }
+    }
+    let sess = guard.as_ref().unwrap();
+    // 通道/执行失败 → 重置会话以便下次干净重连（断线重连）
+    let mut ch = match sess.channel_session() {
+        Ok(c) => c, Err(e) => { *guard = None; return format!("⚠️ 通道失败（已重置）：{}", e); }
     };
-    let mut sess = match ssh2::Session::new() { Ok(s) => s, Err(e) => return format!("⚠️ 会话失败：{}", e) };
-    sess.set_tcp_stream(tcp);
-    if let Err(e) = sess.handshake() { return format!("⚠️ 握手失败：{}", e); }
-    if let Err(e) = sess.userauth_password(user, pass) { return format!("⚠️ 认证失败：{}", e); }
-    let mut ch = match sess.channel_session() { Ok(c) => c, Err(e) => return format!("⚠️ 通道失败：{}", e) };
-    if let Err(e) = ch.exec(cmd) { return format!("⚠️ 执行失败：{}", e); }
+    if let Err(e) = ch.exec(cmd) { *guard = None; return format!("⚠️ 执行失败（已重置）：{}", e); }
     let mut out = String::new();
     let _ = ch.read_to_string(&mut out);
     let mut err = String::new();

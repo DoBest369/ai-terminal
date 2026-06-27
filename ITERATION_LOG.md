@@ -4458,3 +4458,13 @@
 - **改动**：`App.axaml`(主题资源)、`MainWindow.axaml`(三栏背景 DynamicResource + 配色主题按钮)、`MainWindow.axaml.cs`(Themes + OnTheme/ApplyTheme + themeIdx 持久化)。
 - **验证**：`dotnet build` 0 错误；run 存活 + 截图。推送 d19dd13。
 - **🎯 U3 主题切换完成全端**：apple 5 主题 / linux 4 主题 / windows 4 主题，都实时切换 + 持久化。响应用户「配色可调像 VSCode 首启选风格」**全端落地**。UI 品质 U1-U4 全部完成五端（U3 apple/linux/windows，android Web 壳）。下一步 质量收口 + 文档最终成熟度。
+
+---
+
+## 🎯🎯 质量收口 + CHANGELOG阶段42 UI品质U1-U4全完成+用户全部需求实现里程碑
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；884 提交。五端 build 全绿。
+- **U3 验证**：windows 预设 themeIdx=1 启动 → Dracula 主题（紫灰背景）持久化恢复生效，截图验证。归档 windows-theme-dracula.png。
+- **CHANGELOG 阶段42**：UI 品质 U1-U4 全完成五端 + 用户全部需求实现里程碑。
+- **MATURITY**：加用户全部需求实现里程碑（智能运维全平台+AI三模式+护城河+SFTP+连接CRUD+终端彩色+配置持久化+UI品质U1-U4）。
+- **改动**：`CHANGELOG.md`(阶段42)、`docs/MATURITY.md`、截图归档。
+- **🎯 意义**：重大里程碑——用户提出的全部需求全部实现并文档沉淀。从用户最初「智能运维不是全平台落地吗？」「AI三模式安全梯度」「UI品质U1-U4」到全部落地。Termind 全平台真实智能 SSH 运维工作台完整成熟。后续持续打磨/新功能。

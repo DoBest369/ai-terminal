@@ -4071,3 +4071,11 @@
 - **改动**：`MainWindow.axaml.cs`(LoadSftp 接受 path + 目录可点击导航 + _sftpCwd)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 038adbd。
 - **意义**：windows SFTP 从「只看 home」→「可浏览整个文件树」（点目录进入/.. 返回）。SFTP 交互完整。下一步 linux SFTP 目录导航对齐 / 连接删除 / 质量收口。
+
+---
+
+## linux SFTP 目录导航（点击目录进入/.. 返回，对照 windows，双端对齐）
+- **内容**：linux `run_sftp_ls` 接受 path 参数（cd 该目录 ls）；SFTP 窗口目录名变可点击 Label（sense click）→ sftp_nav 标志循环外 run_sftp_ls 导航；打开传 ~；路径防注入。
+- **改动**：`linux/src/main.rs`(run_sftp_ls 接受 path + 目录可点击 + sftp_nav 标志)。
+- **验证**：`cargo build` **0 error/warning**（0.77s，带 proxy，借用通过）。推送 3989f3f。
+- **意义**：SFTP 目录导航 windows/linux 双端对齐（可浏览整个文件树）。windows/linux 双端 SFTP 完整（真实文件 + 目录导航）。下一步 质量收口 CHANGELOG 阶段28 / 连接删除。

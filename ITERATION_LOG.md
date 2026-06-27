@@ -4703,3 +4703,11 @@
 - **改动**：`MainWindow.axaml`(QuickAsks x:Name)、`MainWindow.axaml.cs`(RenderQuickAsks + MakeAskChip + customAsks + 持久化)。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 7ff6667。
 - **意义**：windows AI 快捷追问可定制（运维高频追问增删+持久化，复用快捷命令自定义模式）。下一步 linux 快捷追问自定义对齐 / 质量收口 / 新功能。
+
+---
+
+## linux AI 快捷追问可自定义（增删+持久化，对照 windows，双端对齐）
+- **内容**：linux custom_asks 字段 + new_ask_input；快捷追问栏加自定义绿 chip（点击填入/右键删除）+「+」menu 弹输入；load_custom_asks 读 config + save_config 加第 6 参数 custom_asks（9 处调用更新）；去重。
+- **改动**：`linux main.rs`(custom_asks 字段 + 快捷追问自定义 + load/save 第6参数)。
+- **验证**：`cargo build` **0 error/warning**（0.96s，带 proxy）。推送 d131809。
+- **意义**：快捷追问自定义 windows/linux 双端对齐（运维定制高频追问 + 持久化）。快捷命令 + 快捷追问双端均可定制。下一步 质量收口 CHANGELOG 阶段52 / 进程 Top 面板 / 新功能。

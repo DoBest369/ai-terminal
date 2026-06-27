@@ -4834,3 +4834,12 @@
 - **改动**：`windows MainWindow.axaml`(防火墙按钮 Flyout)、`MainWindow.axaml.cs`(OnFirewall 着色)、`linux main.rs`(防火墙按钮 + spawn ufw/iptables)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（SHIELD 图标）。推送 763f646。
 - **意义**：防火墙面板（安全运维查规则），双端。监控套件五维明细（进程/端口/磁盘/登录用户/防火墙）。下一步 质量收口 CHANGELOG 阶段58 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段58 防火墙面板+监控套件五维 + MATURITY更新
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；976 提交。五端 build 全绿。
+- **CHANGELOG 阶段58**：防火墙面板 + 监控套件五维明细（资源/服务/存储/安全）。
+- **MATURITY**：监控套件五维更新（进程/端口/磁盘/登录用户/防火墙 + AI 多会话持久化）。
+- **改动**：`CHANGELOG.md`(阶段58)、`docs/MATURITY.md`。
+- **意义**：CHANGELOG 至阶段58。监控套件五维成型并 MATURITY 沉淀。Termind 完整智能运维监控-诊断-处置工作台。后续持续打磨/新功能。

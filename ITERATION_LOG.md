@@ -4558,3 +4558,11 @@
 - **改动**：`windows MainWindow.axaml.cs`(DispatcherTimer + 启动取一次)、`linux main.rs`(last_refresh 字段 + 定时条件 + request_repaint_after)。
 - **验证**：windows `dotnet build` 0 错误 + run 存活；linux `cargo build` 0 warning。推送 46ddff4。
 - **意义**：状态条指标实时性（每 30s 自动刷新，非只连接切换时），运维实时监控远程服务器。windows/linux 双端对齐。下一步 服务管理(点服务启停) / 质量收口 / 新功能。
+
+---
+
+## windows 服务管理（状态条服务点→menu启停/重启，SSH systemctl 真实执行）
+- **内容**：windows 状态条服务点点击/右键 → MenuFlyout（重启/启动/停止）；OnServiceAction：SSH systemctl start/stop/restart 真实执行 → 终端显示结果 → 刷新服务状态点；stop/restart 橙色警示（影响线上服务）；服务点 hand 光标 + tooltip（运行中/未运行，点击管理）。
+- **改动**：`windows MainWindow.axaml.cs`(服务点 ContextFlyout + PointerPressed + OnServiceAction)。
+- **验证**：`dotnet build` 0 错误；run 存活。推送 c65eb51。
+- **意义**：windows 服务管理（点服务点即可启停/重启，真实运维操作，护城河深化）。从「看服务状态」升级到「管服务」。下一步 linux 服务管理对齐 / 质量收口 / 磁盘指标。

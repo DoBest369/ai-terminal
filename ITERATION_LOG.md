@@ -4374,3 +4374,11 @@
 - **改动**：`MainWindow.axaml`(AI 字号控制)、`MainWindow.axaml.cs`(_aiFontSize + SetAiFont + AI 气泡字号 + 持久化)。
 - **验证**：`dotnet build` 0 错误；run 存活 + 截图确认 AI 字号控制（终端 + AI 都有 A-/A+）。推送 a0dc8f9。
 - **意义**：windows 字号体系完整（终端 + AI 都可调+持久化，U4）。下一步 linux AI 字号 / U3 主题切换（评估 120 处颜色硬编码大重构）/ 连接编辑。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段39 AI字号可调 + U3评估
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；865 提交。五端 build 全绿。
+- **CHANGELOG 阶段39**：windows AI 字号可调（字号体系完整）+ U3 主题切换评估（linux 120 处颜色 const，全主题切换属大重构，记录后续专项）。
+- **改动**：`CHANGELOG.md`(阶段39)。
+- **意义**：CHANGELOG 至阶段39。UI 品质 U1/U2/U4 完整，U3 评估为后续专项（颜色 const 重构）。Termind 全平台真实智能运维工作台功能+UI品质成熟，持续打磨细节。

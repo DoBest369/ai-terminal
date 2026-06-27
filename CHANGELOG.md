@@ -199,6 +199,15 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 36 — 🎯 SFTP 文件操作全覆盖双端（含上传，2026-06-27）
+
+里程碑：windows/linux SFTP 增加上传，文件操作全覆盖，与 apple 真 SFTP 标杆功能对等。
+
+- **SFTP 文件上传（windows/linux）**：windows StorageProvider / linux rfd 原生文件对话框选本地文件 → base64 编码 → SSH `printf | base64 -d > 远程` 写入当前目录 + 刷新；大小守门 5MB（命令行限制）；对照 apple sftpUpload。
+- **🎯 windows/linux SFTP 文件操作全覆盖**：浏览 / 目录导航 / 文件预览 / 下载 / 上传 / 删除（确认）/ 新建目录 / 重命名。用 ls + base64 + 命令模拟达到与 apple 真 SFTP（Citadel SFTPClient）功能对等。
+- **双端能力总览**：windows/linux 双端全模块真实 + 护城河能力一致（Z1-Z3 + 风险四级 + batch 批量）+ SFTP 全覆盖 + 终端 ANSI 彩色 + 连接 CRUD + 配置持久化，功能完整度达 apple 标杆。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，849 提交。
+
 ## 阶段 35 — SFTP 重命名 + 写操作齐全双端（2026-06-27）
 
 windows/linux SFTP 增加文件重命名，文件读写常用操作齐全。

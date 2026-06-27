@@ -173,6 +173,15 @@ public partial class MainWindow : Window
     private string? _activeHost;   // 当前选中连接的 host（驱动 SSH 执行；null=用 env/默认）
     private string? _activeUser;
 
+    /// 搜索框过滤连接列表（名称/地址匹配，对照 linux/apple 搜索）
+    private void OnSearchConn(object? sender, Avalonia.Controls.TextChangedEventArgs e)
+    {
+        var q = SearchBox.Text?.Trim().ToLowerInvariant() ?? "";
+        if (string.IsNullOrEmpty(q)) { ConnList.ItemsSource = _conns; return; }
+        ConnList.ItemsSource = _conns.Where(c =>
+            c.Name.ToLowerInvariant().Contains(q) || c.Addr.ToLowerInvariant().Contains(q) || c.Note.ToLowerInvariant().Contains(q)).ToList();
+    }
+
     /// 连接列表选中变化 → 终端区状态条反映选中连接 + 驱动 SSH 执行目标（真实连接切换）
     private void OnConnSelected(object? sender, SelectionChangedEventArgs e)
     {

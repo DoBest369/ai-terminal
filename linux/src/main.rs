@@ -20,6 +20,32 @@ fn usage_color(pct: u8) -> egui::Color32 {
     if pct > 80 { ACCENT } else if pct > 60 { WARNING } else { SUCCESS }
 }
 
+/// AI 三模式（安全梯度，对齐 windows）：Chat 纯聊天 / Agent 每条确认 / Auto 全自动闭环
+#[derive(PartialEq, Clone, Copy)]
+enum AiMode { Chat, Agent, Auto }
+
+/// 危险命令检测（极高危必须确认，Auto 也不绕过；对照 windows IsDangerous）
+fn is_dangerous(cmd: &str) -> bool {
+    let c = cmd.to_lowercase();
+    c.contains("rm -rf") || c.contains("mkfs") || c.starts_with("dd ") || c.contains(" dd ")
+        || c.contains("shutdown") || c.contains("reboot") || c.contains("> /dev/")
+        || c.contains(":(){") || c.contains("chmod -r 777") || c.contains("iptables -f")
+}
+
+/// 解析 AI 回复里的 [EXECUTE]cmd[/EXECUTE]，返回命令列表
+fn parse_execute(reply: &str) -> Vec<String> {
+    let mut cmds = Vec::new();
+    let mut rest = reply;
+    while let Some(start) = rest.find("[EXECUTE]") {
+        if let Some(end) = rest[start..].find("[/EXECUTE]") {
+            let cmd = rest[start + 9..start + end].trim().to_string();
+            if !cmd.is_empty() { cmds.push(cmd); }
+            rest = &rest[start + end + 10..];
+        } else { break; }
+    }
+    cmds
+}
+
 /// SSH 连接（占位；后续接 ssh2 + 本地持久化）
 struct ServerConn {
     name: &'static str,
@@ -62,6 +88,8 @@ struct TermindApp {
     ai_busy: bool,                             // AI 请求进行中
     term_tx: std::sync::mpsc::Sender<String>,  // SSH 执行结果回传（后台线程→UI）
     term_rx: std::sync::mpsc::Receiver<String>,
+    ai_mode: AiMode,                           // AI 三模式（Chat/Agent/Auto）
+    pending_cmds: Vec<String>,                 // AI 生成待执行命令（Agent 确认 / Auto 自动）
 }
 
 /// 真实 SSH exec（S2：ssh2 连真实服务器，对照 windows SshExecAsync）
@@ -161,7 +189,7 @@ impl Default for TermindApp {
         }
         let (ai_tx, ai_rx) = std::sync::mpsc::channel();
         let (term_tx, term_rx) = std::sync::mpsc::channel();
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: std::env::var("TERMIND_AI_KEY").unwrap_or_default(), base_url: "https://www.nexcores.net/v1/messages".to_string(), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: std::env::var("TERMIND_AI_KEY").unwrap_or_default(), base_url: "https://www.nexcores.net/v1/messages".to_string(), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new() }
     }
 }
 
@@ -185,10 +213,29 @@ impl eframe::App for TermindApp {
         while let Ok((i, ok)) = self.reach_rx.try_recv() {
             if let Some(c) = self.conns.get_mut(i) { c.online = ok; c.probed = true; }
         }
-        // 接收 AI 真实回复（后台线程 ai_chat → ai_rx）
+        // 接收 AI 真实回复（后台线程 ai_chat → ai_rx）+ 解析 [EXECUTE] 命令
         while let Ok(reply) = self.ai_rx.try_recv() {
+            let cmds = parse_execute(&reply);
             self.ai_msgs.push((false, reply));
             self.ai_busy = false;
+            // Chat 模式仅展示；Agent/Auto 收集待执行命令（Auto 非危险自动执行）
+            if self.ai_mode != AiMode::Chat {
+                for cmd in cmds {
+                    if self.ai_mode == AiMode::Auto && !is_dangerous(&cmd) {
+                        // Auto：非危险命令直接真实 SSH 执行
+                        self.term_lines.push(format!("$ {}", cmd));
+                        let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+                        if !pass.is_empty() {
+                            let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
+                            let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
+                            let (tx, c) = (self.term_tx.clone(), cmd.clone());
+                            std::thread::spawn(move || { let _ = tx.send(ssh_exec(&host, 22, &user, &pass, &c)); });
+                        }
+                    } else {
+                        self.pending_cmds.push(cmd);   // Agent / Auto危险 → 待确认执行
+                    }
+                }
+            }
         }
         // 接收 SSH 真实执行结果（后台线程 ssh_exec → term_rx）→ 追加终端
         while let Ok(out) = self.term_rx.try_recv() {
@@ -344,6 +391,42 @@ impl eframe::App for TermindApp {
             .frame(egui::Frame::default().fill(SURFACE).inner_margin(12.0))
             .show(ctx, |ui| {
                 ui.colored_label(ACCENT, egui::RichText::new("✦ AI 助手").strong());
+                ui.add_space(6.0);
+                // AI 三模式切换器（Chat/Agent/Auto，安全梯度，对照 windows）
+                ui.horizontal(|ui| {
+                    for (mode, label) in [(AiMode::Chat, "聊天"), (AiMode::Agent, "代理"), (AiMode::Auto, "全自动")] {
+                        let on = self.ai_mode == mode;
+                        if ui.add(egui::Button::new(egui::RichText::new(label).size(11.0)
+                            .color(if on { TEXT_PRIMARY } else { TEXT_SECONDARY }))
+                            .fill(if on { ACCENT } else { SURFACE }).rounding(6.0)).clicked() {
+                            self.ai_mode = mode;
+                        }
+                    }
+                });
+                // 待执行命令卡片（Agent 确认放行 / Auto 危险命令确认）
+                let mut run_idx: Option<usize> = None;
+                for (i, cmd) in self.pending_cmds.iter().enumerate() {
+                    let danger = is_dangerous(cmd);
+                    ui.horizontal(|ui| {
+                        ui.colored_label(if danger { WARNING } else { SUCCESS },
+                            egui::RichText::new(format!("{}{}", if danger { "⚠ " } else { "" }, cmd)).monospace().size(11.0));
+                        if ui.add(egui::Button::new(egui::RichText::new("▶ 执行").size(10.0).color(TEXT_PRIMARY))
+                            .fill(ACCENT).rounding(6.0)).clicked() {
+                            run_idx = Some(i);
+                        }
+                    });
+                }
+                if let Some(i) = run_idx {
+                    let cmd = self.pending_cmds.remove(i);
+                    self.term_lines.push(format!("$ {}", cmd));
+                    let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+                    if !pass.is_empty() {
+                        let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
+                        let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
+                        let (tx, c) = (self.term_tx.clone(), cmd);
+                        std::thread::spawn(move || { let _ = tx.send(ssh_exec(&host, 22, &user, &pass, &c)); });
+                    }
+                }
                 ui.add_space(10.0);
                 // 第一轮对话（展示连续性 + AI 结合真实环境）
                 ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());

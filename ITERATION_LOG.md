@@ -6,6 +6,14 @@
 
 ---
 
+## windows 命令输入回车→追加终端输出（双端命令执行回显）
+- **内容**：windows 终端输出 StackPanel/ScrollViewer/光标行加 x:Name（TermOutput/TermScroll/TermCursor）；CmdInput `KeyDown=OnCmdKeyDown`，回车 → 构造 TextBlock（root@host:~$ cmd，host 取状态条选中连接）插入光标行前 + 清空 + `ScrollToEnd`。对照 linux 命令回车执行。
+- **改动**：`MainWindow.axaml`(终端输出 x:Name + KeyDown)、`MainWindow.axaml.cs`(OnCmdKeyDown + Avalonia.Input using)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）；`dotnet run` 无 exception。推送 239209c。
+- **🎯 windows/linux 双端命令执行回显**：命令输入回车 → 追加到终端输出（带选中连接的 host 提示符），交互接近真实终端。windows/linux 终端区真实交互完整（选连接→联动→快捷命令填入→回车执行回显）。
+
+---
+
 ## 质量基线收口 + linux 命令输入回车→追加终端输出
 - **质量基线**（54 项 UI + 多轮真实交互后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo build Finished；PARITY **103 项 ✅✅**。真实交互改动未伤核心逻辑。
 - **linux 命令"执行"**：struct 加 `term_lines`；命令输入框回车（lost_focus + Enter）→ push「提示符 + 命令」到终端历史 + 清空 + 保持焦点；终端输出遍历 `term_lines` 显示用户输入历史。命令输入真正「执行」回显（mock 回显，对照真实终端体验）。cargo build 0 error/warning（build 通过后提交）。推送 7276eba。

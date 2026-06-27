@@ -21,11 +21,14 @@ struct AIAgentView: View {
         VStack(spacing: 0) {
             header
             Divider().overlay(Theme.surfaceLight)
+            modeSwitcher
+            Divider().overlay(Theme.surfaceLight)
             if searchActive {
                 searchBar
                 Divider().overlay(Theme.surfaceLight)
             }
             messages
+            pendingCommandsBar
             // 快捷追问（末条 assistant 且未处理中，对齐 android）
             if model.aiMessages.last?.role == .assistant && !model.aiProcessing {
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -140,6 +143,55 @@ struct AIAgentView: View {
             return "\(title) · \(RelativeTime.string(updated))\(matchSuffix)"
         }
         return title + matchSuffix
+    }
+
+    /// AI 三模式切换器（Chat/Agent/Auto，安全梯度，对齐 windows/linux）
+    private var modeSwitcher: some View {
+        HStack(spacing: 6) {
+            ForEach(AIMode.allCases) { mode in
+                let on = model.aiMode == mode
+                Button {
+                    model.aiMode = mode
+                } label: {
+                    Label(mode.label, systemImage: mode.icon)
+                        .font(.system(size: 12, weight: on ? .semibold : .regular))
+                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .background(on ? Theme.accent : Theme.surface)
+                        .foregroundStyle(on ? Color.white : Theme.textSecondary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .help(mode.hint)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 12).padding(.vertical, 8)
+    }
+
+    /// Agent 模式待确认命令条（每条「执行」放行，危险标橙）
+    @ViewBuilder private var pendingCommandsBar: some View {
+        if !model.pendingCommands.isEmpty {
+            VStack(spacing: 4) {
+                ForEach(model.pendingCommands, id: \.self) { cmd in
+                    let danger = AIService.parseCommands(from: "[EXECUTE]\(cmd)[/EXECUTE]").first?.isDangerous ?? false
+                    HStack(spacing: 8) {
+                        Image(systemName: danger ? "exclamationmark.triangle.fill" : "terminal")
+                            .font(.system(size: 11)).foregroundStyle(danger ? Theme.danger : Theme.success)
+                        Text(cmd).font(.system(size: 12, design: .monospaced))
+                            .foregroundStyle(Theme.textPrimary).lineLimit(2)
+                        Spacer()
+                        Button { model.runPendingCommand(cmd) } label: {
+                            Text("执行").font(.system(size: 11, weight: .semibold))
+                                .padding(.horizontal, 10).padding(.vertical, 4)
+                                .background(Theme.accent).foregroundStyle(Color.white).clipShape(Capsule())
+                        }.buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 6)
+                    .background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            }
+            .padding(.horizontal, 12).padding(.vertical, 6)
+        }
     }
 
     private var header: some View {

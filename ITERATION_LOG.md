@@ -4818,3 +4818,11 @@
 - **踩坑**：linux config_path 返回 String，sessions_path 用 Path::new(&p).with_file_name。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 932a4b2。
 - **意义**：AI 多会话重启不丢（持久化），双端。AI 多会话完善（会话+持久化）。下一步 质量收口 CHANGELOG 阶段57 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段57 AI多会话持久化双端
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；972 提交。五端 build 全绿。
+- **CHANGELOG 阶段57**：AI 多会话持久化（独立 sessions.json，重启恢复）windows/linux 双端。
+- **改动**：`CHANGELOG.md`(阶段57)。
+- **意义**：CHANGELOG 至阶段57。AI 多会话完善（会话+持久化双端）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

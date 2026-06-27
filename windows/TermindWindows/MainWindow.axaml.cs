@@ -248,21 +248,23 @@ public partial class MainWindow : Window
     {
         try
         {
-            // /proc/stat 两次采样算 CPU% + free 算内存% + loadavg + 关键服务 systemctl is-active
+            // /proc/stat 两次采样算 CPU% + free 内存% + df 磁盘% + loadavg + 关键服务 systemctl is-active
             const string cmd = "cat /proc/loadavg | awk '{print $1}'; free -m | awk '/Mem:/{printf \"%d %d\\n\",$3,$2}'; " +
+                "df / | tail -1 | awk '{print $5}' | tr -d '%'; " +
                 "awk '/^cpu /{u=$2+$4;t=$2+$4+$5;print u\" \"t}' /proc/stat; sleep 0.4; awk '/^cpu /{u=$2+$4;t=$2+$4+$5;print u\" \"t}' /proc/stat; " +
                 "for s in nginx docker mysql redis sshd; do echo $s:$(systemctl is-active $s 2>/dev/null); done";
             var outp = await SshExecAsync(cmd);
             var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
-            if (lines.Length < 4) return;
+            if (lines.Length < 5) return;
             // 解析服务状态行（svc:active/inactive）
             var svcs = lines.Where(l => l.Contains(':') && !l.Contains(' '))
                 .Select(l => l.Split(':')).Where(p => p.Length == 2)
                 .Select(p => (Name: p[0].Trim(), Active: p[1].Trim() == "active")).ToList();
             var load = lines[0].Trim();
             var mem = lines[1].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);   // used total
-            var c1 = lines[2].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);    // u t (前)
-            var c2 = lines[3].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);    // u t (后)
+            int.TryParse(lines[2].Trim(), out var diskPct);                                // 磁盘根分区使用%
+            var c1 = lines[3].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);    // u t (前)
+            var c2 = lines[4].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);    // u t (后)
             int memPct = 0, cpuPct = 0;
             if (mem.Length == 2 && double.TryParse(mem[1], out var mt) && mt > 0 && double.TryParse(mem[0], out var mu))
                 memPct = (int)System.Math.Round(mu / mt * 100);
@@ -275,6 +277,8 @@ public partial class MainWindow : Window
                 StatusCpuBar.Background = Brush.Parse(cpuPct > 80 ? "#F85149" : cpuPct > 60 ? "#F59E0B" : "#3FB950");
                 StatusMem.Text = $"内存 {memPct}%"; StatusMemBar.Width = 54.0 * System.Math.Clamp(memPct, 0, 100) / 100;
                 StatusMemBar.Background = Brush.Parse(memPct > 80 ? "#F85149" : memPct > 60 ? "#F59E0B" : "#3FB950");
+                StatusDisk.Text = $"磁盘 {diskPct}%"; StatusDiskBar.Width = 54.0 * System.Math.Clamp(diskPct, 0, 100) / 100;
+                StatusDiskBar.Background = Brush.Parse(diskPct > 80 ? "#F85149" : diskPct > 60 ? "#F59E0B" : "#3FB950");
                 StatusLoad.Text = $"负载 {load}";
                 // 服务状态点真实填充（绿=active / 灰=非）
                 StatusServices.Children.Clear();

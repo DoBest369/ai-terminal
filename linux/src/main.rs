@@ -1261,6 +1261,18 @@ impl eframe::App for TermindApp {
                         }
                         // 终端输出搜索（匹配行高亮，对照 windows）
                         ui.add(egui::TextEdit::singleline(&mut self.term_search).hint_text("搜索输出…").desired_width(120.0).font(egui::TextStyle::Small));
+                        // 终端输出导出到文件（运维留存会话记录，对照 windows）
+                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::DOWNLOAD_SIMPLE).size(14.0).color(TEXT_SECONDARY())).frame(false))
+                            .on_hover_text("导出终端输出到文件").clicked() {
+                            if let Some(path) = rfd::FileDialog::new().set_file_name("termind-session.txt").save_file() {
+                                let mut content = format!("# Termind 终端会话导出 · {}\n", active_host);
+                                content.push_str(&self.term_lines.join("\n"));
+                                match std::fs::write(&path, content) {
+                                    Ok(_) => self.term_lines.push(format!("# 终端输出已导出到 {}", path.display())),
+                                    Err(e) => self.term_lines.push(format!("✕ 导出失败：{}", e)),
+                                }
+                            }
+                        }
                     });
                 });
                 ui.add_space(8.0);

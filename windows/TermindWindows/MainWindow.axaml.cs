@@ -251,6 +251,31 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { AppendTerm($"✕ {svc} {action} 异常：{ex.Message}", "#F85149"); }
     }
 
+    /// 终端输出导出到文件（运维留存会话记录）：拼接 TermOutput 所有行 → StorageProvider 保存
+    private async void OnExportTerm(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var top = TopLevel.GetTopLevel(this);
+        if (top?.StorageProvider == null) return;
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"# Termind 终端会话导出 · {_activeHost ?? "本地"}");
+        foreach (var child in TermOutput.Children) if (child is TextBlock tb) sb.AppendLine(tb.Text);
+        try
+        {
+            var file = await top.StorageProvider.SaveFilePickerAsync(new Avalonia.Platform.Storage.FilePickerSaveOptions
+            {
+                Title = "导出终端输出",
+                SuggestedFileName = "termind-session.txt",
+                DefaultExtension = "txt",
+            });
+            if (file == null) return;
+            await using var stream = await file.OpenWriteAsync();
+            await using var writer = new System.IO.StreamWriter(stream);
+            await writer.WriteAsync(sb.ToString());
+            AppendTerm($"# 终端输出已导出到 {file.Name}", "#3FB950");
+        }
+        catch (System.Exception ex) { AppendTerm($"✕ 导出失败：{ex.Message}", "#F85149"); }
+    }
+
     /// 终端输出搜索：匹配行背景高亮（黄），首个匹配滚动到可见
     private void OnTermSearch(object? sender, Avalonia.Controls.TextChangedEventArgs e)
     {

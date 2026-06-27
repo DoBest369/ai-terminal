@@ -210,6 +210,11 @@
                     </Border>
                     <Button Click="OnFontSmaller" Background="#22FFFFFF" BorderThickness="0" CornerRadius="4" Padding="7,2" Content="A-" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="缩小终端字号"/>
                     <Button Click="OnFontLarger" Background="#22FFFFFF" BorderThickness="0" CornerRadius="4" Padding="7,2" Content="A+" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="放大终端字号"/>
+                    <!-- 终端输出导出到文件（运维留存会话记录）-->
+                    <Button Click="OnExportTerm" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="导出终端输出到文件">
+                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
+                                  Data="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                    </Button>
                 </StackPanel>
               </Grid>
             </Border>

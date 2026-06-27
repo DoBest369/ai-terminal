@@ -3539,3 +3539,11 @@
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(3 个 PathIcon)。
 - **验证**：`dotnet build` 0 错误；`dotnet run`(完整,不带 --no-build) 17s 存活无崩溃；截图确认矢量图标渲染 + 整窗深色协调。推送 9932a89。
 - **意义**：U1 图标库化起步。下一步继续 windows SFTP 列表图标/可达指示 + linux egui-phosphor 图标字体。
+
+---
+
+## U4 字体库第一步：windows 引入 JetBrains Mono 等宽字体
+- **内容**：嵌入 `JetBrainsMono-Regular.ttf`（开源 OFL，270KB）到 `Assets/Fonts`；csproj `AvaloniaResource`；App.axaml 定义 `MonoFont` 资源；终端输出/命令输入/AI 代码块/SFTP 列表共 22 处 `Consolas,monospace` → JetBrains Mono。比 Consolas 更清晰现代、字形有特色。响应用户「字体库选好看的字体」要求。
+- **改动**：`Assets/Fonts/JetBrainsMono-Regular.ttf`(新增)、`TermindWindows.csproj`、`App.axaml`、`MainWindow.axaml`(22 处字体)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 存活无崩溃；截图确认 JetBrains Mono 渲染清晰。推送 46f35ef。
+- **意义**：U4 字体库起步。下一步 linux 引入 JetBrains Mono（egui 加载 ttf）+ 字号可调推广。

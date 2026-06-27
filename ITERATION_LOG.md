@@ -4492,3 +4492,11 @@
 - **CHANGELOG 阶段43**：U3 主题切换更彻底（windows 6 色位）+ 连接搜索过滤（windows，名称/地址/备注）。
 - **改动**：`CHANGELOG.md`(阶段43)。
 - **意义**：CHANGELOG 至阶段43。用户全部需求实现后持续打磨细节（主题彻底、连接搜索）。Termind 全平台真实智能运维工作台日臻完善，质量基线持续扎实。
+
+---
+
+## windows 终端输出搜索（匹配行高亮+滚动到首个，实用新功能）
+- **内容**：windows 终端状态条加搜索框 → OnTermSearch：遍历 TermOutput TextBlock 匹配关键词 → 命中行橙色半透明高亮（#33F59E0B）+ 首个匹配 BringIntoView；空搜索清高亮。
+- **改动**：`MainWindow.axaml`(终端搜索框)、`MainWindow.axaml.cs`(OnTermSearch)。
+- **验证**：`dotnet build` 0 错误；run 存活 + 截图确认搜索框（状态条「搜索输出…」+ A-/A+）。推送 a7f850d。
+- **意义**：windows 终端输出搜索（输出多时快速定位匹配行，运维查日志/输出实用）。下一步 linux 终端搜索 / 新功能 / 质量收口。

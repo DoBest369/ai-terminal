@@ -3909,3 +3909,12 @@
 - **CHANGELOG 阶段23**：护城河 Z2 报错分析 + Z3 健康巡检一键真闭环（windows/linux）+ SSH Session 复用双端 + 命令耗时 + 快捷命令栏增强。
 - **改动**：`CHANGELOG.md`(阶段23)。
 - **意义**：CHANGELOG 演进至阶段23。深化打磨把 apple 护城河 Z2/Z3 在 windows/linux 做到一键真闭环 + 性能优化。智能运维全平台落地（S1-S5）→ 深化打磨对照护城河补齐（S6/阶段22）→ Z2/Z3 一键闭环 + SSH 复用（S7/阶段23）。Termind 全平台真实智能运维工作台持续打磨。
+
+---
+
+## windows AI 命令卡片「填入终端」按钮
+- **内容**：windows 命令卡片加「填入终端」按钮（始终显示）→ 点击把 AI 命令填入终端输入框 CmdInput，用户可编辑后手动执行；比剪贴板更实用（直接可执行）。
+- **踩坑**：原想做剪贴板复制，但 Avalonia 12 clipboard API 大改（DataObject/DataFormats 已弃用，IClipboard 无 SetTextAsync/SetDataObjectAsync）→ build 失败。改用「填入终端」方式，可靠避免 API 折腾。
+- **改动**：`MainWindow.axaml.cs`(AddCommandCard 填入终端按钮)。
+- **验证**：`dotnet build` 0 错误（修正后）；完整 `dotnet run` 14s 存活。推送 7f47272。
+- **意义**：AI 命令一键填入终端可编辑执行（Chat 模式也能用 AI 建议的命令）。下一步 linux 命令卡片填入终端 / 设置页 AI 配置生效。

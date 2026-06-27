@@ -380,6 +380,37 @@ impl TermindApp {
         });
     }
 
+    /// SFTP 文件下载（对照 windows DownloadFile）：SSH base64 取内容→解码→存 $HOME/Downloads
+    fn run_sftp_download(&mut self, file: &str, fname: &str) {
+        self.term_lines.push(format!("# 下载 {} …", file));
+        let (host, user) = self.ssh_target();
+        let tx = self.term_tx.clone();
+        let (f, name) = (file.replace('\'', ""), fname.to_string());
+        std::thread::spawn(move || {
+            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+            if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+            // 大小守门 >10MB 跳过
+            let sz = ssh_exec(&host, 22, &user, &pass, &format!("stat -c %s '{}' 2>/dev/null", f));
+            if sz.trim().parse::<u64>().unwrap_or(0) > 10_000_000 { let _ = tx.send("（文件过大，跳过下载）".to_string()); return; }
+            let b64 = ssh_exec(&host, 22, &user, &pass, &format!("base64 '{}' 2>/dev/null", f));
+            if b64.starts_with('⚠') || b64.is_empty() { let _ = tx.send("下载失败".to_string()); return; }
+            use base64::Engine;
+            match base64::engine::general_purpose::STANDARD.decode(b64.replace(['\n', '\r'], "")) {
+                Ok(bytes) => {
+                    let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_string());
+                    let dir = format!("{}/Downloads", home);
+                    let _ = std::fs::create_dir_all(&dir);
+                    let local = format!("{}/{}", dir, name);
+                    match std::fs::write(&local, &bytes) {
+                        Ok(_) => { let _ = tx.send(format!("✓ 已下载到 {}（{} 字节）", local, bytes.len())); }
+                        Err(e) => { let _ = tx.send(format!("✕ 写入失败：{}", e)); }
+                    }
+                }
+                Err(e) => { let _ = tx.send(format!("✕ 解码失败：{}", e)); }
+            }
+        });
+    }
+
     /// SFTP 文件预览（对照 windows PreviewFile）：守门大小/二进制，文本 head 到终端
     fn run_sftp_preview(&mut self, file: &str) {
         self.term_lines.push(format!("# 预览 {}", file));
@@ -632,6 +663,7 @@ impl eframe::App for TermindApp {
         let mut sftp_open = self.show_sftp;
         let mut sftp_nav: Option<String> = None;   // 待导航目标目录（点击后循环外执行）
         let mut sftp_preview: Option<String> = None;   // 待预览文件（点击后循环外执行）
+        let mut sftp_download: Option<(String, String)> = None;   // 待下载 (远程路径, 文件名)
         egui::Window::new("SFTP 文件")
             .open(&mut sftp_open)
             .resizable(true)
@@ -660,11 +692,16 @@ impl eframe::App for TermindApp {
                                 sftp_nav = Some(format!("{}/{}", cwd, name));
                             }
                         } else {
-                            // 文件可点击预览（head 到终端，对照 windows PreviewFile）
-                            if ui.add(egui::Label::new(egui::RichText::new(name).color(TEXT_PRIMARY))
-                                .sense(egui::Sense::click())).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
-                                sftp_preview = Some(format!("{}/{}", cwd, name));
-                            }
+                            // 文件：左键预览(head 到终端) / 右键菜单下载（对照 windows）
+                            let resp = ui.add(egui::Label::new(egui::RichText::new(name).color(TEXT_PRIMARY))
+                                .sense(egui::Sense::click())).on_hover_cursor(egui::CursorIcon::PointingHand);
+                            if resp.clicked() { sftp_preview = Some(format!("{}/{}", cwd, name)); }
+                            resp.context_menu(|ui| {
+                                if ui.button("下载到本地").clicked() {
+                                    sftp_download = Some((format!("{}/{}", cwd, name), name.to_string()));
+                                    ui.close_menu();
+                                }
+                            });
                         }
                         // 右侧：大小 + 修改时间（对照 apple/android SFTP）
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
@@ -681,6 +718,7 @@ impl eframe::App for TermindApp {
         self.show_sftp = sftp_open;
         if let Some(target) = sftp_nav { self.run_sftp_ls(&target); }   // 导航到子目录/上级
         if let Some(file) = sftp_preview { self.run_sftp_preview(&file); }   // 预览文件到终端
+        if let Some((path, fname)) = sftp_download { self.run_sftp_download(&path, &fname); }   // 下载到本地
 
         // ① 左侧栏：连接列表（按分组）—— 三栏工作台对齐 apple/windows
         egui::SidePanel::left("connections")

@@ -4128,3 +4128,11 @@
 - **改动**：`MainWindow.axaml.cs`(AnsiFg 色表 + AppendTerm ANSI 解析)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 f4f23bd。
 - **意义**：windows 终端真实呈现 SSH 彩色输出（ls --color 目录蓝/可执行绿、grep 高亮、systemctl active 绿等）。终端体验大提升（接近真实终端）。下一步 linux 终端 ANSI / AI 时间戳 / 命令历史持久化。
+
+---
+
+## linux 终端 ANSI 颜色解析（egui LayoutJob 彩色，对照 windows，双端对齐）
+- **内容**：linux `ansi_color`（SGR 码 30-37/90-97→Color32）+ `ansi_to_job`（手动解析 \x1b[..m，无 regex 依赖 → LayoutJob 彩色等宽）；term_lines 含转义用 ansi_to_job 彩色，否则普通；0 重置；防死循环（非标准转义跳过单字符）。
+- **改动**：`linux/src/main.rs`(ansi_color + ansi_to_job + term_lines 渲染)。
+- **验证**：`cargo build` **0 error/warning**（0.71s，带 proxy）。推送 b4ca487。
+- **意义**：终端 ANSI 彩色 windows/linux 双端对齐（SSH 彩色输出真实呈现：ls --color/grep/systemctl 等）。终端体验双端一致接近真实终端。下一步 AI 时间戳 / 命令历史持久化 / 质量收口。

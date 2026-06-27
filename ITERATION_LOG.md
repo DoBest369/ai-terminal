@@ -3804,3 +3804,11 @@
 - **改动**：`MainWindow.axaml.cs`(RiskLevel + CommandRiskOf + RiskStyle + AddCommandCard 四级配色)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 f9e528e。
 - **意义**：windows 安全分级从二元（危险/安全）→ 四级（对齐 apple Z7），极高危更醒目，命令卡片按风险配色。下一步 linux 四级分级对齐 / 命令卡片风险标签。
+
+---
+
+## linux 命令风险四级分级（对照 windows/apple CommandRisk Z7）→ 双端对齐
+- **内容**：linux `RiskLevel` 枚举（Safe/Notice/High/Critical）+ `risk_level` 四级判定 + `risk_style` 标签配色（绿/橙/深橙/红）；待执行命令卡片按级别配色 + [级别] 标签；is_dangerous 委托四级。
+- **改动**：`linux/src/main.rs`(RiskLevel + risk_level + risk_style + 命令卡片四级配色)。
+- **验证**：`cargo build` **0 error/warning**（0.74s，带 proxy）。推送 8dda1d6。
+- **🎯 命令风险四级分级 windows/linux 双端对齐 + 对齐 apple Z7**：安全分级五端统一（注意/高风险/极高危四级，命令卡片按风险配色）。windows/linux 智能运维安全能力对齐 apple 护城河。下一步 SSH 连接复用 / 终端快捷命令增强。

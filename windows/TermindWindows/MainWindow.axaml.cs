@@ -50,4 +50,14 @@ public partial class MainWindow : Window
             CmdInput.Focus();
         }
     }
+
+    /// 快捷追问点击 → 填入 AI 输入框（真实交互，对照 linux/apple/android）
+    private void OnQuickAsk(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is Button b && b.Content is string ask)
+        {
+            AiInput.Text = ask;
+            AiInput.Focus();
+        }
+    }
 }

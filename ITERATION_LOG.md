@@ -4500,3 +4500,11 @@
 - **改动**：`MainWindow.axaml`(终端搜索框)、`MainWindow.axaml.cs`(OnTermSearch)。
 - **验证**：`dotnet build` 0 错误；run 存活 + 截图确认搜索框（状态条「搜索输出…」+ A-/A+）。推送 a7f850d。
 - **意义**：windows 终端输出搜索（输出多时快速定位匹配行，运维查日志/输出实用）。下一步 linux 终端搜索 / 新功能 / 质量收口。
+
+---
+
+## linux 终端输出搜索（匹配行高亮，对照 windows，双端对齐）
+- **内容**：linux `term_search` 字段；终端状态条加搜索框（TextEdit）；终端行渲染时匹配关键词 → 橙色半透明 Frame 高亮（F59E0B 0x33），不匹配正常渲染；支持 ANSI 彩色行高亮。
+- **改动**：`linux/src/main.rs`(term_search 字段 + 终端搜索框 + 渲染匹配高亮)。
+- **验证**：`cargo build` **0 error/warning**（1.65s，带 proxy）。推送 27cc661。
+- **意义**：终端输出搜索 windows/linux 双端对齐（运维查日志/输出快速定位）。下一步 质量收口 CHANGELOG 阶段44 / 新功能。

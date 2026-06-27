@@ -681,21 +681,25 @@ impl eframe::App for TermindApp {
                         });
                     });
                 ui.add_space(8.0);
-                // 快捷命令栏（对照 windows/apple/android 终端区，点击填入命令输入框）
-                ui.horizontal(|ui| {
-                    for cmd in ["ls -la", "df -h", "free -h", "top"] {
-                        if ui.add(egui::Button::new(
-                            egui::RichText::new(cmd).monospace().size(11.0).color(ACCENT))
-                            .fill(ACCENT.linear_multiply(0.12)).rounding(14.0)).clicked() {
-                            self.cmd_input = cmd.to_string();
+                // 快捷命令栏（对照 windows/apple/android 终端区；横滚容纳更多运维命令）
+                egui::ScrollArea::horizontal().max_height(28.0).show(ui, |ui| {
+                    ui.horizontal(|ui| {
+                        for cmd in ["ls -la", "df -h", "free -h", "ps aux --sort=-%cpu | head", "ss -tlnp", "uptime", "top"] {
+                            if ui.add(egui::Button::new(
+                                egui::RichText::new(cmd).monospace().size(11.0).color(ACCENT))
+                                .fill(ACCENT.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                                self.cmd_input = cmd.to_string();
+                            }
                         }
-                    }
-                    // 高风险命令橙色
-                    if ui.add(egui::Button::new(
-                        egui::RichText::new("systemctl status nginx").monospace().size(11.0).color(WARNING))
-                        .fill(WARNING.linear_multiply(0.12)).rounding(14.0)).clicked() {
-                        self.cmd_input = "systemctl status nginx".to_string();
-                    }
+                        // 高风险/需谨慎命令橙色
+                        for cmd in ["journalctl -xe -n 50", "systemctl status nginx"] {
+                            if ui.add(egui::Button::new(
+                                egui::RichText::new(cmd).monospace().size(11.0).color(WARNING))
+                                .fill(WARNING.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                                self.cmd_input = cmd.to_string();
+                            }
+                        }
+                    });
                 });
                 ui.add_space(8.0);
                 // 命令输入框（提示符 + 输入，快捷命令点击填入；回车追加到终端输出）

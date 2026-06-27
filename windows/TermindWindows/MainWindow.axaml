@@ -204,7 +204,15 @@
                     <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
                             Content="free -h" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
                     <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
+                            Content="ps aux --sort=-%cpu | head" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
+                            Content="ss -tlnp" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
+                            Content="uptime" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
                             Content="top" Foreground="#FF4B6E" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button Background="#1AF59E0B" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
+                            Content="journalctl -xe -n 50" Foreground="#F59E0B" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
                     <Button Background="#1AF59E0B" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickCmd"
                             Content="systemctl status nginx" Foreground="#F59E0B" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
                 </StackPanel>

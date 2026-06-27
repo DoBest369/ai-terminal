@@ -4639,3 +4639,11 @@
 - **踩坑**：TextBox.Watermark 过时 → PlaceholderText（修 0 警告）。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活 + 截图。推送 0dc2024。
 - **意义**：windows 快捷命令可定制（运维高频命令增删+持久化）。下一步 linux 快捷命令自定义对齐 / 质量收口 / 新功能。
+
+---
+
+## linux 快捷命令栏可自定义（增删+持久化，对照 windows，双端对齐）
+- **内容**：linux custom_cmds 字段 + new_cmd_input；快捷栏加自定义绿 chip（点击填入/右键删除）+「+」menu 按钮弹输入添加；load_custom_cmds 读 config + save_config 加 custom_cmds 参数（7 处调用更新）；去重。
+- **改动**：`linux main.rs`(custom_cmds 字段 + 快捷栏自定义 + load/save + 5 调用)。
+- **验证**：`cargo build` **0 error/warning**（1.11s，带 proxy）。推送 5f95de5。
+- **意义**：快捷命令自定义 windows/linux 双端对齐（运维定制高频命令 + 持久化）。下一步 质量收口 CHANGELOG 阶段49 / AI 搜索 / 新功能。

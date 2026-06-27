@@ -199,6 +199,17 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 23 — 护城河 Z2/Z3 一键真闭环 + SSH 复用双端（2026-06-27）
+
+深化打磨继续，把 apple 护城河的「命令解释/报错分析/健康巡检」在 windows/linux 做到一键真闭环 + SSH 性能优化双端对齐。
+
+- **🎯 护城河 Z2 报错分析一键真闭环（windows/linux）**：运维快捷「分析报错」一键 → SSH 取系统错误日志（journalctl -p err，回退 dmesg）+ 失败服务（systemctl --failed）→ 流式 AI 诊断（现象→原因→修复，[EXECUTE] 修复命令→卡片）。
+- **🎯 护城河 Z3 健康巡检一键真闭环（windows/linux）**：运维快捷「健康巡检」一键 → SSH 取真实指标（负载/内存/磁盘/CPU Top5/服务）→ AI 诊断（资源水位→风险点→优化建议）。端到端验证 AI 给出专业巡检报告（磁盘 88% 告警 + OOM 风险 + 服务异常，⚠️ 标注）。
+- **SSH Session 复用（windows/linux）**：持久会话（windows _sshClient + 锁 / linux OnceLock<Mutex<Session>>），连接+握手+认证只首次/断线后做，断线重连；多命令/一键巡检/报错分析显著提速。
+- **命令执行耗时显示（windows/linux）**：结果后「✓/✕ 耗时 Xms」运维参考。
+- **终端快捷命令栏增强（windows/linux）**：磁盘/内存/进程/网络/日志/服务一键，按风险配色。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，749 提交。
+
 ## 阶段 22 — 深化打磨：对照 apple 护城河补齐 windows/linux（2026-06-27）
 
 S1-S5 完成后转入深化打磨，对照 apple 护城河把智能运维细节在 windows/linux 补齐对齐。

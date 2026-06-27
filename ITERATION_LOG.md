@@ -4193,3 +4193,11 @@
 - **改动**：`linux/src/main.rs`(run_sftp_download + 文件右键菜单 + sftp_download 标志)、`linux/Cargo.toml`(base64)。
 - **验证**：`cargo build` **0 error/warning**（1.29s，带 proxy，base64 crate + 下载逻辑正确）。推送 ee65896。
 - **意义**：SFTP 文件下载 windows/linux 双端对齐。windows/linux SFTP 能力一致（浏览/导航/预览/下载）向 apple 标杆靠拢。下一步 SFTP 删除 / 连接编辑 / 质量收口。
+
+---
+
+## windows SFTP 文件删除（右键嵌套确认→rm+刷新，对照 apple sftpRemove）
+- **内容**：windows SFTP 文件右键「删除」→ 子菜单「⚠确认删除 xxx」（嵌套确认防误删）→ DeleteSftpFile：ssh rm -f → 刷新 LoadSftp；终端显进度/结果；红色危险标识。
+- **改动**：`MainWindow.axaml.cs`(删除嵌套确认菜单 + DeleteSftpFile)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 aab4f03。
+- **意义**：windows SFTP 写操作（删除，对照 apple sftpRemove，嵌套确认防误删）。windows SFTP 能力进一步靠拢 apple（浏览/导航/预览/下载/删除）。下一步 linux SFTP 删除 / 连接编辑 / 质量收口。

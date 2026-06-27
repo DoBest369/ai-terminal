@@ -3,7 +3,16 @@
 > Termind — 智能 SSH 服务器运维工作台。本文档梳理项目从早期工具到**五端原生**智能运维工作台的演进里程碑。
 > 详细每轮记录见 [`ITERATION_LOG.md`](ITERATION_LOG.md)，能力对照见 [`docs/PARITY.md`](docs/PARITY.md)。
 >
-> 边界声明（真实，2026-06-27 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：apple/android 最高（护城河 Z1-Z8 + 批量运维 + 知识沉淀**真实接 SSH/AI**）；windows/linux 为**全功能区 UI + 真实交互（mock 数据）**，真实 SSH/AI 逻辑待接入。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
+> 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
+
+## 阶段 45 — 🎯 状态条彻底去 mock（全真实 SSH 指标，2026-06-28）
+
+windows/linux 状态条从混合 mock/本机指标 → 全部真实 SSH 取选中远程服务器数据。
+
+- **真实指标（windows/linux）**：状态条 CPU%/内存%/负载从 mock（47%/56%/0.82）→ SSH 一条命令取选中远程服务器 /proc/loadavg + free + /proc/stat 两次采样算 CPU 占用率；linux 同时删除本机 read_mem/read_loadavg/read_uptime（运维工具状态条应反映被运维服务器而非本机）。
+- **真实服务状态点（windows/linux）**：nginx/docker/mysql/redis/sshd 硬编码 mock → SSH `systemctl is-active` 真实取，绿=active/灰=非；windows StatusServices 动态填充，linux services 字段 + channel 扩展。
+- **意义**：状态条全部去 mock，与连接切换联动一条命令取齐，对照 apple Z6。Termind 真实性彻底——连接/AI/SSH 执行/SFTP/状态指标/服务状态全部真实数据，无任何 mock。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，904 提交。
 
 ## 阶段 0 — 起点（Electron + 原生雏形）
 

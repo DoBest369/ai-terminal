@@ -45,6 +45,20 @@
                             ToolTip.Tip="新建连接">
                         <PathIcon Width="16" Height="16" Foreground="#FF4B6E"
                                   Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                <StackPanel Width="240" Spacing="8">
+                                    <TextBlock Text="新建连接" Foreground="#FFFFFF" FontSize="14" FontWeight="Bold"/>
+                                    <Border Background="#0D0E1A" CornerRadius="6"><TextBox x:Name="NewConnName" PlaceholderText="名称（如 生产服务器）" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" Padding="10,7"/></Border>
+                                    <Border Background="#0D0E1A" CornerRadius="6"><TextBox x:Name="NewConnHost" PlaceholderText="主机 IP / 域名" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" FontFamily="{StaticResource MonoFont}" Padding="10,7"/></Border>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Border Grid.Column="0" Background="#0D0E1A" CornerRadius="6" Margin="0,0,6,0"><TextBox x:Name="NewConnUser" PlaceholderText="用户（root）" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" FontFamily="{StaticResource MonoFont}" Padding="10,7"/></Border>
+                                        <Border Grid.Column="1" Background="#0D0E1A" CornerRadius="6" Width="64"><TextBox x:Name="NewConnPort" Text="22" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" FontFamily="{StaticResource MonoFont}" Padding="10,7"/></Border>
+                                    </Grid>
+                                    <Button Click="OnAddConn" Background="#FF4B6E" Foreground="#FFFFFF" BorderThickness="0" CornerRadius="6" Padding="10,6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="添加" FontSize="12" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
                     </Button>
                     <Button Grid.Column="3" Background="Transparent" BorderThickness="0" Padding="6"
                             ToolTip.Tip="设置">

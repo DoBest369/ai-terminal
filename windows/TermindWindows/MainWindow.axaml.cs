@@ -50,22 +50,24 @@ public partial class MainWindow : Window
 {
     private readonly List<string> _cmdHistory = new();   // 命令历史（最近优先），供上下键回溯
     private int _histIdx = -1;                            // 当前回溯位置（-1=未回溯）
+    private System.Collections.ObjectModel.ObservableCollection<ConnItem> _conns = new();   // 连接列表（可增删自动刷新）
 
     public MainWindow()
     {
         InitializeComponent();
         var green = Brush.Parse("#3FB950");
         var gray = Brush.Parse("#6B7280");
-        // 连接列表（分组聚合 + 备注 + 可达 + 最近使用；初始可达=⏳探测中，TCP 探测完更新）
-        ConnList.ItemsSource = new List<ConnItem>
+        // 连接列表（ObservableCollection：新建连接后自动刷新 UI）
+        _conns = new System.Collections.ObjectModel.ObservableCollection<ConnItem>
         {
             new("测试服务器", "root@47.85.19.31:22", Brush.Parse("#3B82F6"), gray, "生产环境", true, "⏳", gray, "📝 Ubuntu 测试机", true, "上次使用 · 5 分钟前", true),
             new("生产服务器", "root@192.168.1.10:22", Brush.Parse("#EF4444"), gray, "生产环境", false, "⏳", gray, "📝 官网 + API", true, "上次使用 · 1 小时前", true),
             new("开发机", "deploy@dev.example.com:2222", gray, gray, "开发环境", true, "⏳", gray, "", false, "", false),
         };
+        ConnList.ItemsSource = _conns;
         ConnList.SelectedIndex = 0;
         // 真实 TCP 可达性探测（对照 linux probe_tcp）：异步探测每个连接，结果回 UI 线程更新
-        foreach (var item in (List<ConnItem>)ConnList.ItemsSource)
+        foreach (var item in _conns)
             _ = ProbeReachabilityAsync(item);
         // 加载持久化配置（API Key/地址）→ 填回设置框；失焦自动保存
         LoadConfig();
@@ -164,6 +166,22 @@ public partial class MainWindow : Window
         StatusHost.Text = $"主机 {addr}";
         StatusDot.Text = online ? "● 已连接" : "○ 离线";
         StatusDot.Foreground = online ? Brush.Parse("#3FB950") : Brush.Parse("#6B7280");
+    }
+
+    /// 新建连接：读表单 name/host/user/port → 加入连接列表（ObservableCollection 自动刷新）
+    private void OnAddConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var name = NewConnName.Text?.Trim();
+        var host = NewConnHost.Text?.Trim();
+        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(host)) return;
+        var user = string.IsNullOrWhiteSpace(NewConnUser.Text) ? "root" : NewConnUser.Text.Trim();
+        var port = string.IsNullOrWhiteSpace(NewConnPort.Text) ? "22" : NewConnPort.Text.Trim();
+        var gray = Brush.Parse("#6B7280");
+        var item = new ConnItem(name, $"{user}@{host}:{port}", Brush.Parse("#3FB950"), gray, "我的连接", true, "⏳", gray, "", false, "", false);
+        _conns.Add(item);
+        ConnList.SelectedItem = item;
+        _ = ProbeReachabilityAsync(item);   // 新连接异步探测可达性
+        NewConnName.Text = ""; NewConnHost.Text = ""; NewConnUser.Text = ""; NewConnPort.Text = "22";
     }
 
     /// 快捷命令点击 → 填入命令输入框（真实交互，对照 linux/apple/android）

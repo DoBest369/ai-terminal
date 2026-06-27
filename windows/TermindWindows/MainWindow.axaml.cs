@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace TermindWindows;
@@ -258,10 +259,76 @@ public partial class MainWindow : Window
         AiMessages.Children.Add(aiBubble);
         AiInput.Text = "";
         AiScroll.ScrollToEnd();
-        // 真实 AI 调用（async）→ 更新气泡
+        // 真实 AI 调用（async）→ 更新气泡 + 解析 [EXECUTE] 命令
         var reply = await CallAiAsync(ask);
-        aiText.Text = reply;
+        var cmds = Regex.Matches(reply, @"\[EXECUTE\]([\s\S]*?)\[/EXECUTE\]");
+        // 气泡显示去掉 [EXECUTE] 标记的正文
+        aiText.Text = Regex.Replace(reply, @"\[EXECUTE\][\s\S]*?\[/EXECUTE\]", "").Trim();
+        if (aiText.Text.Length == 0 && cmds.Count > 0) aiText.Text = "建议执行以下命令：";
+        // 每条 [EXECUTE] 命令 → 命令卡片（按 AI 模式：Chat 仅建议 / Agent 确认执行 / Auto 自动）
+        foreach (Match m in cmds)
+        {
+            var cmd = m.Groups[1].Value.Trim();
+            if (cmd.Length > 0) AddCommandCard(cmd);
+        }
         AiScroll.ScrollToEnd();
+    }
+
+    /// 危险命令检测（复用风险分级思路）：极高危必须二次确认，Auto 也不绕过
+    private static bool IsDangerous(string cmd)
+    {
+        var c = cmd.ToLowerInvariant();
+        return c.Contains("rm -rf") || c.Contains("mkfs") || c.StartsWith("dd ") || c.Contains(" dd ")
+            || c.Contains("shutdown") || c.Contains("reboot") || c.Contains("> /dev/")
+            || c.Contains(":(){") || c.Contains("chmod -r 777") || c.Contains("iptables -f");
+    }
+
+    /// AI 回复里的命令 → 可执行卡片（Chat=建议+复制 / Agent=▶执行确认 / Auto=自动执行）
+    private void AddCommandCard(string cmd)
+    {
+        var danger = IsDangerous(cmd);
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+        var cmdText = new TextBlock
+        {
+            Text = (danger ? "⚠ " : "") + cmd, Foreground = Brush.Parse(danger ? "#F59E0B" : "#3FB950"),
+            FontFamily = (FontFamily)(this.FindResource("MonoFont") ?? FontFamily.Default),
+            FontSize = 12, TextWrapping = TextWrapping.Wrap, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+        };
+        Grid.SetColumn(cmdText, 0);
+        grid.Children.Add(cmdText);
+        // Agent/Auto 模式显示执行按钮（Chat 模式仅建议不执行）
+        if (_aiMode != AiMode.Chat)
+        {
+            var btn = new Button
+            {
+                Content = _aiMode == AiMode.Auto && !danger ? "自动执行中…" : "▶ 执行",
+                Background = Brush.Parse("#FF4B6E"), Foreground = Brush.Parse("#FFFFFF"),
+                BorderThickness = new Thickness(0), CornerRadius = new CornerRadius(6),
+                Padding = new Thickness(8, 3), FontSize = 11, Margin = new Thickness(8, 0, 0, 0),
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            btn.Click += (_, _) => ExecuteCommand(cmd);
+            Grid.SetColumn(btn, 1);
+            grid.Children.Add(btn);
+        }
+        var card = new Border
+        {
+            Background = Brush.Parse("#0A0B14"), CornerRadius = new CornerRadius(8), Padding = new Thickness(10, 8),
+            Margin = new Thickness(0, 2, 0, 0), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
+            MaxWidth = 300, Child = grid
+        };
+        AiMessages.Children.Add(card);
+        // Auto 模式：非危险命令自动执行；危险命令即使 Auto 也需点「▶ 执行」确认（安全铁律）
+        if (_aiMode == AiMode.Auto && !danger) ExecuteCommand(cmd);
+    }
+
+    /// 执行命令（Agent 确认放行 / Auto 自动）：填入终端命令输入框（真实 SSH exec 待 S1 接入）
+    private void ExecuteCommand(string cmd)
+    {
+        CmdInput.Text = cmd;
+        CmdInput.Focus();
+        CmdInput.CaretIndex = cmd.Length;
+        // TODO S1：接真实 SSH 后改为直接 exec + 结果回喂 AI（Auto 闭环）
     }
 
     /// 调 Anthropic 兼容接口（nexcores）；key 从环境变量 TERMIND_AI_KEY 读（不硬编码）

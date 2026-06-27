@@ -59,7 +59,7 @@ public partial class MainWindow : Window
         // 连接列表（分组聚合 + 备注 + 可达 + 最近使用；初始可达=⏳探测中，TCP 探测完更新）
         ConnList.ItemsSource = new List<ConnItem>
         {
-            new("数据库主机", "admin@db.internal.net:22", Brush.Parse("#3B82F6"), gray, "生产环境", true, "⏳", gray, "📝 MySQL 主库", true, "上次使用 · 5 分钟前", true),
+            new("测试服务器", "root@47.85.19.31:22", Brush.Parse("#3B82F6"), gray, "生产环境", true, "⏳", gray, "📝 Ubuntu 测试机", true, "上次使用 · 5 分钟前", true),
             new("生产服务器", "root@192.168.1.10:22", Brush.Parse("#EF4444"), gray, "生产环境", false, "⏳", gray, "📝 官网 + API", true, "上次使用 · 1 小时前", true),
             new("开发机", "deploy@dev.example.com:2222", gray, gray, "开发环境", true, "⏳", gray, "", false, "", false),
         };
@@ -141,16 +141,27 @@ public partial class MainWindow : Window
         catch { return false; }
     }
 
-    /// 连接列表选中变化 → 终端区状态条反映选中连接（真实交互，对照 linux）
+    private string? _activeHost;   // 当前选中连接的 host（驱动 SSH 执行；null=用 env/默认）
+    private string? _activeUser;
+
+    /// 连接列表选中变化 → 终端区状态条反映选中连接 + 驱动 SSH 执行目标（真实连接切换）
     private void OnConnSelected(object? sender, SelectionChangedEventArgs e)
     {
         if (ConnList.SelectedItem is not ConnItem c) return;
-        // 地址形如 user@host:port → 取 host 段
-        var host = c.Addr;
-        var at = host.IndexOf('@'); if (at >= 0) host = host[(at + 1)..];
-        var colon = host.IndexOf(':'); if (colon >= 0) host = host[..colon];
+        // 地址形如 user@host:port → 解析 user / host
+        var addr = c.Addr;
+        string? user = null;
+        var at = addr.IndexOf('@'); if (at >= 0) { user = addr[..at]; addr = addr[(at + 1)..]; }
+        var colon = addr.IndexOf(':'); if (colon >= 0) addr = addr[..colon];
+        // 切换连接目标 → 重置复用的 SSH 会话（下次 exec 连新主机）
+        if (_activeHost != addr || _activeUser != user)
+        {
+            lock (_sshLock) { _sshClient?.Dispose(); _sshClient = null; }
+            _envCache = null;   // 环境感知缓存也失效
+        }
+        _activeHost = addr; _activeUser = user;
         var online = c.Reach == "✓";
-        StatusHost.Text = $"主机 {host}";
+        StatusHost.Text = $"主机 {addr}";
         StatusDot.Text = online ? "● 已连接" : "○ 离线";
         StatusDot.Foreground = online ? Brush.Parse("#3FB950") : Brush.Parse("#6B7280");
     }
@@ -558,8 +569,9 @@ public partial class MainWindow : Window
     /// Auto 模式：执行结果自动回喂 AI → AI 决策下一步命令（agent loop，限轮+危险中断防失控）
     private async void ExecuteCommand(string cmd)
     {
-        var host = System.Environment.GetEnvironmentVariable("TERMIND_SSH_HOST") ?? "47.85.19.31";
-        var user = System.Environment.GetEnvironmentVariable("TERMIND_SSH_USER") ?? "root";
+        // 目标主机优先级：选中连接 > 环境变量 > 默认测试机
+        var host = _activeHost ?? System.Environment.GetEnvironmentVariable("TERMIND_SSH_HOST") ?? "47.85.19.31";
+        var user = _activeUser ?? System.Environment.GetEnvironmentVariable("TERMIND_SSH_USER") ?? "root";
         AppendTerm($"{user}@{host}:~$ {cmd}", "#C9D1D9");
         var sw = System.Diagnostics.Stopwatch.StartNew();
         var result = await SshExecAsync(cmd);
@@ -638,8 +650,9 @@ public partial class MainWindow : Window
     /// 复用持久 Session：连接+握手+认证只在首次或断线后做，多命令/Auto 闭环显著提速
     private async Task<string> SshExecAsync(string cmd)
     {
-        var host = System.Environment.GetEnvironmentVariable("TERMIND_SSH_HOST") ?? "47.85.19.31";
-        var user = System.Environment.GetEnvironmentVariable("TERMIND_SSH_USER") ?? "root";
+        // 目标主机优先级：选中连接 > 环境变量 > 默认测试机
+        var host = _activeHost ?? System.Environment.GetEnvironmentVariable("TERMIND_SSH_HOST") ?? "47.85.19.31";
+        var user = _activeUser ?? System.Environment.GetEnvironmentVariable("TERMIND_SSH_USER") ?? "root";
         var pass = System.Environment.GetEnvironmentVariable("TERMIND_SSH_PASS") ?? "";
         if (string.IsNullOrEmpty(pass)) return "⚠️ 未配置 SSH 密码（环境变量 TERMIND_SSH_PASS）";
         return await Task.Run(() =>

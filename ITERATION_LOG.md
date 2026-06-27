@@ -6,6 +6,13 @@
 
 ---
 
+## 质量收口 + linux 状态条 CPU 真实逻辑核数
+- **质量基线**（多轮 linux 真实指标后收口）：apple swift build + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；PARITY **103 项 ✅✅**。五端 build 全绿。apple AI 面板渲染核对（会话标题/操作按钮/代码块复制/快捷追问/发送，极完善）。
+- **linux CPU 核数**：CPU 进度条 hover 显真实逻辑核数（`std::thread::available_parallelism`）；CPU% 瞬时占用需 /proc/stat 两次采样留后续。cargo build 0 error/warning（build 通过后提交）。推送 35a8929。
+- **意义**：linux 真实系统指标四项（负载/内存/运行时长/核数）。本机状态采集真实化基本完整。质量基线扎实（多轮真实指标改动后核心无回归）。
+
+---
+
 ## linux 状态条真实本机运行时长（读 /proc/uptime）
 - **内容**：linux `read_uptime()` 读 `/proc/uptime` 格式化「X天Y时」；状态条负载后显真实运行时长（真 Linux）；非 Linux 跳过（不显示，不占位）。
 - **改动**：`linux/src/main.rs`(read_uptime + 状态条运行时长)。

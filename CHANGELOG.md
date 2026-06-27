@@ -199,6 +199,15 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 37 — UI 品质 U4 字号可调 + SFTP 上传双端（2026-06-28）
+
+落地用户 UI 品质要求 U4（字号可调），SFTP 上传双端完成。
+
+- **终端字号可调 U4（windows/linux）**：终端状态条 A-/A+ 按钮实时调整字号（clamp 9-22），windows 更新所有现有行 + 新行，linux 渲染用动态字号（ansi_to_job 字号参数化）。响应用户「字号可调」要求。
+- **SFTP 文件上传双端（windows/linux）**：windows StorageProvider / linux rfd 原生文件对话框选本地文件 → base64 → SSH 写远程，至此 SFTP 文件操作全覆盖双端。
+- **UI 品质专项进展**：U1 图标库化（去 emoji，五端）✅ / U2 配色协调（整窗深色）✅ / U4 字号可调（windows/linux）✅ / U3 主题切换（进行中）。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，855 提交。
+
 ## 阶段 36 — 🎯 SFTP 文件操作全覆盖双端（含上传，2026-06-27）
 
 里程碑：windows/linux SFTP 增加上传，文件操作全覆盖，与 apple 真 SFTP 标杆功能对等。

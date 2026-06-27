@@ -6,6 +6,13 @@
 
 ---
 
+## 质量收口 + windows 设置面板加 API 地址（Base URL，对齐 apple/android）
+- **质量基线**（多轮 android 功能对齐后收口）：apple swift build + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；PARITY **103 项 ✅✅**。五端 build 全绿。
+- **windows 设置 Base URL**：设置 Flyout 模型后加「API 地址」输入框（默认 anthropic endpoint），对齐 apple/android Base URL 自定义（OpenAI 兼容/代理/自托管）。dotnet build 0 警告 0 错误（build 通过后提交）。推送 3835114。
+- **意义**：设置项 Base URL 三端对齐（apple/android/windows）。质量基线扎实（多轮功能对齐改动后核心无回归）。windows/linux 设置面板向 apple 完整度靠拢。
+
+---
+
 ## android AI 系统提示词自定义（对齐 apple agentSystemPrompt）
 - **内容**：android 补齐 apple 的「AI 系统提示词」自定义——`SettingsStore.loadSystemPrompt/saveSystemPrompt`（空=默认 `AiClient.SYSTEM_PROMPT`）；AI 对话 `send` 默认 `basePrompt` 从硬编码常量 → `loadSystemPrompt(ctx)`；SettingsScreen 加「AI 系统提示词」设置行 + 多行编辑对话框（minLines 4/maxLines 8 + 恢复默认提示词按钮）。
 - **改动**：`SettingsStore.kt`、`MainActivity.kt`(send 默认参数 + SettingsScreen 状态/对话框/设置行)。

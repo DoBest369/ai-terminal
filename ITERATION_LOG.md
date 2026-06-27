@@ -3982,3 +3982,11 @@
 - **改动**：`apple/App/Sources/AppModel.swift`(runParsedCommands Auto 闭环 + autoLoopDepth)。
 - **验证**：swift build Build complete；8 自测无回归（SourceKit module 警告 IDE 误报）。推送 dad06d3。
 - **🎯 apple 三模式真正完整**：Chat（纯聊天）/ Agent（确认放行）/ Auto（自主闭环：注入→录制输出→回喂 AI→决策下一步）。**AI Auto 自主闭环五端对齐**（apple/windows/linux）。apple 基础最强（真实终端会话输出录制 + 注入）。智能运维 + AI 三模式全平台完整成型。下一步 主题切换 / 持续打磨。
+
+---
+
+## 🎯🎯 质量收口 + CHANGELOG 阶段25（AI 三模式 + Auto 闭环五端全对齐里程碑）
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；769 提交。五端 build 全绿。
+- **CHANGELOG 阶段25**：用户核心设计 AI 三模式（Chat/Agent/Auto）+ Auto 自主闭环五端真正完整里程碑。apple 录制真实终端输出回喂（agentic），windows/linux SSH exec 结果回喂；安全梯度危险命令强制确认。
+- **改动**：`CHANGELOG.md`(阶段25)。
+- **意义**：里程碑级沉淀。从用户最初提出「智能运维全平台落地 + AI 三模式安全梯度 + AI 接管终端」→ 五端全部真正完整落地。CHANGELOG 演进:智能运维全链路真实(20)→S1-S5全完成(21)→深化打磨护城河补齐(22-24)→**三模式+Auto闭环五端全对齐(25)**。Termind 核心价值与用户全部设计完整成型。

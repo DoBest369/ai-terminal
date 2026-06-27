@@ -3998,3 +3998,11 @@
 - **改动**：`MainWindow.axaml.cs`(_activeHost/_activeUser + OnConnSelected + SshExecAsync/ExecuteCommand host 来源 + 首项真实测试机)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 2b646af。
 - **意义**：windows 终端从「固定主机」→「选中连接驱动」（真实连接管理）。点不同连接 → 在不同主机执行。下一步 windows 新建连接表单 / linux 连接切换对齐 / 主题切换。
+
+---
+
+## linux 连接列表→真实连接切换（选中连接驱动 SSH 目标，对照 windows）
+- **内容**：linux `ssh_target()` helper（选中连接 > env > 默认）；update 开头预取 active_host/user 供本帧各命令执行/巡检/报错 spawn 用；health/error 用 self.ssh_target()；demo 首项真实测试机（47.85.19.31 root）；fetch_server_env 独立函数保留 env。
+- **改动**：`linux/src/main.rs`(ssh_target + update 预取 active + 各 spawn 用 + demo 首项)。
+- **验证**：`cargo build` **0 error/warning**（0.79s，带 proxy，active_host 借用 + 闭包捕获通过）。推送 b1ba0af。
+- **意义**：真实连接切换 windows/linux 双端对齐（点选中连接 → 在该主机执行命令/巡检/报错）。下一步 新建连接表单 / 主题切换 / 质量收口。

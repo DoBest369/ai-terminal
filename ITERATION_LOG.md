@@ -4079,3 +4079,11 @@
 - **改动**：`linux/src/main.rs`(run_sftp_ls 接受 path + 目录可点击 + sftp_nav 标志)。
 - **验证**：`cargo build` **0 error/warning**（0.77s，带 proxy，借用通过）。推送 3989f3f。
 - **意义**：SFTP 目录导航 windows/linux 双端对齐（可浏览整个文件树）。windows/linux 双端 SFTP 完整（真实文件 + 目录导航）。下一步 质量收口 CHANGELOG 阶段28 / 连接删除。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段28 SFTP双端对齐
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；793 提交。五端 build 全绿。
+- **CHANGELOG 阶段28**：SFTP 真实文件浏览 + 目录导航双端对齐 + 真实连接管理 + 双端全模块真实。
+- **改动**：`CHANGELOG.md`(阶段28)。
+- **意义**：CHANGELOG 至阶段28。windows/linux 双端全模块真实（连接/终端/AI运维/SFTP无mock）。智能运维全平台落地彻底完成：用户最初指出「windows/linux仅UI+mock」→如今双端全模块真实。后续持续打磨细节（连接删除/文件查看/时间戳等）。

@@ -315,7 +315,11 @@ public partial class MainWindow : Window
         if (_aiMode == AiMode.Auto && !danger) ExecuteCommand(cmd);
     }
 
+    private int _autoLoopDepth = 0;   // Auto 自主闭环轮数（防失控）
+    private const int AutoLoopMax = 5;
+
     /// 执行命令（Agent 确认放行 / Auto 自动）：真实 SSH 在服务器执行 + 结果追加终端（S1 闭环）
+    /// Auto 模式：执行结果自动回喂 AI → AI 决策下一步命令（agent loop，限轮+危险中断防失控）
     private async void ExecuteCommand(string cmd)
     {
         var host = System.Environment.GetEnvironmentVariable("TERMIND_SSH_HOST") ?? "47.85.19.31";
@@ -324,6 +328,36 @@ public partial class MainWindow : Window
         var result = await SshExecAsync(cmd);
         foreach (var line in result.Split('\n'))
             AppendTerm(line.TrimEnd(), result.StartsWith("⚠") ? "#F59E0B" : "#A0A0A0");
+
+        // S5 Auto 自主闭环：把执行结果回喂 AI，让 AI 决策下一步（限轮防失控）
+        if (_aiMode == AiMode.Auto && !result.StartsWith("⚠") && _autoLoopDepth < AutoLoopMax)
+        {
+            _autoLoopDepth++;
+            var feedback = $"已执行命令 `{cmd}`，输出如下：\n{result}\n\n请判断是否需要下一步操作。如需继续，用 [EXECUTE]命令[/EXECUTE]；如已完成，直接说明结论，不要再给命令。";
+            AppendAiBubble("✦ AI（自主分析执行结果…）", "#6B7280");
+            var reply = await CallAiAsync(feedback);
+            AppendAiBubble(Regex.Replace(reply, @"\[EXECUTE\][\s\S]*?\[/EXECUTE\]", "").Trim(), "#C9D1D9");
+            foreach (Match m in Regex.Matches(reply, @"\[EXECUTE\]([\s\S]*?)\[/EXECUTE\]"))
+            {
+                var next = m.Groups[1].Value.Trim();
+                if (next.Length > 0) AddCommandCard(next);   // Auto 模式 AddCommandCard 内会自动执行（危险则停）
+            }
+        }
+        else { _autoLoopDepth = 0; }   // 非 Auto/出错/到顶 → 重置轮数
+    }
+
+    /// 追加一条 AI 气泡（Auto 闭环自主分析用）
+    private void AppendAiBubble(string text, string color)
+    {
+        var bubble = new Border
+        {
+            Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290,
+            Margin = new Thickness(0, 4, 0, 0),
+            Child = new TextBlock { Text = text, Foreground = Brush.Parse(color), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+        };
+        AiMessages.Children.Add(bubble);
+        AiScroll.ScrollToEnd();
     }
 
     /// 追加一行到终端输出（插入光标行前）

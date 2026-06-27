@@ -4542,3 +4542,11 @@
 - **改动**：`windows MainWindow.axaml`(StatusServices 容器)、`MainWindow.axaml.cs`(解析+填充)、`linux main.rs`(services 字段+channel+渲染)。
 - **验证**：windows `dotnet build` 0 错误 + run 存活 + 截图；linux `cargo build` 0 warning。推送 dced50e。
 - **意义**：状态条全部去 mock——CPU/内存/负载/服务点全部真实 SSH 取（选中远程服务器，对照 apple Z6）。windows/linux 双端对齐。Termind 真实性彻底（无任何 mock 指标）。下一步 定时刷新 / 质量收口 / 新功能。
+
+---
+
+## 🎯 质量收口 + CHANGELOG阶段45 状态条彻底去mock + 边界声明更新
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished（仅上游 block v0.1.6 未来兼容警告，非本项目）；windows dotnet 0 警告 0 错误 + run 存活；904 提交。五端 build 全绿。
+- **CHANGELOG 阶段45**：状态条彻底去 mock（CPU/内存/负载/服务点全真实 SSH 取）+ 更新顶部边界声明（windows/linux 已达 apple 标杆，原「mock 数据待接入」过时声明纠正）。
+- **改动**：`CHANGELOG.md`(阶段45 + 边界声明)。
+- **意义**：CHANGELOG 至阶段45。状态条去 mock 里程碑——Termind 真实性彻底（连接/AI/SSH/SFTP/指标/服务全真实）。边界声明如实反映 windows/linux 已达 apple 标杆。后续持续打磨/新功能。

@@ -4234,3 +4234,12 @@
 - **改动**：`linux/src/main.rs`(run_batch_exec + 命令栏批量按钮 + trigger_batch 标志)。
 - **验证**：`cargo build` **0 error/warning**（0.88s，带 proxy，借用通过）。推送 0157b17。
 - **🎯 护城河 batch 批量运维 windows/linux 双端对齐**：多机群发命令 + 结果聚合。windows/linux 护城河能力一致（Z1-Z3 + 风险四级 + batch 批量）。下一步 SFTP 新建目录 / 连接编辑 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段33 护城河 batch 双端 + ROADMAP S9
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；831 提交。五端 build 全绿。
+- **CHANGELOG 阶段33**：护城河 batch 批量群发双端对齐（windows/linux 多连接并发执行聚合）；windows/linux 护城河能力一致（Z1-Z3 + 风险四级 + batch）。
+- **ROADMAP S9**：batch 批量运维移植完成。待办：连接编辑 / SFTP 上传 mkdir / 主题切换 U3。
+- **改动**：`CHANGELOG.md`(阶段33)、`ROADMAP.md`(S9)。
+- **意义**：CHANGELOG 至阶段33。windows/linux 护城河能力与 apple/android 完全一致（命令解释/报错分析/健康巡检/风险分级/批量运维）。智能运维全平台落地彻底完成且能力对齐。

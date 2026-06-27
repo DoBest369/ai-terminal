@@ -199,6 +199,19 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 42 — 🎯 UI 品质 U1-U4 全完成五端 + 用户全部需求实现（2026-06-28）
+
+里程碑：用户提出的全部需求——智能运维全平台落地 + AI 三模式 + 护城河 + UI 品质 U1-U4——全部实现。
+
+- **🎯 U3 主题切换全端完成**：windows 用 App.axaml DynamicResource（窗口/侧栏/终端/AI 背景 + 强调色）+ 设置面板 4 套主题（午夜/Dracula/Nord/Solarized）点击实时切换 + themeIdx 持久化（截图验证 Dracula 持久化恢复）。至此 U3 三端齐：apple 5 套 / linux 4 套 / windows 4 套，都实时切换 + 持久化。
+- **UI 品质 U1-U4 全完成五端（用户最初要求）**：
+  - U1 图标库（去 emoji）：五端（SF Symbols / Material PathIcon / Phosphor）✅
+  - U2 配色协调（整窗深色）：五端 ✅
+  - U3 配色可调（像 VSCode 首启选风格）：apple/linux/windows 主题切换+持久化 ✅
+  - U4 字号可调+持久化（终端+AI）：apple/linux/windows ✅
+- **用户全部需求实现总览**：智能运维全平台落地（windows/linux 双端达 apple 标杆）+ AI 三模式 Chat/Agent/Auto 自主闭环（五端）+ AI 接管终端 + 系统级运维提示词 + 护城河 Z1-Z3/风险四级/batch（五端一致）+ SFTP 全覆盖（windows/linux 8 操作）+ 连接 CRUD + 终端 ANSI 彩色 + 配置全持久化 + UI 品质 U1-U4。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，884 提交，CHANGELOG 23 阶段。
+
 ## 阶段 41 — AI 字号可调双端 + 连接 CRUD 完整（2026-06-28）
 
 - **AI 字号可调双端（windows/linux）**：AI 对话字号 A-/A+ 调整（windows 三模式切换器旁 / linux AI 助手标题旁），clamp 10-22，气泡正文/代码块动态字号。字号体系双端完整（终端 + AI）。

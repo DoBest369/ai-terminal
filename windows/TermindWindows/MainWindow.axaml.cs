@@ -1081,7 +1081,54 @@ public partial class MainWindow : Window
     private const string AiBaseUrl = "https://www.nexcores.net/v1/messages";
     private const string AiModel = "claude-opus-4-8";
     // AI 多轮对话历史（role/content 累积，AI 记住上下文；为 Auto 闭环铺垫）
-    private readonly List<(string role, string content)> _aiHistory = new();
+    // AI 多会话：每个会话一份历史，_aiHistory 指向当前会话（对照 apple ai-conv）
+    private readonly List<List<(string role, string content)>> _sessions = new() { new() };
+    private int _curSession = 0;
+    private List<(string role, string content)> _aiHistory => _sessions[_curSession];
+
+    /// 重渲染当前会话历史到 AiMessages（切换会话时调用）
+    private void RenderSession()
+    {
+        AiMessages.Children.Clear();
+        foreach (var (role, content) in _aiHistory)
+        {
+            if (role == "user")
+            {
+                AiMessages.Children.Add(new TextBlock { Text = "你", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right });
+                AiMessages.Children.Add(new Border { Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260, Child = new TextBlock { Text = content, Foreground = Brush.Parse("#FFFFFF"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap } });
+            }
+            else
+            {
+                AiMessages.Children.Add(new Border { Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290, Margin = new Thickness(0, 4, 0, 0), Child = new TextBlock { Text = content, Foreground = Brush.Parse("#C9D1D9"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap } });
+            }
+        }
+        AiScroll.ScrollToEnd();
+    }
+
+    /// 会话面板打开：列所有会话（标题=首条提问）+ 新建按钮；点击切换、右键删除
+    private void OnSessionsOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        SessionsList.Children.Clear();
+        for (int i = 0; i < _sessions.Count; i++)
+        {
+            var idx = i;
+            var first = _sessions[i].FirstOrDefault(h => h.role == "user").content;
+            var title = string.IsNullOrEmpty(first) ? $"新会话 {i + 1}" : (first.Length > 24 ? first[..24] + "…" : first);
+            var cur = i == _curSession;
+            var btn = new Button { Background = Brush.Parse(cur ? "#1AFF4B6E" : "#22FFFFFF"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(4), Padding = new Thickness(8, 5), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left, Content = new TextBlock { Text = (cur ? "● " : "") + title, Foreground = Brush.Parse(cur ? "#FF4B6E" : "#C9D1D9"), FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis } };
+            btn.Click += (_, _) => { _curSession = idx; RenderSession(); };
+            if (_sessions.Count > 1)
+            {
+                var del = new MenuItem { Header = "删除此会话", Foreground = Brush.Parse("#F85149") };
+                del.Click += (_, _) => { _sessions.RemoveAt(idx); if (_curSession >= _sessions.Count) _curSession = _sessions.Count - 1; RenderSession(); OnSessionsOpen(sender, e); };
+                btn.ContextFlyout = new MenuFlyout { Items = { del } };
+            }
+            SessionsList.Children.Add(btn);
+        }
+        var add = new Button { Background = Brush.Parse("#1A3FB950"), Foreground = Brush.Parse("#3FB950"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(4), Padding = new Thickness(8, 6), Margin = new Thickness(0, 4, 0, 0), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center, Content = "+ 新建会话" };
+        add.Click += (_, _) => { _sessions.Add(new()); _curSession = _sessions.Count - 1; RenderSession(); OnSessionsOpen(sender, e); };
+        SessionsList.Children.Add(add);
+    }
 
     /// 系统级运维提示词（优化 AI 智能运维能力，对齐 apple/android 护城河）
     private const string SysPrompt =

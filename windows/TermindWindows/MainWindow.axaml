@@ -345,15 +345,29 @@
         <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto,Auto" Background="{DynamicResource ThemeAiBg}">
             <Border Grid.Row="0" Padding="14,10">
                 <StackPanel Spacing="8">
-                    <Grid ColumnDefinitions="*,Auto,Auto">
+                    <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                         <TextBlock Grid.Column="0" Text="✦ AI 助手" Foreground="#FF4B6E" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" Click="OnExportChat" Background="Transparent" BorderThickness="0" Padding="4"
+                        <!-- 会话管理（多会话切换/新建/删除，对照 apple ai-conv）-->
+                        <Button Grid.Column="1" Click="OnSessionsOpen" Background="Transparent" BorderThickness="0" Padding="4"
+                                ToolTip.Tip="会话（切换/新建/删除）">
+                            <PathIcon Width="14" Height="14" Foreground="#8B92A8"
+                                      Data="M12,3C6.5,3 2,6.58 2,11C2.05,13.15 3.06,15.17 4.75,16.5C4.75,17.1 4.33,18.67 2,21C4.37,20.89 6.64,20 8.47,18.5C9.61,18.83 10.81,19 12,19C17.5,19 22,15.42 22,11C22,6.58 17.5,3 12,3M12,17C7.58,17 4,14.31 4,11C4,7.69 7.58,5 12,5C16.42,5 20,7.69 20,11C20,14.31 16.42,17 12,17Z"/>
+                            <Button.Flyout>
+                                <Flyout Placement="BottomEdgeAlignedRight">
+                                    <StackPanel Width="280" Spacing="2">
+                                        <TextBlock Text="AI 会话" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                        <StackPanel x:Name="SessionsList" Spacing="2"/>
+                                    </StackPanel>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                        <Button Grid.Column="2" Click="OnExportChat" Background="Transparent" BorderThickness="0" Padding="4"
                                 ToolTip.Tip="导出对话为 Markdown">
                             <PathIcon Width="14" Height="14" Foreground="#8B92A8"
                                       Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,8L14,2M12,19L8,15H10.5V12H13.5V15H16L12,19M13,9V3.5L18.5,9H13Z"/>
                         </Button>
-                        <Button Grid.Column="2" Click="OnClearChat" Background="Transparent" BorderThickness="0" Padding="4"
-                                ToolTip.Tip="清空对话（新建会话）">
+                        <Button Grid.Column="3" Click="OnClearChat" Background="Transparent" BorderThickness="0" Padding="4"
+                                ToolTip.Tip="清空当前会话">
                             <PathIcon Width="14" Height="14" Foreground="#8B92A8"
                                       Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
                         </Button>

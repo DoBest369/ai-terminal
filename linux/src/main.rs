@@ -373,6 +373,35 @@ fn load_custom_cmds() -> Vec<String> {
         .unwrap_or_default()
 }
 
+/// AI 多会话持久化文件路径（独立于 config，对照 windows sessions.json）
+fn sessions_path() -> Option<std::path::PathBuf> {
+    config_path().map(|p| std::path::Path::new(&p).with_file_name("sessions.json"))
+}
+
+/// 保存 AI 多会话到磁盘（会话变化 + 每轮对话后）
+fn save_sessions(sessions: &[Vec<(bool, String)>]) {
+    let Some(path) = sessions_path() else { return; };
+    if let Some(dir) = path.parent() { let _ = std::fs::create_dir_all(dir); }
+    // 序列化为 [[{u:bool,t:string}]]
+    let data: Vec<Vec<serde_json::Value>> = sessions.iter()
+        .map(|s| s.iter().map(|(u, t)| serde_json::json!({ "u": u, "t": t })).collect())
+        .collect();
+    let _ = std::fs::write(&path, serde_json::to_string(&data).unwrap_or_default());
+}
+
+/// 启动加载 AI 多会话（空/损坏则返回单空会话）
+fn load_sessions() -> Vec<Vec<(bool, String)>> {
+    let parsed = sessions_path()
+        .and_then(|p| std::fs::read_to_string(&p).ok())
+        .and_then(|t| serde_json::from_str::<Vec<Vec<serde_json::Value>>>(&t).ok());
+    match parsed {
+        Some(arr) if !arr.is_empty() => arr.iter().map(|s| s.iter()
+            .map(|m| (m["u"].as_bool().unwrap_or(false), m["t"].as_str().unwrap_or("").to_string()))
+            .collect()).collect(),
+        _ => vec![Vec::new()],
+    }
+}
+
 /// 加载持久化的自定义 AI 快捷追问（对照 windows customAsks）
 fn load_custom_asks() -> Vec<String> {
     config_path()
@@ -417,7 +446,7 @@ impl Default for TermindApp {
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
         THEME_IDX.store(load_theme_idx(), std::sync::atomic::Ordering::Relaxed);   // U3 恢复持久化主题
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), sessions: vec![Vec::new()], cur_session: 0, cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), ai_search: String::new(), custom_cmds: load_custom_cmds(), new_cmd_input: String::new(), custom_asks: load_custom_asks(), new_ask_input: String::new(), metrics: (0, 0, 0, "--".to_string()), services: Vec::new(), metrics_target: String::new(), last_refresh: 0.0, metrics_tx, metrics_rx }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: { let s = load_sessions(); s.into_iter().next().unwrap_or_default() }, sessions: load_sessions(), cur_session: 0, cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), ai_search: String::new(), custom_cmds: load_custom_cmds(), new_cmd_input: String::new(), custom_asks: load_custom_asks(), new_ask_input: String::new(), metrics: (0, 0, 0, "--".to_string()), services: Vec::new(), metrics_target: String::new(), last_refresh: 0.0, metrics_tx, metrics_rx }
     }
 }
 
@@ -746,6 +775,9 @@ impl eframe::App for TermindApp {
             let cmds = parse_execute(&reply);
             self.ai_msgs.push((false, reply));
             self.ai_busy = false;
+            // 一轮对话后持久化多会话（同步当前会话到 sessions[cur] 再存盘）
+            self.sessions[self.cur_session] = self.ai_msgs.clone();
+            save_sessions(&self.sessions);
             // Chat 模式仅展示；Agent/Auto 收集待执行命令（Auto 非危险自动执行）
             if self.ai_mode != AiMode::Chat {
                 for cmd in cmds {
@@ -1081,6 +1113,7 @@ impl eframe::App for TermindApp {
                             self.ai_msgs = self.sessions[i].clone();
                         }
                         self.pending_cmds.clear();
+                        save_sessions(&self.sessions);
                     }
                     if let Some(i) = del_session {
                         self.sessions[self.cur_session] = self.ai_msgs.clone();
@@ -1088,6 +1121,7 @@ impl eframe::App for TermindApp {
                         if self.cur_session >= self.sessions.len() { self.cur_session = self.sessions.len() - 1; }
                         else if i < self.cur_session { self.cur_session -= 1; }
                         self.ai_msgs = self.sessions[self.cur_session].clone();
+                        save_sessions(&self.sessions);
                     }
                 });
                 // 待执行命令卡片（Agent 确认放行 / Auto 危险命令确认）

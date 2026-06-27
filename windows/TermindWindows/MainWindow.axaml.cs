@@ -80,11 +80,49 @@ public partial class MainWindow : Window
         _ = RefreshMetricsAsync();   // 启动先取一次（SelectedIndex=0 已选中测试机）
         RenderQuickCmds();           // 渲染快捷命令栏（默认 + 自定义，覆盖 axaml 默认）
         RenderQuickAsks();           // 渲染快捷追问栏（默认 + 自定义）
+        LoadSessions();              // 恢复持久化的 AI 多会话
+        RenderSession();
     }
 
     /// 配置文件路径（用户 AppData，跨重启持久化）
     private static string ConfigPath =>
         System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "Termind", "config.json");
+
+    /// AI 多会话持久化文件（独立于 config，避免膨胀；对照 apple ai-persist）
+    private static string SessionsPath =>
+        System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "Termind", "sessions.json");
+
+    /// 保存 AI 多会话到磁盘（会话切换/新建/删除 + 每轮对话后调用）
+    private void SaveSessions()
+    {
+        try
+        {
+            var dir = System.IO.Path.GetDirectoryName(SessionsPath); if (dir != null) System.IO.Directory.CreateDirectory(dir);
+            var data = _sessions.Select(s => s.Select(m => new { role = m.role, content = m.content }).ToArray()).ToArray();
+            System.IO.File.WriteAllText(SessionsPath, JsonSerializer.Serialize(data));
+        }
+        catch { /* 持久化失败不影响使用 */ }
+    }
+
+    /// 启动恢复 AI 多会话（空则保留默认单会话）
+    private void LoadSessions()
+    {
+        try
+        {
+            if (!System.IO.File.Exists(SessionsPath)) return;
+            using var doc = JsonDocument.Parse(System.IO.File.ReadAllText(SessionsPath));
+            var loaded = new List<List<(string, string)>>();
+            foreach (var sess in doc.RootElement.EnumerateArray())
+            {
+                var msgs = new List<(string, string)>();
+                foreach (var m in sess.EnumerateArray())
+                    msgs.Add((m.GetProperty("role").GetString() ?? "", m.GetProperty("content").GetString() ?? ""));
+                loaded.Add(msgs);
+            }
+            if (loaded.Count > 0) { _sessions.Clear(); _sessions.AddRange(loaded); _curSession = 0; }
+        }
+        catch { /* 损坏则用默认 */ }
+    }
 
     /// 加载持久化配置（API Key/地址）填回设置框
     private void LoadConfig()
@@ -1116,17 +1154,17 @@ public partial class MainWindow : Window
             var title = string.IsNullOrEmpty(first) ? $"新会话 {i + 1}" : (first.Length > 24 ? first[..24] + "…" : first);
             var cur = i == _curSession;
             var btn = new Button { Background = Brush.Parse(cur ? "#1AFF4B6E" : "#22FFFFFF"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(4), Padding = new Thickness(8, 5), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left, Content = new TextBlock { Text = (cur ? "● " : "") + title, Foreground = Brush.Parse(cur ? "#FF4B6E" : "#C9D1D9"), FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis } };
-            btn.Click += (_, _) => { _curSession = idx; RenderSession(); };
+            btn.Click += (_, _) => { _curSession = idx; RenderSession(); SaveSessions(); };
             if (_sessions.Count > 1)
             {
                 var del = new MenuItem { Header = "删除此会话", Foreground = Brush.Parse("#F85149") };
-                del.Click += (_, _) => { _sessions.RemoveAt(idx); if (_curSession >= _sessions.Count) _curSession = _sessions.Count - 1; RenderSession(); OnSessionsOpen(sender, e); };
+                del.Click += (_, _) => { _sessions.RemoveAt(idx); if (_curSession >= _sessions.Count) _curSession = _sessions.Count - 1; RenderSession(); SaveSessions(); OnSessionsOpen(sender, e); };
                 btn.ContextFlyout = new MenuFlyout { Items = { del } };
             }
             SessionsList.Children.Add(btn);
         }
         var add = new Button { Background = Brush.Parse("#1A3FB950"), Foreground = Brush.Parse("#3FB950"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(4), Padding = new Thickness(8, 6), Margin = new Thickness(0, 4, 0, 0), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center, Content = "+ 新建会话" };
-        add.Click += (_, _) => { _sessions.Add(new()); _curSession = _sessions.Count - 1; RenderSession(); OnSessionsOpen(sender, e); };
+        add.Click += (_, _) => { _sessions.Add(new()); _curSession = _sessions.Count - 1; RenderSession(); SaveSessions(); OnSessionsOpen(sender, e); };
         SessionsList.Children.Add(add);
     }
 
@@ -1201,6 +1239,7 @@ public partial class MainWindow : Window
         var text = Regex.Replace(reply, @"\[EXECUTE\][\s\S]*?\[/EXECUTE\]", "").Trim();
         if (text.Length == 0 && cmds.Count > 0) text = "建议执行以下命令：";
         RenderAiReply(aiPanel, text);
+        SaveSessions();   // 一轮对话后持久化多会话
         // 每条 [EXECUTE] 命令 → 命令卡片（按 AI 模式：Chat 仅建议 / Agent 确认执行 / Auto 自动）
         foreach (Match m in cmds)
         {

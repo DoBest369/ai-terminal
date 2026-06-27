@@ -467,6 +467,28 @@ impl TermindApp {
         (path, files)
     }
 
+    /// 批量群发命令（护城河 batch，对照 windows OnBatchExec）：对所有连接并发 ssh_exec → 聚合终端
+    fn run_batch_exec(&mut self) {
+        let cmd = self.cmd_input.trim().to_string();
+        if cmd.is_empty() || self.conns.is_empty() { return; }
+        self.cmd_input.clear();
+        self.term_lines.push(format!("⇶ 批量群发「{}」→ {} 台连接", cmd, self.conns.len()));
+        let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+        if pass.is_empty() { self.term_lines.push("⚠️ 未配置 SSH 密码".to_string()); return; }
+        // 各连接并发执行，结果带连接名经 term_tx 回传（聚合分段显示）
+        for c in &self.conns {
+            let (name, host, user) = (c.name.to_string(), c.host.to_string(), c.user.to_string());
+            let (tx, cmd, pass) = (self.term_tx.clone(), cmd.clone(), pass.clone());
+            std::thread::spawn(move || {
+                let out = ssh_exec(&host, 22, &user, &pass, &cmd);
+                let ok = !out.starts_with('⚠');
+                let mut s = format!("── {} ({}) {} ──\n", name, host, if ok { "✓" } else { "✕" });
+                for line in out.split('\n') { s.push_str(&format!("  {}\n", line)); }
+                let _ = tx.send(s.trim_end().to_string());
+            });
+        }
+    }
+
     /// 当前 SSH 执行目标（选中连接 > env > 默认测试机，对照 windows _activeHost）
     fn ssh_target(&self) -> (String, String) {
         if let Some(c) = self.selected.and_then(|i| self.conns.get(i)) {
@@ -1053,9 +1075,15 @@ impl eframe::App for TermindApp {
                     });
                 });
                 ui.add_space(8.0);
-                // 命令输入框（提示符 + 输入，快捷命令点击填入；回车追加到终端输出）
+                // 命令输入框（提示符 + 输入 + 批量群发按钮；快捷命令点击填入；回车追加终端）
+                let mut trigger_batch = false;
                 ui.horizontal(|ui| {
                     ui.colored_label(SUCCESS, egui::RichText::new(format!("{} ", prompt)).monospace());
+                    // 批量群发按钮（护城河 batch，对照 windows）：对所有连接群发命令
+                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::USERS_THREE).size(15.0).color(WARNING)).frame(false))
+                        .on_hover_text("批量群发：对所有连接执行此命令").clicked() {
+                        trigger_batch = true;
+                    }
                     let resp = ui.add_sized([ui.available_width(), 24.0],
                         egui::TextEdit::singleline(&mut self.cmd_input).hint_text("输入命令…").font(egui::TextStyle::Monospace));
                     // ↑/↓ 键回溯命令历史（终端常用交互）
@@ -1101,6 +1129,7 @@ impl eframe::App for TermindApp {
                         resp.request_focus();   // 保持焦点便于连续输入
                     }
                 });
+                if trigger_batch { self.run_batch_exec(); }   // 批量群发（循环外执行避免借用冲突）
             });
     }
 }

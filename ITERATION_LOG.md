@@ -4095,3 +4095,11 @@
 - **改动**：`MainWindow.axaml.cs`(文件可点击 + PreviewFile)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 8530e11。
 - **意义**：windows SFTP 从「浏览」→「可看文件内容」（文本预览 + 守门大小/二进制）。SFTP 交互完整（浏览 + 导航 + 预览）。下一步 linux SFTP 预览 / 连接删除 / 时间戳。
+
+---
+
+## linux SFTP 文件预览（点击文件→head 到终端，对照 windows，双端对齐）
+- **内容**：linux `run_sftp_preview`——后台 SSH stat 大小 + file 类型守门（>1MB/二进制跳过），文本 head -n 200 → term_rx 显终端；SFTP 文件名可点击 Label → sftp_preview 标志循环外执行；路径防注入。
+- **改动**：`linux/src/main.rs`(run_sftp_preview + 文件可点击 + sftp_preview 标志)。
+- **验证**：`cargo build` **0 error/warning**（0.76s，带 proxy，借用通过）。推送 0efa90e。
+- **意义**：SFTP 文件预览 windows/linux 双端对齐。windows/linux SFTP 完整交互全对齐（浏览 + 导航 + 预览，守门大小/二进制）。下一步 连接删除 / AI 时间戳 / 质量收口。

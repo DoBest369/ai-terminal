@@ -4087,3 +4087,11 @@
 - **CHANGELOG 阶段28**：SFTP 真实文件浏览 + 目录导航双端对齐 + 真实连接管理 + 双端全模块真实。
 - **改动**：`CHANGELOG.md`(阶段28)。
 - **意义**：CHANGELOG 至阶段28。windows/linux 双端全模块真实（连接/终端/AI运维/SFTP无mock）。智能运维全平台落地彻底完成：用户最初指出「windows/linux仅UI+mock」→如今双端全模块真实。后续持续打磨细节（连接删除/文件查看/时间戳等）。
+
+---
+
+## windows SFTP 文件预览（点击文件→head 预览到终端）
+- **内容**：windows SFTP 文件项可点击 → PreviewFile：SSH stat 取大小 + file 判类型；>1MB 或二进制跳过；文本则 head -n 200 到终端区显示；路径单引号防注入。
+- **改动**：`MainWindow.axaml.cs`(文件可点击 + PreviewFile)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 8530e11。
+- **意义**：windows SFTP 从「浏览」→「可看文件内容」（文本预览 + 守门大小/二进制）。SFTP 交互完整（浏览 + 导航 + 预览）。下一步 linux SFTP 预览 / 连接删除 / 时间戳。

@@ -4769,3 +4769,11 @@
 - **MATURITY**：加运维监控套件沉淀（监控-诊断-处置完整链路：状态条聚合+告警→进程/端口/磁盘下钻→服务/进程操作+Z1-Z3闭环+batch+搜索+导出+定制）。
 - **改动**：`CHANGELOG.md`(阶段54)、`docs/MATURITY.md`。
 - **意义**：CHANGELOG 至阶段54。运维监控套件成型并 MATURITY 沉淀。Termind 是完整的智能运维监控-诊断-处置工作台。后续持续打磨/新功能。
+
+---
+
+## 登录用户/最近登录面板（windows+linux，SSH who+last，安全运维）
+- **内容**：工具区加用户按钮 → SSH `who`（在线）+ `last -n 8`（最近）取登录会话；windows Flyout 分组（在线绿/最近灰），linux 终端展示（复用 term_tx）。安全运维查谁在登录/最近登录来源 IP，排查异常登录。
+- **改动**：`windows MainWindow.axaml`(用户按钮 Flyout)、`MainWindow.axaml.cs`(OnLoginUsers)、`linux main.rs`(用户按钮 + spawn who/last)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（USERS 图标）。推送 55fb2a4。
+- **意义**：登录用户面板（安全运维维度，查在线/异常登录），双端。监控套件扩展安全维度（进程/端口/磁盘 + 登录用户）。下一步 防火墙面板 / 系统信息 / 质量收口。

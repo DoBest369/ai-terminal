@@ -5,6 +5,15 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 53 — 监控下钻：进程 Top + 网络端口面板双端（2026-06-28）
+
+监控从聚合指标下钻到进程级 + 网络端口级。
+
+- **进程 Top 面板（windows/linux）**：终端工具区按钮 → SSH `ps --sort=-%cpu` 取 CPU 高占用进程；windows Flyout 结构化表格（PID/CPU%/MEM%/命令，按占用三档色），linux 终端展示。运维定位资源消耗进程。
+- **网络端口监听面板（windows/linux）**：SSH `ss -tlnp` 取监听端口 + 进程；windows Flyout（端口 + 进程名，正则提取），linux 终端展示。运维查端口占用/服务监听。
+- **意义**：监控护城河深化——状态条看聚合（CPU/内存/磁盘/负载/服务），异常时一键下钻到进程/端口明细，对照 apple Z6。windows/linux 双端对齐。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，952 提交。
+
 ## 阶段 52 — AI 快捷追问可自定义双端（2026-06-28）
 
 - **AI 快捷追问自定义（windows/linux）**：快捷追问栏从硬编码 → 默认 3 条 + 用户自定义（增删 + 持久化）。windows Flyout 输入添加、自定义 chip 右键删除；linux egui menu_button + context_menu。与快捷命令自定义同模式，运维定制高频追问。

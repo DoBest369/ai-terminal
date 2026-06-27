@@ -4398,3 +4398,12 @@
 - **改动**：`linux/src/main.rs`(save_config theme_idx + load_theme_idx + Default 恢复 + 切换保存)。
 - **验证**：`cargo build` **0 error/warning**（0.88s，带 proxy）。推送 23d3739。
 - **意义**：U3 linux 主题切换 + 持久化完整（4 套主题午夜/Dracula/Nord/Solarized，实时切换 + 重启恢复）。响应用户「配色可调像 VSCode 首启选风格」。下一步 windows U3 主题切换 / 质量收口 CHANGELOG 阶段40。
+
+---
+
+## 🎯 质量收口 + CHANGELOG 阶段40 UI品质U1-U4里程碑
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；871 提交。五端 build 全绿。
+- **CHANGELOG 阶段40**：U3 主题切换（linux 4 套主题实时切换+持久化）+ UI 品质专项里程碑（U1 图标库/U2 配色协调/U3 配色可调 linux/U4 字号可调全部启动落地）。
+- **记忆更新**：ui-modern 记 U1-U4 落地状态 + windows U3 颜色硬编码注意（后续专项）。
+- **改动**：`CHANGELOG.md`(阶段40)、记忆 ui-modern。
+- **意义**：用户最初提的全部 UI 品质要求（U1 图标库/U2 配色协调/U3 配色可调像 VSCode/U4 字号可调）基本全部落地。Termind 智能运维全平台落地 + AI 三模式 + UI 品质 U1-U4 = 用户全部核心需求实现。后续 windows U3 主题对齐 / 连接编辑 / 持续打磨。

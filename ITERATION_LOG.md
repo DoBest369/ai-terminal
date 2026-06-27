@@ -4201,3 +4201,11 @@
 - **改动**：`MainWindow.axaml.cs`(删除嵌套确认菜单 + DeleteSftpFile)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 aab4f03。
 - **意义**：windows SFTP 写操作（删除，对照 apple sftpRemove，嵌套确认防误删）。windows SFTP 能力进一步靠拢 apple（浏览/导航/预览/下载/删除）。下一步 linux SFTP 删除 / 连接编辑 / 质量收口。
+
+---
+
+## linux SFTP 文件删除（右键嵌套确认→rm+刷新，对照 windows，双端对齐）
+- **内容**：linux `run_sftp_delete`——后台 ssh rm -f → 刷新 run_sftp_ls；文件右键 context_menu menu_button「删除」→ 子项「⚠确认删除」（嵌套确认防误删）→ sftp_delete 标志循环外执行；结果回终端。
+- **改动**：`linux/src/main.rs`(run_sftp_delete + context_menu 删除 + sftp_delete 标志)。
+- **验证**：`cargo build` **0 error/warning**（0.79s，带 proxy，menu_button + 借用通过）。推送 9845764。
+- **意义**：SFTP 删除 windows/linux 双端对齐。windows/linux SFTP 能力一致（浏览/导航/预览/下载/删除），靠拢 apple 标杆。下一步 质量收口 CHANGELOG 阶段32 / SFTP 新建目录 / 连接编辑。

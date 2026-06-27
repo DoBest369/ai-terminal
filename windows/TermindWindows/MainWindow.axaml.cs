@@ -212,6 +212,24 @@ public partial class MainWindow : Window
         "5. 识别常见故障：502/Permission denied/磁盘满/端口占用/OOM/Nginx/SSL/MySQL 连接等，直接点出可能原因。\n" +
         "6. 回答精炼专业、用中文，不啰嗦。需在终端执行命令时可用 [EXECUTE]命令[/EXECUTE] 标记（供 Agent 模式自动执行）。";
 
+    /// AI 三模式（安全梯度）：Chat 纯聊天 / Agent 每条确认 / Auto 全自动闭环
+    private enum AiMode { Chat, Agent, Auto }
+    private AiMode _aiMode = AiMode.Chat;
+
+    private void OnModeChat(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SetAiMode(AiMode.Chat);
+    private void OnModeAgent(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SetAiMode(AiMode.Agent);
+    private void OnModeAuto(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SetAiMode(AiMode.Auto);
+
+    private void SetAiMode(AiMode mode)
+    {
+        _aiMode = mode;
+        var on = Brush.Parse("#FF4B6E"); var onFg = Brush.Parse("#FFFFFF");
+        var off = Brush.Parse("Transparent"); var offFg = Brush.Parse("#8B92A8");
+        ModeChat.Background = mode == AiMode.Chat ? on : off; ModeChat.Foreground = mode == AiMode.Chat ? onFg : offFg;
+        ModeAgent.Background = mode == AiMode.Agent ? on : off; ModeAgent.Foreground = mode == AiMode.Agent ? onFg : offFg;
+        ModeAuto.Background = mode == AiMode.Auto ? on : off; ModeAuto.Foreground = mode == AiMode.Auto ? onFg : offFg;
+    }
+
     private async void AppendAiAsk()
     {
         var ask = AiInput.Text?.Trim();

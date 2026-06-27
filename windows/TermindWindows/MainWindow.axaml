@@ -219,8 +219,21 @@
 
         <!-- ③ AI 面板：对话 + 快捷追问 + 输入 -->
         <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto,Auto" Background="#10121F">
-            <Border Grid.Row="0" Padding="14,12">
-                <TextBlock Text="✦ AI 助手" Foreground="#FF4B6E" FontSize="14" FontWeight="Bold"/>
+            <Border Grid.Row="0" Padding="14,10">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="✦ AI 助手" Foreground="#FF4B6E" FontSize="14" FontWeight="Bold"/>
+                    <!-- AI 三模式切换器（Chat/Agent/Auto，安全梯度，对齐用户设计）-->
+                    <Border Background="#16182A" CornerRadius="8" Padding="3" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+                            <Button x:Name="ModeChat" Click="OnModeChat" Background="#FF4B6E" BorderThickness="0" CornerRadius="6" Padding="10,4"
+                                    Content="聊天" Foreground="#FFFFFF" FontSize="11" ToolTip.Tip="纯聊天：AI 只建议，不碰终端"/>
+                            <Button x:Name="ModeAgent" Click="OnModeAgent" Background="Transparent" BorderThickness="0" CornerRadius="6" Padding="10,4"
+                                    Content="代理" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="代理：AI 生成命令，每条需你确认放行"/>
+                            <Button x:Name="ModeAuto" Click="OnModeAuto" Background="Transparent" BorderThickness="0" CornerRadius="6" Padding="10,4"
+                                    Content="全自动" Foreground="#8B92A8" FontSize="11" ToolTip.Tip="全自动：AI 自主读输出→决策→执行→闭环（高危仍需确认）"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
             </Border>
             <ScrollViewer x:Name="AiScroll" Grid.Row="1" Margin="12,0">
                 <StackPanel x:Name="AiMessages" Spacing="8">

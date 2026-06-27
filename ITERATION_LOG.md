@@ -6,6 +6,14 @@
 
 ---
 
+## linux 命令历史 ↑/↓ 键回溯（终端常用交互）
+- **内容**：linux struct 加 `cmd_history`（最近优先去重）+ `hist_idx`；命令回车时入历史；命令输入框聚焦时 ↑ 键回溯上条命令、↓ 键前进或清空。对照真实终端命令历史回溯。
+- **改动**：`linux/src/main.rs`(cmd_history/hist_idx + 上下键 ui.input 检测 + 回车入历史)。
+- **验证**：`cargo build` **0 error/warning**（0.64s 增量，带 proxy，borrow 通过，build 通过后提交）。推送 a0f6740。
+- **意义**：linux 终端支持命令历史上下键回溯（终端最常用交互之一），交互体验更接近真实终端。下一步 windows 命令历史对齐。
+
+---
+
 ## apple 巡检结果卡片增加负载显示（双端巡检字段对齐）
 - **内容**：apple InspectView 巡检卡片从「CPU/内存/磁盘」→ 加「负载」1 分钟（`info.loadavg.first`，警戒线 = 核数 × 0.8 标红），对齐 android 巡检卡片 + healthSummary 完整字段。SystemInfo 已有 loadavg 字段，巡检卡片之前没展示——补齐。
 - **改动**：`InspectView.swift`(巡检卡片 metric 加负载)。

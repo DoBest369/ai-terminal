@@ -313,6 +313,25 @@ public partial class MainWindow : Window
         _autoLoopDepth = 0;
     }
 
+    /// 导出当前 AI 对话为 Markdown（对照 apple ai-md），保存到桌面
+    private async void OnExportChat(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var btn = sender as Button;
+        if (_aiHistory.Count == 0) { if (btn != null) ToolTip.SetTip(btn, "暂无对话可导出"); return; }
+        var sb = new StringBuilder();
+        sb.AppendLine("# Termind AI 运维对话\n");
+        foreach (var (role, content) in _aiHistory)
+            sb.AppendLine($"## {(role == "user" ? "🧑 你" : "✦ AI")}\n\n{content}\n");
+        try
+        {
+            var desktop = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            var path = System.IO.Path.Combine(desktop, $"termind-chat-{_aiHistory.Count}.md");
+            await System.IO.File.WriteAllTextAsync(path, sb.ToString());
+            if (btn != null) ToolTip.SetTip(btn, $"已导出：{path}");
+        }
+        catch (System.Exception ex) { if (btn != null) ToolTip.SetTip(btn, "导出失败：" + ex.Message); }
+    }
+
     // 真实 AI（S3）：HttpClient 调 Anthropic 兼容接口（nexcores）
     private static readonly HttpClient _http = new() { Timeout = System.TimeSpan.FromSeconds(60) };
     private const string AiBaseUrl = "https://www.nexcores.net/v1/messages";

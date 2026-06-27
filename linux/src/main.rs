@@ -304,7 +304,13 @@ impl eframe::App for TermindApp {
                             let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
                             let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
                             let (tx, c) = (self.term_tx.clone(), cmd.clone());
-                            std::thread::spawn(move || { let _ = tx.send(ssh_exec(&host, 22, &user, &pass, &c)); });
+                            std::thread::spawn(move || {
+                                let start = std::time::Instant::now();
+                                let out = ssh_exec(&host, 22, &user, &pass, &c);
+                                let ok = !out.starts_with('⚠');
+                                // 执行结果 + 耗时提示（运维参考，对照 windows）
+                                let _ = tx.send(format!("{}\n{} 耗时 {}ms", out, if ok { "✓" } else { "✕" }, start.elapsed().as_millis()));
+                            });
                         }
                     } else {
                         self.pending_cmds.push(cmd);   // Agent / Auto危险 → 待确认执行
@@ -738,7 +744,13 @@ impl eframe::App for TermindApp {
                                 let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
                                 let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
                                 let (tx, c) = (self.term_tx.clone(), cmd.clone());
-                                std::thread::spawn(move || { let _ = tx.send(ssh_exec(&host, 22, &user, &pass, &c)); });
+                                std::thread::spawn(move || {
+                                let start = std::time::Instant::now();
+                                let out = ssh_exec(&host, 22, &user, &pass, &c);
+                                let ok = !out.starts_with('⚠');
+                                // 执行结果 + 耗时提示（运维参考，对照 windows）
+                                let _ = tx.send(format!("{}\n{} 耗时 {}ms", out, if ok { "✓" } else { "✕" }, start.elapsed().as_millis()));
+                            });
                             }
                         }
                         self.cmd_input.clear();

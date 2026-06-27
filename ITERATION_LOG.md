@@ -4055,3 +4055,11 @@
 - **windows 整体巡检**（截图 Read 自查）：三栏布局（连接列表含「我的连接」组 + 终端 + AI 面板），深色协调，矢量图标，JetBrains Mono。
 - **改动**：`CHANGELOG.md`、更新 `apple/screenshots/windows-smart-ops.png`。
 - **意义**：windows 端从「能编译的 mock UI」→「全模块真实智能 SSH 运维工作台」里程碑。智能运维全平台落地的 windows 标杆完整。下一步 linux SFTP 真实对齐 / SFTP 目录导航 / 持续打磨。
+
+---
+
+## linux SFTP 真实文件列表（SSH ls 取选中连接目录，对照 windows，双端对齐）
+- **内容**：linux `run_sftp_ls` 后台 SSH `cd ~ && pwd && ls -la` → sftp_rx；`parse_sftp` 解析权限（d=目录）/大小/时间/名；SFTP 窗口渲染真实 sftp_files（替换 sftp_demo）；打开 SFTP 触发 ls；sftp_path 显真实 pwd。删除 sftp_demo mock。
+- **改动**：`linux/src/main.rs`(sftp 状态字段 + channel + run_sftp_ls + parse_sftp + 窗口渲染 + 删 sftp_demo)。
+- **验证**：`cargo build` **0 error/warning**（0.62s，带 proxy）。推送 b36088c。
+- **意义**：SFTP 真实文件 windows/linux 双端对齐（从 mock → 真实 SSH 文件浏览）。windows/linux 双端全模块真实（连接管理 + 终端 + AI 运维 + SFTP）。下一步 SFTP 目录导航 / 连接删除 / 质量收口。

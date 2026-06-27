@@ -193,16 +193,29 @@ public partial class MainWindow : Window
     }
 
     private string _sftpCwd = "~";   // SFTP 当前目录（支持导航）
+    private string? _sftpRenaming;   // 待重命名文件原路径（非空=重命名模式，复用新建目录输入框）
 
     /// SFTP 打开按钮 → 浏览 home 目录
     private void OnSftpOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => LoadSftp("~");
 
-    /// SFTP 新建目录（对照 apple sftpMakeDirectory）：SSH mkdir 当前目录下 + 刷新
+    /// SFTP 新建目录 / 重命名（输入框复用）：有 _sftpRenaming 则 mv 重命名（对照 apple sftpRename），否则 mkdir
     private async void OnMkdir(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        var dirName = NewDirName.Text?.Trim();
-        if (string.IsNullOrEmpty(dirName)) return;
-        var target = $"{_sftpCwd}/{dirName}".Replace("'", "");
+        var input = NewDirName.Text?.Trim();
+        if (string.IsNullOrEmpty(input)) return;
+        if (_sftpRenaming != null)
+        {
+            // 重命名：mv 原文件 → 同目录新名
+            var src = _sftpRenaming.Replace("'", "");
+            var dst = $"{_sftpCwd}/{input}".Replace("'", "");
+            _sftpRenaming = null;
+            AppendTerm($"# 重命名 → {dst} …", "#8B92A8");
+            var rr = await SshExecAsync($"mv '{src}' '{dst}' && echo TERMIND_MV_OK");
+            if (rr.Contains("TERMIND_MV_OK")) { AppendTerm("  ✓ 已重命名", "#3FB950"); NewDirName.Text = ""; LoadSftp(_sftpCwd); }
+            else AppendTerm($"  ✕ 重命名失败：{rr}", "#F59E0B");
+            return;
+        }
+        var target = $"{_sftpCwd}/{input}".Replace("'", "");
         AppendTerm($"# 新建目录 {target} …", "#8B92A8");
         var r = await SshExecAsync($"mkdir -p '{target}' && echo TERMIND_MKDIR_OK");
         if (r.Contains("TERMIND_MKDIR_OK")) { AppendTerm("  ✓ 已创建", "#3FB950"); NewDirName.Text = ""; LoadSftp(_sftpCwd); }
@@ -316,6 +329,9 @@ public partial class MainWindow : Window
                 var dl = new MenuItem { Header = "下载到本地" };
                 dl.Click += (_, _) => DownloadFile(fpath, fname);
                 menu.Items.Add(dl);
+                var ren = new MenuItem { Header = "重命名" };
+                ren.Click += (_, _) => { _sftpRenaming = fpath; NewDirName.Text = fname; NewDirName.Focus(); };
+                menu.Items.Add(ren);
                 var del = new MenuItem { Header = "删除", Foreground = Brush.Parse("#F87171") };
                 var confirmDel = new MenuItem { Header = $"⚠ 确认删除 {fname}" };
                 confirmDel.Click += (_, _) => DeleteSftpFile(fpath);

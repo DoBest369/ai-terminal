@@ -3724,3 +3724,11 @@
 - **改动**：`MainWindow.axaml.cs`(aiPanel + RenderAiReply 代码块渲染)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 15s 存活。推送 1bdb1e9。
 - **意义**：AI 运维回复体验提升——代码命令以等宽深色代码框呈现（对照真实终端/IDE），正文与命令分明。下一步 apple Auto 闭环 / windows AI 流式输出 / linux 代码块。
+
+---
+
+## linux AI 代码块渲染（对照 windows）
+- **内容**：linux `render_ai_reply` 解析 ```代码块（去语言标识）→ 深色代码框（monospace 绿字），正文→普通文本；AI 回复气泡用 render_ai_reply。
+- **改动**：`linux/src/main.rs`(render_ai_reply + AI 回复气泡)。
+- **验证**：`cargo build` **0 error/warning**（0.77s，带 proxy）。推送 48dddb1。
+- **🎯 AI 代码块渲染 windows/linux 双端对齐**：AI 运维回复命令以等宽代码框呈现。windows/linux 双端智能运维体验一致（真实 AI+SSH+三模式+Z3+危险拦截+代码块渲染）。下一步 apple Auto 闭环 / windows 流式输出。

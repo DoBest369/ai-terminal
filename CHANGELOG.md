@@ -199,6 +199,14 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 43 — 主题切换更彻底 + 连接搜索过滤（windows，2026-06-28）
+
+用户全部需求实现后持续打磨细节。
+
+- **U3 主题切换更彻底（windows）**：主题色扩展为 6 色位（窗口/侧栏/终端/AI/次级面板/强调色），状态条/命令输入/三模式器/AI 输入等次级面板也随主题变，整体色调切换更完整。
+- **连接搜索过滤（windows）**：侧栏搜索框真实过滤连接列表（按名称/地址/备注匹配），连接多时快速查找；搜索框 emoji 图标 → PathIcon 矢量（U1 合规）。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，890 提交。
+
 ## 阶段 42 — 🎯 UI 品质 U1-U4 全完成五端 + 用户全部需求实现（2026-06-28）
 
 里程碑：用户提出的全部需求——智能运维全平台落地 + AI 三模式 + 护城河 + UI 品质 U1-U4——全部实现。

@@ -4284,3 +4284,12 @@
 - **改动**：`linux/src/main.rs`(sftp_renaming + run_sftp_rename + 文件右键重命名 + 输入框模式判断)。
 - **验证**：`cargo build` **0 error/warning**（0.82s，带 proxy）。推送 48ebe0b。
 - **🎯 SFTP 重命名 windows/linux 双端对齐——双端 SFTP 写操作齐全**：浏览/导航/预览/下载/删除/新建目录/重命名。windows/linux SFTP 能力完整一致，接近 apple 真 SFTP 标杆（仅剩上传）。下一步 SFTP 上传 / 连接编辑 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段35 SFTP重命名+写操作齐全 + ROADMAP S9
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；843 提交。五端 build 全绿。
+- **CHANGELOG 阶段35**：SFTP 文件重命名（windows/linux）+ SFTP 写操作齐全双端（浏览/导航/预览/下载/删除/新建目录/重命名，仅差上传）。
+- **ROADMAP S9**：SFTP 写操作齐全 + ANSI 彩色完成；待办 连接编辑/SFTP 上传/主题切换 U3。
+- **改动**：`CHANGELOG.md`(阶段35)、`ROADMAP.md`(S9)。
+- **意义**：CHANGELOG 至阶段35。windows/linux SFTP 文件读写常用操作齐全，与 apple 真 SFTP 标杆仅差上传。Termind 全平台真实智能运维工作台功能完整度极高。

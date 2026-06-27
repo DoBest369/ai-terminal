@@ -4226,3 +4226,11 @@
 - **改动**：`MainWindow.axaml`(批量按钮)、`MainWindow.axaml.cs`(OnBatchExec + SshExecToHostAsync)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 7cfc470。
 - **🎯 护城河 batch 批量运维移植 windows**（对照 apple batch-test）：多机群发命令 + 结果聚合，智能运维深化。windows 护城河能力再扩展（Z1-Z3 + batch 批量）。下一步 linux batch / SFTP 新建目录 / 连接编辑。
+
+---
+
+## 🎯 linux 批量群发命令（护城河 batch 移植，对照 windows，双端对齐）
+- **内容**：linux `run_batch_exec`——对所有连接并发 spawn ssh_exec（各连接 host/user）→ 结果带连接名/host/✓✕ 经 term_tx 聚合分段显示；命令栏批量按钮（USERS_THREE phosphor）→ trigger_batch 标志循环外执行。
+- **改动**：`linux/src/main.rs`(run_batch_exec + 命令栏批量按钮 + trigger_batch 标志)。
+- **验证**：`cargo build` **0 error/warning**（0.88s，带 proxy，借用通过）。推送 0157b17。
+- **🎯 护城河 batch 批量运维 windows/linux 双端对齐**：多机群发命令 + 结果聚合。windows/linux 护城河能力一致（Z1-Z3 + 风险四级 + batch 批量）。下一步 SFTP 新建目录 / 连接编辑 / 质量收口。

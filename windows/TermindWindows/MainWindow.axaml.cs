@@ -79,6 +79,7 @@ public partial class MainWindow : Window
         timer.Start();
         _ = RefreshMetricsAsync();   // 启动先取一次（SelectedIndex=0 已选中测试机）
         RenderQuickCmds();           // 渲染快捷命令栏（默认 + 自定义，覆盖 axaml 默认）
+        RenderQuickAsks();           // 渲染快捷追问栏（默认 + 自定义）
     }
 
     /// 配置文件路径（用户 AppData，跨重启持久化）
@@ -99,6 +100,7 @@ public partial class MainWindow : Window
             if (root.TryGetProperty("aiFontSize", out var afs) && afs.TryGetDouble(out var afsv)) _aiFontSize = System.Math.Clamp(afsv, 10, 22);
             if (root.TryGetProperty("themeIdx", out var ti) && ti.TryGetInt32(out var tiv)) ApplyTheme(tiv);
             if (root.TryGetProperty("customCmds", out var cc) && cc.ValueKind == JsonValueKind.Array) { _customCmds.Clear(); foreach (var x in cc.EnumerateArray()) { var s = x.GetString(); if (!string.IsNullOrEmpty(s)) _customCmds.Add(s); } }
+            if (root.TryGetProperty("customAsks", out var ca) && ca.ValueKind == JsonValueKind.Array) { _customAsks.Clear(); foreach (var x in ca.EnumerateArray()) { var s = x.GetString(); if (!string.IsNullOrEmpty(s)) _customAsks.Add(s); } }
             // 恢复命令历史（上下键回溯，重启可用）
             if (root.TryGetProperty("cmdHistory", out var ch) && ch.ValueKind == JsonValueKind.Array)
                 foreach (var c in ch.EnumerateArray())
@@ -134,7 +136,7 @@ public partial class MainWindow : Window
             // 只持久化用户新建的连接（"我的连接" 组），默认演示连接不存
             var userConns = _conns.Where(c => c.GroupName == "我的连接")
                 .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note }).ToArray();
-            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize, aiFontSize = _aiFontSize, themeIdx = _themeIdx, customCmds = _customCmds.ToArray() });
+            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize, aiFontSize = _aiFontSize, themeIdx = _themeIdx, customCmds = _customCmds.ToArray(), customAsks = _customAsks.ToArray() });
             System.IO.File.WriteAllText(ConfigPath, json);
         }
         catch { /* 写失败忽略，不影响运行 */ }
@@ -183,6 +185,38 @@ public partial class MainWindow : Window
     // 快捷命令：默认运维命令 + 用户自定义（持久化），可增删
     private static readonly string[] DefaultQuickCmds = { "ls -la", "df -h", "free -h", "ps aux --sort=-%cpu | head", "ss -tlnp", "uptime", "top", "journalctl -xe -n 50", "systemctl status nginx" };
     private readonly List<string> _customCmds = new();
+    // 快捷追问：默认 + 用户自定义（持久化），可增删
+    private static readonly string[] DefaultQuickAsks = { "如何排查？", "给我具体命令", "有什么风险？" };
+    private readonly List<string> _customAsks = new();
+
+    /// 渲染快捷追问栏（默认 + 自定义 chip + 末尾「+」添加按钮）；自定义可右键删除
+    private void RenderQuickAsks()
+    {
+        QuickAsks.Children.Clear();
+        foreach (var ask in DefaultQuickAsks) QuickAsks.Children.Add(MakeAskChip(ask, "#3B82F6", false));
+        foreach (var ask in _customAsks) QuickAsks.Children.Add(MakeAskChip(ask, "#3FB950", true));
+        var add = new Button { Background = Brush.Parse("#22FFFFFF"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(14), Padding = new Thickness(11, 5), Content = "+", Foreground = Brush.Parse("#8B92A8"), FontSize = 12 };
+        var box = new TextBox { Width = 220, PlaceholderText = "自定义追问…", FontSize = 12 };
+        var ok = new Button { Content = "添加", Background = Brush.Parse("#3FB950"), Foreground = Brush.Parse("#FFFFFF"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(6), Padding = new Thickness(10, 6), Margin = new Thickness(0, 6, 0, 0), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
+        ok.Click += (_, _) => { var a = box.Text?.Trim(); if (!string.IsNullOrEmpty(a) && !_customAsks.Contains(a) && !DefaultQuickAsks.Contains(a)) { _customAsks.Add(a); SaveConfig(); RenderQuickAsks(); } add.Flyout?.Hide(); };
+        add.Flyout = new Flyout { Content = new StackPanel { Children = { new TextBlock { Text = "添加快捷追问", Foreground = Brush.Parse("#FFFFFF"), FontSize = 13, FontWeight = Avalonia.Media.FontWeight.Bold, Margin = new Thickness(0, 0, 0, 6) }, box, ok } } };
+        QuickAsks.Children.Add(add);
+    }
+
+    /// 生成单个快捷追问 chip（点击填入 AI 输入框；自定义可右键删除）
+    private Button MakeAskChip(string ask, string color, bool custom)
+    {
+        var chip = new Button { Background = Brush.Parse(custom ? "#1A3FB950" : "#1A3B82F6"), BorderThickness = new Thickness(0), CornerRadius = new Avalonia.CornerRadius(14), Padding = new Thickness(10, 5), Content = ask, Foreground = Brush.Parse(color), FontSize = 11 };
+        chip.Click += (_, _) => { AiInput.Text = ask; AiInput.Focus(); };
+        if (custom)
+        {
+            var del = new MenuItem { Header = $"删除「{ask}」", Foreground = Brush.Parse("#F85149") };
+            del.Click += (_, _) => { _customAsks.Remove(ask); SaveConfig(); RenderQuickAsks(); };
+            chip.ContextFlyout = new MenuFlyout { Items = { del } };
+            ToolTip.SetTip(chip, "点击追问 · 右键删除");
+        }
+        return chip;
+    }
 
     /// 渲染快捷命令栏（默认 + 自定义 chip + 末尾「+」添加按钮）；自定义可右键删除
     private void RenderQuickCmds()

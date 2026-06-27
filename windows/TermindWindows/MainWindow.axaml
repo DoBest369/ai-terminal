@@ -370,14 +370,8 @@
                     <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnOpsQuick"
                             Tag="health" Content="健康巡检" Foreground="#FF4B6E" FontSize="11"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Button Background="#1A3B82F6" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickAsk"
-                            Content="如何排查？" Foreground="#3B82F6" FontSize="11"/>
-                    <Button Background="#1A3B82F6" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickAsk"
-                            Content="给我具体命令" Foreground="#3B82F6" FontSize="11"/>
-                    <Button Background="#1A3FB950" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickAsk"
-                            Content="有什么风险？" Foreground="#3FB950" FontSize="11"/>
-                </StackPanel>
+                <!-- 快捷追问 chips（可自定义增删，代码动态生成覆盖以下默认）-->
+                <StackPanel x:Name="QuickAsks" Orientation="Horizontal" Spacing="6"/>
             </StackPanel>
             <!-- AI 输入（可真实输入） -->
             <Border Grid.Row="3" Background="{DynamicResource ThemeCardBg}" CornerRadius="8" Margin="12,0,12,12" Padding="4,2">

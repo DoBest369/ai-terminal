@@ -4309,3 +4309,12 @@
 - **改动**：`linux/src/main.rs`(run_sftp_upload + 上传按钮)、`linux/Cargo.toml`(rfd)。
 - **验证**：`cargo build` 0 error（30.24s 含 rfd 拉取）。推送 9ebb414。
 - **🎯 SFTP 上传 windows/linux 双端对齐——双端 SFTP 完整对齐 apple 全操作**：浏览/导航/预览/下载/上传/删除/新建目录/重命名。windows/linux SFTP 文件操作全覆盖（ls + base64 + 命令模拟达到与 apple 真 SFTP 功能对等）。S9 SFTP 深化完成。下一步 连接编辑 / 主题切换 U3 / 质量收口。
+
+---
+
+## 🎯 质量收口 + CHANGELOG 阶段36 SFTP全覆盖双端里程碑 + ROADMAP S9完成
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；849 提交。五端 build 全绿。
+- **CHANGELOG 阶段36**：SFTP 文件操作全覆盖双端（含上传，与 apple 功能对等）+ 双端能力总览（全模块真实+护城河一致+SFTP全覆盖+终端彩色+连接CRUD+配置持久化达 apple 标杆）。
+- **ROADMAP S9**：SFTP 深化完成（文件操作全覆盖双端 + ANSI 彩色）。剩余打磨项：连接编辑/主题切换 U3/android iOS SFTP 增强。
+- **改动**：`CHANGELOG.md`(阶段36)、`ROADMAP.md`(S9)、截图归档。
+- **意义**：里程碑——windows/linux 双端功能完整度达 apple 标杆。智能运维全平台落地从「核心能力」到「护城河」到「全模块体验」彻底完成。Termind 全平台真实智能运维工作台成熟。

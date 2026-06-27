@@ -200,6 +200,7 @@ struct TermindApp {
     sftp_loading: bool,
     sftp_tx: std::sync::mpsc::Sender<String>,  // SFTP ls 原始输出回传
     sftp_rx: std::sync::mpsc::Receiver<String>,
+    new_dir_name: String,                      // SFTP 新建目录输入
 }
 
 /// 全局复用的 SSH 会话缓存（对照 windows _sshClient；多后台线程经 Mutex 串行复用）
@@ -360,7 +361,7 @@ impl Default for TermindApp {
         let (sftp_tx, sftp_rx) = std::sync::mpsc::channel();
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new() }
     }
 }
 
@@ -378,6 +379,25 @@ impl TermindApp {
                 else { ssh_exec(&host, 22, &user, &pass, &format!("cd '{}' 2>/dev/null && pwd && ls -la --time-style=long-iso", dir)) };
             let _ = tx.send(out);
         });
+    }
+
+    /// SFTP 新建目录（对照 windows OnMkdir / apple sftpMakeDirectory）：ssh mkdir + 刷新
+    fn run_sftp_mkdir(&mut self) {
+        let name = self.new_dir_name.trim().to_string();
+        if name.is_empty() { return; }
+        let cwd = if self.sftp_path.is_empty() { "~".to_string() } else { self.sftp_path.clone() };
+        let target = format!("{}/{}", cwd, name).replace('\'', "");
+        self.term_lines.push(format!("# 新建目录 {} …", target));
+        self.new_dir_name.clear();
+        let (host, user) = self.ssh_target();
+        let tx = self.term_tx.clone();
+        std::thread::spawn(move || {
+            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+            if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+            let r = ssh_exec(&host, 22, &user, &pass, &format!("mkdir -p '{}' && echo TERMIND_MKDIR_OK", target));
+            let _ = tx.send(if r.contains("TERMIND_MKDIR_OK") { "✓ 已创建".to_string() } else { format!("✕ 创建失败：{}", r) });
+        });
+        self.run_sftp_ls(&cwd);   // 刷新
     }
 
     /// SFTP 文件删除（对照 windows DeleteSftpFile / apple sftpRemove）：ssh rm + 刷新当前目录
@@ -710,6 +730,16 @@ impl eframe::App for TermindApp {
             .show(ctx, |ui| {
                 let path = if self.sftp_path.is_empty() { "~".to_string() } else { self.sftp_path.clone() };
                 ui.colored_label(TEXT_SECONDARY, egui::RichText::new(&path).monospace());
+                // 新建目录（对照 windows OnMkdir / apple sftpMakeDirectory）
+                let mut trigger_mkdir = false;
+                ui.horizontal(|ui| {
+                    ui.add(egui::TextEdit::singleline(&mut self.new_dir_name).hint_text("新建目录名…").desired_width(180.0).font(egui::TextStyle::Monospace));
+                    if ui.add(egui::Button::new(egui::RichText::new("新建").size(11.0).color(SUCCESS))
+                        .fill(SUCCESS.linear_multiply(0.12)).rounding(6.0)).clicked() {
+                        trigger_mkdir = true;
+                    }
+                });
+                if trigger_mkdir { self.run_sftp_mkdir(); }
                 ui.separator();
                 if self.sftp_loading { ui.colored_label(TEXT_SECONDARY, "加载中…"); }
                 else if self.sftp_files.is_empty() { ui.colored_label(TEXT_SECONDARY, "(空目录或未配置 SSH)"); }

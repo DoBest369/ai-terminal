@@ -197,6 +197,18 @@ public partial class MainWindow : Window
     /// SFTP 打开按钮 → 浏览 home 目录
     private void OnSftpOpen(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => LoadSftp("~");
 
+    /// SFTP 新建目录（对照 apple sftpMakeDirectory）：SSH mkdir 当前目录下 + 刷新
+    private async void OnMkdir(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var dirName = NewDirName.Text?.Trim();
+        if (string.IsNullOrEmpty(dirName)) return;
+        var target = $"{_sftpCwd}/{dirName}".Replace("'", "");
+        AppendTerm($"# 新建目录 {target} …", "#8B92A8");
+        var r = await SshExecAsync($"mkdir -p '{target}' && echo TERMIND_MKDIR_OK");
+        if (r.Contains("TERMIND_MKDIR_OK")) { AppendTerm("  ✓ 已创建", "#3FB950"); NewDirName.Text = ""; LoadSftp(_sftpCwd); }
+        else AppendTerm($"  ✕ 创建失败：{r}", "#F59E0B");
+    }
+
     /// SFTP 文件删除（对照 apple sftpRemove）：SSH rm + 刷新列表（嵌套确认菜单防误删）
     private async void DeleteSftpFile(string filePath)
     {

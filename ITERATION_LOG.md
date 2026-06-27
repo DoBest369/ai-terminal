@@ -6,6 +6,14 @@
 
 ---
 
+## windows AI 输入回车/发送→追加提问气泡（双端 AI 区回车交互）
+- **内容**：windows AI 对话 StackPanel/ScrollViewer 加 x:Name（AiMessages/AiScroll）；AiInput `KeyDown` Enter + 发送 Button `Click` → AppendAiAsk 构造「你」标签 + 蓝色提问气泡 Border 加到 AiMessages + ScrollToEnd。对照 linux AI 回车交互。
+- **改动**：`MainWindow.axaml`(AI 对话 x:Name + KeyDown/Click)、`MainWindow.axaml.cs`(OnAiKeyDown/OnAiSend/AppendAiAsk)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）；`dotnet run` 无 exception。推送 a9cb0ff。
+- **🎯 windows/linux 双端 AI 区回车交互**：AI 输入回车/发送 → 追加提问气泡。windows/linux 双端双区（终端 + AI）都支持回车交互，真实交互体验完整对齐。
+
+---
+
 ## linux AI 输入回车/发送→追加提问气泡（AI 区真实交互）
 - **内容**：linux `struct` 加 `ai_msgs`；AI 输入框回车（lost_focus + Enter）或发送按钮点击 → push 提问到 `ai_msgs` + 清空；mock 气泡后渲染用户提问气泡（蓝色，对照终端命令回车交互）。
 - **改动**：`linux/src/main.rs`(ai_msgs + 提问气泡渲染 + 回车/发送追加)。

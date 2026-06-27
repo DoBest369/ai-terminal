@@ -6,18 +6,34 @@
 
 use eframe::egui;
 
-// Termind 品牌配色（呼应 apple/android：午夜深蓝 + 珊瑚红）
-const BG: egui::Color32 = egui::Color32::from_rgb(0x1A, 0x1A, 0x2E);
-const SURFACE: egui::Color32 = egui::Color32::from_rgb(0x16, 0x21, 0x3E);
-const ACCENT: egui::Color32 = egui::Color32::from_rgb(0xE9, 0x45, 0x60);
-const TEXT_PRIMARY: egui::Color32 = egui::Color32::from_rgb(0xEE, 0xEE, 0xEE);
-const TEXT_SECONDARY: egui::Color32 = egui::Color32::from_rgb(0xA0, 0xA0, 0xA0);
-const SUCCESS: egui::Color32 = egui::Color32::from_rgb(0x2E, 0xCC, 0x71);
-const WARNING: egui::Color32 = egui::Color32::from_rgb(0xF5, 0x9E, 0x0B);
+// U3 主题切换（用户要求「配色可调像 VSCode」）：4 套主题，全局 THEME_IDX 切换
+// 颜色访问改为大写函数 BG()/ACCENT() 等（调用处不变，只加括号），读当前主题
+const fn rgb(r: u8, g: u8, b: u8) -> egui::Color32 { egui::Color32::from_rgb(r, g, b) }
+struct Theme { bg: egui::Color32, surface: egui::Color32, accent: egui::Color32, text_primary: egui::Color32, text_secondary: egui::Color32, success: egui::Color32, warning: egui::Color32 }
+static THEMES: [Theme; 4] = [
+    // 午夜（默认，呼应 apple/android：深蓝 + 珊瑚红）
+    Theme { bg: rgb(0x1A,0x1A,0x2E), surface: rgb(0x16,0x21,0x3E), accent: rgb(0xE9,0x45,0x60), text_primary: rgb(0xEE,0xEE,0xEE), text_secondary: rgb(0xA0,0xA0,0xA0), success: rgb(0x2E,0xCC,0x71), warning: rgb(0xF5,0x9E,0x0B) },
+    // Dracula
+    Theme { bg: rgb(0x28,0x2A,0x36), surface: rgb(0x44,0x47,0x5A), accent: rgb(0xFF,0x79,0xC6), text_primary: rgb(0xF8,0xF8,0xF2), text_secondary: rgb(0x62,0x72,0xA4), success: rgb(0x50,0xFA,0x7B), warning: rgb(0xFF,0xB8,0x6C) },
+    // Nord
+    Theme { bg: rgb(0x2E,0x34,0x40), surface: rgb(0x3B,0x42,0x52), accent: rgb(0x88,0xC0,0xD0), text_primary: rgb(0xEC,0xEF,0xF4), text_secondary: rgb(0x81,0xA1,0xC1), success: rgb(0xA3,0xBE,0x8C), warning: rgb(0xEB,0xCB,0x8B) },
+    // Solarized Dark
+    Theme { bg: rgb(0x00,0x2B,0x36), surface: rgb(0x07,0x36,0x42), accent: rgb(0xD3,0x36,0x82), text_primary: rgb(0xEE,0xE8,0xD5), text_secondary: rgb(0x83,0x94,0x96), success: rgb(0x85,0x99,0x00), warning: rgb(0xB5,0x89,0x00) },
+];
+static THEME_IDX: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+const THEME_NAMES: [&str; 4] = ["午夜", "Dracula", "Nord", "Solarized"];
+fn cur_theme() -> &'static Theme { &THEMES[THEME_IDX.load(std::sync::atomic::Ordering::Relaxed).min(THEMES.len() - 1)] }
+#[allow(non_snake_case)] fn BG() -> egui::Color32 { cur_theme().bg }
+#[allow(non_snake_case)] fn SURFACE() -> egui::Color32 { cur_theme().surface }
+#[allow(non_snake_case)] fn ACCENT() -> egui::Color32 { cur_theme().accent }
+#[allow(non_snake_case)] fn TEXT_PRIMARY() -> egui::Color32 { cur_theme().text_primary }
+#[allow(non_snake_case)] fn TEXT_SECONDARY() -> egui::Color32 { cur_theme().text_secondary }
+#[allow(non_snake_case)] fn SUCCESS() -> egui::Color32 { cur_theme().success }
+#[allow(non_snake_case)] fn WARNING() -> egui::Color32 { cur_theme().warning }
 
 /// 占用率着色：绿<60 / 橙60-80 / 红>80（对齐 apple/android 状态面板进度条）
 fn usage_color(pct: u8) -> egui::Color32 {
-    if pct > 80 { ACCENT } else if pct > 60 { WARNING } else { SUCCESS }
+    if pct > 80 { ACCENT() } else if pct > 60 { WARNING() } else { SUCCESS() }
 }
 
 /// AI 三模式（安全梯度，对齐 windows）：Chat 纯聊天 / Agent 每条确认 / Auto 全自动闭环
@@ -63,7 +79,7 @@ fn risk_style(r: RiskLevel) -> (&'static str, egui::Color32) {
         RiskLevel::Critical => ("极高危", egui::Color32::from_rgb(0xE7, 0x4C, 0x3C)),
         RiskLevel::High => ("高风险", egui::Color32::from_rgb(0xE6, 0x7E, 0x22)),
         RiskLevel::Notice => ("注意", egui::Color32::from_rgb(0xF3, 0x9C, 0x12)),
-        RiskLevel::Safe => ("", SUCCESS),
+        RiskLevel::Safe => ("", SUCCESS()),
     }
 }
 
@@ -128,11 +144,11 @@ fn render_ai_reply(ui: &mut egui::Ui, text: &str) {
             }.trim();
             if !code.is_empty() {
                 egui::Frame::default().fill(egui::Color32::from_rgb(0x05, 0x06, 0x0C)).rounding(6.0).inner_margin(8.0)
-                    .show(ui, |ui| { ui.colored_label(SUCCESS, egui::RichText::new(code).monospace()); });
+                    .show(ui, |ui| { ui.colored_label(SUCCESS(), egui::RichText::new(code).monospace()); });
             }
         } else {
             let body = seg.trim();
-            if !body.is_empty() { ui.colored_label(TEXT_PRIMARY, body); }
+            if !body.is_empty() { ui.colored_label(TEXT_PRIMARY(), body); }
         }
     }
 }
@@ -705,19 +721,19 @@ impl eframe::App for TermindApp {
         egui::TopBottomPanel::top("topbar").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.add_space(6.0);
-                ui.colored_label(ACCENT, egui_phosphor::regular::LIGHTNING);
-                ui.heading(egui::RichText::new("Termind").color(TEXT_PRIMARY).strong());
-                ui.colored_label(TEXT_SECONDARY, "智能 SSH 运维");
+                ui.colored_label(ACCENT(), egui_phosphor::regular::LIGHTNING);
+                ui.heading(egui::RichText::new("Termind").color(TEXT_PRIMARY()).strong());
+                ui.colored_label(TEXT_SECONDARY(), "智能 SSH 运维");
                 // 右侧工具栏：新建连接 / SFTP / 设置（对照 windows 顶部工具栏）
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::GEAR).size(16.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
+                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::GEAR).size(16.0).color(TEXT_SECONDARY())).frame(false)).clicked() {
                         self.show_settings = !self.show_settings;
                     }
-                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::FOLDER).size(16.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
+                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::FOLDER).size(16.0).color(TEXT_SECONDARY())).frame(false)).clicked() {
                         self.show_sftp = !self.show_sftp;
                         if self.show_sftp { self.run_sftp_ls("~"); }   // 打开时 SSH 取真实文件
                     }
-                    let _ = ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::PLUS).size(16.0).color(ACCENT)).frame(false));
+                    let _ = ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::PLUS).size(16.0).color(ACCENT())).frame(false));
                 });
             });
             ui.add_space(4.0);
@@ -730,35 +746,39 @@ impl eframe::App for TermindApp {
             .resizable(false)
             .default_width(300.0)
             .show(ctx, |ui| {
-                ui.colored_label(TEXT_SECONDARY, "配色主题");
+                ui.colored_label(TEXT_SECONDARY(), "配色主题（U3：点击切换，像 VSCode）");
                 ui.horizontal(|ui| {
-                    for (name, sel) in [("午夜", true), ("Dracula", false), ("Nord", false)] {
-                        let _ = ui.add(egui::Button::new(egui::RichText::new(name).size(12.0)
-                            .color(if sel { ACCENT } else { TEXT_SECONDARY }))
-                            .fill(if sel { ACCENT.linear_multiply(0.15) } else { SURFACE }).rounding(6.0));
+                    let cur = THEME_IDX.load(std::sync::atomic::Ordering::Relaxed);
+                    for (i, name) in THEME_NAMES.iter().enumerate() {
+                        let sel = i == cur;
+                        if ui.add(egui::Button::new(egui::RichText::new(*name).size(12.0)
+                            .color(if sel { ACCENT() } else { TEXT_SECONDARY() }))
+                            .fill(if sel { ACCENT().linear_multiply(0.15) } else { SURFACE() }).rounding(6.0)).clicked() {
+                            THEME_IDX.store(i, std::sync::atomic::Ordering::Relaxed);   // 全窗主题实时切换
+                        }
                     }
                 });
                 ui.add_space(8.0);
-                ui.colored_label(TEXT_SECONDARY, "AI 服务商");
+                ui.colored_label(TEXT_SECONDARY(), "AI 服务商");
                 ui.horizontal(|ui| {
-                    let _ = ui.add(egui::Button::new(egui::RichText::new("Anthropic Claude").size(12.0).color(ACCENT))
-                        .fill(ACCENT.linear_multiply(0.15)).rounding(6.0));
-                    let _ = ui.add(egui::Button::new(egui::RichText::new("OpenAI").size(12.0).color(TEXT_SECONDARY))
-                        .fill(SURFACE).rounding(6.0));
+                    let _ = ui.add(egui::Button::new(egui::RichText::new("Anthropic Claude").size(12.0).color(ACCENT()))
+                        .fill(ACCENT().linear_multiply(0.15)).rounding(6.0));
+                    let _ = ui.add(egui::Button::new(egui::RichText::new("OpenAI").size(12.0).color(TEXT_SECONDARY()))
+                        .fill(SURFACE()).rounding(6.0));
                 });
                 ui.add_space(8.0);
-                ui.colored_label(TEXT_SECONDARY, "API Key");
+                ui.colored_label(TEXT_SECONDARY(), "API Key");
                 // 失焦后持久化（对照 windows LostFocus 保存）
                 if ui.add(egui::TextEdit::singleline(&mut self.api_key).password(true)
                     .hint_text("sk-ant-…").desired_width(f32::INFINITY)).lost_focus() {
                     save_config(&self.api_key, &self.base_url, self.term_font_size);
                 }
                 ui.add_space(8.0);
-                ui.colored_label(TEXT_SECONDARY, "模型");
-                ui.colored_label(TEXT_PRIMARY, egui::RichText::new("claude-opus-4-8").monospace());
+                ui.colored_label(TEXT_SECONDARY(), "模型");
+                ui.colored_label(TEXT_PRIMARY(), egui::RichText::new("claude-opus-4-8").monospace());
                 ui.add_space(8.0);
                 // API 地址（Base URL，对齐 apple/android/windows；OpenAI 兼容/代理/自托管）
-                ui.colored_label(TEXT_SECONDARY, "API 地址");
+                ui.colored_label(TEXT_SECONDARY(), "API 地址");
                 if ui.add(egui::TextEdit::singleline(&mut self.base_url)
                     .hint_text("https://api.anthropic.com/v1/messages").desired_width(f32::INFINITY)
                     .font(egui::TextStyle::Monospace)).lost_focus() {
@@ -766,7 +786,7 @@ impl eframe::App for TermindApp {
                 }
                 ui.add_space(8.0);
                 // AI 系统提示词（可自定义，对齐 apple/android）
-                ui.colored_label(TEXT_SECONDARY, "AI 系统提示词");
+                ui.colored_label(TEXT_SECONDARY(), "AI 系统提示词");
                 ui.add(egui::TextEdit::multiline(&mut self.sys_prompt)
                     .desired_width(f32::INFINITY).desired_rows(4));
             });
@@ -785,7 +805,7 @@ impl eframe::App for TermindApp {
             .default_width(420.0)
             .show(ctx, |ui| {
                 let path = if self.sftp_path.is_empty() { "~".to_string() } else { self.sftp_path.clone() };
-                ui.colored_label(TEXT_SECONDARY, egui::RichText::new(&path).monospace());
+                ui.colored_label(TEXT_SECONDARY(), egui::RichText::new(&path).monospace());
                 // 新建目录 / 重命名（输入框复用）+ 上传（rfd 选本地文件，对照 windows）
                 let mut trigger_mkdir = false;
                 let mut trigger_upload = false;
@@ -794,8 +814,8 @@ impl eframe::App for TermindApp {
                     let hint = if renaming { "输入新名…" } else { "新建目录名…" };
                     ui.add(egui::TextEdit::singleline(&mut self.new_dir_name).hint_text(hint).desired_width(150.0).font(egui::TextStyle::Monospace));
                     let label = if renaming { "重命名" } else { "新建" };
-                    if ui.add(egui::Button::new(egui::RichText::new(label).size(11.0).color(SUCCESS))
-                        .fill(SUCCESS.linear_multiply(0.12)).rounding(6.0)).clicked() {
+                    if ui.add(egui::Button::new(egui::RichText::new(label).size(11.0).color(SUCCESS()))
+                        .fill(SUCCESS().linear_multiply(0.12)).rounding(6.0)).clicked() {
                         trigger_mkdir = true;
                     }
                     let blue = egui::Color32::from_rgb(0x60, 0xA5, 0xFA);
@@ -807,8 +827,8 @@ impl eframe::App for TermindApp {
                 if trigger_mkdir { if renaming { self.run_sftp_rename(); } else { self.run_sftp_mkdir(); } }
                 if trigger_upload { self.run_sftp_upload(); }
                 ui.separator();
-                if self.sftp_loading { ui.colored_label(TEXT_SECONDARY, "加载中…"); }
-                else if self.sftp_files.is_empty() { ui.colored_label(TEXT_SECONDARY, "(空目录或未配置 SSH)"); }
+                if self.sftp_loading { ui.colored_label(TEXT_SECONDARY(), "加载中…"); }
+                else if self.sftp_files.is_empty() { ui.colored_label(TEXT_SECONDARY(), "(空目录或未配置 SSH)"); }
                 let cwd = path.clone();
                 for (name, is_dir, size, time) in &self.sftp_files {
                     let (name, is_dir, size, time) = (name.as_str(), *is_dir, size.as_str(), time.as_str());
@@ -819,16 +839,16 @@ impl eframe::App for TermindApp {
                             else if name.ends_with(".gz") || name.ends_with(".zip") { ph::FILE_ZIP }
                             else if name.ends_with(".md") || name.ends_with(".txt") { ph::FILE_TEXT }
                             else { ph::GEAR };
-                        ui.colored_label(if is_dir { ACCENT } else { TEXT_SECONDARY }, icon);
+                        ui.colored_label(if is_dir { ACCENT() } else { TEXT_SECONDARY() }, icon);
                         // 目录可点击导航（cd 进入 / .. 返回上级，对照 windows）
                         if is_dir {
-                            if ui.add(egui::Label::new(egui::RichText::new(name).color(TEXT_PRIMARY))
+                            if ui.add(egui::Label::new(egui::RichText::new(name).color(TEXT_PRIMARY()))
                                 .sense(egui::Sense::click())).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
                                 sftp_nav = Some(format!("{}/{}", cwd, name));
                             }
                         } else {
                             // 文件：左键预览(head 到终端) / 右键菜单下载（对照 windows）
-                            let resp = ui.add(egui::Label::new(egui::RichText::new(name).color(TEXT_PRIMARY))
+                            let resp = ui.add(egui::Label::new(egui::RichText::new(name).color(TEXT_PRIMARY()))
                                 .sense(egui::Sense::click())).on_hover_cursor(egui::CursorIcon::PointingHand);
                             if resp.clicked() { sftp_preview = Some(format!("{}/{}", cwd, name)); }
                             resp.context_menu(|ui| {
@@ -842,7 +862,7 @@ impl eframe::App for TermindApp {
                                     ui.close_menu();
                                 }
                                 // 删除：嵌套子菜单确认防误删（对照 windows/apple sftpRemove）
-                                ui.menu_button(egui::RichText::new("删除").color(ACCENT), |ui| {
+                                ui.menu_button(egui::RichText::new("删除").color(ACCENT()), |ui| {
                                     if ui.button(format!("⚠ 确认删除 {}", name)).clicked() {
                                         sftp_delete = Some(format!("{}/{}", cwd, name));
                                         ui.close_menu();
@@ -853,10 +873,10 @@ impl eframe::App for TermindApp {
                         // 右侧：大小 + 修改时间（对照 apple/android SFTP）
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             if !size.is_empty() {
-                                ui.colored_label(TEXT_SECONDARY, size);
+                                ui.colored_label(TEXT_SECONDARY(), size);
                             }
                             if !time.is_empty() {
-                                ui.colored_label(TEXT_SECONDARY.linear_multiply(0.7), egui::RichText::new(time).size(10.0));
+                                ui.colored_label(TEXT_SECONDARY().linear_multiply(0.7), egui::RichText::new(time).size(10.0));
                             }
                         });
                     });
@@ -873,13 +893,13 @@ impl eframe::App for TermindApp {
         egui::SidePanel::left("connections")
             .resizable(false)
             .exact_width(280.0)
-            .frame(egui::Frame::default().fill(SURFACE).inner_margin(10.0))
+            .frame(egui::Frame::default().fill(SURFACE()).inner_margin(10.0))
             .show(ctx, |ui| {
                 // 搜索框（对照 windows/apple 侧边栏，按名称/host 过滤）
                 ui.add(egui::TextEdit::singleline(&mut self.search)
                     .hint_text(format!("{} 搜索连接", egui_phosphor::regular::MAGNIFYING_GLASS)).desired_width(f32::INFINITY));
                 ui.add_space(6.0);
-                ui.colored_label(TEXT_SECONDARY, "SSH 连接");
+                ui.colored_label(TEXT_SECONDARY(), "SSH 连接");
                 ui.add_space(6.0);
                 let q = self.search.trim().to_lowercase();
                 // 按分组聚合（过滤后），分组用 CollapsingHeader 可折叠（对照 apple/android）
@@ -899,7 +919,7 @@ impl eframe::App for TermindApp {
                 }
                 let mut clicked: Option<usize> = None;
                 for (group, indices) in &groups {
-                    egui::CollapsingHeader::new(egui::RichText::new(group).color(TEXT_SECONDARY))
+                    egui::CollapsingHeader::new(egui::RichText::new(group).color(TEXT_SECONDARY()))
                         .default_open(true)
                         .show(ui, |ui| {
                             for &i in indices {
@@ -915,29 +935,29 @@ impl eframe::App for TermindApp {
         egui::SidePanel::right("ai")
             .resizable(false)
             .exact_width(320.0)
-            .frame(egui::Frame::default().fill(SURFACE).inner_margin(12.0))
+            .frame(egui::Frame::default().fill(SURFACE()).inner_margin(12.0))
             .show(ctx, |ui| {
-                ui.colored_label(ACCENT, egui::RichText::new("✦ AI 助手").strong());
+                ui.colored_label(ACCENT(), egui::RichText::new("✦ AI 助手").strong());
                 ui.add_space(6.0);
                 // AI 三模式切换器（Chat/Agent/Auto，安全梯度，对照 windows）
                 ui.horizontal(|ui| {
                     for (mode, label) in [(AiMode::Chat, "聊天"), (AiMode::Agent, "代理"), (AiMode::Auto, "全自动")] {
                         let on = self.ai_mode == mode;
                         if ui.add(egui::Button::new(egui::RichText::new(label).size(11.0)
-                            .color(if on { TEXT_PRIMARY } else { TEXT_SECONDARY }))
-                            .fill(if on { ACCENT } else { SURFACE }).rounding(6.0)).clicked() {
+                            .color(if on { TEXT_PRIMARY() } else { TEXT_SECONDARY() }))
+                            .fill(if on { ACCENT() } else { SURFACE() }).rounding(6.0)).clicked() {
                             self.ai_mode = mode;
                         }
                     }
                     // 清空 / 导出对话（对照 windows）
                     let mut trigger_export = false;
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::TRASH).size(13.0).color(TEXT_SECONDARY))
+                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::TRASH).size(13.0).color(TEXT_SECONDARY()))
                             .fill(egui::Color32::TRANSPARENT)).on_hover_text("清空对话").clicked() {
                             self.ai_msgs.clear();
                             self.pending_cmds.clear();
                         }
-                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::EXPORT).size(13.0).color(TEXT_SECONDARY))
+                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::EXPORT).size(13.0).color(TEXT_SECONDARY()))
                             .fill(egui::Color32::TRANSPARENT)).on_hover_text("导出对话为 Markdown").clicked() {
                             trigger_export = true;
                         }
@@ -952,13 +972,13 @@ impl eframe::App for TermindApp {
                     ui.horizontal(|ui| {
                         ui.colored_label(rcolor,
                             egui::RichText::new(format!("{}{}", if rlabel.is_empty() { String::new() } else { format!("[{}] ", rlabel) }, cmd)).monospace().size(11.0));
-                        if ui.add(egui::Button::new(egui::RichText::new("▶ 执行").size(10.0).color(TEXT_PRIMARY))
-                            .fill(ACCENT).rounding(6.0)).clicked() {
+                        if ui.add(egui::Button::new(egui::RichText::new("▶ 执行").size(10.0).color(TEXT_PRIMARY()))
+                            .fill(ACCENT()).rounding(6.0)).clicked() {
                             run_idx = Some(i);
                         }
                         // 填入终端（命令填入输入框可编辑后执行，对照 windows）
-                        if ui.add(egui::Button::new(egui::RichText::new("填入").size(10.0).color(TEXT_SECONDARY))
-                            .fill(SURFACE).rounding(6.0)).clicked() {
+                        if ui.add(egui::Button::new(egui::RichText::new("填入").size(10.0).color(TEXT_SECONDARY()))
+                            .fill(SURFACE()).rounding(6.0)).clicked() {
                             fill_cmd = Some(cmd.clone());
                         }
                     });
@@ -976,53 +996,53 @@ impl eframe::App for TermindApp {
                 }
                 ui.add_space(10.0);
                 // 第一轮对话（展示连续性 + AI 结合真实环境）
-                ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());
+                ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("你").size(10.0).strong());
                 egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
-                    .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, "这台机器装了什么服务？"); });
+                    .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY(), "这台机器装了什么服务？"); });
                 ui.add_space(6.0);
                 ui.horizontal(|ui| {
-                    ui.colored_label(ACCENT, egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
-                    ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
+                    ui.colored_label(ACCENT(), egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
+                    ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("AI").size(10.0).strong());
                 });
-                egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0)
-                    .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, "检测到 nginx(运行)、docker(运行)、mysql(运行)、redis(未运行)。需要我帮你启动 redis 吗？"); });
+                egui::Frame::default().fill(BG()).rounding(10.0).inner_margin(10.0)
+                    .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY(), "检测到 nginx(运行)、docker(运行)、mysql(运行)、redis(未运行)。需要我帮你启动 redis 吗？"); });
                 ui.add_space(8.0);
                 // 第二轮对话：角色标签 + 气泡（对照 apple/android）
-                ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());
+                ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("你").size(10.0).strong());
                 egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
-                    .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, "怎么查看 Nginx 错误日志？"); });
+                    .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY(), "怎么查看 Nginx 错误日志？"); });
                 ui.add_space(6.0);
                 // AI 消息：角色标签 + 气泡
                 ui.horizontal(|ui| {
-                    ui.colored_label(ACCENT, egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
-                    ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
+                    ui.colored_label(ACCENT(), egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
+                    ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("AI").size(10.0).strong());
                 });
-                egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0).show(ui, |ui| {
-                    ui.colored_label(TEXT_PRIMARY, "用下面的命令查看最近的错误日志：");
+                egui::Frame::default().fill(BG()).rounding(10.0).inner_margin(10.0).show(ui, |ui| {
+                    ui.colored_label(TEXT_PRIMARY(), "用下面的命令查看最近的错误日志：");
                     ui.add_space(4.0);
                     egui::Frame::default().fill(egui::Color32::BLACK).rounding(6.0).inner_margin(8.0).show(ui, |ui| {
-                        ui.colored_label(SUCCESS, egui::RichText::new("tail -n 50 /var/log/nginx/error.log").monospace());
+                        ui.colored_label(SUCCESS(), egui::RichText::new("tail -n 50 /var/log/nginx/error.log").monospace());
                     });
                 });
                 // AI 真实对话（true=用户提问蓝气泡 / false=AI 真实回复气泡）
                 for (is_user, text) in &self.ai_msgs {
                     ui.add_space(6.0);
                     if *is_user {
-                        ui.colored_label(TEXT_SECONDARY, egui::RichText::new("你").size(10.0).strong());
+                        ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("你").size(10.0).strong());
                         egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
-                            .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY, text); });
+                            .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY(), text); });
                     } else {
                         ui.horizontal(|ui| {
-                            ui.colored_label(ACCENT, egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
-                            ui.colored_label(TEXT_SECONDARY, egui::RichText::new("AI").size(10.0).strong());
+                            ui.colored_label(ACCENT(), egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
+                            ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("AI").size(10.0).strong());
                         });
-                        egui::Frame::default().fill(BG).rounding(10.0).inner_margin(10.0)
+                        egui::Frame::default().fill(BG()).rounding(10.0).inner_margin(10.0)
                             .show(ui, |ui| { render_ai_reply(ui, text); });
                     }
                 }
                 if self.ai_busy {
                     ui.add_space(6.0);
-                    ui.colored_label(TEXT_SECONDARY, "✦ AI 思考中…");
+                    ui.colored_label(TEXT_SECONDARY(), "✦ AI 思考中…");
                 }
                 ui.add_space(10.0);
                 // 运维快捷入口（对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检 + windows）
@@ -1031,18 +1051,18 @@ impl eframe::App for TermindApp {
                 let mut trigger_error = false;
                 ui.horizontal(|ui| {
                     // 解释命令：预填提问
-                    if ui.add(egui::Button::new(egui::RichText::new("解释命令").size(11.0).color(ACCENT))
-                        .fill(ACCENT.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                    if ui.add(egui::Button::new(egui::RichText::new("解释命令").size(11.0).color(ACCENT()))
+                        .fill(ACCENT().linear_multiply(0.12)).rounding(14.0)).clicked() {
                         self.ai_input = "解释这条命令的作用、参数含义和潜在风险：".to_string();
                     }
                     // 分析报错：一键触发（SSH 取错误日志 → AI 诊断）
-                    if ui.add(egui::Button::new(egui::RichText::new("分析报错").size(11.0).color(SUCCESS))
-                        .fill(SUCCESS.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                    if ui.add(egui::Button::new(egui::RichText::new("分析报错").size(11.0).color(SUCCESS()))
+                        .fill(SUCCESS().linear_multiply(0.12)).rounding(14.0)).clicked() {
                         trigger_error = true;
                     }
                     // 健康巡检：一键触发（SSH 取真实指标 → AI 分析）
-                    if ui.add(egui::Button::new(egui::RichText::new("健康巡检").size(11.0).color(SUCCESS))
-                        .fill(SUCCESS.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                    if ui.add(egui::Button::new(egui::RichText::new("健康巡检").size(11.0).color(SUCCESS()))
+                        .fill(SUCCESS().linear_multiply(0.12)).rounding(14.0)).clicked() {
                         trigger_health = true;
                     }
                 });
@@ -1064,8 +1084,8 @@ impl eframe::App for TermindApp {
                 ui.horizontal(|ui| {
                     let send = ui.add_sized(
                         [28.0, 28.0],
-                        egui::Button::new(egui::RichText::new(egui_phosphor::regular::PAPER_PLANE_TILT).size(15.0).color(TEXT_PRIMARY))
-                            .fill(ACCENT).rounding(14.0));
+                        egui::Button::new(egui::RichText::new(egui_phosphor::regular::PAPER_PLANE_TILT).size(15.0).color(TEXT_PRIMARY()))
+                            .fill(ACCENT()).rounding(14.0));
                     let resp = ui.add_sized(
                         [ui.available_width(), 28.0],
                         egui::TextEdit::singleline(&mut self.ai_input).hint_text("输入指令…"));
@@ -1100,19 +1120,19 @@ impl eframe::App for TermindApp {
         // 终端提示符联动选中连接（user@host:~$）
         let prompt = format!("{}@{}:~$", sel_user, sel_host);
         egui::CentralPanel::default()
-            .frame(egui::Frame::default().fill(BG).inner_margin(12.0))
+            .frame(egui::Frame::default().fill(BG()).inner_margin(12.0))
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
-                    ui.colored_label(if sel_online { SUCCESS } else { TEXT_SECONDARY },
+                    ui.colored_label(if sel_online { SUCCESS() } else { TEXT_SECONDARY() },
                         if sel_online { "● 已连接" } else { "○ 离线" });
-                    ui.colored_label(TEXT_SECONDARY, sel_host);
+                    ui.colored_label(TEXT_SECONDARY(), sel_host);
                     // CPU/内存 mini 进度条（绿<60/橙60-80/红>80 三档，对齐 apple/android）
-                    ui.colored_label(TEXT_SECONDARY, "CPU");
+                    ui.colored_label(TEXT_SECONDARY(), "CPU");
                     // 真实逻辑核数（available_parallelism）；CPU% 瞬时占用需 /proc/stat 采样留后续
                     let cores = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(8);
                     ui.add(egui::ProgressBar::new(0.47).desired_width(54.0).text("47%").fill(usage_color(47)))
                         .on_hover_text(format!("{} 核", cores));
-                    ui.colored_label(TEXT_SECONDARY, "内存");
+                    ui.colored_label(TEXT_SECONDARY(), "内存");
                     // 真实本机内存（/proc/meminfo）；非 Linux/读失败回退占位
                     let (mem_used, mem_total, mem_pct) = read_mem().unwrap_or((9.0, 16.0, 56));
                     ui.add(egui::ProgressBar::new(mem_pct as f32 / 100.0).desired_width(54.0)
@@ -1120,24 +1140,24 @@ impl eframe::App for TermindApp {
                         .on_hover_text(format!("{:.1} / {:.1} GB", mem_used, mem_total));
                     // 真实本机负载（/proc/loadavg）；非 Linux/读失败回退占位
                     let load = read_loadavg().unwrap_or_else(|| "0.82 0.45 0.30".to_string());
-                    ui.colored_label(TEXT_SECONDARY, format!("负载 {}", load));
+                    ui.colored_label(TEXT_SECONDARY(), format!("负载 {}", load));
                     // 真实本机运行时长（/proc/uptime）；真 Linux 显示，非 Linux 跳过
                     if let Some(up) = read_uptime() {
-                        ui.colored_label(TEXT_SECONDARY, format!("· 运行 {}", up));
+                        ui.colored_label(TEXT_SECONDARY(), format!("· 运行 {}", up));
                     }
                     ui.separator();
                     // 关键服务运行状态点（对照 apple/android Z6：nginx/docker/mysql/redis/sshd）
                     for (svc, running) in [("nginx", true), ("docker", true), ("mysql", true), ("redis", false), ("sshd", true)] {
-                        ui.colored_label(if running { SUCCESS } else { TEXT_SECONDARY }, "●");
-                        ui.colored_label(if running { TEXT_PRIMARY } else { TEXT_SECONDARY }, svc);
+                        ui.colored_label(if running { SUCCESS() } else { TEXT_SECONDARY() }, "●");
+                        ui.colored_label(if running { TEXT_PRIMARY() } else { TEXT_SECONDARY() }, svc);
                     }
                     // 终端字号调整（U4，对照 windows A-/A+）
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui.add(egui::Button::new(egui::RichText::new("A+").size(11.0).color(TEXT_SECONDARY)).frame(false)).on_hover_text("放大终端字号").clicked() {
+                        if ui.add(egui::Button::new(egui::RichText::new("A+").size(11.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("放大终端字号").clicked() {
                             self.term_font_size = (self.term_font_size + 1.0).min(22.0);
                             save_config(&self.api_key, &self.base_url, self.term_font_size);   // 字号持久化
                         }
-                        if ui.add(egui::Button::new(egui::RichText::new("A-").size(11.0).color(TEXT_SECONDARY)).frame(false)).on_hover_text("缩小终端字号").clicked() {
+                        if ui.add(egui::Button::new(egui::RichText::new("A-").size(11.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("缩小终端字号").clicked() {
                             self.term_font_size = (self.term_font_size - 1.0).max(9.0);
                             save_config(&self.api_key, &self.base_url, self.term_font_size);
                         }
@@ -1148,23 +1168,23 @@ impl eframe::App for TermindApp {
                     .show(ui, |ui| {
                         // 终端输出可滚动（对照 windows，输出多时查看历史）
                         egui::ScrollArea::vertical().auto_shrink([false, false]).max_height(360.0).show(ui, |ui| {
-                            ui.colored_label(TEXT_SECONDARY, egui::RichText::new("Last login: Sun Jun 22 19:00 on ttys001").monospace());
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} ls -la", prompt)).monospace());
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("total 32").monospace());
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("drwxr-xr-x  6 root root 4096 Jun 22 18:00 .").monospace());
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("-rw-r--r--  1 root root  220 Jun 10 09:12 .bashrc").monospace());
-                            ui.colored_label(SUCCESS, egui::RichText::new("-rwxr-xr-x  1 root root 1024 Jun 22 17:30 deploy.sh").monospace());
-                            ui.colored_label(ACCENT, egui::RichText::new("drwxr-xr-x  4 root root 4096 Jun 22 18:00 projects").monospace());
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} systemctl status nginx", prompt)).monospace());
-                            ui.colored_label(SUCCESS, egui::RichText::new("● nginx.service - A high performance web server").monospace());
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new("   Active: active (running) since Mon 2026-06-22").monospace());
+                            ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("Last login: Sun Jun 22 19:00 on ttys001").monospace());
+                            ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(format!("{} ls -la", prompt)).monospace());
+                            ui.colored_label(TEXT_PRIMARY(), egui::RichText::new("total 32").monospace());
+                            ui.colored_label(TEXT_PRIMARY(), egui::RichText::new("drwxr-xr-x  6 root root 4096 Jun 22 18:00 .").monospace());
+                            ui.colored_label(TEXT_PRIMARY(), egui::RichText::new("-rw-r--r--  1 root root  220 Jun 10 09:12 .bashrc").monospace());
+                            ui.colored_label(SUCCESS(), egui::RichText::new("-rwxr-xr-x  1 root root 1024 Jun 22 17:30 deploy.sh").monospace());
+                            ui.colored_label(ACCENT(), egui::RichText::new("drwxr-xr-x  4 root root 4096 Jun 22 18:00 projects").monospace());
+                            ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(format!("{} systemctl status nginx", prompt)).monospace());
+                            ui.colored_label(SUCCESS(), egui::RichText::new("● nginx.service - A high performance web server").monospace());
+                            ui.colored_label(TEXT_PRIMARY(), egui::RichText::new("   Active: active (running) since Mon 2026-06-22").monospace());
                             // 用户输入回车后追加的历史命令行（ANSI 转义→彩色，对照 windows）
                             let fsz = self.term_font_size;   // U4 可调字号
                             for line in &self.term_lines {
-                                if line.contains('\u{1b}') { ui.label(ansi_to_job(line, TEXT_PRIMARY, fsz)); }
-                                else { ui.colored_label(TEXT_PRIMARY, egui::RichText::new(line).monospace().size(fsz)); }
+                                if line.contains('\u{1b}') { ui.label(ansi_to_job(line, TEXT_PRIMARY(), fsz)); }
+                                else { ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(line).monospace().size(fsz)); }
                             }
-                            ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} \u{2588}", prompt)).monospace());
+                            ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(format!("{} \u{2588}", prompt)).monospace());
                         });
                     });
                 ui.add_space(8.0);
@@ -1173,16 +1193,16 @@ impl eframe::App for TermindApp {
                     ui.horizontal(|ui| {
                         for cmd in ["ls -la", "df -h", "free -h", "ps aux --sort=-%cpu | head", "ss -tlnp", "uptime", "top"] {
                             if ui.add(egui::Button::new(
-                                egui::RichText::new(cmd).monospace().size(11.0).color(ACCENT))
-                                .fill(ACCENT.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                                egui::RichText::new(cmd).monospace().size(11.0).color(ACCENT()))
+                                .fill(ACCENT().linear_multiply(0.12)).rounding(14.0)).clicked() {
                                 self.cmd_input = cmd.to_string();
                             }
                         }
                         // 高风险/需谨慎命令橙色
                         for cmd in ["journalctl -xe -n 50", "systemctl status nginx"] {
                             if ui.add(egui::Button::new(
-                                egui::RichText::new(cmd).monospace().size(11.0).color(WARNING))
-                                .fill(WARNING.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                                egui::RichText::new(cmd).monospace().size(11.0).color(WARNING()))
+                                .fill(WARNING().linear_multiply(0.12)).rounding(14.0)).clicked() {
                                 self.cmd_input = cmd.to_string();
                             }
                         }
@@ -1192,9 +1212,9 @@ impl eframe::App for TermindApp {
                 // 命令输入框（提示符 + 输入 + 批量群发按钮；快捷命令点击填入；回车追加终端）
                 let mut trigger_batch = false;
                 ui.horizontal(|ui| {
-                    ui.colored_label(SUCCESS, egui::RichText::new(format!("{} ", prompt)).monospace());
+                    ui.colored_label(SUCCESS(), egui::RichText::new(format!("{} ", prompt)).monospace());
                     // 批量群发按钮（护城河 batch，对照 windows）：对所有连接群发命令
-                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::USERS_THREE).size(15.0).color(WARNING)).frame(false))
+                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::USERS_THREE).size(15.0).color(WARNING())).frame(false))
                         .on_hover_text("批量群发：对所有连接执行此命令").clicked() {
                         trigger_batch = true;
                     }
@@ -1251,33 +1271,33 @@ impl eframe::App for TermindApp {
 /// 单个连接卡片
 fn server_card(ui: &mut egui::Ui, c: &ServerConn, selected: bool) -> egui::Response {
     let frame = egui::Frame::default()
-        .fill(if selected { ACCENT.linear_multiply(0.2) } else { SURFACE })
+        .fill(if selected { ACCENT().linear_multiply(0.2) } else { SURFACE() })
         .rounding(10.0)
         .inner_margin(12.0);
     frame
         .show(ui, |ui| {
             ui.horizontal(|ui| {
-                let dot = if c.online { SUCCESS } else { TEXT_SECONDARY };
+                let dot = if c.online { SUCCESS() } else { TEXT_SECONDARY() };
                 ui.colored_label(dot, "●");
                 ui.vertical(|ui| {
-                    ui.colored_label(TEXT_PRIMARY, egui::RichText::new(c.name).strong());
-                    ui.colored_label(TEXT_SECONDARY, format!("{}@{}:{}", c.user, c.host, c.port));
+                    ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(c.name).strong());
+                    ui.colored_label(TEXT_SECONDARY(), format!("{}@{}:{}", c.user, c.host, c.port));
                     if !c.note.is_empty() {
-                        ui.colored_label(TEXT_SECONDARY, format!("{} {}", egui_phosphor::regular::NOTE_PENCIL, c.note));
+                        ui.colored_label(TEXT_SECONDARY(), format!("{} {}", egui_phosphor::regular::NOTE_PENCIL, c.note));
                     }
                     if !c.last_used.is_empty() {
-                        ui.colored_label(TEXT_SECONDARY.linear_multiply(0.8), format!("上次使用 · {}", c.last_used));
+                        ui.colored_label(TEXT_SECONDARY().linear_multiply(0.8), format!("上次使用 · {}", c.last_used));
                     }
                 });
                 // 右侧可达指示（探测中 / 可达 / 不可达，真实 TCP 探测；phosphor 矢量图标）
                 use egui_phosphor::regular as ph;
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if !c.probed {
-                        ui.colored_label(TEXT_SECONDARY.linear_multiply(0.7), ph::CIRCLE_DASHED);
+                        ui.colored_label(TEXT_SECONDARY().linear_multiply(0.7), ph::CIRCLE_DASHED);
                     } else if c.online {
-                        ui.colored_label(SUCCESS, egui::RichText::new(ph::CHECK_CIRCLE).strong());
+                        ui.colored_label(SUCCESS(), egui::RichText::new(ph::CHECK_CIRCLE).strong());
                     } else {
-                        ui.colored_label(TEXT_SECONDARY, ph::X_CIRCLE);
+                        ui.colored_label(TEXT_SECONDARY(), ph::X_CIRCLE);
                     }
                 });
             });

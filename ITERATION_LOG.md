@@ -3950,3 +3950,11 @@
 - **windows 整体效果巡检**（截图 Read 自查）：左栏连接列表（分组+矢量图标+全信息）+ 中栏终端区（JetBrains Mono 输出 + 快捷命令栏横滚）+ 右栏 AI 面板（✦助手+清空+三模式切换器+对话代码块+运维快捷入口+快捷追问+输入），整窗深色协调，Material PathIcon 矢量图标。
 - **改动**：更新 `apple/screenshots/windows-smart-ops.png`。
 - **意义**：深化打磨多轮后全面质量收口，五端 build 全绿核心无回归，windows 智能运维工作台 UI 完整美观。S6/S7 深化打磨成果扎实。下一步 apple Auto 闭环 / windows 真实连接管理 / 对话导出。
+
+---
+
+## windows AI 对话导出 Markdown（对照 apple ai-md）
+- **内容**：windows AI 助手标题旁加导出按钮（PathIcon）→ OnExportChat：_aiHistory 转 Markdown（你/AI 分节）保存到桌面 termind-chat-N.md；空对话提示；失败 try/catch。
+- **改动**：`MainWindow.axaml`(导出按钮)、`MainWindow.axaml.cs`(OnExportChat)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 4bb8af6。
+- **意义**：windows 运维对话可导出 Markdown 存档/分享（对照 apple ai-md-test）。windows AI 面板功能完整（三模式/清空/导出/运维快捷入口/代码块/流式/填入终端）。下一步 linux 对话导出对齐 / apple Auto 闭环 / windows 真实连接管理。

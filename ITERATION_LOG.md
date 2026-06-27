@@ -6,6 +6,14 @@
 
 ---
 
+## windows 终端 clear 命令清屏（双端 clear 对齐）
+- **内容**：windows OnCmdKeyDown 若 cmd==`clear` → `while TermOutput.Children.Count > 1 RemoveAt(0)` 清到只剩光标行（清屏），对照 linux。
+- **改动**：`MainWindow.axaml.cs`(OnCmdKeyDown 加 clear 分支)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）。推送 59ec509。
+- **🎯 windows/linux 双端 clear 清屏对齐**：终端输入 clear → 清屏。windows/linux 终端交互进一步对齐（命令执行 + clear 清屏）。
+
+---
+
 ## linux 终端 clear 命令清屏（终端常用交互）
 - **内容**：linux 命令输入回车时若 cmd==`clear` → 清空 `self.term_lines`（清屏）而非追加，对照真实终端 clear 命令。
 - **改动**：`linux/src/main.rs`(回车逻辑加 clear 分支)。

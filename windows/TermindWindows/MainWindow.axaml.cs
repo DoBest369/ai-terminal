@@ -322,13 +322,51 @@ public partial class MainWindow : Window
         if (_aiMode == AiMode.Auto && !danger) ExecuteCommand(cmd);
     }
 
-    /// 执行命令（Agent 确认放行 / Auto 自动）：填入终端命令输入框（真实 SSH exec 待 S1 接入）
-    private void ExecuteCommand(string cmd)
+    /// 执行命令（Agent 确认放行 / Auto 自动）：真实 SSH 在服务器执行 + 结果追加终端（S1 闭环）
+    private async void ExecuteCommand(string cmd)
     {
-        CmdInput.Text = cmd;
-        CmdInput.Focus();
-        CmdInput.CaretIndex = cmd.Length;
-        // TODO S1：接真实 SSH 后改为直接 exec + 结果回喂 AI（Auto 闭环）
+        var host = System.Environment.GetEnvironmentVariable("TERMIND_SSH_HOST") ?? "47.85.19.31";
+        var user = System.Environment.GetEnvironmentVariable("TERMIND_SSH_USER") ?? "root";
+        AppendTerm($"{user}@{host}:~$ {cmd}", "#C9D1D9");
+        var result = await SshExecAsync(cmd);
+        foreach (var line in result.Split('\n'))
+            AppendTerm(line.TrimEnd(), result.StartsWith("⚠") ? "#F59E0B" : "#A0A0A0");
+    }
+
+    /// 追加一行到终端输出（插入光标行前）
+    private void AppendTerm(string text, string color)
+    {
+        var line = new TextBlock
+        {
+            Text = text, Foreground = Brush.Parse(color),
+            FontFamily = (FontFamily)(this.FindResource("MonoFont") ?? FontFamily.Default),
+            FontSize = 12.5, Margin = new Thickness(0, 1, 0, 0), TextWrapping = TextWrapping.Wrap
+        };
+        TermOutput.Children.Insert(TermOutput.Children.Count - 1, line);
+        TermScroll.ScrollToEnd();
+    }
+
+    /// 真实 SSH exec（S1：连真实服务器，SSH.NET）；密码从环境变量 TERMIND_SSH_PASS（不硬编码）
+    private async Task<string> SshExecAsync(string cmd)
+    {
+        var host = System.Environment.GetEnvironmentVariable("TERMIND_SSH_HOST") ?? "47.85.19.31";
+        var user = System.Environment.GetEnvironmentVariable("TERMIND_SSH_USER") ?? "root";
+        var pass = System.Environment.GetEnvironmentVariable("TERMIND_SSH_PASS") ?? "";
+        if (string.IsNullOrEmpty(pass)) return "⚠️ 未配置 SSH 密码（环境变量 TERMIND_SSH_PASS）";
+        return await Task.Run(() =>
+        {
+            try
+            {
+                using var client = new Renci.SshNet.SshClient(host, 22, user, pass);
+                client.Connect();
+                using var c = client.RunCommand(cmd);
+                client.Disconnect();
+                var outp = c.Result ?? "";
+                if (!string.IsNullOrEmpty(c.Error)) outp += c.Error;
+                return outp.Length == 0 ? "(无输出)" : outp.TrimEnd();
+            }
+            catch (System.Exception ex) { return "⚠️ SSH 失败：" + ex.Message; }
+        });
     }
 
     /// 调 Anthropic 兼容接口（nexcores）；key 从环境变量 TERMIND_AI_KEY 读（不硬编码）

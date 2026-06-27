@@ -3660,3 +3660,12 @@
 ## S2 linux 真实 AI 端到端验证（ureq 调 nexcores 跑通）
 - **验证**：临时 Rust 项目（ureq + serde_json，与 linux ai_chat 相同逻辑）端到端调 nexcores 成功——`LINUX_AI_OK:查看磁盘占用使用 df(整体)和 du(目录)`。证明 linux ai_chat 真能调通真实 AI（ureq 纯 Rust 在 mac 可运行验证逻辑，linux 整 app 因 egui/icrate 在 mac 不 run，等真 Linux）。
 - **意义**：智能运维真实 AI **windows + linux 双端落地**（windows GUI 端到端 + linux 逻辑端到端）。linux ai_chat 与 windows CallAiAsync 同样的 Anthropic 格式 + 优化运维提示词 + [EXECUTE] 标记。下一步 linux SSH(ssh2) + 三模式对齐 windows + CHANGELOG 阶段20 里程碑。
+
+---
+
+## CHANGELOG 阶段20 里程碑 + 质量收口（智能运维全链路真实 + AI 三模式）
+- **质量基线**（智能运维大改动后收口）：apple swift build + **8 自测全 true 无回归**；linux cargo Finished；PARITY **103 项 ✅✅**。智能运维大改未伤核心逻辑。
+- **CHANGELOG 阶段20**：智能运维全链路真实落地（windows AI+SSH+三模式含 Auto 闭环+Z3+多轮+危险拦截，linux 真实 AI）+ AI 三模式 Agent 安全梯度 + UI 品质专项 U1-U4 + 用户真实 AI/SSH 资源端到端验证。
+- **改动**：`CHANGELOG.md`(阶段20)。
+- **验证**：apple 8 自测无回归。推送 7d9afef。
+- **意义**：CHANGELOG 至阶段20，沉淀智能运维全链路真实落地里程碑。演进:编译打通(16)→UI统一(17)→真实交互(18)→真实逻辑+AI配置(19)→**智能运维全链路真实+AI三模式Agent(20)**。Termind 核心价值（智能 SSH 运维 + AI Agent）在 windows 端完整成型，全平台落地推进中。

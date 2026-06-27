@@ -3877,3 +3877,11 @@
 - **ROADMAP 更新**：加 S6 深化打磨小结（运维快捷入口 Z1-Z3 含 Z3 一键真闭环 + 风险四级 Z7 + AI 体验流式/代码块/清空 + 快捷命令栏 + 命令耗时 + SSH 复用，windows/linux 双端对齐）+ S7 后续（linux SSH 复用/报错分析一键/apple Auto 闭环/批量巡检移植）。
 - **改动**：`ROADMAP.md`(S6/S7)。
 - **意义**：深化打磨进展沉淀到 ROADMAP。智能运维全平台落地（S1-S5）+ 深化打磨对照护城河补齐（S6），方向清晰（S7）。文档体系全对齐（CHANGELOG 22/MATURITY/ROADMAP S1-S7/记忆）。
+
+---
+
+## windows 一键报错分析（Z2，SSH 取错误日志 → AI 诊断真闭环）
+- **内容**：windows 运维快捷「分析报错」从预填 → 一键 `RunErrorAnalysis`：SSH 取系统错误日志（journalctl -p err，回退 dmesg）+ 失败服务（systemctl --failed）→ 流式 AI 诊断（现象→原因→修复，[EXECUTE] 修复命令→命令卡片）；解释命令仍预填。
+- **改动**：`MainWindow.axaml.cs`(OnOpsQuick error 分支 + RunErrorAnalysis)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 0250a17。
+- **意义**：对照 apple 护城河 Z2 报错分析，windows 一键真闭环。windows Z2/Z3 都做到一键闭环（取真实日志/指标 + AI 诊断）。下一步 linux 报错分析一键对齐 / linux SSH 复用。

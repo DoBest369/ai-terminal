@@ -3861,3 +3861,11 @@
 - **改动**：`MainWindow.axaml.cs`(OnOpsQuick health 分支 + RunHealthCheck)。
 - **验证**：`dotnet build` 0 错误；run 14s 存活；**端到端验证**：真实指标 → AI 专业巡检报告（资源水位表格 + 磁盘 88% 告警 + mysqld OOM 风险 + 服务异常，⚠️ 标注）。推送 30a4842。
 - **🎯 对照 apple 护城河 Z3 健康巡检，windows 一键真闭环**：取真实指标 + AI 专业诊断，无需手动输入。windows 智能运维护城河能力更深（Z3 巡检从「预填提问」→「一键真闭环」）。下一步 linux 一键巡检对齐 / linux SSH 复用。
+
+---
+
+## 🎯 linux 一键健康巡检（Z3 真闭环，对照 windows）→ 双端对齐
+- **内容**：linux `run_health_check`——运维快捷「健康巡检」一键触发 → 后台线程 SSH 取真实指标（负载/内存/磁盘/CPU Top5/服务）→ ai_chat 分析 → ai_rx 回；trigger_health 标志循环外执行避免借用冲突。
+- **改动**：`linux/src/main.rs`(run_health_check + impl TermindApp + 健康巡检按钮一键触发)。
+- **验证**：`cargo build` **0 error/warning**（0.84s，带 proxy，borrow 通过）。推送 a7ad12e。
+- **🎯 Z3 健康巡检真闭环 windows/linux 双端对齐**：取真实指标 + AI 专业诊断，无需手动输入。windows/linux 智能运维护城河 Z3 都做到一键真闭环。下一步 AI 命令复制 / linux SSH 复用 / 质量收口。

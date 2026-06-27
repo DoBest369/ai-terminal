@@ -87,9 +87,9 @@ fn ansi_color(code: u8) -> Option<egui::Color32> {
 }
 
 /// 解析 ANSI 转义 → egui LayoutJob 彩色等宽文本（手动解析，无 regex 依赖，对照 windows AppendTerm）
-fn ansi_to_job(text: &str, default: egui::Color32) -> egui::text::LayoutJob {
+fn ansi_to_job(text: &str, default: egui::Color32, size: f32) -> egui::text::LayoutJob {
     let mut job = egui::text::LayoutJob::default();
-    let fmt = |c: egui::Color32| egui::TextFormat { font_id: egui::FontId::monospace(13.0), color: c, ..Default::default() };
+    let fmt = |c: egui::Color32| egui::TextFormat { font_id: egui::FontId::monospace(size), color: c, ..Default::default() };
     let mut cur = default;
     let mut rest = text;
     while let Some(esc) = rest.find('\u{1b}') {
@@ -202,6 +202,7 @@ struct TermindApp {
     sftp_rx: std::sync::mpsc::Receiver<String>,
     new_dir_name: String,                      // SFTP 新建目录 / 重命名输入（复用）
     sftp_renaming: Option<String>,             // 待重命名文件原路径（非空=重命名模式）
+    term_font_size: f32,                       // 终端字号（U4 可调，对照 windows）
 }
 
 /// 全局复用的 SSH 会话缓存（对照 windows _sshClient；多后台线程经 Mutex 串行复用）
@@ -362,7 +363,7 @@ impl Default for TermindApp {
         let (sftp_tx, sftp_rx) = std::sync::mpsc::channel();
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: 13.0 }
     }
 }
 
@@ -1120,6 +1121,15 @@ impl eframe::App for TermindApp {
                         ui.colored_label(if running { SUCCESS } else { TEXT_SECONDARY }, "●");
                         ui.colored_label(if running { TEXT_PRIMARY } else { TEXT_SECONDARY }, svc);
                     }
+                    // 终端字号调整（U4，对照 windows A-/A+）
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if ui.add(egui::Button::new(egui::RichText::new("A+").size(11.0).color(TEXT_SECONDARY)).frame(false)).on_hover_text("放大终端字号").clicked() {
+                            self.term_font_size = (self.term_font_size + 1.0).min(22.0);
+                        }
+                        if ui.add(egui::Button::new(egui::RichText::new("A-").size(11.0).color(TEXT_SECONDARY)).frame(false)).on_hover_text("缩小终端字号").clicked() {
+                            self.term_font_size = (self.term_font_size - 1.0).max(9.0);
+                        }
+                    });
                 });
                 ui.add_space(8.0);
                 egui::Frame::default().fill(egui::Color32::from_rgb(0x0A, 0x0B, 0x14)).rounding(6.0).inner_margin(12.0)
@@ -1137,9 +1147,10 @@ impl eframe::App for TermindApp {
                             ui.colored_label(SUCCESS, egui::RichText::new("● nginx.service - A high performance web server").monospace());
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new("   Active: active (running) since Mon 2026-06-22").monospace());
                             // 用户输入回车后追加的历史命令行（ANSI 转义→彩色，对照 windows）
+                            let fsz = self.term_font_size;   // U4 可调字号
                             for line in &self.term_lines {
-                                if line.contains('\u{1b}') { ui.label(ansi_to_job(line, TEXT_PRIMARY)); }
-                                else { ui.colored_label(TEXT_PRIMARY, egui::RichText::new(line).monospace()); }
+                                if line.contains('\u{1b}') { ui.label(ansi_to_job(line, TEXT_PRIMARY, fsz)); }
+                                else { ui.colored_label(TEXT_PRIMARY, egui::RichText::new(line).monospace().size(fsz)); }
                             }
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} \u{2588}", prompt)).monospace());
                         });

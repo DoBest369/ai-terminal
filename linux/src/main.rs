@@ -222,9 +222,10 @@ struct TermindApp {
     ai_font_size: f32,                         // AI 对话字号（U4 可调，对照 windows）
     term_search: String,                       // 终端输出搜索（匹配行高亮，对照 windows）
     metrics: (u8, u8, String),                 // 状态条远程真实指标 (CPU%, 内存%, 负载)，对照 windows
+    services: Vec<(String, bool)>,             // 关键服务真实状态 (名, 是否 active)，SSH systemctl 取
     metrics_target: String,                    // 上次取指标的主机（检测连接切换刷新）
-    metrics_tx: std::sync::mpsc::Sender<(u8, u8, String)>,
-    metrics_rx: std::sync::mpsc::Receiver<(u8, u8, String)>,
+    metrics_tx: std::sync::mpsc::Sender<(u8, u8, String, Vec<(String, bool)>)>,
+    metrics_rx: std::sync::mpsc::Receiver<(u8, u8, String, Vec<(String, bool)>)>,
 }
 
 /// 全局复用的 SSH 会话缓存（对照 windows _sshClient；多后台线程经 Mutex 串行复用）
@@ -390,7 +391,7 @@ impl Default for TermindApp {
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
         THEME_IDX.store(load_theme_idx(), std::sync::atomic::Ordering::Relaxed);   // U3 恢复持久化主题
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), metrics: (0, 0, "--".to_string()), metrics_target: String::new(), metrics_tx, metrics_rx }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), metrics: (0, 0, "--".to_string()), services: Vec::new(), metrics_target: String::new(), metrics_tx, metrics_rx }
     }
 }
 
@@ -676,18 +677,23 @@ impl eframe::App for TermindApp {
         while let Ok((i, ok)) = self.reach_rx.try_recv() {
             if let Some(c) = self.conns.get_mut(i) { c.online = ok; c.probed = true; }
         }
-        // 状态条远程真实指标（对照 windows RefreshMetrics）：连接切换 → SSH 取选中服务器 /proc
-        while let Ok(m) = self.metrics_rx.try_recv() { self.metrics = m; }
+        // 状态条远程真实指标 + 服务状态（对照 windows/apple Z6）：连接切换 → SSH 取选中服务器 /proc + systemctl
+        while let Ok((cpu, mem, load, svcs)) = self.metrics_rx.try_recv() {
+            self.metrics = (cpu, mem, load);
+            self.services = svcs;
+        }
         if active_host != self.metrics_target {
             self.metrics_target = active_host.clone();
             self.metrics = (0, 0, "…".to_string());
+            self.services.clear();
             let (host, user, tx) = (active_host.clone(), active_user.clone(), self.metrics_tx.clone());
             std::thread::spawn(move || {
                 let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
                 if pass.is_empty() { return; }
-                // 一条命令取齐：负载 + 内存(used total) + /proc/stat 两次采样算 CPU%
+                // 一条命令取齐：负载 + 内存(used total) + /proc/stat 两次采样算 CPU% + 关键服务 systemctl is-active
                 let cmd = "cat /proc/loadavg|awk '{print $1}'; free -m|awk '/Mem:/{printf \"%d %d\\n\",$3,$2}'; \
-                    awk '/^cpu /{print $2+$4\" \"$2+$4+$5}' /proc/stat; sleep 0.4; awk '/^cpu /{print $2+$4\" \"$2+$4+$5}' /proc/stat";
+                    awk '/^cpu /{print $2+$4\" \"$2+$4+$5}' /proc/stat; sleep 0.4; awk '/^cpu /{print $2+$4\" \"$2+$4+$5}' /proc/stat; \
+                    for s in nginx docker mysql redis sshd; do echo $s:$(systemctl is-active $s 2>/dev/null); done";
                 let out = ssh_exec(&host, 22, &user, &pass, cmd);
                 let l: Vec<&str> = out.lines().filter(|s| !s.trim().is_empty()).collect();
                 if l.len() < 4 { return; }
@@ -697,7 +703,10 @@ impl eframe::App for TermindApp {
                 let c2: Vec<f64> = l[3].split_whitespace().filter_map(|s| s.parse().ok()).collect();
                 let mem_pct = if mem.len() == 2 && mem[1] > 0.0 { (mem[0] / mem[1] * 100.0).round() as u8 } else { 0 };
                 let cpu_pct = if c1.len() == 2 && c2.len() == 2 && c2[1] > c1[1] { ((c2[0] - c1[0]) / (c2[1] - c1[1]) * 100.0).round() as u8 } else { 0 };
-                let _ = tx.send((cpu_pct, mem_pct, load));
+                // 解析服务状态行 svc:active/inactive/...
+                let svcs: Vec<(String, bool)> = l.iter().filter(|s| s.contains(':') && !s.contains(' '))
+                    .filter_map(|s| s.split_once(':').map(|(n, st)| (n.to_string(), st.trim() == "active"))).collect();
+                let _ = tx.send((cpu_pct, mem_pct, load, svcs));
             });
         }
         // 接收 AI 真实回复（后台线程 ai_chat → ai_rx）+ 解析 [EXECUTE] 命令
@@ -1177,11 +1186,13 @@ impl eframe::App for TermindApp {
                         .text(format!("{}%", mem_pct)).fill(usage_color(mem_pct)))
                         .on_hover_text("选中服务器真实内存占用（free）");
                     ui.colored_label(TEXT_SECONDARY(), format!("负载 {}", load));
-                    ui.separator();
-                    // 关键服务运行状态点（对照 apple/android Z6：nginx/docker/mysql/redis/sshd）
-                    for (svc, running) in [("nginx", true), ("docker", true), ("mysql", true), ("redis", false), ("sshd", true)] {
-                        ui.colored_label(if running { SUCCESS() } else { TEXT_SECONDARY() }, "●");
-                        ui.colored_label(if running { TEXT_PRIMARY() } else { TEXT_SECONDARY() }, svc);
+                    // 关键服务真实运行状态点（SSH systemctl is-active 取，对照 apple/android Z6）
+                    if !self.services.is_empty() {
+                        ui.separator();
+                        for (svc, running) in &self.services {
+                            ui.colored_label(if *running { SUCCESS() } else { TEXT_SECONDARY() }, "●");
+                            ui.colored_label(if *running { TEXT_PRIMARY() } else { TEXT_SECONDARY() }, svc);
+                        }
                     }
                     // 终端字号调整（U4，对照 windows A-/A+）
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {

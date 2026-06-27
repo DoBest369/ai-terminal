@@ -225,12 +225,17 @@ public partial class MainWindow : Window
     {
         try
         {
-            // /proc/stat 两次采样算 CPU% + free 算内存% + loadavg
+            // /proc/stat 两次采样算 CPU% + free 算内存% + loadavg + 关键服务 systemctl is-active
             const string cmd = "cat /proc/loadavg | awk '{print $1}'; free -m | awk '/Mem:/{printf \"%d %d\\n\",$3,$2}'; " +
-                "awk '/^cpu /{u=$2+$4;t=$2+$4+$5;print u\" \"t}' /proc/stat; sleep 0.4; awk '/^cpu /{u=$2+$4;t=$2+$4+$5;print u\" \"t}' /proc/stat";
+                "awk '/^cpu /{u=$2+$4;t=$2+$4+$5;print u\" \"t}' /proc/stat; sleep 0.4; awk '/^cpu /{u=$2+$4;t=$2+$4+$5;print u\" \"t}' /proc/stat; " +
+                "for s in nginx docker mysql redis sshd; do echo $s:$(systemctl is-active $s 2>/dev/null); done";
             var outp = await SshExecAsync(cmd);
             var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
             if (lines.Length < 4) return;
+            // 解析服务状态行（svc:active/inactive）
+            var svcs = lines.Where(l => l.Contains(':') && !l.Contains(' '))
+                .Select(l => l.Split(':')).Where(p => p.Length == 2)
+                .Select(p => (Name: p[0].Trim(), Active: p[1].Trim() == "active")).ToList();
             var load = lines[0].Trim();
             var mem = lines[1].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);   // used total
             var c1 = lines[2].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);    // u t (前)
@@ -248,6 +253,15 @@ public partial class MainWindow : Window
                 StatusMem.Text = $"内存 {memPct}%"; StatusMemBar.Width = 54.0 * System.Math.Clamp(memPct, 0, 100) / 100;
                 StatusMemBar.Background = Brush.Parse(memPct > 80 ? "#F85149" : memPct > 60 ? "#F59E0B" : "#3FB950");
                 StatusLoad.Text = $"负载 {load}";
+                // 服务状态点真实填充（绿=active / 灰=非）
+                StatusServices.Children.Clear();
+                foreach (var s in svcs)
+                {
+                    var sp = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 3, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+                    sp.Children.Add(new TextBlock { Text = "●", Foreground = Brush.Parse(s.Active ? "#3FB950" : "#6B7280"), FontSize = 11, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+                    sp.Children.Add(new TextBlock { Text = s.Name, Foreground = Brush.Parse(s.Active ? "#C9D1D9" : "#6B7280"), FontSize = 12, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+                    StatusServices.Children.Add(sp);
+                }
             });
         }
         catch { /* 离线/取指标失败：保留上次值，不打断 */ }

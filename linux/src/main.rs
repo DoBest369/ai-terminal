@@ -221,6 +221,10 @@ struct TermindApp {
     term_font_size: f32,                       // 终端字号（U4 可调，对照 windows）
     ai_font_size: f32,                         // AI 对话字号（U4 可调，对照 windows）
     term_search: String,                       // 终端输出搜索（匹配行高亮，对照 windows）
+    metrics: (u8, u8, String),                 // 状态条远程真实指标 (CPU%, 内存%, 负载)，对照 windows
+    metrics_target: String,                    // 上次取指标的主机（检测连接切换刷新）
+    metrics_tx: std::sync::mpsc::Sender<(u8, u8, String)>,
+    metrics_rx: std::sync::mpsc::Receiver<(u8, u8, String)>,
 }
 
 /// 全局复用的 SSH 会话缓存（对照 windows _sshClient；多后台线程经 Mutex 串行复用）
@@ -304,36 +308,8 @@ fn ai_chat(base_url: &str, api_key: &str, model: &str, sys: &str, user: &str) ->
     }
 }
 
-/// 读本机真实负载（/proc/loadavg，真实系统指标；非 Linux/读失败返回 None）
-fn read_loadavg() -> Option<String> {
-    let s = std::fs::read_to_string("/proc/loadavg").ok()?;
-    let parts: Vec<&str> = s.split_whitespace().take(3).collect();
-    if parts.len() == 3 { Some(parts.join(" ")) } else { None }
-}
-
-/// 读本机真实运行时长（/proc/uptime，格式化「X天Y时」；非 Linux/读失败返回 None）
-fn read_uptime() -> Option<String> {
-    let s = std::fs::read_to_string("/proc/uptime").ok()?;
-    let secs = s.split_whitespace().next()?.parse::<f64>().ok()? as u64;
-    let days = secs / 86400;
-    let hours = (secs % 86400) / 3600;
-    Some(if days > 0 { format!("{}天{}时", days, hours) } else { format!("{}时{}分", hours, (secs % 3600) / 60) })
-}
-
-/// 读本机真实内存占用（/proc/meminfo：(已用GB, 总GB, 占用%)；非 Linux/读失败返回 None）
-fn read_mem() -> Option<(f64, f64, u8)> {
-    let s = std::fs::read_to_string("/proc/meminfo").ok()?;
-    let kb = |key: &str| -> Option<f64> {
-        s.lines().find(|l| l.starts_with(key))?
-            .split_whitespace().nth(1)?.parse::<f64>().ok()
-    };
-    let total = kb("MemTotal:")?;
-    let avail = kb("MemAvailable:")?;
-    if total <= 0.0 { return None; }
-    let used = total - avail;
-    let pct = ((used / total) * 100.0).round() as u8;
-    Some((used / 1024.0 / 1024.0, total / 1024.0 / 1024.0, pct))
-}
+// 注：本机 /proc 指标读取（read_loadavg/read_uptime/read_mem）已移除——状态条改取
+// 选中远程服务器的真实指标（SSH /proc，update 异步），运维工具应反映被运维的服务器而非本机。
 
 /// TCP 可达性探测（真实逻辑第一步，std::net 无需额外依赖）：connect_timeout 2s
 fn probe_tcp(host: &str, port: u16) -> bool {
@@ -409,11 +385,12 @@ impl Default for TermindApp {
         }
         let (ai_tx, ai_rx) = std::sync::mpsc::channel();
         let (term_tx, term_rx) = std::sync::mpsc::channel();
+        let (metrics_tx, metrics_rx) = std::sync::mpsc::channel();
         let (sftp_tx, sftp_rx) = std::sync::mpsc::channel();
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
         THEME_IDX.store(load_theme_idx(), std::sync::atomic::Ordering::Relaxed);   // U3 恢复持久化主题
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new() }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), metrics: (0, 0, "--".to_string()), metrics_target: String::new(), metrics_tx, metrics_rx }
     }
 }
 
@@ -698,6 +675,30 @@ impl eframe::App for TermindApp {
         // 应用后台 TCP 探测结果（真实可达性）→ 更新连接 online 状态
         while let Ok((i, ok)) = self.reach_rx.try_recv() {
             if let Some(c) = self.conns.get_mut(i) { c.online = ok; c.probed = true; }
+        }
+        // 状态条远程真实指标（对照 windows RefreshMetrics）：连接切换 → SSH 取选中服务器 /proc
+        while let Ok(m) = self.metrics_rx.try_recv() { self.metrics = m; }
+        if active_host != self.metrics_target {
+            self.metrics_target = active_host.clone();
+            self.metrics = (0, 0, "…".to_string());
+            let (host, user, tx) = (active_host.clone(), active_user.clone(), self.metrics_tx.clone());
+            std::thread::spawn(move || {
+                let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+                if pass.is_empty() { return; }
+                // 一条命令取齐：负载 + 内存(used total) + /proc/stat 两次采样算 CPU%
+                let cmd = "cat /proc/loadavg|awk '{print $1}'; free -m|awk '/Mem:/{printf \"%d %d\\n\",$3,$2}'; \
+                    awk '/^cpu /{print $2+$4\" \"$2+$4+$5}' /proc/stat; sleep 0.4; awk '/^cpu /{print $2+$4\" \"$2+$4+$5}' /proc/stat";
+                let out = ssh_exec(&host, 22, &user, &pass, cmd);
+                let l: Vec<&str> = out.lines().filter(|s| !s.trim().is_empty()).collect();
+                if l.len() < 4 { return; }
+                let load = l[0].trim().to_string();
+                let mem: Vec<f64> = l[1].split_whitespace().filter_map(|s| s.parse().ok()).collect();
+                let c1: Vec<f64> = l[2].split_whitespace().filter_map(|s| s.parse().ok()).collect();
+                let c2: Vec<f64> = l[3].split_whitespace().filter_map(|s| s.parse().ok()).collect();
+                let mem_pct = if mem.len() == 2 && mem[1] > 0.0 { (mem[0] / mem[1] * 100.0).round() as u8 } else { 0 };
+                let cpu_pct = if c1.len() == 2 && c2.len() == 2 && c2[1] > c1[1] { ((c2[0] - c1[0]) / (c2[1] - c1[1]) * 100.0).round() as u8 } else { 0 };
+                let _ = tx.send((cpu_pct, mem_pct, load));
+            });
         }
         // 接收 AI 真实回复（后台线程 ai_chat → ai_rx）+ 解析 [EXECUTE] 命令
         while let Ok(reply) = self.ai_rx.try_recv() {
@@ -1165,25 +1166,17 @@ impl eframe::App for TermindApp {
                     ui.colored_label(if sel_online { SUCCESS() } else { TEXT_SECONDARY() },
                         if sel_online { "● 已连接" } else { "○ 离线" });
                     ui.colored_label(TEXT_SECONDARY(), sel_host);
-                    // CPU/内存 mini 进度条（绿<60/橙60-80/红>80 三档，对齐 apple/android）
+                    // CPU/内存 mini 进度条：远程选中服务器真实指标（SSH 取 /proc，对照 windows）
+                    let (cpu_pct, mem_pct, load) = (self.metrics.0, self.metrics.1, self.metrics.2.clone());
                     ui.colored_label(TEXT_SECONDARY(), "CPU");
-                    // 真实逻辑核数（available_parallelism）；CPU% 瞬时占用需 /proc/stat 采样留后续
-                    let cores = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(8);
-                    ui.add(egui::ProgressBar::new(0.47).desired_width(54.0).text("47%").fill(usage_color(47)))
-                        .on_hover_text(format!("{} 核", cores));
+                    ui.add(egui::ProgressBar::new(cpu_pct as f32 / 100.0).desired_width(54.0)
+                        .text(format!("{}%", cpu_pct)).fill(usage_color(cpu_pct)))
+                        .on_hover_text("选中服务器真实 CPU 占用（/proc/stat 采样）");
                     ui.colored_label(TEXT_SECONDARY(), "内存");
-                    // 真实本机内存（/proc/meminfo）；非 Linux/读失败回退占位
-                    let (mem_used, mem_total, mem_pct) = read_mem().unwrap_or((9.0, 16.0, 56));
                     ui.add(egui::ProgressBar::new(mem_pct as f32 / 100.0).desired_width(54.0)
                         .text(format!("{}%", mem_pct)).fill(usage_color(mem_pct)))
-                        .on_hover_text(format!("{:.1} / {:.1} GB", mem_used, mem_total));
-                    // 真实本机负载（/proc/loadavg）；非 Linux/读失败回退占位
-                    let load = read_loadavg().unwrap_or_else(|| "0.82 0.45 0.30".to_string());
+                        .on_hover_text("选中服务器真实内存占用（free）");
                     ui.colored_label(TEXT_SECONDARY(), format!("负载 {}", load));
-                    // 真实本机运行时长（/proc/uptime）；真 Linux 显示，非 Linux 跳过
-                    if let Some(up) = read_uptime() {
-                        ui.colored_label(TEXT_SECONDARY(), format!("· 运行 {}", up));
-                    }
                     ui.separator();
                     // 关键服务运行状态点（对照 apple/android Z6：nginx/docker/mysql/redis/sshd）
                     for (svc, running) in [("nginx", true), ("docker", true), ("mysql", true), ("redis", false), ("sshd", true)] {

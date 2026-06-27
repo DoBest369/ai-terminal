@@ -72,6 +72,51 @@ fn is_dangerous(cmd: &str) -> bool {
     risk_level(cmd) >= RiskLevel::High
 }
 
+/// ANSI SGR 前景色码 → egui 颜色（30-37 标准 / 90-97 亮色，对照 windows AnsiFg）
+fn ansi_color(code: u8) -> Option<egui::Color32> {
+    use egui::Color32 as C;
+    Some(match code {
+        30 => C::from_rgb(0x6B, 0x72, 0x80), 31 => C::from_rgb(0xF8, 0x71, 0x71), 32 => C::from_rgb(0x3F, 0xB9, 0x50),
+        33 => C::from_rgb(0xF5, 0x9E, 0x0B), 34 => C::from_rgb(0x60, 0xA5, 0xFA), 35 => C::from_rgb(0xC0, 0x84, 0xFC),
+        36 => C::from_rgb(0x22, 0xD3, 0xEE), 37 => C::from_rgb(0xC9, 0xD1, 0xD9),
+        90 => C::from_rgb(0x8B, 0x92, 0xA8), 91 => C::from_rgb(0xFC, 0xA5, 0xA5), 92 => C::from_rgb(0x86, 0xEF, 0xAC),
+        93 => C::from_rgb(0xFC, 0xD3, 0x4D), 94 => C::from_rgb(0x93, 0xC5, 0xFD), 95 => C::from_rgb(0xD8, 0xB4, 0xFE),
+        96 => C::from_rgb(0x67, 0xE8, 0xF9), 97 => C::from_rgb(0xFF, 0xFF, 0xFF),
+        _ => return None,
+    })
+}
+
+/// 解析 ANSI 转义 → egui LayoutJob 彩色等宽文本（手动解析，无 regex 依赖，对照 windows AppendTerm）
+fn ansi_to_job(text: &str, default: egui::Color32) -> egui::text::LayoutJob {
+    let mut job = egui::text::LayoutJob::default();
+    let fmt = |c: egui::Color32| egui::TextFormat { font_id: egui::FontId::monospace(13.0), color: c, ..Default::default() };
+    let mut cur = default;
+    let mut rest = text;
+    while let Some(esc) = rest.find('\u{1b}') {
+        if esc > 0 { job.append(&rest[..esc], 0.0, fmt(cur)); }
+        rest = &rest[esc..];
+        // 形如 \x1b[..m
+        if rest.starts_with("\u{1b}[") {
+            if let Some(mpos) = rest.find('m') {
+                for code in rest[2..mpos].split(';') {
+                    match code.parse::<u8>() {
+                        Ok(0) => cur = default,
+                        Ok(n) => { if let Some(c) = ansi_color(n) { cur = c; } }
+                        Err(_) => {}
+                    }
+                }
+                rest = &rest[mpos + 1..];
+                continue;
+            }
+        }
+        // 非标准转义：跳过单字符避免死循环
+        job.append(&rest[..1], 0.0, fmt(cur));
+        rest = &rest[1..];
+    }
+    if !rest.is_empty() { job.append(rest, 0.0, fmt(cur)); }
+    job
+}
+
 /// 渲染 AI 回复：```代码块→等宽代码框，正文→普通文本（对照 windows RenderAiReply）
 fn render_ai_reply(ui: &mut egui::Ui, text: &str) {
     for (i, seg) in text.split("```").enumerate() {
@@ -915,9 +960,10 @@ impl eframe::App for TermindApp {
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} systemctl status nginx", prompt)).monospace());
                             ui.colored_label(SUCCESS, egui::RichText::new("● nginx.service - A high performance web server").monospace());
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new("   Active: active (running) since Mon 2026-06-22").monospace());
-                            // 用户输入回车后追加的历史命令行
+                            // 用户输入回车后追加的历史命令行（ANSI 转义→彩色，对照 windows）
                             for line in &self.term_lines {
-                                ui.colored_label(TEXT_PRIMARY, egui::RichText::new(line).monospace());
+                                if line.contains('\u{1b}') { ui.label(ansi_to_job(line, TEXT_PRIMARY)); }
+                                else { ui.colored_label(TEXT_PRIMARY, egui::RichText::new(line).monospace()); }
                             }
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} \u{2588}", prompt)).monospace());
                         });

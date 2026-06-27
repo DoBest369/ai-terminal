@@ -4251,3 +4251,11 @@
 - **改动**：`MainWindow.axaml`(新建目录行)、`MainWindow.axaml.cs`(OnMkdir)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 56c89a1。
 - **意义**：windows SFTP 写操作再扩展（下载/删除/新建目录），对照 apple sftpMakeDirectory。windows SFTP 能力进一步靠拢 apple 标杆（浏览/导航/预览/下载/删除/新建目录）。下一步 linux SFTP 新建目录 / 连接编辑 / 质量收口。
+
+---
+
+## linux SFTP 新建目录（输入名→mkdir+刷新，对照 windows，双端对齐）
+- **内容**：linux SFTP 窗口加新建目录行（TextEdit + 新建按钮）→ run_sftp_mkdir：后台 ssh mkdir -p 当前目录下 → 刷新 run_sftp_ls；new_dir_name 字段；trigger_mkdir 标志循环外执行；路径防注入。
+- **改动**：`linux/src/main.rs`(new_dir_name 字段 + run_sftp_mkdir + SFTP 窗口新建目录行)。
+- **验证**：`cargo build` **0 error/warning**（0.85s，带 proxy）。推送 90eeb0f。
+- **意义**：SFTP 新建目录 windows/linux 双端对齐。windows/linux SFTP 能力一致（浏览/导航/预览/下载/删除/新建目录），靠拢 apple 标杆。下一步 SFTP 重命名 / 连接编辑 / 质量收口。

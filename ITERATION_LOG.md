@@ -3587,3 +3587,12 @@
 - **改动**：`windows/TermindWindows/MainWindow.axaml`(SFTP 列表 8 行图标 PathIcon)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 17s 存活无崩溃。推送 f8e6860。
 - **意义**：windows SFTP 图标矢量化。windows 剩余 emoji：可达指示 ✓✕⏳（符号，code-behind）+ 搜索 🔍 + 服务状态 ●。下一步 windows 搜索图标 + 可达指示矢量化完成 U1 windows。
+
+---
+
+## 🎯 S3 windows 真实 AI 接入 + 优化运维系统提示词（智能运维落地第一端）
+- **背景**：用户提供真实 AI 接口（nexcores.net/v1/messages，Anthropic 格式，claude-opus-4-8，已 curl 验证通）+ 要求优化系统提示词提升 AI 运维能力。linux 在 mac 不能 run（icrate），故真实 AI 端到端验证用 windows（mac 上 dotnet run 可跑）。
+- **内容**：windows `AppendAiAsk` 改 async 真实调用——HttpClient POST nexcores（Anthropic 格式），AI 气泡「思考中…」→ 真实回复；`CallAiAsync` 解析 content[0].text；key 从环境变量 `TERMIND_AI_KEY` 读（不硬编码）。**优化系统级运维提示词**：资深运维专家 + 结合真实环境 + 命令代码块 + 危险操作风险分级+备份 + 排障先诊断后修复验证 + 常见故障识别 + `[EXECUTE]` 标记（Agent 模式基础）。
+- **改动**：`windows/TermindWindows/MainWindow.axaml.cs`(CallAiAsync + SysPrompt + async AppendAiAsk)。
+- **验证**：`dotnet build` 0 错误；run 存活；**端到端真实问答**：「CPU 飙到 95% 怎么排查」→ AI 给出三步走专业方案（top/ps 命令 + 代码块 + 自动生成 `[EXECUTE]ps -eo...[/EXECUTE]` 标记）。推送 c212704。
+- **意义**：智能运维从 mock → **真实落地 windows**（全平台落地第一端可端到端验证）。优化提示词产出专业运维回复 + [EXECUTE] 标记为 Agent 模式铺好基础。下一步：linux 真实 AI（ureq，编译验证）+ AI 三模式切换器 + [EXECUTE] 解析执行。

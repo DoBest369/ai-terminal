@@ -199,6 +199,13 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 31 — SFTP 文件下载 + AI 时间戳 + apple SFTP 标杆确认（2026-06-27）
+
+- **windows SFTP 文件下载**：文件右键「下载到本地」→ SSH `base64` 取内容 → 解码 → 存 ~/Downloads，大小守门（>10MB 跳过），终端显进度。SFTP 能力向 apple 标杆靠拢（浏览/导航/预览/下载）。
+- **AI 气泡时间戳（windows）**：用户/AI 角色标签带 HH:mm，对话有时间参考。
+- **apple SFTP 标杆确认**：apple 用 Citadel SFTPClient 真 SFTP 协议（sftpList/Download/Upload/MakeDirectory/Remove/Rename + 批量下载删除），是最完整实现；windows/linux 用 ls 解析 + base64 模拟（够日常浏览/预览/下载，上传/删除是后续方向）。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，817 提交。
+
 ## 阶段 30 — 终端 ANSI 彩色 + 体验细节双端对齐（2026-06-27）
 
 终端体验提升：windows/linux 真实呈现 SSH 彩色输出，接近原生终端。

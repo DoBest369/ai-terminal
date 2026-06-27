@@ -49,11 +49,12 @@ struct TermindApp {
     api_key: String,
     show_sftp: bool,
     cmd_input: String,
+    term_lines: Vec<String>,   // 用户输入回车后追加的终端历史行
 }
 
 impl Default for TermindApp {
     fn default() -> Self {
-        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false, cmd_input: String::new() }
+        Self { conns: demo_conns(), selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: String::new(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new() }
     }
 }
 
@@ -302,6 +303,10 @@ impl eframe::App for TermindApp {
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} systemctl status nginx", prompt)).monospace());
                             ui.colored_label(SUCCESS, egui::RichText::new("● nginx.service - A high performance web server").monospace());
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new("   Active: active (running) since Mon 2026-06-22").monospace());
+                            // 用户输入回车后追加的历史命令行
+                            for line in &self.term_lines {
+                                ui.colored_label(TEXT_PRIMARY, egui::RichText::new(line).monospace());
+                            }
                             ui.colored_label(TEXT_PRIMARY, egui::RichText::new(format!("{} \u{2588}", prompt)).monospace());
                         });
                     });
@@ -323,11 +328,16 @@ impl eframe::App for TermindApp {
                     }
                 });
                 ui.add_space(8.0);
-                // 命令输入框（对照 windows/apple/android，提示符 + 输入，快捷命令点击填入这里）
+                // 命令输入框（提示符 + 输入，快捷命令点击填入；回车追加到终端输出）
                 ui.horizontal(|ui| {
                     ui.colored_label(SUCCESS, egui::RichText::new(format!("{} ", prompt)).monospace());
-                    let _ = ui.add_sized([ui.available_width(), 24.0],
+                    let resp = ui.add_sized([ui.available_width(), 24.0],
                         egui::TextEdit::singleline(&mut self.cmd_input).hint_text("输入命令…").font(egui::TextStyle::Monospace));
+                    if resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) && !self.cmd_input.trim().is_empty() {
+                        self.term_lines.push(format!("{} {}", prompt, self.cmd_input.trim()));
+                        self.cmd_input.clear();
+                        resp.request_focus();   // 保持焦点便于连续输入
+                    }
                 });
             });
     }

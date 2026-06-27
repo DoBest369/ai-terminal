@@ -59,6 +59,13 @@ struct TermindApp {
     reach_rx: std::sync::mpsc::Receiver<(usize, bool)>,  // 后台 TCP 可达性探测结果
 }
 
+/// 读本机真实负载（/proc/loadavg，真实系统指标；非 Linux/读失败返回 None）
+fn read_loadavg() -> Option<String> {
+    let s = std::fs::read_to_string("/proc/loadavg").ok()?;
+    let parts: Vec<&str> = s.split_whitespace().take(3).collect();
+    if parts.len() == 3 { Some(parts.join(" ")) } else { None }
+}
+
 /// TCP 可达性探测（真实逻辑第一步，std::net 无需额外依赖）：connect_timeout 2s
 fn probe_tcp(host: &str, port: u16) -> bool {
     use std::net::ToSocketAddrs;
@@ -343,7 +350,9 @@ impl eframe::App for TermindApp {
                     ui.add(egui::ProgressBar::new(0.47).desired_width(54.0).text("47%").fill(usage_color(47)));
                     ui.colored_label(TEXT_SECONDARY, "内存");
                     ui.add(egui::ProgressBar::new(0.56).desired_width(54.0).text("56%").fill(usage_color(56)));
-                    ui.colored_label(TEXT_SECONDARY, "负载 0.82");
+                    // 真实本机负载（/proc/loadavg）；非 Linux/读失败回退占位
+                    let load = read_loadavg().unwrap_or_else(|| "0.82 0.45 0.30".to_string());
+                    ui.colored_label(TEXT_SECONDARY, format!("负载 {}", load));
                     ui.separator();
                     // 关键服务运行状态点（对照 apple/android Z6：nginx/docker/mysql/redis/sshd）
                     for (svc, running) in [("nginx", true), ("docker", true), ("mysql", true), ("redis", false), ("sshd", true)] {

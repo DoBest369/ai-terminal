@@ -3990,3 +3990,11 @@
 - **CHANGELOG 阶段25**：用户核心设计 AI 三模式（Chat/Agent/Auto）+ Auto 自主闭环五端真正完整里程碑。apple 录制真实终端输出回喂（agentic），windows/linux SSH exec 结果回喂；安全梯度危险命令强制确认。
 - **改动**：`CHANGELOG.md`(阶段25)。
 - **意义**：里程碑级沉淀。从用户最初提出「智能运维全平台落地 + AI 三模式安全梯度 + AI 接管终端」→ 五端全部真正完整落地。CHANGELOG 演进:智能运维全链路真实(20)→S1-S5全完成(21)→深化打磨护城河补齐(22-24)→**三模式+Auto闭环五端全对齐(25)**。Termind 核心价值与用户全部设计完整成型。
+
+---
+
+## windows 连接列表→真实连接切换（选中连接驱动 SSH 执行目标）
+- **内容**：windows `OnConnSelected` 解析选中连接 user@host:port → _activeHost/_activeUser 驱动 SshExecAsync/ExecuteCommand 目标（优先级：选中连接 > env > 默认）；切换连接重置复用会话 + 环境缓存。连接列表首项改真实测试机（root@47.85.19.31），点击连接即在该主机执行命令/AI 运维。
+- **改动**：`MainWindow.axaml.cs`(_activeHost/_activeUser + OnConnSelected + SshExecAsync/ExecuteCommand host 来源 + 首项真实测试机)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 2b646af。
+- **意义**：windows 终端从「固定主机」→「选中连接驱动」（真实连接管理）。点不同连接 → 在不同主机执行。下一步 windows 新建连接表单 / linux 连接切换对齐 / 主题切换。

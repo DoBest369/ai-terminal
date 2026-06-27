@@ -202,6 +202,10 @@ struct InspectView: View {
                         metric("CPU", String(format: "%.0f%%", info.cpuUsage), info.cpuUsage > 85)
                         metric("内存", String(format: "%.0f%%", info.memPercent), info.memPercent > 85)
                         metric("磁盘", String(format: "%.0f%%", info.diskPercent), info.diskPercent > 85)
+                        // 负载 1 分钟（有则显示，对齐 android 巡检卡片 + healthSummary）
+                        if let load1 = info.loadavg.first {
+                            metric("负载", String(format: "%.2f", load1), load1 > Double(info.cpuCores) * 0.8)
+                        }
                     }
                 } else {
                     Text("采集失败：\(r.error ?? "未知")").font(.system(size: 11)).foregroundStyle(Theme.danger)

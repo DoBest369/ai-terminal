@@ -4630,3 +4630,12 @@
 - **CHANGELOG 阶段48**：指标超阈值告警（>90% 预警）+ 命令历史面板（点击重用），windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段48)。
 - **意义**：CHANGELOG 至阶段48。运维体验持续打磨（监控→预警，命令复用便捷）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## windows 快捷命令栏可自定义（增删+持久化，运维高频命令定制）
+- **内容**：快捷栏改动态生成（QuickCmds 容器）：默认 9 条（红 chip）+ 自定义（绿 chip）+ 末尾「+」按钮 Flyout 输入添加；自定义 chip 右键删除；customCmds 存 config 持久化 + 启动恢复；去重（默认/自定义）。
+- **改动**：`MainWindow.axaml`(QuickCmds x:Name)、`MainWindow.axaml.cs`(RenderQuickCmds + MakeChip + customCmds + 持久化)。
+- **踩坑**：TextBox.Watermark 过时 → PlaceholderText（修 0 警告）。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活 + 截图。推送 0dc2024。
+- **意义**：windows 快捷命令可定制（运维高频命令增删+持久化）。下一步 linux 快捷命令自定义对齐 / 质量收口 / 新功能。

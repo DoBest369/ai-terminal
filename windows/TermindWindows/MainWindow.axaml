@@ -173,21 +173,21 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16">
                     <TextBlock x:Name="StatusDot" Text="● 已连接" Foreground="#3FB950" FontSize="12" VerticalAlignment="Center"/>
                     <TextBlock x:Name="StatusHost" Text="主机 db.internal.net" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
-                    <!-- CPU 47% -->
+                    <!-- CPU（真实 SSH 取，对齐 linux/proc）-->
                     <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <TextBlock Text="CPU 47%" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="StatusCpu" Text="CPU --" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
                         <Border Width="54" Height="4" Background="#1AFFFFFF" CornerRadius="2" VerticalAlignment="Center">
-                            <Border Width="25" Height="4" Background="#3FB950" CornerRadius="2" HorizontalAlignment="Left"/>
+                            <Border x:Name="StatusCpuBar" Width="0" Height="4" Background="#3FB950" CornerRadius="2" HorizontalAlignment="Left"/>
                         </Border>
                     </StackPanel>
-                    <!-- 内存 56% -->
+                    <!-- 内存（真实 SSH 取）-->
                     <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <TextBlock Text="内存 56%" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="StatusMem" Text="内存 --" Foreground="#C9D1D9" FontSize="12" VerticalAlignment="Center"/>
                         <Border Width="54" Height="4" Background="#1AFFFFFF" CornerRadius="2" VerticalAlignment="Center">
-                            <Border Width="30" Height="4" Background="#3FB950" CornerRadius="2" HorizontalAlignment="Left"/>
+                            <Border x:Name="StatusMemBar" Width="0" Height="4" Background="#3FB950" CornerRadius="2" HorizontalAlignment="Left"/>
                         </Border>
                     </StackPanel>
-                    <TextBlock Text="负载 0.82" Foreground="#8B92A8" FontSize="12" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="StatusLoad" Text="负载 --" Foreground="#8B92A8" FontSize="12" VerticalAlignment="Center"/>
                     <!-- 关键服务状态点（对照 apple/android/linux Z6） -->
                     <Border Width="1" Height="16" Background="#2A2D3E" VerticalAlignment="Center"/>
                     <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">

@@ -217,6 +217,40 @@ public partial class MainWindow : Window
         StatusHost.Text = $"主机 {addr}";
         StatusDot.Text = online ? "● 已连接" : "○ 离线";
         StatusDot.Foreground = online ? Brush.Parse("#3FB950") : Brush.Parse("#6B7280");
+        _ = RefreshMetricsAsync();   // 真实指标刷新（SSH 取 CPU/内存/负载）
+    }
+
+    /// 状态条真实指标刷新（SSH 取 CPU/内存/负载，对齐 linux/proc 与 apple）：一条命令取齐再解析
+    private async Task RefreshMetricsAsync()
+    {
+        try
+        {
+            // /proc/stat 两次采样算 CPU% + free 算内存% + loadavg
+            const string cmd = "cat /proc/loadavg | awk '{print $1}'; free -m | awk '/Mem:/{printf \"%d %d\\n\",$3,$2}'; " +
+                "awk '/^cpu /{u=$2+$4;t=$2+$4+$5;print u\" \"t}' /proc/stat; sleep 0.4; awk '/^cpu /{u=$2+$4;t=$2+$4+$5;print u\" \"t}' /proc/stat";
+            var outp = await SshExecAsync(cmd);
+            var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length < 4) return;
+            var load = lines[0].Trim();
+            var mem = lines[1].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);   // used total
+            var c1 = lines[2].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);    // u t (前)
+            var c2 = lines[3].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);    // u t (后)
+            int memPct = 0, cpuPct = 0;
+            if (mem.Length == 2 && double.TryParse(mem[1], out var mt) && mt > 0 && double.TryParse(mem[0], out var mu))
+                memPct = (int)System.Math.Round(mu / mt * 100);
+            if (c1.Length == 2 && c2.Length == 2 && double.TryParse(c1[0], out var u1) && double.TryParse(c1[1], out var t1)
+                && double.TryParse(c2[0], out var u2) && double.TryParse(c2[1], out var t2) && t2 > t1)
+                cpuPct = (int)System.Math.Round((u2 - u1) / (t2 - t1) * 100);
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                StatusCpu.Text = $"CPU {cpuPct}%"; StatusCpuBar.Width = 54.0 * System.Math.Clamp(cpuPct, 0, 100) / 100;
+                StatusCpuBar.Background = Brush.Parse(cpuPct > 80 ? "#F85149" : cpuPct > 60 ? "#F59E0B" : "#3FB950");
+                StatusMem.Text = $"内存 {memPct}%"; StatusMemBar.Width = 54.0 * System.Math.Clamp(memPct, 0, 100) / 100;
+                StatusMemBar.Background = Brush.Parse(memPct > 80 ? "#F85149" : memPct > 60 ? "#F59E0B" : "#3FB950");
+                StatusLoad.Text = $"负载 {load}";
+            });
+        }
+        catch { /* 离线/取指标失败：保留上次值，不打断 */ }
     }
 
     private string _sftpCwd = "~";   // SFTP 当前目录（支持导航）

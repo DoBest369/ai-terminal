@@ -5,6 +5,7 @@ using Avalonia.Media;
 using Avalonia.Controls.Documents;
 using Avalonia.Threading;
 using System.Collections.Generic;
+using System.Linq;
 using System.ComponentModel;
 using System.Net.Http;
 using System.Net.Sockets;
@@ -191,6 +192,8 @@ public partial class MainWindow : Window
     private static readonly HttpClient _http = new() { Timeout = System.TimeSpan.FromSeconds(60) };
     private const string AiBaseUrl = "https://www.nexcores.net/v1/messages";
     private const string AiModel = "claude-opus-4-8";
+    // AI 多轮对话历史（role/content 累积，AI 记住上下文；为 Auto 闭环铺垫）
+    private readonly List<(string role, string content)> _aiHistory = new();
 
     /// 系统级运维提示词（优化 AI 智能运维能力，对齐 apple/android 护城河）
     private const string SysPrompt =
@@ -386,6 +389,8 @@ public partial class MainWindow : Window
         var env = await FetchServerEnvAsync();
         var sys = string.IsNullOrEmpty(env) ? SysPrompt
             : SysPrompt + "\n\n【当前服务器真实环境】\n" + env + "\n请结合以上真实环境给出针对性建议。";
+        // 多轮：累积本次提问到历史，整段历史发给 AI（AI 记住上下文）
+        _aiHistory.Add(("user", userMsg));
         try
         {
             var payload = new
@@ -393,7 +398,7 @@ public partial class MainWindow : Window
                 model = AiModel,
                 max_tokens = 1024,
                 system = sys,
-                messages = new[] { new { role = "user", content = userMsg } }
+                messages = _aiHistory.Select(h => new { role = h.role, content = h.content }).ToArray()
             };
             using var req = new HttpRequestMessage(HttpMethod.Post, AiBaseUrl);
             req.Headers.Add("x-api-key", key);
@@ -403,7 +408,12 @@ public partial class MainWindow : Window
             var body = await resp.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(body);
             if (doc.RootElement.TryGetProperty("content", out var content) && content.GetArrayLength() > 0)
-                return content[0].GetProperty("text").GetString() ?? "(无回复)";
+            {
+                var text = content[0].GetProperty("text").GetString() ?? "(无回复)";
+                _aiHistory.Add(("assistant", text));   // AI 回复入历史，下轮带上下文
+                if (_aiHistory.Count > 20) _aiHistory.RemoveRange(0, 2);  // 限长防膨胀
+                return text;
+            }
             if (doc.RootElement.TryGetProperty("error", out var err) && err.TryGetProperty("message", out var msg))
                 return "⚠️ " + msg.GetString();
             return "(无回复)";

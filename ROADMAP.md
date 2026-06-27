@@ -42,6 +42,13 @@
   - 实现：UI 顶部模式切换器（Chat/Agent/Auto 三档）；`[EXECUTE]cmd[/EXECUTE]` 解析；Agent 模式弹确认条（放行/拒绝/改）；Auto 模式自动执行 + 结果回喂 AI 继续。
   - **安全铁律（即使 Auto 也守）**：极高危命令（rm -rf、mkfs、dd、关机、改 SSH/防火墙断连等，复用命令风险四级分级）**强制二次确认**，不被 Auto 绕过；所有执行可回滚（备份+时间线，对齐 apple rollback）。
   - 路径：先 apple（已有 `[EXECUTE]` + 真实 exec 基础）跑通三模式，再全平台。
+- [x] **S6 深化打磨：windows/linux 对照 apple 护城河补齐** ✅（S1-S5 完成后持续，2026-06-27）：
+  - 运维快捷入口（Z1 解释命令 / Z2 分析报错 / Z3 健康巡检）windows/linux 双端；**Z3 健康巡检一键真闭环**（SSH 取真实指标→AI 诊断，端到端验证专业巡检报告）。
+  - 命令风险四级分级（对照 Z7 CommandRisk，安全/注意/高风险/极高危，命令卡片按级别配色）windows/linux 双端。
+  - AI 体验：windows 流式输出（SSE 逐字）+ 代码块渲染 + 清空对话；linux 代码块 + 清空。
+  - 终端快捷命令栏增强（磁盘/内存/进程/网络/日志/服务）+ 命令执行耗时显示，windows/linux 双端。
+  - 性能：windows SSH Session 复用（持久会话，多命令提速）。
+- [ ] **S7 后续深化**：linux SSH Session 复用（ssh2 Arc<Mutex>）；报错分析一键（取日志→AI 诊断真闭环）；apple Auto 自主闭环（SwiftTerm 输出捕获→回喂）；批量巡检移植 windows/linux。
 
 ### 🐧 Linux 原生 backlog（linux/ Rust+egui）
 - [x] **L0** 工程骨架（Cargo.toml eframe/egui+ssh2+ureq；src/main.rs TermindApp 连接列表占位 UI；README 构建说明+路线；⚠️ 本机无 cargo 未编译验证，需 Linux+Rust 环境；推送 9550426）

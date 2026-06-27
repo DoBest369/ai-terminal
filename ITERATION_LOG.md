@@ -3716,3 +3716,11 @@
 - **改动**：`linux/src/main.rs`(fetch_server_env + AI 发送注入环境)。
 - **验证**：`cargo build` **0 error/warning**（0.74s，带 proxy）。推送 5d89318。
 - **🎯 Z3 环境感知 windows/linux 双端对齐**：linux 智能运维护城河对齐 windows（真实 AI + 真实 SSH + 三模式 + Z3 环境感知 + 危险拦截）。windows/linux 双端智能运维能力体系完全一致。下一步 windows AI 代码块渲染 / apple Auto 闭环。
+
+---
+
+## windows AI 回复代码块渲染（```bash→等宽深色代码框）
+- **内容**：windows AI 气泡 aiText（单 TextBlock）→ aiPanel StackPanel；`RenderAiReply` 解析 ```代码块（去首行语言标识）→ 深色代码框（JetBrains Mono 绿字 + 圆角），正文→普通 TextBlock。AI 运维回复（命令/方案）更清晰易读。
+- **改动**：`MainWindow.axaml.cs`(aiPanel + RenderAiReply 代码块渲染)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 15s 存活。推送 1bdb1e9。
+- **意义**：AI 运维回复体验提升——代码命令以等宽深色代码框呈现（对照真实终端/IDE），正文与命令分明。下一步 apple Auto 闭环 / windows AI 流式输出 / linux 代码块。

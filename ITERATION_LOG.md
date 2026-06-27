@@ -4663,3 +4663,11 @@
 - **改动**：`windows MainWindow.axaml`(导出按钮)、`MainWindow.axaml.cs`(OnExportTerm)、`linux main.rs`(导出按钮 + rfd 写文件)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 9c5cb09。
 - **意义**：终端导出双端（运维留存排障/巡检会话记录）。下一步 质量收口 CHANGELOG 阶段50 / AI 搜索 / 新功能。
+
+---
+
+## 🎯 质量收口（全量）+ CHANGELOG阶段50里程碑 终端导出+运维体验双端对齐
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；934 提交。五端 build 全绿。
+- **CHANGELOG 阶段50里程碑**：终端导出双端 + 运维体验双端对齐全景（阶段40-50累积：状态条监控/服务管理/终端/命令/连接/AI/UI 全对齐 apple）。
+- **改动**：`CHANGELOG.md`(阶段50里程碑)。
+- **意义**：阶段50整数里程碑——windows/linux 运维体验已全面对齐 apple 标杆。从「智能运维全平台落地」核心需求出发，双端功能完整真实 + 运维体验细节对齐。Termind 成熟全平台真实智能 SSH 运维工作台。后续持续打磨/新功能。

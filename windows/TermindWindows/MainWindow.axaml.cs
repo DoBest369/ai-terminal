@@ -267,6 +267,18 @@ public partial class MainWindow : Window
         if (SftpList.Children.Count == 0) SftpList.Children.Add(new TextBlock { Text = "(空目录)", Foreground = Brush.Parse("#6B7280"), FontSize = 12 });
     }
 
+    /// 删除连接（右键菜单）：从列表移除 + 持久化（连接管理 CRUD）
+    private void OnDeleteConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // 从 MenuItem 的 DataContext 取被右键的连接
+        if (sender is Control c && c.DataContext is ConnItem item)
+        {
+            _conns.Remove(item);
+            if (ConnList.SelectedItem == null && _conns.Count > 0) ConnList.SelectedIndex = 0;
+            SaveConfig();   // 持久化（删除的用户连接不再恢复）
+        }
+    }
+
     /// 新建连接：读表单 name/host/user/port → 加入连接列表（ObservableCollection 自动刷新）
     private void OnAddConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

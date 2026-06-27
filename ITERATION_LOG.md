@@ -4136,3 +4136,11 @@
 - **改动**：`linux/src/main.rs`(ansi_color + ansi_to_job + term_lines 渲染)。
 - **验证**：`cargo build` **0 error/warning**（0.71s，带 proxy）。推送 b4ca487。
 - **意义**：终端 ANSI 彩色 windows/linux 双端对齐（SSH 彩色输出真实呈现：ls --color/grep/systemctl 等）。终端体验双端一致接近真实终端。下一步 AI 时间戳 / 命令历史持久化 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段30 终端ANSI彩色双端对齐
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；807 提交。五端 build 全绿。
+- **CHANGELOG 阶段30**：终端 ANSI 彩色（windows Inlines/Run + linux egui LayoutJob）+ 终端体验双端对齐 + windows/linux 双端全模块真实完整。
+- **改动**：`CHANGELOG.md`(阶段30)。
+- **意义**：CHANGELOG 至阶段30。windows/linux 双端全模块真实 + 体验完善（连接 CRUD + 终端真实彩色 + AI 三模式 Auto 闭环 + 护城河 Z1-Z3 + SFTP 完整）。智能运维全平台落地的标杆双端功能完整、体验接近原生。后续持续打磨细节 + 全平台均衡。

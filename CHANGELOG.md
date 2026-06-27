@@ -5,6 +5,15 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 54 — 监控明细套件 + 进程操作（2026-06-28）
+
+监控明细套件成型 + 监控到操作闭环。
+
+- **磁盘分区面板（windows/linux）**：SSH `df -hP` 取全分区（排除 tmpfs/overlay）；windows Flyout 结构化（挂载点 + 进度条三档色 + 使用%/容量），linux 终端展示。从根分区聚合 → 全分区明细。
+- **进程终止（windows）**：进程 Top 数据行右键 → 终止进程 PID（SSH kill）→ 终端提示。监控到操作闭环（看进程 → kill）。
+- **监控明细套件（windows/linux）**：状态条看聚合（CPU/内存/磁盘/负载/服务），异常时一键下钻——进程 Top（资源消耗）/ 网络端口（服务监听）/ 磁盘分区（存储瓶颈），对照 apple Z6。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，958 提交。
+
 ## 阶段 53 — 监控下钻：进程 Top + 网络端口面板双端（2026-06-28）
 
 监控从聚合指标下钻到进程级 + 网络端口级。

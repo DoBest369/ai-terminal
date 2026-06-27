@@ -3942,3 +3942,11 @@
 - **改动**：`MainWindow.axaml.cs`(LoadConfig/SaveConfig + ConfigPath + 构造挂载)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活；配置路径正确（~/.config/Termind，无输入未生成属正常）。推送 42bbff4。
 - **意义**：windows AI 配置（Key/地址）跨重启持久化，用户 UI 配的不丢。windows AI 配置体验完整（UI 可配 + 持久化 + env 后备）。下一步 apple Auto 闭环 / 对话导出 / 质量收口。
+
+---
+
+## 质量收口（全量）+ 全平台截图巡检
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；759 提交。五端 build 全绿。
+- **windows 整体效果巡检**（截图 Read 自查）：左栏连接列表（分组+矢量图标+全信息）+ 中栏终端区（JetBrains Mono 输出 + 快捷命令栏横滚）+ 右栏 AI 面板（✦助手+清空+三模式切换器+对话代码块+运维快捷入口+快捷追问+输入），整窗深色协调，Material PathIcon 矢量图标。
+- **改动**：更新 `apple/screenshots/windows-smart-ops.png`。
+- **意义**：深化打磨多轮后全面质量收口，五端 build 全绿核心无回归，windows 智能运维工作台 UI 完整美观。S6/S7 深化打磨成果扎实。下一步 apple Auto 闭环 / windows 真实连接管理 / 对话导出。

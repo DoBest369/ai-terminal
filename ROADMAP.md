@@ -81,7 +81,8 @@
 - [x] **A-AIClear** AI 清空当前对话消息 ✅（对话菜单「🧹 清空当前消息」→messages.clear()+持久化保留对话壳；构建 21s 无 warning；推送 f8f30dd）
 - [x] **A-Duration** 终端连接时长显示 ✅（connectedAt+LaunchedEffect 每秒 tick；状态条显 formatDuration mm:ss/HH:mm:ss；构建 22s 无 warning；推送 34370d2）
 - [x] 🔧 **全平台工具链打通 + 品牌统一**（2026-06-27）✅（纠正认知:本机有完整 Xcode 26.4 能出 mac/iOS 包；Windows=Avalonia 本机可编译;Rust/dotnet/Metal 后台装中[网络限制];CI workflow 配好待 workflow scope;品牌 AI Terminal→Termind;记忆+CLAUDE.md 纠正;推送 60d73fa）
-- [ ] **全平台对齐节点**（进行中）：mac/iOS(Xcode✅) + android(gradle✅) + linux(Rust 装中) + windows(Avalonia 待建) 五端本机编译 → 打节点 tag → 启动每 100 迭代 CI
+- [x] **全平台对齐节点** ✅（2026-06-27）：**五端本机编译全打通**——mac/iOS(Xcode 26.4✅) + android(gradle✅) + linux(Rust cargo✅) + windows(Avalonia dotnet✅)，靠系统代理 1082 + 国外官方源装齐工具链。windows/linux 从骨架→全功能区 UI（连接列表/状态/终端/AI/设置/SFTP）+ 真实交互（选连接联动/快捷命令追问填入/命令回车执行/clear清屏/命令历史上下键/AI成对回复）。68 项 UI 现代化，五端 UI 设计语言高度一致。CI workflow 配好待 workflow scope 授权激活
+- [ ] **真实逻辑接入节点**（下一阶段）：windows/linux 从 mock 数据 → 真实 SSH(ssh2/SSH.NET)+AI；对照 apple/android 逐步移植（连接管理持久化/真实终端/AI 助手/智能运维）
 - [x] **命令历史搜索双端** ✅（apple SnippetsView/android history sheet >5 条显搜索框过滤；搜索能力全覆盖；apple 8 自测+android clean 零 warning；apple 6c18b1c/android 81c599f；PARITY 101 项）
 - [x] **README 成熟度徽章 + 指向 MATURITY** ✅（顶部加 双端 100 项对齐徽章 + 成熟度一览句指向 docs/MATURITY.md；仓库门面反映成熟度；推送 d9d6dd6）
 - [x] **产品成熟度总览 docs/MATURITY.md** ✅（7 维盘点:平台/主线/护城河 Z1-Z8/批量运维/知识沉淀闭环/质量/边界;如实记录边界;PARITY 100 项里程碑沉淀;推送 a4daeb3）
@@ -322,6 +323,7 @@
 
 ## 迭代日志（摘要；详细见 ITERATION_LOG.md）
 
+- **五端真实交互阶段** ✅（2026-06-27）：五端编译打通后，windows/linux 从静态 mock → 全功能区 UI + 真实交互（68 项 UI 现代化）。「全平台对齐节点」达成，下一阶段=真实逻辑接入。详见 ITERATION_LOG / CHANGELOG 阶段 16-18。
 - **R1** ✅ 终端配色/字体统一（One Dark 主题，Menlo 字体，前景/背景/光标）
 - **R2** ✅ iOS 终端辅助键栏（Esc/Tab/^C^D^Z^L^R^U/方向键/常用符号，触感反馈）+ 会话 `sendBytes`/`reconnect`
 - **R3** ✅ 连接中遮罩（毛玻璃 + 进度）+ 断开/出错重连横幅（`TerminalPane` 包裹，VM 记忆 lastCols/Rows，无参 `reconnect()`）

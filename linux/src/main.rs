@@ -437,6 +437,14 @@ impl eframe::App for TermindApp {
                             self.ai_mode = mode;
                         }
                     }
+                    // 清空对话（新建会话，对照 windows）
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::TRASH).size(13.0).color(TEXT_SECONDARY))
+                            .fill(egui::Color32::TRANSPARENT)).on_hover_text("清空对话").clicked() {
+                            self.ai_msgs.clear();
+                            self.pending_cmds.clear();
+                        }
+                    });
                 });
                 // 待执行命令卡片（Agent 确认放行 / Auto 危险命令确认）
                 let mut run_idx: Option<usize> = None;
@@ -513,6 +521,20 @@ impl eframe::App for TermindApp {
                     ui.colored_label(TEXT_SECONDARY, "✦ AI 思考中…");
                 }
                 ui.add_space(10.0);
+                // 运维快捷入口（对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检 + windows）
+                ui.horizontal(|ui| {
+                    for (label, prefill) in [
+                        ("解释命令", "解释这条命令的作用、参数含义和潜在风险："),
+                        ("分析报错", "分析这段报错/日志，按 现象 → 可能原因 → 修复步骤 给出诊断："),
+                        ("健康巡检", "对这台服务器做一次健康巡检（结合 CPU/内存/磁盘/负载/关键服务运行状态），指出风险点和优化建议"),
+                    ] {
+                        if ui.add(egui::Button::new(egui::RichText::new(label).size(11.0).color(ACCENT))
+                            .fill(ACCENT.linear_multiply(0.12)).rounding(14.0)).clicked() {
+                            self.ai_input = prefill.to_string();
+                        }
+                    }
+                });
+                ui.add_space(6.0);
                 // 快捷追问 chips（点击填入 AI 输入框，对照 apple/windows AI 面板 + 快捷命令交互）
                 ui.horizontal(|ui| {
                     let blue = egui::Color32::from_rgb(0x3B, 0x82, 0xF6);

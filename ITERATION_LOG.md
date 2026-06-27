@@ -6,6 +6,16 @@
 
 ---
 
+## 质量收口 + CHANGELOG 阶段18（真实交互阶段梳理）+ 顶部边界声明更新
+- **质量基线**：apple swift build + **8 自测全 true 无回归** + linux cargo + windows dotnet 0 错；PARITY **103 项 ✅✅**。五端 build 全绿。
+- **CHANGELOG 顶部边界声明更新**：从过时的「无完整 Xcode / 双端原生 / Linux Windows 骨架」→「Xcode 26.4 + Rust + .NET 五端编译打通 + windows/linux 全功能区 UI + 真实交互（mock）」，准确反映现状。
+- **CHANGELOG 阶段18**：windows/linux 真实交互（选连接联动 / 快捷命令追问填入 / 回车执行提问 / 双端双区回车交互完整）+ 质量基线 + build 先于 push 流程修正。
+- **改动**：`CHANGELOG.md`(顶部边界 + 阶段18)。
+- **验证**：apple 8 自测无回归，五端 build 全绿。推送 1832acf。
+- **意义**：文档体系准确反映五端编译打通 + 真实交互阶段。CHANGELOG 至阶段 18（真实交互），边界声明诚实更新（纠正长期过时的「无 Xcode」表述）。
+
+---
+
 ## windows AI 输入回车/发送→追加提问气泡（双端 AI 区回车交互）
 - **内容**：windows AI 对话 StackPanel/ScrollViewer 加 x:Name（AiMessages/AiScroll）；AiInput `KeyDown` Enter + 发送 Button `Click` → AppendAiAsk 构造「你」标签 + 蓝色提问气泡 Border 加到 AiMessages + ScrollToEnd。对照 linux AI 回车交互。
 - **改动**：`MainWindow.axaml`(AI 对话 x:Name + KeyDown/Click)、`MainWindow.axaml.cs`(OnAiKeyDown/OnAiSend/AppendAiAsk)。

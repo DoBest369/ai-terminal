@@ -114,6 +114,21 @@ fn ssh_exec(host: &str, port: u16, user: &str, pass: &str, cmd: &str) -> String 
     if combined.trim().is_empty() { "(无输出)".to_string() } else { combined.trim_end().to_string() }
 }
 
+/// Z3 环境感知：SSH 取服务器真实状态摘要（对照 windows FetchServerEnv）；失败返回空
+fn fetch_server_env() -> String {
+    let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+    if pass.is_empty() { return String::new(); }
+    let host = std::env::var("TERMIND_SSH_HOST").unwrap_or_else(|_| "47.85.19.31".to_string());
+    let user = std::env::var("TERMIND_SSH_USER").unwrap_or_else(|_| "root".to_string());
+    let probe = "echo 系统:$(uname -sr); echo CPU核数:$(nproc); \
+        echo 内存:$(free -m 2>/dev/null|awk '/Mem:/{print $3\"/\"$2\"MB\"}'); \
+        echo 负载:$(cat /proc/loadavg|cut -d' ' -f1-3); \
+        echo 磁盘:$(df -h / 2>/dev/null|awk 'NR==2{print $5}'); \
+        echo 服务:$(for s in nginx docker mysql redis sshd; do systemctl is-active $s 2>/dev/null|grep -q active && echo -n \"$s \"; done)";
+    let env = ssh_exec(&host, 22, &user, &pass, probe);
+    if env.starts_with('⚠') { String::new() } else { env }
+}
+
 /// 真实 AI（S2：ureq 调 Anthropic 兼容接口 nexcores，对照 windows CallAiAsync）
 /// key 从环境变量 TERMIND_AI_KEY（不硬编码）；返回 content[0].text 或错误
 fn ai_chat(base_url: &str, api_key: &str, model: &str, sys: &str, user: &str) -> String {
@@ -509,9 +524,15 @@ impl eframe::App for TermindApp {
                             self.ai_msgs.push((false, "⚠️ 未配置 API Key（环境变量 TERMIND_AI_KEY 或设置面板）".to_string()));
                         } else {
                             self.ai_busy = true;
-                            let (base, key, model, sys, tx) =
+                            let (base, key, model, sys_base, tx) =
                                 (self.base_url.clone(), self.api_key.clone(), "claude-opus-4-8".to_string(), self.sys_prompt.clone(), self.ai_tx.clone());
-                            std::thread::spawn(move || { let _ = tx.send(ai_chat(&base, &key, &model, &sys, &user_msg)); });
+                            // Z3 环境感知：后台先 SSH 取真实环境注入系统提示（对照 windows）
+                            std::thread::spawn(move || {
+                                let env = fetch_server_env();
+                                let sys = if env.is_empty() { sys_base }
+                                    else { format!("{}\n\n【当前服务器真实环境】\n{}\n请结合以上真实环境给针对性建议。", sys_base, env) };
+                                let _ = tx.send(ai_chat(&base, &key, &model, &sys, &user_msg));
+                            });
                         }
                     }
                 });

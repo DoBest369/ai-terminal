@@ -3934,3 +3934,11 @@
 - **改动**：`MainWindow.axaml`(ApiKeyBox/BaseUrlBox x:Name)、`MainWindow.axaml.cs`(CallAiAsync 优先读设置框)。
 - **验证**：`dotnet build` 0 错误（Flyout 内 x:Name 字段正常生成）；完整 `dotnet run` 14s 存活。推送 ca6b2ce。
 - **意义**：windows AI 配置可在 UI 设置（API Key/地址），不必只靠环境变量，实用性提升；env 作为后备。下一步 windows 设置持久化(存配置文件重启恢复) / apple Auto 闭环。
+
+---
+
+## windows 设置持久化（API Key/地址存配置文件，重启恢复）
+- **内容**：windows `LoadConfig` 启动读 AppData/Termind/config.json 填回 ApiKeyBox/BaseUrlBox；`SaveConfig` 失焦写入（LostFocus 挂载）；JSON 序列化；损坏/写失败静默不影响运行。
+- **改动**：`MainWindow.axaml.cs`(LoadConfig/SaveConfig + ConfigPath + 构造挂载)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活；配置路径正确（~/.config/Termind，无输入未生成属正常）。推送 42bbff4。
+- **意义**：windows AI 配置（Key/地址）跨重启持久化，用户 UI 配的不丢。windows AI 配置体验完整（UI 可配 + 持久化 + env 后备）。下一步 apple Auto 闭环 / 对话导出 / 质量收口。

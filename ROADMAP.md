@@ -50,7 +50,7 @@
   - 性能：windows SSH Session 复用（持久会话，多命令提速）。
 - [x] **S7 护城河深化 + Auto 闭环全平台** ✅：linux SSH Session 复用（OnceLock<Mutex>）；Z2 报错分析一键真闭环（取日志→AI 诊断）+ Z3 健康巡检一键真闭环（取指标→AI），windows/linux 双端；**apple Auto 自主闭环**（startRecording 录制真实终端输出→回喂 sendAIMessage）→ AI 三模式 Auto 闭环五端全对齐。
 - [x] **S8 全模块真实化 + 体验打磨（windows/linux 双端）** ✅：真实连接管理（windows CRUD：列表/新建/删除/持久化/选中切换驱动 SSH；linux 选中连接驱动）；SFTP 真实文件浏览 + 目录导航 + 文件预览（守门大小/二进制）；终端 ANSI 彩色（windows Inlines / linux LayoutJob）；命令耗时；AI 流式 + 代码块 + 清空 + 导出 + 运维快捷入口 Z1-Z3；风险四级；AI 配置 UI 生效 + 持久化（含命令历史）。
-- [ ] **S9 后续**：apple/android SFTP 真实确认；连接编辑；SFTP 上传/下载；batch 批量运维移植 windows/linux；主题切换实际生效（U3）。
+- [~] **S9 SFTP 双端深化 + 细节打磨**（进行中）：✅ apple SFTP 标杆确认（Citadel 真 SFTP 全操作）；✅ windows/linux SFTP 下载（base64）+ 删除（嵌套确认）双端对齐，能力一致（浏览/导航/预览/下载/删除）；✅ windows AI 气泡时间戳；✅ windows 命令历史持久化。待办：连接编辑；SFTP 上传/mkdir；batch 批量运维移植 windows/linux；主题切换实际生效（U3）。
 
 ### 🐧 Linux 原生 backlog（linux/ Rust+egui）
 - [x] **L0** 工程骨架（Cargo.toml eframe/egui+ssh2+ureq；src/main.rs TermindApp 连接列表占位 UI；README 构建说明+路线；⚠️ 本机无 cargo 未编译验证，需 Linux+Rust 环境；推送 9550426）

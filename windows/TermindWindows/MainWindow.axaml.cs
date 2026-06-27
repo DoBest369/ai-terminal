@@ -178,6 +178,24 @@ public partial class MainWindow : Window
     private string? _activeHost;   // 当前选中连接的 host（驱动 SSH 执行；null=用 env/默认）
     private string? _activeUser;
 
+    /// 服务管理（状态条服务点 menu）：SSH systemctl start/stop/restart → 终端显示结果 + 刷新状态
+    private async void OnServiceAction(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is not MenuItem mi || mi.Tag is not string tag) return;
+        var parts = tag.Split(':'); if (parts.Length != 2) return;
+        var (action, svc) = (parts[0], parts[1]);
+        var danger = action is "stop" or "restart";
+        AppendTerm($"# systemctl {action} {svc} …" + (danger ? "（影响线上服务，请确认）" : ""), danger ? "#F59E0B" : "#8B92A8");
+        try
+        {
+            var r = await SshExecAsync($"systemctl {action} {svc} 2>&1 && echo TERMIND_SVC_OK");
+            AppendTerm(r.Contains("TERMIND_SVC_OK") ? $"✓ {svc} 已{action}" : $"✕ {svc} {action} 失败：{r.Trim()}",
+                r.Contains("TERMIND_SVC_OK") ? "#3FB950" : "#F85149");
+            await RefreshMetricsAsync();   // 操作后刷新服务状态点
+        }
+        catch (System.Exception ex) { AppendTerm($"✕ {svc} {action} 异常：{ex.Message}", "#F85149"); }
+    }
+
     /// 终端输出搜索：匹配行背景高亮（黄），首个匹配滚动到可见
     private void OnTermSearch(object? sender, Avalonia.Controls.TextChangedEventArgs e)
     {
@@ -262,9 +280,20 @@ public partial class MainWindow : Window
                 StatusServices.Children.Clear();
                 foreach (var s in svcs)
                 {
-                    var sp = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 3, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+                    var sp = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 3, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center, Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand) };
                     sp.Children.Add(new TextBlock { Text = "●", Foreground = Brush.Parse(s.Active ? "#3FB950" : "#6B7280"), FontSize = 11, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
                     sp.Children.Add(new TextBlock { Text = s.Name, Foreground = Brush.Parse(s.Active ? "#C9D1D9" : "#6B7280"), FontSize = 12, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+                    // 服务管理：右键 menu 启停/重启（SSH systemctl，深化护城河，停止/重启标橙警示）
+                    var mf = new MenuFlyout();
+                    foreach (var (act, label, danger) in new[] { ("restart", "重启", true), ("start", "启动", false), ("stop", "停止", true) })
+                    {
+                        var mi = new MenuItem { Header = $"{label} {s.Name}", Tag = $"{act}:{s.Name}", Foreground = Brush.Parse(danger ? "#F59E0B" : "#C9D1D9") };
+                        mi.Click += OnServiceAction;
+                        mf.Items.Add(mi);
+                    }
+                    sp.ContextFlyout = mf;
+                    sp.PointerPressed += (snd, ev) => { if (snd is Control ctl) mf.ShowAt(ctl); };   // 左键点击也弹 menu
+                    ToolTip.SetTip(sp, $"{s.Name}：{(s.Active ? "运行中" : "未运行")}（点击管理）");
                     StatusServices.Children.Add(sp);
                 }
             });

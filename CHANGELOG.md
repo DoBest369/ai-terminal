@@ -199,6 +199,15 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 30 — 终端 ANSI 彩色 + 体验细节双端对齐（2026-06-27）
+
+终端体验提升：windows/linux 真实呈现 SSH 彩色输出，接近原生终端。
+
+- **终端 ANSI 颜色解析（windows/linux）**：解析 ANSI SGR 转义（\x1b[..m），SGR 码 30-37 标准前景 / 90-97 亮色映射颜色 + 粗体，分段着色。windows 用 Inlines/Run，linux 用 egui LayoutJob（手动解析，无 regex 依赖）。SSH 彩色输出（ls --color 目录蓝/可执行绿、grep 高亮、systemctl active 绿）真实呈现。
+- **终端体验双端对齐总览**：命令真实 SSH 执行 + ANSI 彩色 + 命令耗时显示 + 快捷命令栏 + SSH Session 复用。
+- **windows/linux 双端能力完整度**：连接管理 CRUD（windows 含新建/删除/持久化）+ 终端（真实+彩色）+ AI 运维（三模式 Auto 闭环+护城河 Z1-Z3）+ SFTP（浏览/导航/预览），全模块真实。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，807 提交。
+
 ## 阶段 29 — SFTP 文件预览 + 连接 CRUD 完整（2026-06-27）
 
 windows/linux SFTP 增加文件预览，windows 连接管理形成完整 CRUD 闭环。

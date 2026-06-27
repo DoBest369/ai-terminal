@@ -35,7 +35,13 @@
 - [ ] **S2 linux 真实 AI**：ureq 调 Anthropic/OpenAI（用设置里的 api_key/base_url/sys_prompt），AI 气泡显真实流式回复（替换占位文案）。
 - [ ] **S3 windows 真实 SSH + AI**：SSH.NET（或 Renci.SshNet）+ HttpClient 调 AI，对照 linux。
 - [ ] **S4 智能运维能力移植 windows/linux**：命令解释/报错分析/环境感知/批量巡检（对照 apple/android 护城河 Z1-Z8）。
-- [ ] **🤖 S5 AI Agent 终端接管**（用户重点）：AI 读终端实时输出→决策命令→执行→读结果的闭环 agent loop。`[EXECUTE]cmd[/EXECUTE]` 解析 + 自动/确认执行 + 结果回喂 AI + 危险命令风险拦截。先 apple（已有基础）跑通，再全平台。安全：危险命令必须二次确认 + 可回滚。
+- [ ] **🤖 S5 AI 三模式（Chat / Agent / Auto Agent）**（用户核心设计，安全梯度）：
+  - **Chat**：纯聊天，AI 只对话/建议/解释，**不读不碰终端**（现有 AI 对话即此模式）。
+  - **Agent（代理）**：AI 读终端实时输出 + 生成指令，但**每条指令执行前必须人工确认放行**才执行。
+  - **Auto Agent（全自动）**：AI 自主「读输出→决策命令→执行→读结果」闭环，无需逐条确认。
+  - 实现：UI 顶部模式切换器（Chat/Agent/Auto 三档）；`[EXECUTE]cmd[/EXECUTE]` 解析；Agent 模式弹确认条（放行/拒绝/改）；Auto 模式自动执行 + 结果回喂 AI 继续。
+  - **安全铁律（即使 Auto 也守）**：极高危命令（rm -rf、mkfs、dd、关机、改 SSH/防火墙断连等，复用命令风险四级分级）**强制二次确认**，不被 Auto 绕过；所有执行可回滚（备份+时间线，对齐 apple rollback）。
+  - 路径：先 apple（已有 `[EXECUTE]` + 真实 exec 基础）跑通三模式，再全平台。
 
 ### 🐧 Linux 原生 backlog（linux/ Rust+egui）
 - [x] **L0** 工程骨架（Cargo.toml eframe/egui+ssh2+ureq；src/main.rs TermindApp 连接列表占位 UI；README 构建说明+路线；⚠️ 本机无 cargo 未编译验证，需 Linux+Rust 环境；推送 9550426）

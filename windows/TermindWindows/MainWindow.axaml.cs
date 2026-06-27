@@ -130,21 +130,52 @@ public partial class MainWindow : Window
         }
     }
 
-    /// 运维快捷入口（对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检）→ 预填专用运维提问
+    /// 运维快捷入口（对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检）
+    /// 解释/报错 → 预填提问；健康巡检 → 一键直接触发（SSH 取指标 + AI 分析真闭环）
     private void OnOpsQuick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        if (sender is Button b && b.Tag is string tag)
+        if (sender is not Button b || b.Tag is not string tag) return;
+        if (tag == "health") { RunHealthCheck(); return; }
+        AiInput.Text = tag switch
         {
-            AiInput.Text = tag switch
-            {
-                "explain" => "解释这条命令的作用、参数含义和潜在风险：",
-                "error" => "分析这段报错/日志，按 现象 → 可能原因 → 修复步骤 给出诊断：",
-                "health" => "对这台服务器做一次健康巡检（结合 CPU/内存/磁盘/负载/关键服务运行状态），指出风险点和优化建议",
-                _ => ""
-            };
-            AiInput.Focus();
-            AiInput.CaretIndex = AiInput.Text.Length;
-        }
+            "explain" => "解释这条命令的作用、参数含义和潜在风险：",
+            "error" => "分析这段报错/日志，按 现象 → 可能原因 → 修复步骤 给出诊断：",
+            _ => ""
+        };
+        AiInput.Focus();
+        AiInput.CaretIndex = AiInput.Text.Length;
+    }
+
+    /// 一键健康巡检（Z3）：SSH 取真实指标 → 直接发 AI 分析（无需手动输入）
+    private async void RunHealthCheck()
+    {
+        // 用户气泡（标识本次巡检）
+        AiMessages.Children.Add(new TextBlock { Text = "你", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right });
+        AiMessages.Children.Add(new Border
+        {
+            Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260,
+            Child = new TextBlock { Text = "一键健康巡检", Foreground = Brush.Parse("#FFFFFF"), FontSize = 13, TextWrapping = TextWrapping.Wrap }
+        });
+        // AI 气泡（先采集真实指标，再交 AI 分析）
+        var aiPanel = new StackPanel { Spacing = 2 };
+        aiPanel.Children.Add(new TextBlock { Text = "采集服务器指标中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = 13, TextWrapping = TextWrapping.Wrap });
+        AiMessages.Children.Add(new Border
+        {
+            Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290, Child = aiPanel
+        });
+        AiScroll.ScrollToEnd();
+        // SSH 取真实指标（CPU/内存/磁盘/负载/Top 进程/服务），交 AI 分析
+        var metrics = await SshExecAsync(
+            "echo '== 负载/运行 =='; uptime; echo '== 内存 =='; free -h; echo '== 磁盘 =='; df -h; " +
+            "echo '== CPU Top5 =='; ps -eo pid,%cpu,%mem,comm --sort=-%cpu | head -6; " +
+            "echo '== 服务 =='; for s in nginx docker mysql redis sshd; do printf '%s:' $s; systemctl is-active $s 2>/dev/null; done");
+        ((TextBlock)aiPanel.Children[0]).Text = "分析中…";
+        var reply = await CallAiAsync($"以下是这台服务器的当前真实状态，请做健康巡检：按 资源水位 → 风险点 → 优化建议 给出诊断，发现异常用 ⚠️ 标注。\n\n{metrics}",
+            delta => { ((TextBlock)aiPanel.Children[0]).Text = delta; AiScroll.ScrollToEnd(); });
+        RenderAiReply(aiPanel, reply);
+        AiScroll.ScrollToEnd();
     }
 
     /// 快捷追问点击 → 填入 AI 输入框（真实交互，对照 linux/apple/android）

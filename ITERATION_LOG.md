@@ -4439,3 +4439,14 @@
 - **改动**：`linux/src/main.rs`(save_config ai_font_size + load_ai_font_size + Default + AI 字号保存，sed/perl 批量更新 5 处调用)。
 - **验证**：`cargo build` **0 error/warning**（0.75s，带 proxy）。推送 d5b8af9。
 - **意义**：字号持久化双端完整（终端+AI，windows/linux）。U4 字号可调 + 持久化完整体系双端。下一步 windows U3 主题对齐 / apple UI 检查 / 新功能。
+
+---
+
+## apple 端 UI 品质验证（确认五端 U3/U4 对齐状态）
+- **检查结果**：apple UI 品质完整且为标杆——U3 = AppColorScheme **5 套主题**（midnight/oneDark/dracula/solarized/nord + themeID 持久化切换）；U4 = terminalFontSize 持久化（8-28）+ zoomIn/zoomOut/resetZoom 菜单。apple swift build Build complete。
+- **五端 U3/U4 对齐状态**：
+  - U1 图标库（去 emoji）+ U2 配色协调：五端 ✅
+  - U3 配色可调：apple 5 套 ✅ / linux 4 套 ✅ / windows 待对齐（颜色硬编码专项）
+  - U4 字号可调+持久化：apple ✅ / linux ✅（终端+AI）/ windows ✅（终端+AI）
+- **改动**：记忆 ui-modern 记五端 U3/U4 对齐状态（apple 标杆，windows U3 待补）。
+- **意义**：确认五端 UI 品质对齐状态——apple/linux U3 已有，仅 windows U3 主题切换待补（apple 是标杆 5 套主题）。用户 UI 品质要求 U1/U2/U4 五端齐，U3 apple/linux 齐。下一步 windows U3 主题对齐（完成 U3 全端）/ 新功能。

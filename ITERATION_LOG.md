@@ -6,6 +6,14 @@
 
 ---
 
+## android AI API 地址（Base URL）自定义（对齐 apple，真实功能补齐）
+- **内容**：android 补齐 apple 已有的「API 地址 Base URL」自定义——`SettingsStore.loadBaseUrl/saveBaseUrl`（默认 anthropic）；`AiClient.chat/chatStream` 加 `baseUrl` 参数替代硬编码 `.url`；5 个调用点（AI 对话/巡检总结/批量总结/工作流结论/命令解释）传 `loadBaseUrl(ctx)`；SettingsScreen 加「API 地址」设置行 + 编辑对话框（留空恢复默认）。
+- **改动**：`SettingsStore.kt`、`AiClient.kt`、`InspectScreen.kt`、`BatchScreen.kt`、`MainActivity.kt`。
+- **验证**：android `assembleDebug` **BUILD SUCCESSFUL 27s 零 deprecated**（带 proxy，build 通过后提交）。推送 db1c0d3。
+- **意义**：android AI 支持自定义 endpoint（OpenAI 兼容接口/代理/自托管），对齐 apple Base URL。这是真实功能对齐（非 UI）——apple 各面板极完善后，补 android 真实功能缺口比硬找 UI 改进更有价值。
+
+---
+
 ## windows 连接卡片探测中状态（双端探测 UX 对齐）
 - **内容**：windows ConnItem 初始可达 = ⏳ 探测中（灰点），`ProbeReachabilityAsync` 完成后才更新 ✓/✕。消除探测前 mock 状态歧义，对照 linux probed 三态。
 - **改动**：`MainWindow.axaml.cs`(ItemsSource 初始 Reach=⏳/灰)。

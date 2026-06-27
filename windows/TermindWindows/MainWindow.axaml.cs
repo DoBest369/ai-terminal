@@ -70,6 +70,13 @@ public partial class MainWindow : Window
         if (e.Key != Key.Enter) return;
         var cmd = CmdInput.Text?.Trim();
         if (string.IsNullOrEmpty(cmd)) return;
+        // clear 清屏（对照 linux）：移除光标行外所有输出
+        if (cmd == "clear")
+        {
+            while (TermOutput.Children.Count > 1) TermOutput.Children.RemoveAt(0);
+            CmdInput.Text = "";
+            return;
+        }
         var host = StatusHost.Text?.Replace("主机 ", "") ?? "prod-01";
         var line = new TextBlock
         {

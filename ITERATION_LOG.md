@@ -4582,3 +4582,11 @@
 - **CHANGELOG 阶段46**：指标定时刷新（每30s SSH重取）+ 服务管理（点服务点 systemctl 启停），护城河从看到管，windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段46)。
 - **意义**：CHANGELOG 至阶段46。状态条进化为实时真实监控 + 服务管理面板。Termind 护城河持续深化（实时监控 + 服务运维操作）。后续持续打磨/新功能。
+
+---
+
+## 状态条加磁盘指标（windows+linux，SSH df 取根分区使用率，监控更全）
+- **内容**：metrics 命令加 `df / | tail -1 | awk '{print $5}' | tr -d '%'` 取根分区使用%；行序调整（disk 在 mem 后，cpu 后移一行）；状态条加磁盘进度条三档色（绿<60/橙60-80/红>80）。windows StatusDisk/StatusDiskBar + 解析（lines<5 检查），linux metrics 元组 (u8,u8,u8,String) + 渲染。
+- **改动**：`windows MainWindow.axaml`(磁盘指标)、`MainWindow.axaml.cs`(cmd+解析+更新)、`linux main.rs`(metrics 类型+cmd+渲染)。
+- **验证**：windows `dotnet build` 0 错误 + run 存活 + 截图；linux `cargo build` 0 warning。推送 d7cabdd。
+- **意义**：状态条监控更全（CPU/内存/磁盘/负载全真实 SSH 取），windows/linux 双端对齐。下一步 网络/连接数指标 / AI 多会话 / 质量收口。

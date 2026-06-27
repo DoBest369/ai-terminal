@@ -4209,3 +4209,12 @@
 - **改动**：`linux/src/main.rs`(run_sftp_delete + context_menu 删除 + sftp_delete 标志)。
 - **验证**：`cargo build` **0 error/warning**（0.79s，带 proxy，menu_button + 借用通过）。推送 9845764。
 - **意义**：SFTP 删除 windows/linux 双端对齐。windows/linux SFTP 能力一致（浏览/导航/预览/下载/删除），靠拢 apple 标杆。下一步 质量收口 CHANGELOG 阶段32 / SFTP 新建目录 / 连接编辑。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段32 + ROADMAP S9 进展
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；825 提交。五端 build 全绿。
+- **CHANGELOG 阶段32**：SFTP 文件下载/删除双端对齐（写操作）；windows/linux SFTP 能力一致（浏览/导航/预览/下载/删除）。
+- **ROADMAP S9**：标记进行中（SFTP 双端深化 + 时间戳 + 命令历史持久化已完成；连接编辑/SFTP 上传 mkdir/batch 移植/主题切换待办）。
+- **改动**：`CHANGELOG.md`(阶段32)、`ROADMAP.md`(S9)。
+- **意义**：CHANGELOG 至阶段32。windows/linux SFTP 能力一致并靠拢 apple 标杆。Termind 全平台真实智能运维工作台功能完整度持续提升。

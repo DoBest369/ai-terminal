@@ -4655,3 +4655,11 @@
 - **CHANGELOG 阶段49**：快捷命令栏可自定义（增删+持久化）windows/linux 双端；运维体验全面对齐（历史/快捷/搜索/告警/服务管理）。
 - **改动**：`CHANGELOG.md`(阶段49)。
 - **意义**：CHANGELOG 至阶段49。运维体验双端全面对齐接近 apple 标杆。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## 终端输出导出到文件（windows+linux，运维留存会话记录，双端）
+- **内容**：终端工具区加导出按钮 → 保存对话框 → 拼接终端所有行（含主机头）写文件；windows StorageProvider.SaveFilePickerAsync + StreamWriter，linux rfd::FileDialog.save_file + fs::write。
+- **改动**：`windows MainWindow.axaml`(导出按钮)、`MainWindow.axaml.cs`(OnExportTerm)、`linux main.rs`(导出按钮 + rfd 写文件)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 9c5cb09。
+- **意义**：终端导出双端（运维留存排障/巡检会话记录）。下一步 质量收口 CHANGELOG 阶段50 / AI 搜索 / 新功能。

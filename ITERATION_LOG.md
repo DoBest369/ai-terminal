@@ -6,6 +6,14 @@
 
 ---
 
+## windows 设置加 AI 系统提示词 → 系统提示词设置五端对齐
+- **内容**：windows 设置 Flyout API 地址后加「AI 系统提示词」多行 TextBox（AcceptsReturn + TextWrapping + MinHeight 64/MaxHeight 100），对照 apple/android/linux 系统提示词自定义。
+- **改动**：`windows/TermindWindows/MainWindow.axaml`(设置 Flyout 系统提示词 TextBox)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）。推送 1860f4d。
+- **🎯 AI 系统提示词设置五端对齐**：apple/android/windows/linux 设置都有 AI 系统提示词自定义。AI 配置能力（API Key + 模型 + Base URL + 系统提示词）五端完整对齐。windows/linux 设置面板已基本对齐 apple 完整度。
+
+---
+
 ## linux 设置窗口加 AI 系统提示词（对照 apple/android）
 - **内容**：linux `TermindApp` 加 `sys_prompt` 字段（默认运维助手提示）；设置窗口 API 地址后加「AI 系统提示词」多行 `TextEdit`（desired_rows 4），对照 apple/android 系统提示词自定义。
 - **改动**：`linux/src/main.rs`(sys_prompt 字段 + 设置窗口多行输入框)。

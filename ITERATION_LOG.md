@@ -4177,3 +4177,11 @@
 - **改动**：`MainWindow.axaml.cs`(文件右键下载菜单 + DownloadFile)。
 - **验证**：`dotnet build` 0 错误；run 14s 存活；base64 编解码逻辑验证正确。推送 a2a2dc5。
 - **意义**：windows SFTP 从「浏览/预览」→「可下载文件到本地」（base64 经 SSH 传输，对照 apple sftpDownload）。SFTP 能力向 apple 标杆靠拢。下一步 linux SFTP 下载 / SFTP 上传 / 连接编辑。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段31
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；817 提交。五端 build 全绿。
+- **CHANGELOG 阶段31**：windows SFTP 文件下载（base64）+ AI 气泡时间戳 + apple SFTP 真协议标杆确认。
+- **改动**：`CHANGELOG.md`(阶段31)。
+- **意义**：CHANGELOG 至阶段31。windows SFTP 能力（浏览/导航/预览/下载）向 apple 标杆靠拢。S9 持续完善细节。Termind 全平台真实智能运维工作台日臻完善，windows/linux 双端功能完整接近 apple 标杆。

@@ -4736,3 +4736,11 @@
 - **踩坑**：linux egui-phosphor 无 NETWORK 图标 → PLUGS_CONNECTED（网络连接语义）。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 b54791f。
 - **意义**：网络端口监听面板（运维查端口占用/服务监听，定位网络服务），双端。监控深化（进程 + 端口明细）。下一步 质量收口 CHANGELOG 阶段53 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段53 监控下钻进程Top+网络端口面板双端
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；952 提交。五端 build 全绿。
+- **CHANGELOG 阶段53**：进程 Top（ps 高占用）+ 网络端口（ss 监听）面板，监控从聚合下钻到进程/端口明细，windows/linux 双端。
+- **改动**：`CHANGELOG.md`(阶段53)。
+- **意义**：CHANGELOG 至阶段53。监控护城河深化（聚合→进程/端口下钻）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

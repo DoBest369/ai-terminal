@@ -4144,3 +4144,11 @@
 - **CHANGELOG 阶段30**：终端 ANSI 彩色（windows Inlines/Run + linux egui LayoutJob）+ 终端体验双端对齐 + windows/linux 双端全模块真实完整。
 - **改动**：`CHANGELOG.md`(阶段30)。
 - **意义**：CHANGELOG 至阶段30。windows/linux 双端全模块真实 + 体验完善（连接 CRUD + 终端真实彩色 + AI 三模式 Auto 闭环 + 护城河 Z1-Z3 + SFTP 完整）。智能运维全平台落地的标杆双端功能完整、体验接近原生。后续持续打磨细节 + 全平台均衡。
+
+---
+
+## windows 命令历史持久化（存配置，重启上下键可回溯）
+- **内容**：windows SaveConfig 加 cmdHistory（最近 30 条）；LoadConfig 读回 _cmdHistory；命令入历史后 SaveConfig 持久化；重启后上下键仍可回溯常用命令。
+- **改动**：`MainWindow.axaml.cs`(SaveConfig/LoadConfig cmdHistory + OnCmdKeyDown 后存)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 7316ee0。
+- **意义**：windows 命令历史跨重启可用（常用运维命令上下键回溯）。windows 配置持久化完整（AI Key/地址 + 连接 + 命令历史）。下一步 AI 时间戳 / 全平台均衡 / 连接编辑。

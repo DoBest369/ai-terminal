@@ -3654,3 +3654,9 @@
 - **验证**：`dotnet build` 0 错误；run 15s 存活；**端到端验证（关键）**：回喂 ps 结果（java 占 95%）→ AI 自主决策下一步 `top -Hp 1234 查线程`，完整 agentic 运维闭环。推送 75b744d。
 - **🎯 用户核心设计 Auto Agent 全自动模式落地**：AI 读输出→决策→执行→读结果的自主循环（像 Claude Code），限轮+危险中断保安全。windows 智能运维 **AI Agent 三模式全部完整**（Chat 建议 / Agent 确认 / Auto 自主闭环）。
 - **里程碑**：windows 端智能运维护城河**全部落地**——真实 AI + 真实 SSH + 三模式（含 Auto 自主闭环）+ Z3 环境感知 + 多轮历史 + 危险拦截。Termind 核心价值在 windows 端完整成型。下一步 linux 同等落地（编译验证）+ apple 三模式对齐。
+
+---
+
+## S2 linux 真实 AI 端到端验证（ureq 调 nexcores 跑通）
+- **验证**：临时 Rust 项目（ureq + serde_json，与 linux ai_chat 相同逻辑）端到端调 nexcores 成功——`LINUX_AI_OK:查看磁盘占用使用 df(整体)和 du(目录)`。证明 linux ai_chat 真能调通真实 AI（ureq 纯 Rust 在 mac 可运行验证逻辑，linux 整 app 因 egui/icrate 在 mac 不 run，等真 Linux）。
+- **意义**：智能运维真实 AI **windows + linux 双端落地**（windows GUI 端到端 + linux 逻辑端到端）。linux ai_chat 与 windows CallAiAsync 同样的 Anthropic 格式 + 优化运维提示词 + [EXECUTE] 标记。下一步 linux SSH(ssh2) + 三模式对齐 windows + CHANGELOG 阶段20 里程碑。

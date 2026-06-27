@@ -4169,3 +4169,11 @@
 - **改动**：`MainWindow.axaml.cs`(3 处用户 label + AI label 时间戳)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 见下。
 - **意义**：确认 apple SFTP 标杆地位（真 SFTP 协议）；windows AI 对话加时间戳。下一步 windows/linux SFTP 上传下载（对齐 apple）/ 连接编辑。
+
+---
+
+## windows SFTP 文件下载（右键→base64 取内容→存本地，对照 apple）
+- **内容**：windows SFTP 文件右键菜单「下载到本地」→ DownloadFile：SSH base64 取内容 → Convert.FromBase64String → WriteAllBytes 到 ~/Downloads；大小守门（>10MB 跳过）；终端显进度/结果。
+- **改动**：`MainWindow.axaml.cs`(文件右键下载菜单 + DownloadFile)。
+- **验证**：`dotnet build` 0 错误；run 14s 存活；base64 编解码逻辑验证正确。推送 a2a2dc5。
+- **意义**：windows SFTP 从「浏览/预览」→「可下载文件到本地」（base64 经 SSH 传输，对照 apple sftpDownload）。SFTP 能力向 apple 标杆靠拢。下一步 linux SFTP 下载 / SFTP 上传 / 连接编辑。

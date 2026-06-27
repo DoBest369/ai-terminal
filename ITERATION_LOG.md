@@ -4777,3 +4777,11 @@
 - **改动**：`windows MainWindow.axaml`(用户按钮 Flyout)、`MainWindow.axaml.cs`(OnLoginUsers)、`linux main.rs`(用户按钮 + spawn who/last)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（USERS 图标）。推送 55fb2a4。
 - **意义**：登录用户面板（安全运维维度，查在线/异常登录），双端。监控套件扩展安全维度（进程/端口/磁盘 + 登录用户）。下一步 防火墙面板 / 系统信息 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段55 监控套件扩展安全维度登录用户面板
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；962 提交。五端 build 全绿。
+- **CHANGELOG 阶段55**：登录用户面板（who+last，安全运维）+ 监控套件四维明细（进程/端口/磁盘/登录用户）。
+- **改动**：`CHANGELOG.md`(阶段55)。
+- **意义**：CHANGELOG 至阶段55。监控套件四维明细完整（资源+安全维度）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

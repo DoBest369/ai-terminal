@@ -4687,3 +4687,11 @@
 - **改动**：`windows MainWindow.axaml`(AiSearchBox)、`MainWindow.axaml.cs`(OnAiSearch + BubbleText)、`linux main.rs`(ai_search 字段 + 搜索框 + 气泡 stroke 高亮)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 3eccab4。
 - **意义**：搜索能力补全——终端 + 连接 + AI 全可搜，windows/linux 双端对齐。下一步 质量收口 CHANGELOG 阶段51 / AI 多会话 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段51 AI搜索+导出体验统一
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；940 提交。五端 build 全绿。
+- **CHANGELOG 阶段51**：AI 对话搜索（搜索能力补全：连接/终端/AI 全可搜）+ AI 导出体验统一（文件对话框），windows/linux 双端。
+- **改动**：`CHANGELOG.md`(阶段51)。
+- **意义**：CHANGELOG 至阶段51。搜索/导出能力双端完整统一。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

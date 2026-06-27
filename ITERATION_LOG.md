@@ -4120,3 +4120,11 @@
 - **windows 整体巡检**（截图 Read 自查）：三栏布局完整，连接列表含「我的连接」组 + 终端 + AI 面板，深色协调。
 - **改动**：`CHANGELOG.md`、更新 `apple/screenshots/windows-smart-ops.png`。
 - **意义**：CHANGELOG 至阶段29。SFTP 完整（浏览→导航→预览）+ windows 连接 CRUD 完整。windows/linux 双端全模块真实且功能完善。智能运维全平台落地的标杆 windows 端功能完整度高。后续持续打磨细节。
+
+---
+
+## windows 终端 ANSI 颜色解析（SSH 彩色输出→分段着色）
+- **内容**：windows AppendTerm 解析 ANSI SGR 转义（\x1b[..m）：SGR 码 30-37 标准前景/90-97 亮色映射 hex + 1 粗体，Regex 分段→彩色 Run；无转义整段默认色；0 重置。
+- **改动**：`MainWindow.axaml.cs`(AnsiFg 色表 + AppendTerm ANSI 解析)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 f4f23bd。
+- **意义**：windows 终端真实呈现 SSH 彩色输出（ls --color 目录蓝/可执行绿、grep 高亮、systemctl active 绿等）。终端体验大提升（接近真实终端）。下一步 linux 终端 ANSI / AI 时间戳 / 命令历史持久化。

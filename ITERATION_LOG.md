@@ -4550,3 +4550,11 @@
 - **CHANGELOG 阶段45**：状态条彻底去 mock（CPU/内存/负载/服务点全真实 SSH 取）+ 更新顶部边界声明（windows/linux 已达 apple 标杆，原「mock 数据待接入」过时声明纠正）。
 - **改动**：`CHANGELOG.md`(阶段45 + 边界声明)。
 - **意义**：CHANGELOG 至阶段45。状态条去 mock 里程碑——Termind 真实性彻底（连接/AI/SSH/SFTP/指标/服务全真实）。边界声明如实反映 windows/linux 已达 apple 标杆。后续持续打磨/新功能。
+
+---
+
+## 状态条指标定时自动刷新（windows+linux，每30s SSH 重取，实时反映远程）
+- **内容**：windows DispatcherTimer 30s → RefreshMetricsAsync，ctor 启动先取一次（SelectedIndex=0 测试机）；linux update 用 ctx.input time + last_refresh 字段，host 变或超 30s 重取 + request_repaint_after(30s) 保证唤醒；host 未变时定时刷新不清空指标（避免闪烁）。
+- **改动**：`windows MainWindow.axaml.cs`(DispatcherTimer + 启动取一次)、`linux main.rs`(last_refresh 字段 + 定时条件 + request_repaint_after)。
+- **验证**：windows `dotnet build` 0 错误 + run 存活；linux `cargo build` 0 warning。推送 46ddff4。
+- **意义**：状态条指标实时性（每 30s 自动刷新，非只连接切换时），运维实时监控远程服务器。windows/linux 双端对齐。下一步 服务管理(点服务启停) / 质量收口 / 新功能。

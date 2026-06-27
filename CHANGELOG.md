@@ -199,6 +199,17 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **AI 配置能力五端完整对齐**：API Key + 模型 + **Base URL（API 地址）** + **AI 系统提示词** 五端（apple/android/windows/linux）设置都有。android 补齐 Base URL（AiClient baseUrl 参数替代硬编码 + 5 调用点 + SettingsScreen 对话框）+ 系统提示词自定义（loadSystemPrompt + 多行编辑 + 恢复默认）；windows/linux 设置 Flyout/Window 加 API 地址 + 系统提示词输入。AI 支持 OpenAI 兼容/代理/自托管 endpoint。
 - **质量基线**：五端 build 全绿（apple swift build + 8 自测无回归 + linux cargo + windows dotnet 0 错），PARITY 103 项 ✅✅，累计 640+ 提交。30+ 轮迭代核心逻辑零回归。
 
+## 阶段 21 — 智能运维 S1-S5 全部完成 + AI 体验打磨（2026-06-27）
+
+ROADMAP S1-S5（用户核心需求「智能运维全平台落地 + AI 三模式」）**全部 ✅ 完成**，全平台真实落地、能力体系一致、端到端验证。
+
+- **S1-S5 全完成**：S1 linux 真实 SSH（ssh2）/ S2 linux 真实 AI（ureq）/ S3 windows 真实 SSH+AI（SSH.NET + HttpClient 流式）/ S4 智能运维移植（Z3 环境感知 + 优化运维提示词 + 危险拦截）/ S5 AI 三模式（Chat/Agent/Auto，五端对齐 UI+逻辑）。
+- **AI 体验打磨（windows）**：流式输出（SSE content_block_delta 逐字显示）+ 代码块渲染（```bash→等宽深色代码框）+ AI 对话清空/新建会话。linux 同步代码块渲染。
+- **AI 运维系统提示词五端对齐**：apple/windows/linux 统一资深 Linux/SSH 运维专家提示词（结合真实环境 / 命令代码块 / 危险操作风险分级+备份 / 排障先诊断后修复验证 / 常见故障识别 / [EXECUTE] 标记）。
+- **能力对齐总览**：真实 AI（windows HttpClient 流式 / linux ureq / apple URLSession）+ 真实 SSH（windows SSH.NET / linux ssh2 / apple SSHTerminalSession）+ AI 三模式安全梯度 + Z3 环境感知（windows/linux）+ 危险命令拦截（各端）。windows 更有 Auto 自主闭环 agent loop（读输出→决策→执行→回喂）。
+- **端到端验证**：真实 AI nexcores（claude-opus-4-8）+ 真实 SSH 47.85.19.31（Ubuntu 20.04），凭据环境变量不硬编码；windows GUI 跑通 + linux ureq/ssh2 逻辑临时项目验证（LINUX_AI_OK/LINUX_SSH_OK）。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，PARITY 103 项 ✅✅，717 提交。
+
 ## 阶段 20 — 智能运维全链路真实落地 + AI 三模式 Agent（2026-06-27）
 
 里程碑级突破：智能运维从「仅 apple/android 真实」→ **windows 端全链路真实**，用户提供真实 AI 接口（nexcores claude-opus-4-8）+ SSH 测试机（47.85.19.31），每步端到端验证。

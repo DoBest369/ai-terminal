@@ -4450,3 +4450,11 @@
   - U4 字号可调+持久化：apple ✅ / linux ✅（终端+AI）/ windows ✅（终端+AI）
 - **改动**：记忆 ui-modern 记五端 U3/U4 对齐状态（apple 标杆，windows U3 待补）。
 - **意义**：确认五端 UI 品质对齐状态——apple/linux U3 已有，仅 windows U3 主题切换待补（apple 是标杆 5 套主题）。用户 UI 品质要求 U1/U2/U4 五端齐，U3 apple/linux 齐。下一步 windows U3 主题对齐（完成 U3 全端）/ 新功能。
+
+---
+
+## 🎯 windows U3 主题切换（4套主题DynamicResource实时切换+持久化，完成U3全端）
+- **内容**：windows App.axaml 定义主题背景/强调色 DynamicResource；三栏主背景（窗口/侧栏/终端/AI）用资源；设置面板配色主题 4 按钮（午夜/Dracula/Nord/Solarized）→ OnTheme 改 Application.Resources 实时切换；ApplyTheme 设 4 背景+强调色；themeIdx 存 config 持久化+启动恢复。
+- **改动**：`App.axaml`(主题资源)、`MainWindow.axaml`(三栏背景 DynamicResource + 配色主题按钮)、`MainWindow.axaml.cs`(Themes + OnTheme/ApplyTheme + themeIdx 持久化)。
+- **验证**：`dotnet build` 0 错误；run 存活 + 截图。推送 d19dd13。
+- **🎯 U3 主题切换完成全端**：apple 5 主题 / linux 4 主题 / windows 4 主题，都实时切换 + 持久化。响应用户「配色可调像 VSCode 首启选风格」**全端落地**。UI 品质 U1-U4 全部完成五端（U3 apple/linux/windows，android Web 壳）。下一步 质量收口 + 文档最终成熟度。

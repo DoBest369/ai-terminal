@@ -4046,3 +4046,12 @@
 - **改动**：`MainWindow.axaml`(SFTP Flyout 动态 SftpList + Click)、`MainWindow.axaml.cs`(OnSftpOpen)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活；ls -la 解析逻辑验证正确（目录/大小/日期/名）。推送 0d9be98。
 - **意义**：windows SFTP 从「固定 mock 文件」→「真实 SSH 文件浏览」（取选中连接 home 真实目录）。windows 真实能力再下一城（连接管理 + 终端 + AI 运维 + SFTP 都真实）。下一步 linux SFTP 真实 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段27（windows 全模块真实化）+ 截图归档
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；785 提交。五端 build 全绿。
+- **CHANGELOG 阶段27**：windows 全模块真实化（连接管理完整闭环 + SFTP 真实文件浏览）；windows 端真实化总览（AI/SSH/三模式/护城河/连接/SFTP 全模块无 mock）。
+- **windows 整体巡检**（截图 Read 自查）：三栏布局（连接列表含「我的连接」组 + 终端 + AI 面板），深色协调，矢量图标，JetBrains Mono。
+- **改动**：`CHANGELOG.md`、更新 `apple/screenshots/windows-smart-ops.png`。
+- **意义**：windows 端从「能编译的 mock UI」→「全模块真实智能 SSH 运维工作台」里程碑。智能运维全平台落地的 windows 标杆完整。下一步 linux SFTP 真实对齐 / SFTP 目录导航 / 持续打磨。

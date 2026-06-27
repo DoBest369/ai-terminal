@@ -203,8 +203,21 @@
                     <Border Width="1" Height="16" Background="#2A2D3E" VerticalAlignment="Center"/>
                     <StackPanel x:Name="StatusServices" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
                 </StackPanel>
-                <!-- 终端输出搜索 + 字号调整（U4）-->
+                <!-- 进程 Top + 终端输出搜索 + 字号调整（U4）-->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <!-- 进程 Top 面板（SSH ps 取高占用进程，深化监控）-->
+                    <Button Click="OnTopProcs" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="进程 Top（CPU/内存高占用）">
+                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
+                                  Data="M13,2.05V5.08C16.39,5.57 19,8.47 19,12C19,12.9 18.82,13.75 18.5,14.54L21.12,16.07C21.68,14.83 22,13.45 22,12C22,6.82 18.05,2.55 13,2.05M12,19A7,7 0 0,1 5,12C5,8.47 7.61,5.57 11,5.08V2.05C5.94,2.55 2,6.81 2,12A10,10 0 0,0 12,22C15.3,22 18.23,20.39 20.05,17.91L17.45,16.38C16.17,17.96 14.21,19 12,19Z"/>
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedRight">
+                                <StackPanel Width="340" Spacing="2">
+                                    <TextBlock Text="进程 Top（CPU 占用排序）" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <StackPanel x:Name="TopProcsList" Spacing="1"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                     <Border Background="#0D0E1A" CornerRadius="4" Width="130">
                         <TextBox x:Name="TermSearchBox" PlaceholderText="搜索输出…" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" Padding="8,3" CaretBrush="#FF4B6E" TextChanged="OnTermSearch"/>
                     </Border>

@@ -310,6 +310,34 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { AppendTerm($"✕ 导出失败：{ex.Message}", "#F85149"); }
     }
 
+    /// 进程 Top 面板：SSH ps 取 CPU 高占用进程 → 解析展示（深化监控，对照 apple Z6）
+    private async void OnTopProcs(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        TopProcsList.Children.Clear();
+        TopProcsList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        try
+        {
+            var outp = await SshExecAsync("ps -eo pid,%cpu,%mem,comm --sort=-%cpu | head -11");
+            var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
+            TopProcsList.Children.Clear();
+            foreach (var line in lines)
+            {
+                var cols = line.Trim().Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+                if (cols.Length < 4) continue;
+                var isHeader = cols[0] == "PID";
+                var cpu = isHeader ? 0.0 : (double.TryParse(cols[1], out var cv) ? cv : 0);
+                var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("48,46,46,*"), Margin = new Thickness(2, 1) };
+                var fg = isHeader ? "#6B7280" : (cpu > 50 ? "#F85149" : cpu > 20 ? "#F59E0B" : "#C9D1D9");
+                void Cell(string t, int col, string color) { var tb = new TextBlock { Text = t, Foreground = Brush.Parse(color), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextTrimming = TextTrimming.CharacterEllipsis }; Grid.SetColumn(tb, col); grid.Children.Add(tb); }
+                Cell(cols[0], 0, fg); Cell(cols[1], 1, fg); Cell(cols[2], 2, fg);
+                Cell(string.Join(" ", cols[3..]), 3, isHeader ? "#6B7280" : "#C9D1D9");
+                TopProcsList.Children.Add(grid);
+            }
+            if (TopProcsList.Children.Count == 0) TopProcsList.Children.Add(new TextBlock { Text = "（未取到进程，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        }
+        catch (System.Exception ex) { TopProcsList.Children.Clear(); TopProcsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+    }
+
     /// AI 对话搜索：匹配气泡橙色描边高亮 + 首个滚动到可见（对照终端搜索）
     private void OnAiSearch(object? sender, Avalonia.Controls.TextChangedEventArgs e)
     {

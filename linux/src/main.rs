@@ -1306,6 +1306,18 @@ impl eframe::App for TermindApp {
                         }
                         // 终端输出搜索（匹配行高亮，对照 windows）
                         ui.add(egui::TextEdit::singleline(&mut self.term_search).hint_text("搜索输出…").desired_width(120.0).font(egui::TextStyle::Small));
+                        // 进程 Top（SSH ps 取高占用进程 → 终端展示，深化监控，对照 windows/apple Z6）
+                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::GAUGE).size(14.0).color(TEXT_SECONDARY())).frame(false))
+                            .on_hover_text("进程 Top（CPU/内存高占用）").clicked() {
+                            self.term_lines.push("# 进程 Top（CPU 占用排序）…".to_string());
+                            let (host, user, tx) = (active_host.clone(), active_user.clone(), self.term_tx.clone());
+                            std::thread::spawn(move || {
+                                let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+                                if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+                                let r = ssh_exec(&host, 22, &user, &pass, "ps -eo pid,%cpu,%mem,comm --sort=-%cpu | head -11");
+                                let _ = tx.send(r);
+                            });
+                        }
                         // 终端输出导出到文件（运维留存会话记录，对照 windows）
                         if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::DOWNLOAD_SIMPLE).size(14.0).color(TEXT_SECONDARY())).frame(false))
                             .on_hover_text("导出终端输出到文件").clicked() {

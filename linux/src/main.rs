@@ -134,7 +134,7 @@ fn ansi_to_job(text: &str, default: egui::Color32, size: f32) -> egui::text::Lay
 }
 
 /// 渲染 AI 回复：```代码块→等宽代码框，正文→普通文本（对照 windows RenderAiReply）
-fn render_ai_reply(ui: &mut egui::Ui, text: &str) {
+fn render_ai_reply(ui: &mut egui::Ui, text: &str, size: f32) {
     for (i, seg) in text.split("```").enumerate() {
         if i % 2 == 1 {
             // 代码块：去首行语言标识
@@ -144,11 +144,11 @@ fn render_ai_reply(ui: &mut egui::Ui, text: &str) {
             }.trim();
             if !code.is_empty() {
                 egui::Frame::default().fill(egui::Color32::from_rgb(0x05, 0x06, 0x0C)).rounding(6.0).inner_margin(8.0)
-                    .show(ui, |ui| { ui.colored_label(SUCCESS(), egui::RichText::new(code).monospace()); });
+                    .show(ui, |ui| { ui.colored_label(SUCCESS(), egui::RichText::new(code).monospace().size(size)); });
             }
         } else {
             let body = seg.trim();
-            if !body.is_empty() { ui.colored_label(TEXT_PRIMARY(), body); }
+            if !body.is_empty() { ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(body).size(size)); }
         }
     }
 }
@@ -219,6 +219,7 @@ struct TermindApp {
     new_dir_name: String,                      // SFTP 新建目录 / 重命名输入（复用）
     sftp_renaming: Option<String>,             // 待重命名文件原路径（非空=重命名模式）
     term_font_size: f32,                       // 终端字号（U4 可调，对照 windows）
+    ai_font_size: f32,                         // AI 对话字号（U4 可调，对照 windows）
 }
 
 /// 全局复用的 SSH 会话缓存（对照 windows _sshClient；多后台线程经 Mutex 串行复用）
@@ -401,7 +402,7 @@ impl Default for TermindApp {
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
         THEME_IDX.store(load_theme_idx(), std::sync::atomic::Ordering::Relaxed);   // U3 恢复持久化主题
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size() }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: Vec::new(), cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: 13.0 }
     }
 }
 
@@ -950,7 +951,18 @@ impl eframe::App for TermindApp {
             .exact_width(320.0)
             .frame(egui::Frame::default().fill(SURFACE()).inner_margin(12.0))
             .show(ctx, |ui| {
-                ui.colored_label(ACCENT(), egui::RichText::new("✦ AI 助手").strong());
+                ui.horizontal(|ui| {
+                    ui.colored_label(ACCENT(), egui::RichText::new("✦ AI 助手").strong());
+                    // AI 字号 A-/A+（U4，对照 windows）
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if ui.add(egui::Button::new(egui::RichText::new("A+").size(11.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("放大 AI 字号").clicked() {
+                            self.ai_font_size = (self.ai_font_size + 1.0).min(22.0);
+                        }
+                        if ui.add(egui::Button::new(egui::RichText::new("A-").size(11.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("缩小 AI 字号").clicked() {
+                            self.ai_font_size = (self.ai_font_size - 1.0).max(10.0);
+                        }
+                    });
+                });
                 ui.add_space(6.0);
                 // AI 三模式切换器（Chat/Agent/Auto，安全梯度，对照 windows）
                 ui.horizontal(|ui| {
@@ -1037,20 +1049,21 @@ impl eframe::App for TermindApp {
                         ui.colored_label(SUCCESS(), egui::RichText::new("tail -n 50 /var/log/nginx/error.log").monospace());
                     });
                 });
-                // AI 真实对话（true=用户提问蓝气泡 / false=AI 真实回复气泡）
+                // AI 真实对话（true=用户提问蓝气泡 / false=AI 真实回复气泡）；字号 U4 可调
+                let aifs = self.ai_font_size;
                 for (is_user, text) in &self.ai_msgs {
                     ui.add_space(6.0);
                     if *is_user {
                         ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("你").size(10.0).strong());
                         egui::Frame::default().fill(egui::Color32::from_rgb(0x3B, 0x82, 0xF6)).rounding(10.0).inner_margin(10.0)
-                            .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY(), text); });
+                            .show(ui, |ui| { ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(text).size(aifs)); });
                     } else {
                         ui.horizontal(|ui| {
                             ui.colored_label(ACCENT(), egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
                             ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("AI").size(10.0).strong());
                         });
                         egui::Frame::default().fill(BG()).rounding(10.0).inner_margin(10.0)
-                            .show(ui, |ui| { render_ai_reply(ui, text); });
+                            .show(ui, |ui| { render_ai_reply(ui, text, aifs); });
                     }
                 }
                 if self.ai_busy {

@@ -274,14 +274,24 @@
                     </Border>
                 </StackPanel>
             </ScrollViewer>
-            <!-- 快捷追问（点击填入 AI 输入框，对照 linux/apple/android） -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="6" Margin="12,8">
-                <Button Background="#1A3B82F6" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickAsk"
-                        Content="如何排查？" Foreground="#3B82F6" FontSize="11"/>
-                <Button Background="#1A3B82F6" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickAsk"
-                        Content="给我具体命令" Foreground="#3B82F6" FontSize="11"/>
-                <Button Background="#1A3FB950" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickAsk"
-                        Content="有什么风险？" Foreground="#3FB950" FontSize="11"/>
+            <!-- 运维快捷入口（对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检）+ 快捷追问 -->
+            <StackPanel Grid.Row="2" Spacing="6" Margin="12,8">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnOpsQuick"
+                            Tag="explain" Content="解释命令" Foreground="#FF4B6E" FontSize="11"/>
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnOpsQuick"
+                            Tag="error" Content="分析报错" Foreground="#FF4B6E" FontSize="11"/>
+                    <Button Background="#1AFF4B6E" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnOpsQuick"
+                            Tag="health" Content="健康巡检" Foreground="#FF4B6E" FontSize="11"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Button Background="#1A3B82F6" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickAsk"
+                            Content="如何排查？" Foreground="#3B82F6" FontSize="11"/>
+                    <Button Background="#1A3B82F6" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickAsk"
+                            Content="给我具体命令" Foreground="#3B82F6" FontSize="11"/>
+                    <Button Background="#1A3FB950" BorderThickness="0" CornerRadius="14" Padding="10,5" Click="OnQuickAsk"
+                            Content="有什么风险？" Foreground="#3FB950" FontSize="11"/>
+                </StackPanel>
             </StackPanel>
             <!-- AI 输入（可真实输入） -->
             <Border Grid.Row="3" Background="#16182A" CornerRadius="8" Margin="12,0,12,12" Padding="4,2">

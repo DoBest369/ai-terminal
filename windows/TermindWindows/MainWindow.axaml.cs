@@ -130,6 +130,23 @@ public partial class MainWindow : Window
         }
     }
 
+    /// 运维快捷入口（对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检）→ 预填专用运维提问
+    private void OnOpsQuick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is Button b && b.Tag is string tag)
+        {
+            AiInput.Text = tag switch
+            {
+                "explain" => "解释这条命令的作用、参数含义和潜在风险：",
+                "error" => "分析这段报错/日志，按 现象 → 可能原因 → 修复步骤 给出诊断：",
+                "health" => "对这台服务器做一次健康巡检（结合 CPU/内存/磁盘/负载/关键服务运行状态），指出风险点和优化建议",
+                _ => ""
+            };
+            AiInput.Focus();
+            AiInput.CaretIndex = AiInput.Text.Length;
+        }
+    }
+
     /// 快捷追问点击 → 填入 AI 输入框（真实交互，对照 linux/apple/android）
     private void OnQuickAsk(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

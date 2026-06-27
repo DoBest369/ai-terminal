@@ -4006,3 +4006,11 @@
 - **改动**：`linux/src/main.rs`(ssh_target + update 预取 active + 各 spawn 用 + demo 首项)。
 - **验证**：`cargo build` **0 error/warning**（0.79s，带 proxy，active_host 借用 + 闭包捕获通过）。推送 b1ba0af。
 - **意义**：真实连接切换 windows/linux 双端对齐（点选中连接 → 在该主机执行命令/巡检/报错）。下一步 新建连接表单 / 主题切换 / 质量收口。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段26 真实连接管理双端对齐
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；775 提交。五端 build 全绿。
+- **CHANGELOG 阶段26**：真实连接切换（windows/linux）+ AI 配置 UI 生效+持久化（windows）+ 命令填入终端 + 对话导出（windows/linux）。
+- **改动**：`CHANGELOG.md`(阶段26)。
+- **意义**：CHANGELOG 至阶段26。S7 深化打磨真实连接管理 + 配置/交互细节双端对齐。Termind 全平台真实智能运维工作台持续完善：核心(S1-S5)→护城河补齐(22-24)→三模式Auto闭环五端(25)→真实连接管理+细节(26)。

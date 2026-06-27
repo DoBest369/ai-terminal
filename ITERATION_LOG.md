@@ -6,6 +6,13 @@
 
 ---
 
+## 质量收口 + linux SFTP 文件项加修改时间
+- **质量基线**（66 项 UI + 多轮终端交互后收口）：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 错；PARITY **103 项 ✅✅**。终端交互改动未伤核心逻辑。
+- **linux SFTP 修改时间**：sftp_demo 加修改时间字段；SFTP 窗口文件项右侧显「大小 + 修改时间」（淡化小字），对照 apple/android SFTP（时间 + 大小）。android SFTP 已极完善（真实接 SshClient，图标/排序/批量操作/时间/大小）。cargo build 0 error/warning（build 通过后提交）。推送 f23a3ec。
+- **意义**：质量基线扎实（五端 build 全绿，核心无回归）；linux SFTP 占位信息对照 apple/android（时间 + 大小）。SFTP 文件项信息五端趋于一致。
+
+---
+
 ## windows 命令历史 ↑/↓ 键回溯（双端命令历史对齐）
 - **内容**：windows MainWindow 加 `_cmdHistory`（最近优先去重）+ `_histIdx`；OnCmdKeyDown ↑ 键回溯上条 / ↓ 键前进或清空（CaretIndex 到末尾，e.Handled 阻止默认）；回车入历史。对照 linux。
 - **改动**：`MainWindow.axaml.cs`(命令历史字段 + 上下键回溯)。

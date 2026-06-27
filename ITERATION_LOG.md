@@ -4606,3 +4606,11 @@
 - **改动**：`windows MainWindow.axaml`(StatusAlert)、`MainWindow.axaml.cs`(告警计算)、`linux main.rs`(状态条告警 Frame)。
 - **验证**：windows `dotnet build` 0 错误 + run 存活；linux `cargo build` 0 warning。推送 ea0151c。
 - **意义**：运维主动发现资源风险（CPU/内存/磁盘超阈值预警），状态条从监控到预警，windows/linux 双端对齐。下一步 命令历史面板 / AI 多会话 / 质量收口。
+
+---
+
+## windows 命令历史面板（点击重用，对照 apple/linux history）
+- **内容**：windows 命令输入行加历史按钮（时钟图标）→ Flyout 列最近 20 条命令；点击任一 → 填入 CmdInput + 聚焦重用；空历史友好提示；等宽字体 + 省略号截断。
+- **改动**：`windows MainWindow.axaml`(历史按钮 Flyout + HistoryList)、`MainWindow.axaml.cs`(OnHistoryOpen)。
+- **验证**：`dotnet build` 0 错误；run 存活。推送 1a45746。
+- **意义**：windows 命令历史面板（运维重用历史命令更快，对照 apple history-test / linux 上下键）。下一步 linux 命令历史面板对齐 / 质量收口 / 新功能。

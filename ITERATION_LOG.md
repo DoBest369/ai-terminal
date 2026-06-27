@@ -3901,3 +3901,11 @@
 - **改动**：`linux/src/main.rs`(ssh_session_cache + ssh_connect + ssh_exec 复用)。
 - **验证**：`cargo build` **0 error/warning**（0.68s，带 proxy，ssh2 Session Send + Mutex 线程安全通过）。推送 982913d。
 - **意义**：SSH Session 复用 windows/linux 双端对齐（多命令/一键巡检/报错分析提速，连接+握手+认证只首次/断线后做）。下一步 CHANGELOG 阶段23 / AI 命令复制 / apple Auto 闭环。
+
+---
+
+## 质量收口（全量）+ CHANGELOG 阶段23 护城河 Z2/Z3 一键真闭环
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；749 提交。五端 build 全绿。
+- **CHANGELOG 阶段23**：护城河 Z2 报错分析 + Z3 健康巡检一键真闭环（windows/linux）+ SSH Session 复用双端 + 命令耗时 + 快捷命令栏增强。
+- **改动**：`CHANGELOG.md`(阶段23)。
+- **意义**：CHANGELOG 演进至阶段23。深化打磨把 apple 护城河 Z2/Z3 在 windows/linux 做到一键真闭环 + 性能优化。智能运维全平台落地（S1-S5）→ 深化打磨对照护城河补齐（S6/阶段22）→ Z2/Z3 一键闭环 + SSH 复用（S7/阶段23）。Termind 全平台真实智能运维工作台持续打磨。

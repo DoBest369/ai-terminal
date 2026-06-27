@@ -213,7 +213,9 @@ UI 与真实交互完成后，进入「真实逻辑接入」阶段：windows/lin
 - **安全铁律**：极高危命令（rm-rf/mkfs/dd/shutdown/fork 炸弹/chmod777）⚠ 标注，即使 Auto 模式也强制人工确认、不自动绕过；所有执行可回滚（对齐护城河）。
 - **AI 多轮对话历史**（windows）：上下文累积，AI 记住多轮，为 Auto 闭环铺垫。
 - **UI 品质专项 U1-U4**：windows PathIcon + linux Phosphor 图标库化（去 emoji）；JetBrains Mono 字体双端；整窗深色配色协调（ExtendClientAreaToDecorationsHint）；AI 三模式切换器 UI。
-- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，PARITY 103 项 ✅✅，700+ 提交。
+- **AI 三模式五端对齐（UI + 逻辑）**：apple/windows/linux（iOS 同 apple）AI 面板都有 Chat/Agent/Auto 三档切换器 + 安全梯度行为（Chat 不执行 / Agent 待确认放行 / Auto 自主，危险命令各端强制确认）。apple 复用真实终端会话注入（injectCommand），windows/linux 真实 SSH 执行。
+- **真实能力双端落地（windows + linux，都端到端验证）**：真实 AI（windows HttpClient / linux ureq 调 nexcores）+ 真实 SSH（windows SSH.NET / linux ssh2 连 47.85.19.31）。临时项目端到端验证：linux ureq AI 跑通 + ssh2 连服务器跑通。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，PARITY 103 项 ✅✅，699 提交。
 - **真实测试资源**：AI nexcores（Anthropic 格式，claude-opus-4-8）+ SSH 47.85.19.31（Ubuntu 20.04），密码/key 环境变量不硬编码。
 
 ## 当前状态

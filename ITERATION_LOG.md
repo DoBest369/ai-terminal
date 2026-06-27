@@ -3669,3 +3669,10 @@
 - **改动**：`CHANGELOG.md`(阶段20)。
 - **验证**：apple 8 自测无回归。推送 7d9afef。
 - **意义**：CHANGELOG 至阶段20，沉淀智能运维全链路真实落地里程碑。演进:编译打通(16)→UI统一(17)→真实交互(18)→真实逻辑+AI配置(19)→**智能运维全链路真实+AI三模式Agent(20)**。Termind 核心价值（智能 SSH 运维 + AI Agent）在 windows 端完整成型，全平台落地推进中。
+
+---
+
+## 🎯 S2 linux 真实 SSH 端到端验证（ssh2 连 47.85.19.31 跑通）
+- **内容**：linux `ssh_exec`（ssh2：TcpStream→Session→handshake→userauth_password→channel exec→读 stdout+stderr，对照 windows SshExecAsync）；命令回车从 mock → 真实 SSH 后台线程执行 → term_rx 回结果追加终端；密码/host/user 从环境变量。
+- **验证**：cargo build 0 error（带 proxy，ssh2 链接 OK）；**端到端验证**（临时 Rust 项目同逻辑）：ssh2 真连 47.85.19.31 认证通过 + 执行返回 `LINUX_SSH_OK:ssh2-OK`。
+- **🎯 智能运维真实 SSH 双端落地**：windows（SSH.NET）+ linux（ssh2）都端到端验证。linux 智能运维闭环逻辑完整（真实 AI ureq + 真实 SSH ssh2，都端到端跑通；linux 整 app 因 egui/icrate mac 不 run，等真 Linux/CI 实跑）。下一步 linux [EXECUTE] 解析+三模式 + apple 三模式对齐。

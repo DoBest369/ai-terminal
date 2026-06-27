@@ -6,6 +6,14 @@
 
 ---
 
+## windows 命令历史 ↑/↓ 键回溯（双端命令历史对齐）
+- **内容**：windows MainWindow 加 `_cmdHistory`（最近优先去重）+ `_histIdx`；OnCmdKeyDown ↑ 键回溯上条 / ↓ 键前进或清空（CaretIndex 到末尾，e.Handled 阻止默认）；回车入历史。对照 linux。
+- **改动**：`MainWindow.axaml.cs`(命令历史字段 + 上下键回溯)。
+- **验证**：`dotnet build` **0 警告 0 错误**（带 proxy，build 通过后提交）。推送 25b605e。
+- **🎯 windows/linux 双端命令历史对齐**：终端命令输入 ↑/↓ 键回溯历史。windows/linux 终端交互完整对齐（命令执行 + clear 清屏 + 命令历史回溯），交互体验接近真实终端。
+
+---
+
 ## linux 命令历史 ↑/↓ 键回溯（终端常用交互）
 - **内容**：linux struct 加 `cmd_history`（最近优先去重）+ `hist_idx`；命令回车时入历史；命令输入框聚焦时 ↑ 键回溯上条命令、↓ 键前进或清空。对照真实终端命令历史回溯。
 - **改动**：`linux/src/main.rs`(cmd_history/hist_idx + 上下键 ui.input 检测 + 回车入历史)。

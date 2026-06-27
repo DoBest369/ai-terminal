@@ -89,6 +89,7 @@ public partial class MainWindow : Window
             var root = doc.RootElement;
             if (root.TryGetProperty("apiKey", out var k)) ApiKeyBox.Text = k.GetString() ?? "";
             if (root.TryGetProperty("baseUrl", out var u)) BaseUrlBox.Text = u.GetString() ?? "";
+            if (root.TryGetProperty("fontSize", out var fs) && fs.TryGetDouble(out var fsv)) _termFontSize = System.Math.Clamp(fsv, 9, 22);
             // 恢复命令历史（上下键回溯，重启可用）
             if (root.TryGetProperty("cmdHistory", out var ch) && ch.ValueKind == JsonValueKind.Array)
                 foreach (var c in ch.EnumerateArray())
@@ -124,7 +125,7 @@ public partial class MainWindow : Window
             // 只持久化用户新建的连接（"我的连接" 组），默认演示连接不存
             var userConns = _conns.Where(c => c.GroupName == "我的连接")
                 .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note }).ToArray();
-            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray() });
+            var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize });
             System.IO.File.WriteAllText(ConfigPath, json);
         }
         catch { /* 写失败忽略，不影响运行 */ }
@@ -911,6 +912,7 @@ public partial class MainWindow : Window
         _termFontSize = System.Math.Clamp(size, 9, 22);
         foreach (var child in TermOutput.Children)
             if (child is TextBlock tb) tb.FontSize = _termFontSize;
+        SaveConfig();   // 字号持久化（重启恢复）
     }
 
     private void AppendTerm(string text, string color)

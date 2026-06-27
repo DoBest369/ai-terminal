@@ -4152,3 +4152,11 @@
 - **改动**：`MainWindow.axaml.cs`(SaveConfig/LoadConfig cmdHistory + OnCmdKeyDown 后存)。
 - **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 7316ee0。
 - **意义**：windows 命令历史跨重启可用（常用运维命令上下键回溯）。windows 配置持久化完整（AI Key/地址 + 连接 + 命令历史）。下一步 AI 时间戳 / 全平台均衡 / 连接编辑。
+
+---
+
+## 质量收口 + ROADMAP S7/S8 完成标记（深化打磨进展沉淀）
+- **质量基线**：apple swift build Build complete + 8 自测全 true 无回归；linux cargo Finished；811 提交。
+- **ROADMAP 更新**：S7✅（护城河深化 + Auto 闭环全平台：linux SSH 复用/Z2 报错 Z3 巡检一键真闭环/apple Auto 闭环→三模式五端全对齐）；S8✅（全模块真实化 + 体验打磨：连接 CRUD/SFTP 完整/终端 ANSI 彩色/命令耗时/AI 流式代码块清空导出/风险四级/配置持久化）；S9 后续（apple/android SFTP 确认/连接编辑/SFTP 上传下载/batch 移植/主题切换 U3）。
+- **改动**：`ROADMAP.md`(S7/S8/S9)。
+- **意义**：ROADMAP 反映深化打磨完整进展。智能运维全平台落地（S1-S5）→ 护城河补齐 + Auto 闭环五端（S6/S7）→ 全模块真实化 + 体验打磨（S8）。Termind 核心 + 深化全部完成，方向清晰（S9）。

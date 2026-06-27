@@ -320,16 +320,17 @@ impl Default for TermindApp {
 }
 
 impl TermindApp {
-    /// SFTP 真实文件列表（对照 windows OnSftpOpen）：后台 SSH ls 取选中连接 home → sftp_rx
-    fn run_sftp_ls(&mut self) {
+    /// SFTP 真实文件列表（对照 windows LoadSftp）：后台 SSH ls 指定目录 → sftp_rx；目录可导航
+    fn run_sftp_ls(&mut self, path: &str) {
         if self.sftp_loading { return; }
         self.sftp_loading = true;
         let (host, user) = self.ssh_target();
         let tx = self.sftp_tx.clone();
+        let dir = path.replace('\'', "");   // 防注入
         std::thread::spawn(move || {
             let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
             let out = if pass.is_empty() { "⚠️ 未配置 SSH 密码".to_string() }
-                else { ssh_exec(&host, 22, &user, &pass, "cd ~ && pwd && ls -la --time-style=long-iso") };
+                else { ssh_exec(&host, 22, &user, &pass, &format!("cd '{}' 2>/dev/null && pwd && ls -la --time-style=long-iso", dir)) };
             let _ = tx.send(out);
         });
     }
@@ -503,7 +504,7 @@ impl eframe::App for TermindApp {
                     }
                     if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::FOLDER).size(16.0).color(TEXT_SECONDARY)).frame(false)).clicked() {
                         self.show_sftp = !self.show_sftp;
-                        if self.show_sftp { self.run_sftp_ls(); }   // 打开时 SSH 取真实文件
+                        if self.show_sftp { self.run_sftp_ls("~"); }   // 打开时 SSH 取真实文件
                     }
                     let _ = ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::PLUS).size(16.0).color(ACCENT)).frame(false));
                 });
@@ -562,6 +563,7 @@ impl eframe::App for TermindApp {
 
         // SFTP 文件浏览窗口（占位，对照 apple/android SFTP）
         let mut sftp_open = self.show_sftp;
+        let mut sftp_nav: Option<String> = None;   // 待导航目标目录（点击后循环外执行）
         egui::Window::new("SFTP 文件")
             .open(&mut sftp_open)
             .resizable(true)
@@ -572,6 +574,7 @@ impl eframe::App for TermindApp {
                 ui.separator();
                 if self.sftp_loading { ui.colored_label(TEXT_SECONDARY, "加载中…"); }
                 else if self.sftp_files.is_empty() { ui.colored_label(TEXT_SECONDARY, "(空目录或未配置 SSH)"); }
+                let cwd = path.clone();
                 for (name, is_dir, size, time) in &self.sftp_files {
                     let (name, is_dir, size, time) = (name.as_str(), *is_dir, size.as_str(), time.as_str());
                     ui.horizontal(|ui| {
@@ -582,7 +585,15 @@ impl eframe::App for TermindApp {
                             else if name.ends_with(".md") || name.ends_with(".txt") { ph::FILE_TEXT }
                             else { ph::GEAR };
                         ui.colored_label(if is_dir { ACCENT } else { TEXT_SECONDARY }, icon);
-                        ui.colored_label(TEXT_PRIMARY, name);
+                        // 目录可点击导航（cd 进入 / .. 返回上级，对照 windows）
+                        if is_dir {
+                            if ui.add(egui::Label::new(egui::RichText::new(name).color(TEXT_PRIMARY))
+                                .sense(egui::Sense::click())).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
+                                sftp_nav = Some(format!("{}/{}", cwd, name));
+                            }
+                        } else {
+                            ui.colored_label(TEXT_PRIMARY, name);
+                        }
                         // 右侧：大小 + 修改时间（对照 apple/android SFTP）
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             if !size.is_empty() {
@@ -596,6 +607,7 @@ impl eframe::App for TermindApp {
                 }
             });
         self.show_sftp = sftp_open;
+        if let Some(target) = sftp_nav { self.run_sftp_ls(&target); }   // 导航到子目录/上级
 
         // ① 左侧栏：连接列表（按分组）—— 三栏工作台对齐 apple/windows
         egui::SidePanel::left("connections")

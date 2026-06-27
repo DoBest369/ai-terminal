@@ -380,6 +380,22 @@ impl TermindApp {
         });
     }
 
+    /// SFTP 文件删除（对照 windows DeleteSftpFile / apple sftpRemove）：ssh rm + 刷新当前目录
+    fn run_sftp_delete(&mut self, file: &str) {
+        self.term_lines.push(format!("# 删除 {} …", file));
+        let (host, user) = self.ssh_target();
+        let tx = self.term_tx.clone();
+        let f = file.replace('\'', "");
+        let path = if self.sftp_path.is_empty() { "~".to_string() } else { self.sftp_path.clone() };
+        std::thread::spawn(move || {
+            let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+            if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+            let r = ssh_exec(&host, 22, &user, &pass, &format!("rm -f '{}' && echo TERMIND_RM_OK", f));
+            let _ = tx.send(if r.contains("TERMIND_RM_OK") { "✓ 已删除".to_string() } else { format!("✕ 删除失败：{}", r) });
+        });
+        self.run_sftp_ls(&path);   // 刷新当前目录
+    }
+
     /// SFTP 文件下载（对照 windows DownloadFile）：SSH base64 取内容→解码→存 $HOME/Downloads
     fn run_sftp_download(&mut self, file: &str, fname: &str) {
         self.term_lines.push(format!("# 下载 {} …", file));
@@ -664,6 +680,7 @@ impl eframe::App for TermindApp {
         let mut sftp_nav: Option<String> = None;   // 待导航目标目录（点击后循环外执行）
         let mut sftp_preview: Option<String> = None;   // 待预览文件（点击后循环外执行）
         let mut sftp_download: Option<(String, String)> = None;   // 待下载 (远程路径, 文件名)
+        let mut sftp_delete: Option<String> = None;   // 待删除文件（嵌套确认后）
         egui::Window::new("SFTP 文件")
             .open(&mut sftp_open)
             .resizable(true)
@@ -701,6 +718,13 @@ impl eframe::App for TermindApp {
                                     sftp_download = Some((format!("{}/{}", cwd, name), name.to_string()));
                                     ui.close_menu();
                                 }
+                                // 删除：嵌套子菜单确认防误删（对照 windows/apple sftpRemove）
+                                ui.menu_button(egui::RichText::new("删除").color(ACCENT), |ui| {
+                                    if ui.button(format!("⚠ 确认删除 {}", name)).clicked() {
+                                        sftp_delete = Some(format!("{}/{}", cwd, name));
+                                        ui.close_menu();
+                                    }
+                                });
                             });
                         }
                         // 右侧：大小 + 修改时间（对照 apple/android SFTP）
@@ -719,6 +743,7 @@ impl eframe::App for TermindApp {
         if let Some(target) = sftp_nav { self.run_sftp_ls(&target); }   // 导航到子目录/上级
         if let Some(file) = sftp_preview { self.run_sftp_preview(&file); }   // 预览文件到终端
         if let Some((path, fname)) = sftp_download { self.run_sftp_download(&path, &fname); }   // 下载到本地
+        if let Some(path) = sftp_delete { self.run_sftp_delete(&path); }   // 删除文件（确认后）
 
         // ① 左侧栏：连接列表（按分组）—— 三栏工作台对齐 apple/windows
         egui::SidePanel::left("connections")

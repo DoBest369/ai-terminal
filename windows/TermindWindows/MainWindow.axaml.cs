@@ -316,6 +316,52 @@ public partial class MainWindow : Window
         if (SftpList.Children.Count == 0) SftpList.Children.Add(new TextBlock { Text = "(空目录)", Foreground = Brush.Parse("#6B7280"), FontSize = 12 });
     }
 
+    /// 批量群发（护城河：多连接群发命令，对照 apple batch）：对所有连接并发 SSH 执行，聚合结果
+    private async void OnBatchExec(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var cmd = CmdInput.Text?.Trim();
+        if (string.IsNullOrEmpty(cmd) || _conns.Count == 0) return;
+        CmdInput.Text = "";
+        AppendTerm($"⇶ 批量群发「{cmd}」→ {_conns.Count} 台连接", "#F59E0B");
+        // 各连接并发执行（解析 user@host:port），结果聚合分段显示
+        var tasks = _conns.Select(async c =>
+        {
+            var addr = c.Addr; string user = "root";
+            var at = addr.IndexOf('@'); if (at >= 0) { user = addr[..at]; addr = addr[(at + 1)..]; }
+            var colon = addr.IndexOf(':'); if (colon >= 0) addr = addr[..colon];
+            var r = await SshExecToHostAsync(addr, user, cmd);
+            return (c.Name, addr, r);
+        }).ToList();
+        var results = await Task.WhenAll(tasks);
+        foreach (var (name, host, r) in results)
+        {
+            var ok = !r.StartsWith("⚠");
+            AppendTerm($"── {name} ({host}) {(ok ? "✓" : "✕")} ──", "#60A5FA");
+            foreach (var line in r.Split('\n')) AppendTerm("  " + line.TrimEnd(), ok ? "#A0A0A0" : "#F59E0B");
+        }
+        AppendTerm($"⇶ 批量完成（{results.Count(x => !x.r.StartsWith("⚠"))}/{results.Length} 成功）", "#F59E0B");
+    }
+
+    /// 指定主机 SSH exec（批量用，不复用 _sshClient 避免冲突）；密码 env TERMIND_SSH_PASS
+    private async Task<string> SshExecToHostAsync(string host, string user, string cmd)
+    {
+        var pass = System.Environment.GetEnvironmentVariable("TERMIND_SSH_PASS") ?? "";
+        if (string.IsNullOrEmpty(pass)) return "⚠️ 未配置 SSH 密码";
+        return await Task.Run(() =>
+        {
+            try
+            {
+                using var client = new Renci.SshNet.SshClient(host, 22, user, pass) { ConnectionInfo = { Timeout = System.TimeSpan.FromSeconds(8) } };
+                client.Connect();
+                using var c = client.RunCommand(cmd);
+                client.Disconnect();
+                var outp = (c.Result ?? "") + (c.Error ?? "");
+                return outp.Length == 0 ? "(无输出)" : outp.TrimEnd();
+            }
+            catch (System.Exception ex) { return "⚠️ " + ex.Message; }
+        });
+    }
+
     /// 删除连接（右键菜单）：从列表移除 + 持久化（连接管理 CRUD）
     private void OnDeleteConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

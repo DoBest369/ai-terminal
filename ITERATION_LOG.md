@@ -4785,3 +4785,11 @@
 - **CHANGELOG 阶段55**：登录用户面板（who+last，安全运维）+ 监控套件四维明细（进程/端口/磁盘/登录用户）。
 - **改动**：`CHANGELOG.md`(阶段55)。
 - **意义**：CHANGELOG 至阶段55。监控套件四维明细完整（资源+安全维度）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## windows AI 对话多会话（新建/切换/删除，对照 apple ai-conv）
+- **内容**：_aiHistory 改 property 指向 _sessions[_curSession]；AI 标题加会话按钮 Flyout → 列会话（标题=首条提问，当前 ● 标）+ 新建会话 + 右键删除；切换 → RenderSession 重渲染气泡（user 蓝/assistant 灰）。多会话独立上下文（各自历史）。
+- **改动**：`MainWindow.axaml`(会话按钮 Flyout + SessionsList)、`MainWindow.axaml.cs`(_sessions + RenderSession + OnSessionsOpen)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 d994cfd。
+- **意义**：windows AI 多会话（独立上下文对话，对照 apple ai-conv），丰富 AI 能力。下一步 linux AI 多会话对齐 / AI 会话持久化 / 质量收口。

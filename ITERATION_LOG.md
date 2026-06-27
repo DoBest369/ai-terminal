@@ -4022,3 +4022,11 @@
 - **改动**：`linux/src/main.rs`(config_path/load_config/save_config + Default 加载 + 设置失焦保存)。
 - **验证**：`cargo build` **0 error/warning**（0.81s，带 proxy，serde_json 配置读写正确）。推送 1f58f2b。
 - **意义**：设置持久化 windows/linux 双端对齐（配置跨重启不丢）。AI 配置体验双端完整（UI 可配 + 持久化 + env 后备）。下一步 主题切换 U3 / 新建连接表单 / 质量收口。
+
+---
+
+## windows 新建连接表单（工具栏新建→填表→加入连接列表）
+- **内容**：windows 工具栏新建按钮加 Flyout 表单（name/host/user/port）；OnAddConn 读表单 → new ConnItem 加入 _conns；ConnList.ItemsSource 改 ObservableCollection（自动刷新）；新连接异步探测可达性。
+- **改动**：`MainWindow.axaml`(新建连接 Flyout 表单)、`MainWindow.axaml.cs`(_conns ObservableCollection + OnAddConn)。
+- **验证**：`dotnet build` 0 错误；完整 `dotnet run` 14s 存活。推送 167d23a。
+- **意义**：windows 连接管理可增（新建连接）→ 选中驱动真实 SSH 执行。真实连接管理完善（列表 + 新建 + 选中切换 + 真实执行）。下一步 linux 新建连接 / 主题切换 U3 / SFTP 真实文件。

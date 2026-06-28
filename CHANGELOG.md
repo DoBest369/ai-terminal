@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 68 — AI 交互闭环：用户消息重发（2026-06-28）
+
+- **AI 用户消息重发（windows/linux）**：用户提问气泡 → windows 右键「重新发送」/ linux 旁重发按钮 → 重新发送同问题到 AI。运维换角度/重试时无需重打问题。
+- **AI 交互闭环完整（windows/linux）**：代码块点击插入命令框 + 用户气泡重发 + 多会话/持久化 + 搜索 + 导出。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，1016 提交。
+
 ## 阶段 67 — 监控面板刷新（2026-06-28）
 
 - **监控面板刷新按钮（windows）**：监控 Flyout tab 行加刷新按钮 ↻，按当前查看维度（_curMon：进程/端口/磁盘/登录/防火墙/系统）重新采集，不用切走再回。

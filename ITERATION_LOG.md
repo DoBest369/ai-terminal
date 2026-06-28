@@ -4923,3 +4923,11 @@
 - **CHANGELOG 阶段63**：系统信息面板（系统/CPU/内存概览）+ 监控套件六维（系统+进程/端口/磁盘/登录/防火墙）。
 - **改动**：`CHANGELOG.md`(阶段63)。
 - **意义**：CHANGELOG 至阶段63。监控套件六维完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## windows 监控面板入口整合（6监控按钮→1监控下拉+6tab共享内容区，UI优化）
+- **内容**：工具栏 6 监控按钮（系统/进程/端口/磁盘/登录/防火墙）整合为 1 个监控按钮 Flyout（图表图标）→ 6 tab 切换 + 共享 MonitorContent；6 个 OnXxx 填充目标统一改 MonitorContent（sed 替换 36 处 List→MonitorContent）。
+- **改动**：`MainWindow.axaml`(6 按钮→1 监控按钮 + 6 tab + MonitorContent)、`MainWindow.axaml.cs`(6 OnXxx 填充目标统一)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活 + 截图（工具栏整洁）。推送 50fcef9。
+- **意义**：UI 优化（工具栏不再拥挤，监控维度 tab 切换更清晰，6 维聚一处）。下一步 质量收口 / 连接导入导出 / 新功能。

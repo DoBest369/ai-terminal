@@ -5093,3 +5093,10 @@
 - **确认 apple 完整**：护城河 Z1-Z8 + 18 自测全过 + 5 主题 + 字号缩放，apple 是 UI/功能标杆，无需补。归档最新截图（01-main/03-ai/10-theme）。
 - **改动**：归档 apple/screenshots/ 最新截图。
 - **意义**：三端平衡关注——确认 apple 标杆端完整度，windows/linux 双端已对齐其功能。Termind 全平台真实智能运维工作台五端成熟。下一步 持续打磨细节 / 帮助面板 / 新功能。
+
+---
+
+## README 更新（windows/linux 全功能真实对齐 apple，73 阶段成熟度）
+- **内容**：README 定位前加 windows/linux 双端全功能对齐声明（AI 三模式/多会话/监控套件六维/安全防护/UI 品质 U1-U4）；平台矩阵 Linux/Windows 状态从「三栏工作台 UI」→「全功能真实对齐 apple」+ 技术栈补充（ssh2+ureq / SSH.NET+HttpClient）。
+- **改动**：`README.md`(定位声明 + 平台矩阵状态)。
+- **意义**：对外文档展示五端成熟度，纠正旧「仅 UI/mock」过时描述。README/CHANGELOG/MATURITY 文档体系全反映 73 阶段真实成熟度。下一步 帮助面板 / 持续打磨。

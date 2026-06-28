@@ -5037,3 +5037,11 @@
 - **CHANGELOG 阶段70里程碑**：批量群发结果优化（护城河 batch）+ 70 阶段成熟里程碑。
 - **改动**：`CHANGELOG.md`(阶段70里程碑)。
 - **意义**：阶段70整数里程碑——从「智能运维全平台落地」到完整成熟全平台真实智能运维监控-诊断-处置工作台，windows/linux 双端全面对齐 apple。70 阶段 1024 提交。后续持续打磨/新功能。
+
+---
+
+## linux 批量群发结果优化（耗时+成功失败标记，对照 windows，双端对齐）
+- **内容**：linux run_batch_exec 各主机加 Instant 耗时；标题 ✓ 成功/✕ 失败标记 + 耗时 ms（对照 windows OnBatchExec）。
+- **改动**：`linux main.rs`(run_batch_exec 耗时+标记)。
+- **验证**：`cargo build` **0 error/warning**（1.21s）。推送 c7f4124。
+- **意义**：批量群发结果优化 windows/linux 双端对齐（多主机结果清晰：成功失败标记+耗时）。护城河 batch 双端增强。下一步 质量收口 / AI 清空确认 / 新功能。

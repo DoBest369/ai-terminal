@@ -271,6 +271,19 @@
                             </Flyout>
                         </Button.Flyout>
                     </Button>
+                    <!-- 系统信息聚合面板（SSH 取系统概览，监控第 6 维）-->
+                    <Button Click="OnSysInfo" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="系统信息（系统/CPU/内存概览）">
+                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
+                                  Data="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedRight">
+                                <StackPanel Width="380" Spacing="2">
+                                    <TextBlock Text="系统信息" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <StackPanel x:Name="SysInfoList" Spacing="1"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                     <Border Background="#0D0E1A" CornerRadius="4" Width="130">
                         <TextBox x:Name="TermSearchBox" PlaceholderText="搜索输出…" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" Padding="8,3" CaretBrush="#FF4B6E" TextChanged="OnTermSearch"/>
                     </Border>

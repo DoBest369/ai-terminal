@@ -1401,6 +1401,22 @@ impl eframe::App for TermindApp {
                             self.term_lines.clear();
                             self.term_lines.push(format!("# 终端已清屏 · {}", active_host));
                         }
+                        // 系统信息（SSH 取系统/内核/CPU/内存概览 → 终端展示，监控第 6 维，对照 windows）
+                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::INFO).size(14.0).color(TEXT_SECONDARY())).frame(false))
+                            .on_hover_text("系统信息（系统/CPU/内存概览）").clicked() {
+                            self.term_lines.push("# 系统信息…".to_string());
+                            let (host, user, tx) = (active_host.clone(), active_user.clone(), self.term_tx.clone());
+                            std::thread::spawn(move || {
+                                let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
+                                if pass.is_empty() { let _ = tx.send("⚠️ 未配置 SSH 密码".to_string()); return; }
+                                let cmd = "echo \"主机:$(hostname)\"; echo \"系统:$(. /etc/os-release 2>/dev/null; echo $PRETTY_NAME)\"; \
+                                    echo \"内核:$(uname -r)\"; echo \"架构:$(uname -m)\"; echo \"运行:$(uptime -p 2>/dev/null | sed 's/up //')\"; \
+                                    echo \"CPU:$(grep -m1 'model name' /proc/cpuinfo 2>/dev/null | cut -d: -f2 | xargs) x$(nproc)\"; \
+                                    echo \"内存:$(free -h | awk '/Mem:/{print $3\" / \"$2}')\"";
+                                let r = ssh_exec(&host, 22, &user, &pass, cmd);
+                                let _ = tx.send(r);
+                            });
+                        }
                         // 进程 Top（SSH ps 取高占用进程 → 终端展示，深化监控，对照 windows/apple Z6）
                         if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::GAUGE).size(14.0).color(TEXT_SECONDARY())).frame(false))
                             .on_hover_text("进程 Top（CPU/内存高占用）").clicked() {

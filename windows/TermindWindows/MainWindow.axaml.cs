@@ -406,6 +406,35 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { TopProcsList.Children.Clear(); TopProcsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
+    /// 系统信息聚合面板：SSH 取系统/内核/发行版/CPU/内存概览 → key:value 展示（监控第 6 维）
+    private async void OnSysInfo(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        SysInfoList.Children.Clear();
+        SysInfoList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        try
+        {
+            const string cmd = "echo \"主机:$(hostname)\"; echo \"系统:$(. /etc/os-release 2>/dev/null; echo $PRETTY_NAME)\"; " +
+                "echo \"内核:$(uname -r)\"; echo \"架构:$(uname -m)\"; echo \"运行:$(uptime -p 2>/dev/null | sed 's/up //')\"; " +
+                "echo \"CPU:$(grep -m1 'model name' /proc/cpuinfo 2>/dev/null | cut -d: -f2 | xargs) x$(nproc)\"; " +
+                "echo \"内存:$(free -h | awk '/Mem:/{print $3\" / \"$2}')\"";
+            var outp = await SshExecAsync(cmd);
+            var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
+            SysInfoList.Children.Clear();
+            foreach (var line in lines)
+            {
+                var parts = line.Split(':', 2);
+                if (parts.Length != 2) continue;
+                var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("60,*"), Margin = new Thickness(2, 1) };
+                var k = new TextBlock { Text = parts[0], Foreground = Brush.Parse("#8B92A8"), FontSize = 11 };
+                var v = new TextBlock { Text = parts[1].Trim(), Foreground = Brush.Parse("#C9D1D9"), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextWrapping = TextWrapping.Wrap };
+                Grid.SetColumn(k, 0); Grid.SetColumn(v, 1); grid.Children.Add(k); grid.Children.Add(v);
+                SysInfoList.Children.Add(grid);
+            }
+            if (SysInfoList.Children.Count == 0) SysInfoList.Children.Add(new TextBlock { Text = "（未取到系统信息，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        }
+        catch (System.Exception ex) { SysInfoList.Children.Clear(); SysInfoList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+    }
+
     /// 防火墙状态面板：SSH ufw status / iptables → 展示（安全运维，查防火墙规则）
     private async void OnFirewall(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

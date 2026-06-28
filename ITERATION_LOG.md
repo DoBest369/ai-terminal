@@ -5108,3 +5108,11 @@
 - **CHANGELOG 阶段74**：apple 标杆确认（截图+18自测+5主题）+ README 更新（文档对齐真实成熟度）。
 - **改动**：`CHANGELOG.md`(阶段74)。
 - **意义**：CHANGELOG 至阶段74。文档体系全反映 73 阶段真实成熟度，呼应核心需求（windows/linux 全平台真实落地）。Termind 成熟全平台真实智能运维工作台。后续持续打磨/新功能。
+
+---
+
+## 帮助/关于面板（windows+linux，版本+核心功能+快捷键提示，易用性）
+- **内容**：工具栏加帮助按钮（? 图标）→ Flyout/menu 展示：Termind 定位 + 核心功能（AI 三模式/监控套件六维/护城河/批量/SFTP/连接管理）+ 快捷键（↑↓ 历史/代码块插入/右键操作）。新用户快速了解功能。
+- **改动**：`windows MainWindow.axaml`(品牌行加帮助按钮 Flyout + 工具栏列后移)、`linux main.rs`(帮助 menu_button)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（QUESTION 图标）。推送 ca67b96。
+- **意义**：易用性增强（帮助面板让新用户快速了解功能/快捷键），双端。下一步 质量收口 / 批量可选目标 / 新功能。

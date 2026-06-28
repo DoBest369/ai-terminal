@@ -152,6 +152,7 @@
                                     <!-- 右键菜单：编辑/删除连接（连接管理 CRUD） -->
                                     <Grid.ContextFlyout>
                                         <MenuFlyout>
+                                            <MenuItem Header="填 SSH 登录命令" Click="OnFillSshLogin"/>
                                             <MenuItem Header="编辑连接" Click="OnEditConn"/>
                                             <MenuItem Header="删除连接" Click="OnDeleteConn"/>
                                         </MenuFlyout>

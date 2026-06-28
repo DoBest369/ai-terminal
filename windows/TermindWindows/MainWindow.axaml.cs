@@ -982,6 +982,17 @@ public partial class MainWindow : Window
 
     private int _themeIdx = 0;
 
+    /// 填 SSH 登录命令（右键菜单）：解析 user@host:port → ssh 命令填终端输入框（运维快速登录）
+    private void OnFillSshLogin(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is not Control c || c.DataContext is not ConnItem item) return;
+        var addr = item.Addr; string user = "root", port = "22";
+        var at = addr.IndexOf('@'); if (at >= 0) { user = addr[..at]; addr = addr[(at + 1)..]; }
+        var colon = addr.IndexOf(':'); if (colon >= 0) { port = addr[(colon + 1)..]; addr = addr[..colon]; }
+        CmdInput.Text = port == "22" ? $"ssh {user}@{addr}" : $"ssh -p {port} {user}@{addr}";
+        CmdInput.Focus();
+    }
+
     /// 编辑连接（右键菜单）：解析 user@host:port 填入新建表单 + 移除原项，改后点「添加」重加（CRUD 的 U）
     private void OnEditConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

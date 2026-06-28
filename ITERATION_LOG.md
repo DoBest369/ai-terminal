@@ -4875,3 +4875,11 @@
 - **CHANGELOG 阶段60里程碑**：连接分组 + 全功能成熟度总览（60 阶段累积：智能运维核心+监控套件五维+AI能力+终端+命令连接+UI品质U1-U4）。
 - **改动**：`CHANGELOG.md`(阶段60里程碑)。
 - **意义**：阶段60整数里程碑——从「智能运维全平台落地」核心需求到完整成熟运维工作台。windows/linux 双端全功能对齐 apple。Termind 是成熟的全平台真实智能 SSH 运维监控-诊断-处置工作台。后续持续打磨/新功能。
+
+---
+
+## windows 新建连接加分组输入 + 分组持久化（连接分组完善）
+- **内容**：新建连接表单加分组输入框（默认我的连接）；OnAddConn 用其值作 GroupName + 插入同组末尾（分组连续）；config 持久化 group（_builtinAddrs 区分内置/用户连接，存非内置含 group）；LoadConfig 恢复 group + RebuildConnGroups；OnEditConn 填分组（编辑保留）。
+- **改动**：`MainWindow.axaml`(分组输入框)、`MainWindow.axaml.cs`(_builtinAddrs + OnAddConn group + Save/LoadConfig group + OnEditConn group)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 816d2c7。
+- **意义**：连接分组完善（新建连接可填环境分组 + 重启恢复 + 编辑保留），连接管理按环境组织。下一步 终端右键菜单 / 质量收口 / 新功能。

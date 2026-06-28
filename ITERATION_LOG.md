@@ -5077,3 +5077,11 @@
 - **改动**：`windows MainWindow.axaml`(填登录命令菜单)、`MainWindow.axaml.cs`(OnFillSshLogin)。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 6cc3f5d。
 - **意义**：连接管理快捷操作（右键即填 SSH 登录命令，运维快速登录）。下一步 质量收口 / 批量可选目标 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段73 连接快速操作填SSH登录命令
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1036 提交。五端 build 全绿。
+- **CHANGELOG 阶段73**：连接快速操作（填 SSH 登录命令）+ 连接管理体验完整。
+- **改动**：`CHANGELOG.md`(阶段73)。
+- **意义**：CHANGELOG 至阶段73。连接管理体验完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

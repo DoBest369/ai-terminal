@@ -911,17 +911,21 @@ public partial class MainWindow : Window
             var addr = c.Addr; string user = "root";
             var at = addr.IndexOf('@'); if (at >= 0) { user = addr[..at]; addr = addr[(at + 1)..]; }
             var colon = addr.IndexOf(':'); if (colon >= 0) addr = addr[..colon];
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var r = await SshExecToHostAsync(addr, user, cmd);
-            return (c.Name, addr, r);
+            sw.Stop();
+            return (c.Name, addr, r, sw.ElapsedMilliseconds);
         }).ToList();
         var results = await Task.WhenAll(tasks);
-        foreach (var (name, host, r) in results)
+        // 成功优先排序展示（失败置底醒目）
+        foreach (var (name, host, r, ms) in results.OrderByDescending(x => !x.r.StartsWith("⚠")))
         {
             var ok = !r.StartsWith("⚠");
-            AppendTerm($"── {name} ({host}) {(ok ? "✓" : "✕")} ──", "#60A5FA");
-            foreach (var line in r.Split('\n')) AppendTerm("  " + line.TrimEnd(), ok ? "#A0A0A0" : "#F59E0B");
+            AppendTerm($"── {name} ({host}) {(ok ? "✓ 成功" : "✕ 失败")} · {ms}ms ──", ok ? "#3FB950" : "#F85149");
+            foreach (var line in r.Split('\n')) AppendTerm("  " + line.TrimEnd(), ok ? "#A0A0A0" : "#F85149");
         }
-        AppendTerm($"⇶ 批量完成（{results.Count(x => !x.r.StartsWith("⚠"))}/{results.Length} 成功）", "#F59E0B");
+        var okCount = results.Count(x => !x.r.StartsWith("⚠"));
+        AppendTerm($"⇶ 批量完成：{okCount} 成功 / {results.Length - okCount} 失败 / 共 {results.Length} 台", okCount == results.Length ? "#3FB950" : "#F59E0B");
     }
 
     /// 指定主机 SSH exec（批量用，不复用 _sshClient 避免冲突）；密码 env TERMIND_SSH_PASS

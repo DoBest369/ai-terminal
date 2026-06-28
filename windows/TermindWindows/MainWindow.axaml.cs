@@ -197,13 +197,17 @@ public partial class MainWindow : Window
             var host = s; var port = 22;
             var colon = s.IndexOf(':');
             if (colon >= 0) { host = s[..colon]; int.TryParse(s[(colon + 1)..], out port); }
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             bool ok = await TcpReachableAsync(host, port);
+            sw.Stop();
+            var ms = sw.ElapsedMilliseconds;
             var green = Brush.Parse("#3FB950");
             var gray = Brush.Parse("#6B7280");
             Dispatcher.UIThread.Post(() =>
             {
-                c.Reach = ok ? "✓" : "✕";
-                c.ReachColor = ok ? green : gray;
+                // 可达显示延迟 ms（绿<100/橙<500/红≥500），不可达显 ✕
+                c.Reach = ok ? $"✓ {ms}ms" : "✕";
+                c.ReachColor = ok ? (ms < 100 ? green : ms < 500 ? Brush.Parse("#F59E0B") : Brush.Parse("#F85149")) : gray;
                 c.Dot = ok ? green : gray;
             });
         }

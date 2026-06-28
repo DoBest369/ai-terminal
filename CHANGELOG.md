@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 65 — 连接导入导出（json 批量管理，2026-06-28）
+
+- **连接导入导出（windows）**：设置面板导出/导入连接按钮，StorageProvider 文件对话框 → 导出用户连接为 json（name/addr/note/group 缩进格式），导入合并到列表（跳过重复 addr）+ 持久化 + 探测。对照 apple portability。
+- **意义**：连接批量管理——迁移/备份/跨设备复用，配合连接 CRUD/分组/搜索，连接管理完整。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，1004 提交。
+
 ## 阶段 64 — 监控入口整合 + 🎉 1000 提交里程碑（2026-06-28）
 
 - **监控面板入口整合（windows）**：工具栏 6 监控按钮（系统/进程/端口/磁盘/登录/防火墙）整合为 1 个监控按钮 → 6 维 tab 切换 + 共享内容区。工具栏从拥挤到清晰，监控六维聚一处。

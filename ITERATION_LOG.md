@@ -4996,3 +4996,11 @@
 - **改动**：`windows MainWindow.axaml.cs`(AddResendMenu + 两处用户气泡)、`linux main.rs`(pending_resend 字段 + 重发按钮 + 发送触发)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（ARROW_CLOCKWISE）。推送 fe16f16。
 - **意义**：AI 交互增强（重发同问题重新生成 AI 建议，运维换角度/重试），双端。下一步 质量收口 / 批量群发优化 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段68 AI交互闭环用户消息重发
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1016 提交。五端 build 全绿。
+- **CHANGELOG 阶段68**：AI 用户消息重发 + AI 交互闭环完整（代码块插入+重发+多会话+搜索+导出）windows/linux 双端。
+- **改动**：`CHANGELOG.md`(阶段68)。
+- **意义**：CHANGELOG 至阶段68。AI 交互闭环完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

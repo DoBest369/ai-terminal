@@ -5,6 +5,20 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 60 — 🎯 连接分组 + 全功能成熟里程碑（2026-06-28）
+
+阶段 60 整数里程碑：从「智能运维全平台落地」到完整成熟的运维工作台。
+
+- **连接分组（windows）**：连接列表按 GroupName（生产/开发等环境）分组显示，ShowHeader 动态重算（新增/删除/搜索后正确合并组标题），列表更整洁。
+- **全功能成熟度总览（windows/linux 双端对齐 apple，60 阶段累积）**：
+  - **智能运维核心**：真实 AI（nexcores 流式）+ 真实 SSH + AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河 Z1-Z3 一键真闭环 + 风险四级 + batch 群发
+  - **监控套件五维**：状态条聚合（CPU/内存/磁盘/负载 + 30s 刷新 + >90% 告警 + 服务状态）→ 进程 Top（+kill）/ 网络端口 / 磁盘分区 / 登录用户 / 防火墙下钻
+  - **AI 能力**：三模式 + 多会话（独立上下文+持久化）+ 搜索 + 导出 + 代码块点击插入
+  - **终端**：ANSI 彩色 + 输出搜索 + 字号可调+持久化 + 导出 + 进程/端口/磁盘/用户/防火墙工具
+  - **命令/连接**：历史面板 + 快捷命令/追问自定义 + 连接 CRUD+分组+搜索+可达探测
+  - **UI 品质 U1-U4**：图标库 / 配色协调 / 主题切换 4套+持久化 / 字号可调+持久化
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，984 提交，CHANGELOG 41 阶段。
+
 ## 阶段 59 — AI 交互闭环：代码块点击插入命令框（2026-06-28）
 
 - **AI 代码块插入命令框（windows/linux）**：AI 回复中的代码块（即运维命令）点击/右键 → 命令首行插入命令输入框。windows codeBlock PointerPressed + ContextFlyout，linux render_ai_reply 返回点击命令。AI 给的建议命令从「看」到「执行」无缝衔接，配合三模式（Chat/Agent/Auto）。

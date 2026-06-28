@@ -4907,3 +4907,11 @@
 - **CHANGELOG 阶段62**：终端清屏/滚到底 + 终端交互完整（彩色/搜索/字号/导出/清屏/监控工具）windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段62)。
 - **意义**：CHANGELOG 至阶段62。终端交互完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## 系统信息聚合面板（windows+linux，SSH 取系统/CPU/内存概览，监控第 6 维）
+- **内容**：工具区加信息按钮（INFO 图标）→ SSH 取主机/系统（os-release PRETTY_NAME）/内核/架构/运行时长/CPU 型号x核数/内存；windows Flyout key:value 结构化，linux 终端展示。运维快速了解服务器概览。
+- **改动**：`windows MainWindow.axaml`(信息按钮 Flyout)、`MainWindow.axaml.cs`(OnSysInfo 解析)、`linux main.rs`(信息按钮 + spawn)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（INFO 图标）。推送 b5ecdb4。
+- **意义**：系统信息面板（运维快速了解服务器系统/硬件概览），双端。监控套件六维（系统概览 + 进程/端口/磁盘/登录/防火墙）。下一步 质量收口 / 新功能。

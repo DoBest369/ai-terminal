@@ -5053,3 +5053,11 @@
 - **CHANGELOG 阶段71**：批量群发结果优化双端对齐（linux 耗时+标记）+ 护城河 batch 双端增强。
 - **改动**：`CHANGELOG.md`(阶段71)。
 - **意义**：CHANGELOG 至阶段71。护城河 batch 双端完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## AI 对话清空二次确认（windows+linux，防误清空整段对话）
+- **内容**：windows 清空按钮去直接 Click → Flyout 含确认按钮（确认清空当前会话?）；linux 清空按钮改 menu_button 含确认项；点击需二次确认才清空，避免误清重要排查记录。
+- **改动**：`windows MainWindow.axaml`(清空 Flyout 确认)、`linux main.rs`(清空 menu_button 确认)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 8dcd181。
+- **意义**：防误操作（清空对话需确认，保护重要排查记录），双端。下一步 质量收口 / 连接快速操作 / 新功能。

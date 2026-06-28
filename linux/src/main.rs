@@ -184,13 +184,14 @@ struct ServerConn {
     probed: bool,          // 是否已完成 TCP 可达性探测（false=探测中）
     note: &'static str,
     last_used: &'static str,
+    latency: u64,          // TCP 探测延迟 ms（运行时可变，0=未探测，对照 windows）
 }
 
 fn demo_conns() -> Vec<ServerConn> {
     vec![
-        ServerConn { name: "测试服务器", host: "47.85.19.31", user: "root", port: 22, group: "生产环境", online: true, probed: false, note: "Ubuntu 测试机", last_used: "5 分钟前" },
-        ServerConn { name: "数据库主机", host: "db.internal.net", user: "admin", port: 22, group: "生产环境", online: true, probed: false, note: "MySQL 主库", last_used: "1 小时前" },
-        ServerConn { name: "开发机", host: "dev.example.com", user: "deploy", port: 2222, group: "开发环境", online: false, probed: false, note: "", last_used: "" },
+        ServerConn { name: "测试服务器", host: "47.85.19.31", user: "root", port: 22, group: "生产环境", online: true, probed: false, note: "Ubuntu 测试机", last_used: "5 分钟前", latency: 0 },
+        ServerConn { name: "数据库主机", host: "db.internal.net", user: "admin", port: 22, group: "生产环境", online: true, probed: false, note: "MySQL 主库", last_used: "1 小时前", latency: 0 },
+        ServerConn { name: "开发机", host: "dev.example.com", user: "deploy", port: 2222, group: "开发环境", online: false, probed: false, note: "", last_used: "", latency: 0 },
     ]
 }
 
@@ -211,7 +212,7 @@ struct TermindApp {
     cur_session: usize,            // 当前会话索引
     cmd_history: Vec<String>,  // 命令历史（去重最近优先），供上下键回溯
     hist_idx: Option<usize>,   // 当前回溯位置（None=未回溯）
-    reach_rx: std::sync::mpsc::Receiver<(usize, bool)>,  // 后台 TCP 可达性探测结果
+    reach_rx: std::sync::mpsc::Receiver<(usize, bool, u64)>,  // 后台 TCP 可达性探测结果
     ai_tx: std::sync::mpsc::Sender<String>,    // AI 真实回复回传（后台线程→UI）
     ai_rx: std::sync::mpsc::Receiver<String>,
     ai_busy: bool,                             // AI 请求进行中
@@ -328,13 +329,16 @@ fn ai_chat(base_url: &str, api_key: &str, model: &str, sys: &str, user: &str) ->
 // 选中远程服务器的真实指标（SSH /proc，update 异步），运维工具应反映被运维的服务器而非本机。
 
 /// TCP 可达性探测（真实逻辑第一步，std::net 无需额外依赖）：connect_timeout 2s
-fn probe_tcp(host: &str, port: u16) -> bool {
+/// TCP 探测返回 (是否可达, 延迟ms)，对照 windows Stopwatch
+fn probe_tcp(host: &str, port: u16) -> (bool, u64) {
     use std::net::ToSocketAddrs;
-    match (host, port).to_socket_addrs() {
+    let start = std::time::Instant::now();
+    let ok = match (host, port).to_socket_addrs() {
         Ok(mut addrs) => addrs.next().map_or(false, |addr|
             std::net::TcpStream::connect_timeout(&addr, std::time::Duration::from_secs(2)).is_ok()),
         Err(_) => false,
-    }
+    };
+    (ok, start.elapsed().as_millis() as u64)
 }
 
 /// 配置文件路径（~/.config/termind/config.json，对照 windows AppData）
@@ -444,7 +448,7 @@ impl Default for TermindApp {
         let (tx, reach_rx) = std::sync::mpsc::channel();
         for (i, c) in conns.iter().enumerate() {
             let (host, port, tx) = (c.host, c.port, tx.clone());
-            std::thread::spawn(move || { let _ = tx.send((i, probe_tcp(host, port))); });
+            std::thread::spawn(move || { let (ok, ms) = probe_tcp(host, port); let _ = tx.send((i, ok, ms)); });
         }
         let (ai_tx, ai_rx) = std::sync::mpsc::channel();
         let (term_tx, term_rx) = std::sync::mpsc::channel();
@@ -746,7 +750,7 @@ impl TermindApp {
                 group: Box::leak(c["group"].as_str().unwrap_or("我的连接").to_string().into_boxed_str()),
                 online: false, probed: false,
                 note: Box::leak(c["note"].as_str().unwrap_or("").to_string().into_boxed_str()),
-                last_used: "",
+                last_used: "", latency: 0,
             });
             added += 1;
         }
@@ -778,8 +782,8 @@ impl eframe::App for TermindApp {
         // 当前 SSH 执行目标（选中连接驱动，对照 windows _activeHost）；本帧各命令执行用
         let (active_host, active_user) = self.ssh_target();
         // 应用后台 TCP 探测结果（真实可达性）→ 更新连接 online 状态
-        while let Ok((i, ok)) = self.reach_rx.try_recv() {
-            if let Some(c) = self.conns.get_mut(i) { c.online = ok; c.probed = true; }
+        while let Ok((i, ok, ms)) = self.reach_rx.try_recv() {
+            if let Some(c) = self.conns.get_mut(i) { c.online = ok; c.probed = true; c.latency = ms; }
         }
         // 状态条远程真实指标 + 服务状态（对照 windows/apple Z6）：连接切换 → SSH 取选中服务器 /proc + systemctl
         while let Ok((cpu, mem, disk, load, svcs)) = self.metrics_rx.try_recv() {
@@ -1761,6 +1765,9 @@ fn server_card(ui: &mut egui::Ui, c: &ServerConn, selected: bool) -> egui::Respo
                         ui.colored_label(TEXT_SECONDARY().linear_multiply(0.7), ph::CIRCLE_DASHED);
                     } else if c.online {
                         ui.colored_label(SUCCESS(), egui::RichText::new(ph::CHECK_CIRCLE).strong());
+                        // 延迟着色绿<100/橙<500/红≥500ms（对照 windows）
+                        let lc = if c.latency < 100 { SUCCESS() } else if c.latency < 500 { WARNING() } else { egui::Color32::from_rgb(0xF8, 0x51, 0x49) };
+                        ui.colored_label(lc, egui::RichText::new(format!("{}ms", c.latency)).size(10.0));
                     } else {
                         ui.colored_label(TEXT_SECONDARY(), ph::X_CIRCLE);
                     }

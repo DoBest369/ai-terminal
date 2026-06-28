@@ -4891,3 +4891,11 @@
 - **CHANGELOG 阶段61**：连接分组完整（新建分组输入 + 分组持久化 + 编辑保留）。
 - **改动**：`CHANGELOG.md`(阶段61)。
 - **意义**：CHANGELOG 至阶段61。连接管理按环境组织完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## 终端清屏/滚到底（windows+linux，终端交互增强）
+- **内容**：windows 终端区右键 ContextFlyout：清屏 OnClearTerm（清 TermOutput + 保留提示）/ 滚到底 OnScrollTermEnd / 导出；linux 终端工具区加清屏按钮（TRASH 图标）→ term_lines.clear + 提示。
+- **改动**：`windows MainWindow.axaml`(ContextFlyout)、`MainWindow.axaml.cs`(OnClearTerm/OnScrollTermEnd)、`linux main.rs`(清屏按钮)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 05d028b。
+- **意义**：终端交互增强（清屏便利，输出多时一键清空），双端。下一步 系统信息面板 / 质量收口 / 新功能。

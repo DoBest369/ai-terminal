@@ -4867,3 +4867,11 @@
 - **改动**：`windows MainWindow.axaml.cs`(ShowHeader 可变 + RebuildConnGroups + 4 调用点)。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活 + 截图（连接按环境分组显示）。推送 1f2b3c8。
 - **意义**：连接分组完善（连接列表按环境分组显示更整洁，新增连接正确归组）。下一步 质量收口 / 终端右键菜单 / 新功能。
+
+---
+
+## 🎯 质量收口（全量）+ CHANGELOG阶段60里程碑 连接分组+全功能成熟度总览
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；984 提交。五端 build 全绿。
+- **CHANGELOG 阶段60里程碑**：连接分组 + 全功能成熟度总览（60 阶段累积：智能运维核心+监控套件五维+AI能力+终端+命令连接+UI品质U1-U4）。
+- **改动**：`CHANGELOG.md`(阶段60里程碑)。
+- **意义**：阶段60整数里程碑——从「智能运维全平台落地」核心需求到完整成熟运维工作台。windows/linux 双端全功能对齐 apple。Termind 是成熟的全平台真实智能 SSH 运维监控-诊断-处置工作台。后续持续打磨/新功能。

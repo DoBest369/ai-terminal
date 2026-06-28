@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 62 — 终端交互增强：清屏 + 滚到底（2026-06-28）
+
+- **终端清屏/滚到底（windows/linux）**：windows 终端区右键 ContextFlyout（清屏/滚到底/导出），linux 终端工具区清屏按钮。终端输出多时一键清空。
+- **终端交互完整（windows/linux）**：ANSI 彩色 + 输出搜索高亮 + 字号可调+持久化 + 导出文件 + 清屏/滚到底 + 五维监控工具入口。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，992 提交。
+
 ## 阶段 61 — 连接分组完整（输入 + 持久化 + 编辑，2026-06-28）
 
 - **新建连接分组输入（windows）**：新建连接表单加分组输入框，OnAddConn 用其值作 GroupName + 插入同组末尾（分组连续）。

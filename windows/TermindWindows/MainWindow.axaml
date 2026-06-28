@@ -206,80 +206,23 @@
                 </StackPanel>
                 <!-- 进程 Top + 终端输出搜索 + 字号调整（U4）-->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                    <!-- 进程 Top 面板（SSH ps 取高占用进程，深化监控）-->
-                    <Button Click="OnTopProcs" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="进程 Top（CPU/内存高占用）">
-                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
-                                  Data="M13,2.05V5.08C16.39,5.57 19,8.47 19,12C19,12.9 18.82,13.75 18.5,14.54L21.12,16.07C21.68,14.83 22,13.45 22,12C22,6.82 18.05,2.55 13,2.05M12,19A7,7 0 0,1 5,12C5,8.47 7.61,5.57 11,5.08V2.05C5.94,2.55 2,6.81 2,12A10,10 0 0,0 12,22C15.3,22 18.23,20.39 20.05,17.91L17.45,16.38C16.17,17.96 14.21,19 12,19Z"/>
+                    <!-- 监控套件（6 维整合：系统/进程/端口/磁盘/登录/防火墙，tab 切换共享内容区）-->
+                    <Button Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="监控（系统/进程/端口/磁盘/登录/防火墙）">
+                        <PathIcon Width="15" Height="15" Foreground="#8B92A8"
+                                  Data="M3,3H21A1,1 0 0,1 22,4V20A1,1 0 0,1 21,21H3A1,1 0 0,1 2,20V4A1,1 0 0,1 3,3M4,5V19H20V5H4M6,13H8L9.5,16L12,9L13.5,13H18V15H12.5L11,11.5L9,17H8L6.5,15H6V13Z"/>
                         <Button.Flyout>
                             <Flyout Placement="BottomEdgeAlignedRight">
-                                <StackPanel Width="340" Spacing="2">
-                                    <TextBlock Text="进程 Top（CPU 占用排序）" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <StackPanel x:Name="TopProcsList" Spacing="1"/>
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-                    <!-- 网络端口监听面板（SSH ss 取监听端口+进程，深化监控）-->
-                    <Button Click="OnListenPorts" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="监听端口（网络服务）">
-                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
-                                  Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,19.93C7.05,19.44 4,16.08 4,12C4,11.38 4.08,10.79 4.21,10.21L9,15V16A2,2 0 0,0 11,18M17.89,17.4C17.63,16.59 16.89,16 16,16H15V13A1,1 0 0,0 14,12H8V10H10A1,1 0 0,0 11,9V7H13A2,2 0 0,0 15,5V4.59C17.93,5.77 20,8.64 20,12C20,14.08 19.2,15.97 17.89,17.4Z"/>
-                        <Button.Flyout>
-                            <Flyout Placement="BottomEdgeAlignedRight">
-                                <StackPanel Width="360" Spacing="2">
-                                    <TextBlock Text="监听端口（TCP）" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <StackPanel x:Name="ListenPortsList" Spacing="1"/>
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-                    <!-- 磁盘分区详情面板（SSH df -h 全分区，监控补全）-->
-                    <Button Click="OnDiskParts" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="磁盘分区（全分区使用率）">
-                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
-                                  Data="M6,2H18A2,2 0 0,1 20,4V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2M12,4A6,6 0 0,0 6,10A6,6 0 0,0 12,16A6,6 0 0,0 18,10A6,6 0 0,0 12,4M12,6A4,4 0 0,1 16,10A4,4 0 0,1 12,14A4,4 0 0,1 8,10A4,4 0 0,1 12,6M12,8A2,2 0 0,0 10,10A2,2 0 0,0 12,12A2,2 0 0,0 14,10A2,2 0 0,0 12,8M7,18H9V20H7V18M11,18H13V20H11V18Z"/>
-                        <Button.Flyout>
-                            <Flyout Placement="BottomEdgeAlignedRight">
-                                <StackPanel Width="380" Spacing="2">
-                                    <TextBlock Text="磁盘分区（df -h）" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <StackPanel x:Name="DiskPartsList" Spacing="1"/>
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-                    <!-- 登录用户/最近登录面板（SSH who+last，安全运维）-->
-                    <Button Click="OnLoginUsers" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="登录用户（在线 + 最近登录）">
-                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
-                                  Data="M16,17V19H2V17S2,13 9,13 16,17 16,17M12.5,7.5A3.5,3.5 0 1,0 9,11A3.5,3.5 0 0,0 12.5,7.5M15.94,13A5.32,5.32 0 0,1 18,17V19H22V17S22,13.37 15.94,13M15,4A3.39,3.39 0 0,0 13.07,4.59A5,5 0 0,1 13.07,10.41A3.39,3.39 0 0,0 15,11A3.5,3.5 0 0,0 15,4Z"/>
-                        <Button.Flyout>
-                            <Flyout Placement="BottomEdgeAlignedRight">
-                                <StackPanel Width="380" Spacing="2">
-                                    <TextBlock Text="登录用户（在线 · 最近）" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <StackPanel x:Name="LoginUsersList" Spacing="1"/>
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-                    <!-- 防火墙状态面板（SSH ufw/iptables，安全运维）-->
-                    <Button Click="OnFirewall" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="防火墙状态（ufw/iptables）">
-                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
-                                  Data="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.1 14.8,9.5V11C15.4,11 16,11.6 16,12.3V15.8C16,16.4 15.4,17 14.7,17H9.2C8.6,17 8,16.4 8,15.7V12.2C8,11.6 8.6,11 9.2,11V9.5C9.2,8.1 10.6,7 12,7M12,8.2C11.2,8.2 10.5,8.7 10.5,9.5V11H13.5V9.5C13.5,8.7 12.8,8.2 12,8.2Z"/>
-                        <Button.Flyout>
-                            <Flyout Placement="BottomEdgeAlignedRight">
-                                <StackPanel Width="380" Spacing="2">
-                                    <TextBlock Text="防火墙状态" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <StackPanel x:Name="FirewallList" Spacing="1"/>
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-                    <!-- 系统信息聚合面板（SSH 取系统概览，监控第 6 维）-->
-                    <Button Click="OnSysInfo" Background="Transparent" BorderThickness="0" Padding="4" VerticalAlignment="Center" ToolTip.Tip="系统信息（系统/CPU/内存概览）">
-                        <PathIcon Width="14" Height="14" Foreground="#8B92A8"
-                                  Data="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
-                        <Button.Flyout>
-                            <Flyout Placement="BottomEdgeAlignedRight">
-                                <StackPanel Width="380" Spacing="2">
-                                    <TextBlock Text="系统信息" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <StackPanel x:Name="SysInfoList" Spacing="1"/>
+                                <StackPanel Width="400" Spacing="6">
+                                    <!-- 6 维 tab -->
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <Button Click="OnTopProcs" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="进程" Foreground="#C9D1D9" FontSize="11"/>
+                                        <Button Click="OnListenPorts" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="端口" Foreground="#C9D1D9" FontSize="11"/>
+                                        <Button Click="OnDiskParts" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="磁盘" Foreground="#C9D1D9" FontSize="11"/>
+                                        <Button Click="OnLoginUsers" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="登录" Foreground="#C9D1D9" FontSize="11"/>
+                                        <Button Click="OnFirewall" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="防火墙" Foreground="#C9D1D9" FontSize="11"/>
+                                        <Button Click="OnSysInfo" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="系统" Foreground="#C9D1D9" FontSize="11"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="MonitorContent" Spacing="1" MinHeight="40"/>
                                 </StackPanel>
                             </Flyout>
                         </Button.Flyout>

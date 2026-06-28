@@ -366,13 +366,13 @@ public partial class MainWindow : Window
     /// 进程 Top 面板：SSH ps 取 CPU 高占用进程 → 解析展示（深化监控，对照 apple Z6）
     private async void OnTopProcs(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        TopProcsList.Children.Clear();
-        TopProcsList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        MonitorContent.Children.Clear();
+        MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
         {
             var outp = await SshExecAsync("ps -eo pid,%cpu,%mem,comm --sort=-%cpu | head -11");
             var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
-            TopProcsList.Children.Clear();
+            MonitorContent.Children.Clear();
             foreach (var line in lines)
             {
                 var cols = line.Trim().Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
@@ -399,18 +399,18 @@ public partial class MainWindow : Window
                     ToolTip.SetTip(grid, "右键终止进程");
                     grid.Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand);
                 }
-                TopProcsList.Children.Add(grid);
+                MonitorContent.Children.Add(grid);
             }
-            if (TopProcsList.Children.Count == 0) TopProcsList.Children.Add(new TextBlock { Text = "（未取到进程，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+            if (MonitorContent.Children.Count == 0) MonitorContent.Children.Add(new TextBlock { Text = "（未取到进程，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         }
-        catch (System.Exception ex) { TopProcsList.Children.Clear(); TopProcsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+        catch (System.Exception ex) { MonitorContent.Children.Clear(); MonitorContent.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
     /// 系统信息聚合面板：SSH 取系统/内核/发行版/CPU/内存概览 → key:value 展示（监控第 6 维）
     private async void OnSysInfo(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        SysInfoList.Children.Clear();
-        SysInfoList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        MonitorContent.Children.Clear();
+        MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
         {
             const string cmd = "echo \"主机:$(hostname)\"; echo \"系统:$(. /etc/os-release 2>/dev/null; echo $PRETTY_NAME)\"; " +
@@ -419,7 +419,7 @@ public partial class MainWindow : Window
                 "echo \"内存:$(free -h | awk '/Mem:/{print $3\" / \"$2}')\"";
             var outp = await SshExecAsync(cmd);
             var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
-            SysInfoList.Children.Clear();
+            MonitorContent.Children.Clear();
             foreach (var line in lines)
             {
                 var parts = line.Split(':', 2);
@@ -428,24 +428,24 @@ public partial class MainWindow : Window
                 var k = new TextBlock { Text = parts[0], Foreground = Brush.Parse("#8B92A8"), FontSize = 11 };
                 var v = new TextBlock { Text = parts[1].Trim(), Foreground = Brush.Parse("#C9D1D9"), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextWrapping = TextWrapping.Wrap };
                 Grid.SetColumn(k, 0); Grid.SetColumn(v, 1); grid.Children.Add(k); grid.Children.Add(v);
-                SysInfoList.Children.Add(grid);
+                MonitorContent.Children.Add(grid);
             }
-            if (SysInfoList.Children.Count == 0) SysInfoList.Children.Add(new TextBlock { Text = "（未取到系统信息，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+            if (MonitorContent.Children.Count == 0) MonitorContent.Children.Add(new TextBlock { Text = "（未取到系统信息，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         }
-        catch (System.Exception ex) { SysInfoList.Children.Clear(); SysInfoList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+        catch (System.Exception ex) { MonitorContent.Children.Clear(); MonitorContent.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
     /// 防火墙状态面板：SSH ufw status / iptables → 展示（安全运维，查防火墙规则）
     private async void OnFirewall(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        FirewallList.Children.Clear();
-        FirewallList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        MonitorContent.Children.Clear();
+        MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
         {
             // ufw 优先；无则 iptables 摘要（需 root）
             var outp = await SshExecAsync("ufw status 2>/dev/null || (echo 'iptables (filter):'; iptables -L -n 2>/dev/null | head -20) || echo '需 root 或未安装防火墙工具'");
             var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
-            FirewallList.Children.Clear();
+            MonitorContent.Children.Clear();
             foreach (var line in lines)
             {
                 var t = line.TrimEnd();
@@ -455,24 +455,24 @@ public partial class MainWindow : Window
                 if (t.Contains("active") || t.Contains("ACCEPT")) color = "#3FB950";
                 else if (t.Contains("inactive")) color = "#F59E0B";
                 else if (t.Contains("DROP") || t.Contains("REJECT") || t.Contains("DENY")) color = "#F85149";
-                FirewallList.Children.Add(new TextBlock { Text = t, Foreground = Brush.Parse(color), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(2, 1) });
+                MonitorContent.Children.Add(new TextBlock { Text = t, Foreground = Brush.Parse(color), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(2, 1) });
             }
-            if (FirewallList.Children.Count == 0) FirewallList.Children.Add(new TextBlock { Text = "（未取到防火墙信息，检查连接/权限）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+            if (MonitorContent.Children.Count == 0) MonitorContent.Children.Add(new TextBlock { Text = "（未取到防火墙信息，检查连接/权限）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         }
-        catch (System.Exception ex) { FirewallList.Children.Clear(); FirewallList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+        catch (System.Exception ex) { MonitorContent.Children.Clear(); MonitorContent.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
     /// 登录用户/最近登录面板：SSH who（在线）+ last（最近）→ 展示（安全运维，查谁在登录）
     private async void OnLoginUsers(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        LoginUsersList.Children.Clear();
-        LoginUsersList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        MonitorContent.Children.Clear();
+        MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
         {
             // who：当前在线（user tty time from-ip）；last：最近登录 8 条
             var outp = await SshExecAsync("echo '== 在线 =='; who; echo '== 最近 =='; last -n 8 2>/dev/null | head -8");
             var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
-            LoginUsersList.Children.Clear();
+            MonitorContent.Children.Clear();
             foreach (var line in lines)
             {
                 var t = line.TrimEnd();
@@ -489,24 +489,24 @@ public partial class MainWindow : Window
                     TextTrimming = TextTrimming.CharacterEllipsis,
                     Margin = new Thickness(2, isHeader ? 4 : 1, 2, 1),
                 };
-                LoginUsersList.Children.Add(tb);
+                MonitorContent.Children.Add(tb);
             }
-            if (LoginUsersList.Children.Count == 0) LoginUsersList.Children.Add(new TextBlock { Text = "（未取到登录信息，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+            if (MonitorContent.Children.Count == 0) MonitorContent.Children.Add(new TextBlock { Text = "（未取到登录信息，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         }
-        catch (System.Exception ex) { LoginUsersList.Children.Clear(); LoginUsersList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+        catch (System.Exception ex) { MonitorContent.Children.Clear(); MonitorContent.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
     /// 磁盘分区详情面板：SSH df -h 取全分区 → 展示使用率（监控补全，对照状态条聚合磁盘）
     private async void OnDiskParts(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        DiskPartsList.Children.Clear();
-        DiskPartsList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        MonitorContent.Children.Clear();
+        MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
         {
             // df -hP：真实文件系统分区（排除 tmpfs/overlay 等虚拟）
             var outp = await SshExecAsync("df -hP -x tmpfs -x devtmpfs -x overlay 2>/dev/null | awk 'NR>1{print $5\" \"$6\" \"$3\"/\"$2}'");
             var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
-            DiskPartsList.Children.Clear();
+            MonitorContent.Children.Clear();
             foreach (var line in lines)
             {
                 var cols = line.Trim().Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
@@ -519,24 +519,24 @@ public partial class MainWindow : Window
                 var info = new TextBlock { Text = $"{cols[0]} · {cols[2]}", Foreground = Brush.Parse(pct > 80 ? "#F85149" : "#8B92A8"), FontSize = 10, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center, Margin = new Thickness(6, 0, 0, 0) };
                 Grid.SetColumn(mount, 0); Grid.SetColumn(bar, 1); Grid.SetColumn(info, 2);
                 grid.Children.Add(mount); grid.Children.Add(bar); grid.Children.Add(info);
-                DiskPartsList.Children.Add(grid);
+                MonitorContent.Children.Add(grid);
             }
-            if (DiskPartsList.Children.Count == 0) DiskPartsList.Children.Add(new TextBlock { Text = "（未取到分区，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+            if (MonitorContent.Children.Count == 0) MonitorContent.Children.Add(new TextBlock { Text = "（未取到分区，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         }
-        catch (System.Exception ex) { DiskPartsList.Children.Clear(); DiskPartsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+        catch (System.Exception ex) { MonitorContent.Children.Clear(); MonitorContent.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
     /// 网络端口监听面板：SSH ss 取监听端口 + 进程 → 展示（深化监控，对照 apple/快捷命令 ss -tlnp）
     private async void OnListenPorts(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        ListenPortsList.Children.Clear();
-        ListenPortsList.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+        MonitorContent.Children.Clear();
+        MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
         {
             // ss -tlnp：监听 TCP + 进程；提取 本地地址:端口 + 进程名
             var outp = await SshExecAsync("ss -tlnpH 2>/dev/null | awk '{print $4\" \"$6}' | head -20");
             var lines = outp.Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
-            ListenPortsList.Children.Clear();
+            MonitorContent.Children.Clear();
             foreach (var line in lines)
             {
                 var parts = line.Trim().Split(' ', 2, System.StringSplitOptions.RemoveEmptyEntries);
@@ -550,11 +550,11 @@ public partial class MainWindow : Window
                 var p = new TextBlock { Text = ":" + port, Foreground = Brush.Parse("#3FB950"), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]! };
                 var c = new TextBlock { Text = proc.Length > 0 ? proc : addr, Foreground = Brush.Parse("#C9D1D9"), FontSize = 11, FontFamily = (Avalonia.Media.FontFamily)Resources["MonoFont"]!, TextTrimming = TextTrimming.CharacterEllipsis };
                 Grid.SetColumn(p, 0); Grid.SetColumn(c, 1); grid.Children.Add(p); grid.Children.Add(c);
-                ListenPortsList.Children.Add(grid);
+                MonitorContent.Children.Add(grid);
             }
-            if (ListenPortsList.Children.Count == 0) ListenPortsList.Children.Add(new TextBlock { Text = "（未取到监听端口，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
+            if (MonitorContent.Children.Count == 0) MonitorContent.Children.Add(new TextBlock { Text = "（未取到监听端口，检查连接）", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         }
-        catch (System.Exception ex) { ListenPortsList.Children.Clear(); ListenPortsList.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
+        catch (System.Exception ex) { MonitorContent.Children.Clear(); MonitorContent.Children.Add(new TextBlock { Text = "采集失败：" + ex.Message, Foreground = Brush.Parse("#F85149"), FontSize = 12, Margin = new Thickness(4) }); }
     }
 
     /// AI 对话搜索：匹配气泡橙色描边高亮 + 首个滚动到可见（对照终端搜索）

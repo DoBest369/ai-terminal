@@ -4972,3 +4972,11 @@
 - **CHANGELOG 阶段66**：连接导入导出双端对齐（linux rfd+Box::leak）+ 连接管理双端对齐（分组/搜索/探测/导入导出）。
 - **改动**：`CHANGELOG.md`(阶段66)。
 - **意义**：CHANGELOG 至阶段66。连接管理双端完整对齐。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## windows 监控面板刷新按钮（记住当前维度刷新）
+- **内容**：监控 tab 行末尾加刷新按钮 ↻ → OnMonRefresh 按 _curMon 重采当前维度；各 OnXxx 开头设 _curMon（procs/ports/disk/users/fw/sys）。监控数据实时更新当前查看维度，不用切走再回。
+- **改动**：`MainWindow.axaml`(刷新按钮)、`MainWindow.axaml.cs`(_curMon 字段 + OnMonRefresh + 各 OnXxx 设 _curMon)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 0b433be。
+- **意义**：监控面板交互更便捷（刷新当前维度数据）。下一步 AI 气泡重发 / 质量收口 / 新功能。

@@ -4988,3 +4988,11 @@
 - **CHANGELOG 阶段67**：监控面板刷新按钮（按当前维度重采，windows）。
 - **改动**：`CHANGELOG.md`(阶段67)。
 - **意义**：CHANGELOG 至阶段67。监控面板交互完善。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## AI 气泡用户消息重发（windows+linux，重新发送同问题，AI 交互增强）
+- **内容**：windows 用户提问气泡右键「重新发送」→ AddResendMenu 填 AiInput + AppendAiAsk（AppendAiAsk/RenderSession 两处气泡）；linux 用户气泡旁加重发按钮（ARROW_CLOCKWISE）→ resend_pick 收集 → pending_resend 触发发送（std::mem::take 清）。
+- **改动**：`windows MainWindow.axaml.cs`(AddResendMenu + 两处用户气泡)、`linux main.rs`(pending_resend 字段 + 重发按钮 + 发送触发)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（ARROW_CLOCKWISE）。推送 fe16f16。
+- **意义**：AI 交互增强（重发同问题重新生成 AI 建议，运维换角度/重试），双端。下一步 质量收口 / 批量群发优化 / 新功能。

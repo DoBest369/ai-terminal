@@ -109,6 +109,14 @@
                                             <TextBox x:Name="BaseUrlBox" PlaceholderText="留空用默认 nexcores（Anthropic 兼容）" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="11" FontFamily="{StaticResource MonoFont}" Padding="10,7"/>
                                         </Border>
                                     </StackPanel>
+                                    <!-- 连接导入导出（批量管理，对照 apple portability）-->
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="连接管理" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <Button Click="OnExportConns" Background="#1A60A5FA" BorderThickness="0" CornerRadius="6" Padding="10,5" Content="导出连接" Foreground="#60A5FA" FontSize="12"/>
+                                            <Button Click="OnImportConns" Background="#1A3FB950" BorderThickness="0" CornerRadius="6" Padding="10,5" Content="导入连接" Foreground="#3FB950" FontSize="12"/>
+                                        </StackPanel>
+                                    </StackPanel>
                                     <!-- AI 系统提示词（可自定义，对齐 apple/android/linux） -->
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="AI 系统提示词" Foreground="#8B92A8" FontSize="11" FontWeight="SemiBold"/>

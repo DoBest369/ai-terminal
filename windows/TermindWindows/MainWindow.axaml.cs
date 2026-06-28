@@ -982,7 +982,56 @@ public partial class MainWindow : Window
         }
     }
 
-    /// 新建连接：读表单 name/host/user/port → 加入连接列表（ObservableCollection 自动刷新）
+    /// 导出连接到 json 文件（用户连接，对照 apple portability 批量管理）
+    private async void OnExportConns(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var top = TopLevel.GetTopLevel(this);
+        if (top?.StorageProvider == null) return;
+        var data = _conns.Where(c => !_builtinAddrs.Contains(c.Addr))
+            .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note, group = c.GroupName }).ToArray();
+        try
+        {
+            var file = await top.StorageProvider.SaveFilePickerAsync(new Avalonia.Platform.Storage.FilePickerSaveOptions { Title = "导出连接", SuggestedFileName = "termind-connections.json", DefaultExtension = "json" });
+            if (file == null) return;
+            await using var stream = await file.OpenWriteAsync();
+            await using var writer = new System.IO.StreamWriter(stream);
+            await writer.WriteAsync(JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
+            AppendTerm($"# 已导出 {data.Length} 个连接到 {file.Name}", "#3FB950");
+        }
+        catch (System.Exception ex) { AppendTerm($"✕ 导出连接失败：{ex.Message}", "#F85149"); }
+    }
+
+    /// 从 json 文件导入连接（合并到列表，跳过重复，对照 apple portability）
+    private async void OnImportConns(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var top = TopLevel.GetTopLevel(this);
+        if (top?.StorageProvider == null) return;
+        try
+        {
+            var files = await top.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions { Title = "导入连接", AllowMultiple = false });
+            if (files.Count == 0) return;
+            await using var stream = await files[0].OpenReadAsync();
+            using var reader = new System.IO.StreamReader(stream);
+            var text = await reader.ReadToEndAsync();
+            using var doc = JsonDocument.Parse(text);
+            var gray = Brush.Parse("#6B7280"); int added = 0;
+            foreach (var c in doc.RootElement.EnumerateArray())
+            {
+                var name = c.TryGetProperty("name", out var n) ? n.GetString() : null;
+                var addr = c.TryGetProperty("addr", out var a) ? a.GetString() : null;
+                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(addr) || _conns.Any(x => x.Addr == addr)) continue;
+                var note = c.TryGetProperty("note", out var nt) ? (nt.GetString() ?? "") : "";
+                var group = c.TryGetProperty("group", out var g) ? (g.GetString() ?? "我的连接") : "我的连接";
+                _conns.Add(new ConnItem(name, addr, Brush.Parse("#3FB950"), gray, group, true, "⏳", gray, note, note.Length > 0, "", false));
+                added++;
+            }
+            RebuildConnGroups(); SaveConfig();
+            AppendTerm($"# 已导入 {added} 个连接（跳过重复）", added > 0 ? "#3FB950" : "#F59E0B");
+            foreach (var item in _conns) if (item.Reach == "⏳") _ = ProbeReachabilityAsync(item);
+        }
+        catch (System.Exception ex) { AppendTerm($"✕ 导入连接失败：{ex.Message}", "#F85149"); }
+    }
+
     /// 重算连接分组标题（按当前顺序，同 GroupName 连续只首个显示标题）
     private void RebuildConnGroups()
     {

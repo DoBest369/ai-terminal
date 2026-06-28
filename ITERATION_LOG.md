@@ -5124,3 +5124,11 @@
 - **CHANGELOG 阶段75**：帮助/关于面板（版本+核心功能+快捷键）windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段75)。
 - **意义**：CHANGELOG 至阶段75。易用性增强。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## windows 连接延迟显示（探测耗时ms，连接列表延迟着色）
+- **内容**：ProbeReachabilityAsync 加 Stopwatch 计 TCP connect 耗时 → Reach 显示「✓ Nms」延迟；延迟着色绿<100/橙<500/红≥500ms；运维直观看连接网络质量。
+- **改动**：`windows MainWindow.axaml.cs`(ProbeReachabilityAsync 耗时+延迟着色)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活 + 截图（连接列表延迟显示）。推送 ed4802c。
+- **意义**：连接列表延迟可视化（运维看连接网络质量），连接管理体验增强。下一步 质量收口 / 新功能。

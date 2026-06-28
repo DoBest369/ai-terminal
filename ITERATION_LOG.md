@@ -5004,3 +5004,11 @@
 - **CHANGELOG 阶段68**：AI 用户消息重发 + AI 交互闭环完整（代码块插入+重发+多会话+搜索+导出）windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段68)。
 - **意义**：CHANGELOG 至阶段68。AI 交互闭环完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## 终端命令风险实时提示（windows+linux，输入危险命令警示，安全增强）
+- **内容**：命令输入框检测命令风险（复用 CommandRisk/risk_level 四级）→ 输入框旁实时显示风险标签；windows CmdInput TextChanged → OnCmdTextChanged → CmdRisk 标签（同色半透明底，Grid 加列历史/批量后移）；linux cmd_input 非空检测 risk_level → Frame 警示标签。
+- **改动**：`windows MainWindow.axaml`(CmdRisk 标签 + Grid 列)、`MainWindow.axaml.cs`(OnCmdTextChanged)、`linux main.rs`(命令风险标签)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 180981d。
+- **意义**：安全增强（运维输入 rm-rf/mkfs 等危险命令实时警示，防误操作），双端。下一步 质量收口 / 批量群发优化 / 新功能。

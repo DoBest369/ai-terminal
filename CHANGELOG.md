@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 64 — 监控入口整合 + 🎉 1000 提交里程碑（2026-06-28）
+
+- **监控面板入口整合（windows）**：工具栏 6 监控按钮（系统/进程/端口/磁盘/登录/防火墙）整合为 1 个监控按钮 → 6 维 tab 切换 + 共享内容区。工具栏从拥挤到清晰，监控六维聚一处。
+- **🎉 1000 提交里程碑**：从「智能运维全平台落地」核心需求出发，64 阶段、1000 提交，windows/linux 双端发展为完整成熟的全平台真实智能 SSH 运维监控-诊断-处置工作台，全面对齐 apple 标杆。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，1000 提交。
+
 ## 阶段 63 — 监控套件六维：系统信息面板（2026-06-28）
 
 - **系统信息聚合面板（windows/linux）**：SSH 取主机/系统（os-release）/内核/架构/运行时长/CPU 型号x核数/内存概览；windows Flyout key:value 结构化，linux 终端展示。运维快速了解服务器系统/硬件概况。

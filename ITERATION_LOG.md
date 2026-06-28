@@ -5132,3 +5132,11 @@
 - **改动**：`windows MainWindow.axaml.cs`(ProbeReachabilityAsync 耗时+延迟着色)。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活 + 截图（连接列表延迟显示）。推送 ed4802c。
 - **意义**：连接列表延迟可视化（运维看连接网络质量），连接管理体验增强。下一步 质量收口 / 新功能。
+
+---
+
+## linux 连接延迟显示（探测耗时ms，对照 windows，双端对齐）
+- **内容**：ServerConn 加 latency 字段；probe_tcp 返回 (bool,u64) 含 Instant 延迟；reach 通道 (usize,bool,u64)；收更新 c.latency；server_card 可达指示加延迟 ms 着色（绿<100/橙<500/红≥500）；demo/import 加 latency:0。
+- **改动**：`linux main.rs`(ServerConn latency + probe_tcp 返回 + reach 通道 + card 显示)。
+- **验证**：`cargo build` **0 error/warning**（1.26s）。推送 37133c5。
+- **意义**：连接延迟显示 windows/linux 双端对齐（看连接网络质量）。下一步 质量收口 CHANGELOG 阶段76 / 新功能。

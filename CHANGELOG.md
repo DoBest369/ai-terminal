@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 71 — 批量群发结果优化双端对齐（2026-06-28）
+
+- **批量群发结果优化（linux）**：run_batch_exec 各主机加 Instant 耗时 + ✓ 成功/✕ 失败标记（对照 windows OnBatchExec）。
+- **护城河 batch 双端增强**：windows/linux 批量群发结果都清晰展示（成功/失败标记 + 耗时），windows 额外有着色 + 失败置底排序 + 计数。运维批量操作多台服务器快速识别结果。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，1028 提交。
+
 ## 阶段 70 — 🎯 批量群发结果优化 + 70 阶段成熟里程碑（2026-06-28）
 
 - **批量群发结果优化（windows）**：护城河 batch 多主机群发结果优化——各主机耗时（Stopwatch）+ 标题成功绿 ✓/失败红 ✕ 着色 + 成功优先排序（失败置底醒目）+ 成功/失败/总数计数。运维批量操作快速识别结果。

@@ -57,6 +57,7 @@
                                         <Border Grid.Column="0" Background="#0D0E1A" CornerRadius="6" Margin="0,0,6,0"><TextBox x:Name="NewConnUser" PlaceholderText="用户（root）" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" FontFamily="{StaticResource MonoFont}" Padding="10,7"/></Border>
                                         <Border Grid.Column="1" Background="#0D0E1A" CornerRadius="6" Width="64"><TextBox x:Name="NewConnPort" Text="22" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" FontFamily="{StaticResource MonoFont}" Padding="10,7"/></Border>
                                     </Grid>
+                                    <Border Background="#0D0E1A" CornerRadius="6"><TextBox x:Name="NewConnGroup" PlaceholderText="分组（如 生产环境，默认 我的连接）" Background="Transparent" BorderThickness="0" Foreground="#C9D1D9" FontSize="12" Padding="10,7"/></Border>
                                     <Button Click="OnAddConn" Background="#FF4B6E" Foreground="#FFFFFF" BorderThickness="0" CornerRadius="6" Padding="10,6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="添加" FontSize="12" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Flyout>

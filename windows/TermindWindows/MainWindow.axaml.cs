@@ -51,6 +51,7 @@ public partial class MainWindow : Window
     private readonly List<string> _cmdHistory = new();   // 命令历史（最近优先），供上下键回溯
     private int _histIdx = -1;                            // 当前回溯位置（-1=未回溯）
     private System.Collections.ObjectModel.ObservableCollection<ConnItem> _conns = new();   // 连接列表（可增删自动刷新）
+    private System.Collections.Generic.HashSet<string> _builtinAddrs = new();   // 内置演示连接地址（不持久化）
 
     public MainWindow()
     {
@@ -65,6 +66,7 @@ public partial class MainWindow : Window
             new("开发机", "deploy@dev.example.com:2222", gray, gray, "开发环境", true, "⏳", gray, "", false, "", false),
         };
         ConnList.ItemsSource = _conns;
+        _builtinAddrs = _conns.Select(c => c.Addr).ToHashSet();   // 内置演示连接（不持久化，区分用户连接）
         RebuildConnGroups();
         ConnList.SelectedIndex = 0;
         // 真实 TCP 可达性探测（对照 linux probe_tcp）：异步探测每个连接，结果回 UI 线程更新
@@ -155,11 +157,13 @@ public partial class MainWindow : Window
                     var addr = c.TryGetProperty("addr", out var a) ? a.GetString() : null;
                     if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(addr)) continue;
                     var note = c.TryGetProperty("note", out var nt) ? (nt.GetString() ?? "") : "";
-                    var item = new ConnItem(name, addr, Brush.Parse("#3FB950"), gray, "我的连接", first, "⏳", gray, note, note.Length > 0, "", false);
+                    var group = c.TryGetProperty("group", out var g) ? (g.GetString() ?? "我的连接") : "我的连接";
+                    var item = new ConnItem(name, addr, Brush.Parse("#3FB950"), gray, group, first, "⏳", gray, note, note.Length > 0, "", false);
                     _conns.Add(item);
                     _ = ProbeReachabilityAsync(item);
                     first = false;
                 }
+                RebuildConnGroups();   // 恢复后重算分组标题
             }
         }
         catch { /* 配置损坏忽略，用默认 */ }
@@ -172,9 +176,9 @@ public partial class MainWindow : Window
         {
             var dir = System.IO.Path.GetDirectoryName(ConfigPath)!;
             System.IO.Directory.CreateDirectory(dir);
-            // 只持久化用户新建的连接（"我的连接" 组），默认演示连接不存
-            var userConns = _conns.Where(c => c.GroupName == "我的连接")
-                .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note }).ToArray();
+            // 持久化用户新建的连接（非内置演示），含分组；重启恢复
+            var userConns = _conns.Where(c => !_builtinAddrs.Contains(c.Addr))
+                .Select(c => new { name = c.Name, addr = c.Addr, note = c.Note, group = c.GroupName }).ToArray();
             var json = JsonSerializer.Serialize(new { apiKey = ApiKeyBox.Text ?? "", baseUrl = BaseUrlBox.Text ?? "", conns = userConns, cmdHistory = _cmdHistory.Take(30).ToArray(), fontSize = _termFontSize, aiFontSize = _aiFontSize, themeIdx = _themeIdx, customCmds = _customCmds.ToArray(), customAsks = _customAsks.ToArray() });
             System.IO.File.WriteAllText(ConfigPath, json);
         }
@@ -920,7 +924,7 @@ public partial class MainWindow : Window
         var addr = item.Addr; string user = "root", port = "22";
         var at = addr.IndexOf('@'); if (at >= 0) { user = addr[..at]; addr = addr[(at + 1)..]; }
         var colon = addr.IndexOf(':'); if (colon >= 0) { port = addr[(colon + 1)..]; addr = addr[..colon]; }
-        NewConnName.Text = item.Name; NewConnHost.Text = addr; NewConnUser.Text = user; NewConnPort.Text = port;
+        NewConnName.Text = item.Name; NewConnHost.Text = addr; NewConnUser.Text = user; NewConnPort.Text = port; NewConnGroup.Text = item.GroupName;
         _conns.Remove(item);
         SaveConfig();
         AppendTerm($"# 已载入「{item.Name}」到新建连接表单（工具栏 +），修改后点「添加」即可", "#8B92A8");
@@ -955,13 +959,17 @@ public partial class MainWindow : Window
         var user = string.IsNullOrWhiteSpace(NewConnUser.Text) ? "root" : NewConnUser.Text.Trim();
         var port = string.IsNullOrWhiteSpace(NewConnPort.Text) ? "22" : NewConnPort.Text.Trim();
         var gray = Brush.Parse("#6B7280");
-        var item = new ConnItem(name, $"{user}@{host}:{port}", Brush.Parse("#3FB950"), gray, "我的连接", true, "⏳", gray, "", false, "", false);
-        _conns.Add(item);
+        var group = string.IsNullOrWhiteSpace(NewConnGroup.Text) ? "我的连接" : NewConnGroup.Text.Trim();
+        var item = new ConnItem(name, $"{user}@{host}:{port}", Brush.Parse("#3FB950"), gray, group, true, "⏳", gray, "", false, "", false);
+        // 插入到同组末尾（使分组连续，分组标题正确合并）；无同组则追加末尾
+        var lastSameGroup = -1;
+        for (int i = 0; i < _conns.Count; i++) if (_conns[i].GroupName == group) lastSameGroup = i;
+        if (lastSameGroup >= 0) _conns.Insert(lastSameGroup + 1, item); else _conns.Add(item);
         RebuildConnGroups();   // 重算分组标题（同组连续只显示一次）
         ConnList.SelectedItem = item;
         _ = ProbeReachabilityAsync(item);   // 新连接异步探测可达性
         SaveConfig();                        // 持久化新连接（重启恢复）
-        NewConnName.Text = ""; NewConnHost.Text = ""; NewConnUser.Text = ""; NewConnPort.Text = "22";
+        NewConnName.Text = ""; NewConnHost.Text = ""; NewConnUser.Text = ""; NewConnPort.Text = "22"; NewConnGroup.Text = "";
     }
 
     /// 快捷命令点击 → 填入命令输入框（真实交互，对照 linux/apple/android）

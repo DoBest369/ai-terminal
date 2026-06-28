@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 67 — 监控面板刷新（2026-06-28）
+
+- **监控面板刷新按钮（windows）**：监控 Flyout tab 行加刷新按钮 ↻，按当前查看维度（_curMon：进程/端口/磁盘/登录/防火墙/系统）重新采集，不用切走再回。
+- **意义**：监控面板交互便捷——实时刷新当前维度数据，配合六维整合，监控使用流畅。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，1012 提交。
+
 ## 阶段 66 — 连接导入导出双端对齐（2026-06-28）
 
 - **连接导入导出（linux）**：工具栏导入/导出按钮，rfd 文件对话框 → 导出 conns 为 json（name/host/user/port/group/note），导入解析 → Box::leak 转 &'static 加连接（ServerConn 字段为编译期常量，少量泄漏可忽略）+ 跳过重复 host。

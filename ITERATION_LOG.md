@@ -4955,3 +4955,12 @@
 - **CHANGELOG 阶段65**：连接导入导出（json 批量管理，对照 apple portability）。
 - **改动**：`CHANGELOG.md`(阶段65)。
 - **意义**：CHANGELOG 至阶段65。连接管理完整（CRUD/分组/搜索/导入导出）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## linux 连接导入导出（json 批量管理，对照 windows，双端对齐）
+- **内容**：linux 工具栏加导入/导出连接按钮；export_conns 序列化 conns → rfd save json；import_conns rfd pick → 解析 json → Box::leak 转 &'static 加 conns（ServerConn 字段是 &'static，少量泄漏可忽略）+ 跳过重复 host。
+- **改动**：`linux main.rs`(工具栏导入/导出按钮 + export_conns/import_conns)。
+- **踩坑**：ServerConn 字段 &'static str，导入运行时字符串用 Box::leak::into_boxed_str 转 &'static。
+- **验证**：`cargo build` **0 error/warning**（2.01s）。推送 70c47ba。
+- **意义**：连接导入导出 windows/linux 双端对齐（迁移/备份/跨设备）。下一步 质量收口 CHANGELOG 阶段66 / AI 气泡重发 / 新功能。

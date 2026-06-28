@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 59 — AI 交互闭环：代码块点击插入命令框（2026-06-28）
+
+- **AI 代码块插入命令框（windows/linux）**：AI 回复中的代码块（即运维命令）点击/右键 → 命令首行插入命令输入框。windows codeBlock PointerPressed + ContextFlyout，linux render_ai_reply 返回点击命令。AI 给的建议命令从「看」到「执行」无缝衔接，配合三模式（Chat/Agent/Auto）。
+- **意义**：AI 交互闭环——运维看 AI 建议命令一键插入终端执行，不用手敲，windows/linux 双端。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，980 提交。
+
 ## 阶段 58 — 监控套件五维明细：防火墙面板（2026-06-28）
 
 - **防火墙状态面板（windows/linux）**：SSH `ufw status` 优先 / `iptables -L` 摘要；windows Flyout 着色（active/ACCEPT 绿、inactive 橙、DROP/REJECT 红），linux 终端展示。安全运维查防火墙规则。

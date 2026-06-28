@@ -4843,3 +4843,11 @@
 - **MATURITY**：监控套件五维更新（进程/端口/磁盘/登录用户/防火墙 + AI 多会话持久化）。
 - **改动**：`CHANGELOG.md`(阶段58)、`docs/MATURITY.md`。
 - **意义**：CHANGELOG 至阶段58。监控套件五维成型并 MATURITY 沉淀。Termind 完整智能运维监控-诊断-处置工作台。后续持续打磨/新功能。
+
+---
+
+## AI 代码块点击插入命令框（windows+linux，AI 给的命令一键执行，AI 交互增强）
+- **内容**：AI 回复代码块（即命令）点击/右键 → 插入命令首行到命令输入框；windows codeBlock PointerPressed + ContextFlyout「插入到命令框」+ hand 光标，linux render_ai_reply 改返回 Option<String>（点击命令），调用方 cmd_pick 收集填 cmd_input。
+- **改动**：`windows MainWindow.axaml.cs`(RenderAiReply 代码块交互)、`linux main.rs`(render_ai_reply 返回 + 调用方收集)。
+- **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 cfd6622。
+- **意义**：AI 交互增强（看 AI 建议命令一键插入终端执行，不用手敲），双端。下一步 连接分组 / 质量收口 / 新功能。

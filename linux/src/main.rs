@@ -876,6 +876,18 @@ impl eframe::App for TermindApp {
                     if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::GEAR).size(16.0).color(TEXT_SECONDARY())).frame(false)).clicked() {
                         self.show_settings = !self.show_settings;
                     }
+                    // 帮助/关于（版本 + 核心功能 + 快捷键，对照 windows）
+                    ui.menu_button(egui::RichText::new(egui_phosphor::regular::QUESTION).size(16.0).color(TEXT_SECONDARY()), |ui| {
+                        ui.set_max_width(300.0);
+                        ui.label(egui::RichText::new("Termind · 智能 SSH 运维工作台").size(13.0).color(TEXT_PRIMARY()).strong());
+                        ui.label(egui::RichText::new("真实 AI + SSH · 全平台原生").size(11.0).color(TEXT_SECONDARY()));
+                        ui.separator();
+                        ui.label(egui::RichText::new("核心功能").size(11.0).color(TEXT_SECONDARY()).strong());
+                        ui.label(egui::RichText::new("· AI 三模式：聊天 / 代理 / 全自动\n· 监控套件六维：系统/进程/端口/磁盘/登录/防火墙\n· 护城河：解释/报错/巡检 一键闭环\n· 批量群发 · SFTP · 连接分组/导入导出").size(11.0).color(TEXT_PRIMARY()));
+                        ui.separator();
+                        ui.label(egui::RichText::new("快捷键 / 操作").size(11.0).color(TEXT_SECONDARY()).strong());
+                        ui.label(egui::RichText::new("· ↑/↓ 回溯命令历史\n· AI 代码块点击 → 插入命令框\n· 服务点/连接 menu 操作").size(11.0).color(TEXT_PRIMARY()));
+                    });
                     if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::FOLDER).size(16.0).color(TEXT_SECONDARY())).frame(false)).clicked() {
                         self.show_sftp = !self.show_sftp;
                         if self.show_sftp { self.run_sftp_ls("~"); }   // 打开时 SSH 取真实文件

@@ -5069,3 +5069,11 @@
 - **CHANGELOG 阶段72**：AI 清空二次确认（防误操作全面防护：命令风险+危险确认+SFTP写确认+AI清空确认）windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段72)。
 - **意义**：CHANGELOG 至阶段72。防误操作全面防护。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## windows 连接快速操作（右键填 SSH 登录命令到终端，运维快速登录）
+- **内容**：连接右键菜单加「填 SSH 登录命令」→ OnFillSshLogin 解析 user@host:port → ssh 命令（非 22 端口加 -p）填 CmdInput；运维快速生成 SSH 登录命令。
+- **改动**：`windows MainWindow.axaml`(填登录命令菜单)、`MainWindow.axaml.cs`(OnFillSshLogin)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 6cc3f5d。
+- **意义**：连接管理快捷操作（右键即填 SSH 登录命令，运维快速登录）。下一步 质量收口 / 批量可选目标 / 新功能。

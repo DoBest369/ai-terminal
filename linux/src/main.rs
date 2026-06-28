@@ -1395,6 +1395,12 @@ impl eframe::App for TermindApp {
                         }
                         // 终端输出搜索（匹配行高亮，对照 windows）
                         ui.add(egui::TextEdit::singleline(&mut self.term_search).hint_text("搜索输出…").desired_width(120.0).font(egui::TextStyle::Small));
+                        // 终端清屏（对照 windows 右键菜单）
+                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::TRASH).size(14.0).color(TEXT_SECONDARY())).frame(false))
+                            .on_hover_text("清屏").clicked() {
+                            self.term_lines.clear();
+                            self.term_lines.push(format!("# 终端已清屏 · {}", active_host));
+                        }
                         // 进程 Top（SSH ps 取高占用进程 → 终端展示，深化监控，对照 windows/apple Z6）
                         if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::GAUGE).size(14.0).color(TEXT_SECONDARY())).frame(false))
                             .on_hover_text("进程 Top（CPU/内存高占用）").clicked() {

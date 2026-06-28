@@ -328,6 +328,16 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { AppendTerm($"✕ {svc} {action} 异常：{ex.Message}", "#F85149"); }
     }
 
+    /// 终端清屏（右键菜单）：清空 TermOutput + 保留提示符行
+    private void OnClearTerm(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        TermOutput.Children.Clear();
+        AppendTerm($"# 终端已清屏 · {_activeHost ?? "本地"}", "#6B7280");
+    }
+
+    /// 终端滚动到底部（右键菜单）
+    private void OnScrollTermEnd(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => TermScroll.ScrollToEnd();
+
     /// 终端输出导出到文件（运维留存会话记录）：拼接 TermOutput 所有行 → StorageProvider 保存
     private async void OnExportTerm(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {

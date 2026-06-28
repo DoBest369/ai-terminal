@@ -284,8 +284,15 @@
                 </StackPanel>
               </Grid>
             </Border>
-            <!-- 终端输出（可滚动） -->
+            <!-- 终端输出（可滚动，右键菜单：清屏/滚到底/导出）-->
             <Border Grid.Row="1" Background="#0A0B14" Margin="10">
+                <Border.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuItem Header="清屏" Click="OnClearTerm"/>
+                        <MenuItem Header="滚动到底部" Click="OnScrollTermEnd"/>
+                        <MenuItem Header="导出终端输出" Click="OnExportTerm"/>
+                    </MenuFlyout>
+                </Border.ContextFlyout>
                 <ScrollViewer x:Name="TermScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                     <StackPanel x:Name="TermOutput" Margin="14">
                         <TextBlock Text="Last login: Sun Jun 22 19:00 on ttys001" Foreground="#8B92A8" FontFamily="{StaticResource MonoFont}" FontSize="12.5"/>

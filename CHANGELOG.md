@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 75 — 帮助/关于面板（易用性，2026-06-28）
+
+- **帮助/关于面板（windows/linux）**：工具栏帮助按钮（? 图标）→ Flyout/menu 展示 Termind 定位 + 核心功能（AI 三模式/监控套件六维/护城河/批量/SFTP/连接管理）+ 快捷键（↑↓ 历史/代码块插入/右键操作）。新用户快速了解功能，降低上手门槛。
+- **意义**：易用性增强，windows/linux 双端。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，1046 提交。
+
 ## 阶段 74 — 文档对齐真实成熟度 + apple 标杆确认（2026-06-28）
 
 - **apple 标杆确认**：swift build Build complete + Shots 渲染 10 张截图，主界面 UI 完整精美（三栏：连接分组+状态条指标+终端 ANSI+AI 面板含代码块/快捷追问），护城河 Z1-Z8 + 18 自测 + 5 主题，归档最新截图。

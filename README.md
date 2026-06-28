@@ -15,6 +15,8 @@
 
 > 📊 **成熟度一览**：双端（apple/android）配对能力 **100 项全对齐** · 护城河 **Z1–Z8**（排障 11 场景 / 部署 11 模板）· 批量运维 · 知识沉淀闭环 · 导入导出对称 · **18 项自测**质量基线。完整能力图谱与边界见 [`docs/MATURITY.md`](docs/MATURITY.md)。
 
+> 🚀 **windows/linux 双端已全功能真实对齐 apple**（2026-06-28，73 阶段 / 1036 提交）：真实 AI（nexcores 流式）+ 真实 SSH + **AI 三模式**（Chat/Agent/Auto 自主闭环）+ **多会话+持久化** + 护城河 **Z1–Z3 一键真闭环** + **监控套件六维**（系统/进程/端口/磁盘/登录/防火墙，状态条聚合+>90% 告警一键下钻）+ 服务管理/进程 kill + SFTP 全覆盖 + 连接 CRUD/分组/搜索/导入导出 + **安全防护**（命令风险四级实时提示 + 危险命令确认 + 防误操作）+ **UI 品质 U1–U4**（图标/配色/主题 4 套/字号，均持久化）。
+
 ## 定位
 
 传统 SSH 工具只是「连上去敲命令」。Termind 让 AI 真正理解你这台服务器——装了什么、什么系统、当前状态——再给出**针对性、可直接执行、出问题能回滚**的运维建议。围绕一条闭环：
@@ -31,8 +33,8 @@
 |------|---------|------|------|
 | **macOS / iOS / iPadOS** | Swift + SwiftUI（Citadel SSH + SwiftTerm） | [`apple/`](apple/README.md) | ✅ 旗舰，智能运维 Z1–Z8 全完成 |
 | **Android** | Kotlin + Jetpack Compose（sshj + OkHttp） | [`android/`](android/) | ✅ 与 apple 全对齐，可构建 APK |
-| **Linux** | Rust + egui/eframe | [`linux/`](linux/) | ✅ cargo build 编译（三栏工作台 UI；真机运行验证留 CI/真 Linux） |
-| **Windows** | C# + .NET 9 + Avalonia | [`windows/`](windows/) | ✅ dotnet build 编译 + dotnet run 运行（三栏工作台 UI，Avalonia 跨平台） |
+| **Linux** | Rust + egui/eframe（ssh2 + ureq） | [`linux/`](linux/) | ✅ **全功能真实对齐 apple**（智能运维+监控套件六维+AI 三模式/多会话+连接管理）；cargo build 0 警告（mac 仅编译，真机运行验证留 CI） |
+| **Windows** | C# + .NET 9 + Avalonia（SSH.NET + HttpClient） | [`windows/`](windows/) | ✅ **全功能真实对齐 apple**（同上）；dotnet build 0 警告 + dotnet run 运行验证 |
 
 > 早期 Electron / Capacitor Web 方案已按「全平台原生」决策删除，git 历史保留。
 

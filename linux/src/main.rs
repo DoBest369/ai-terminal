@@ -134,7 +134,9 @@ fn ansi_to_job(text: &str, default: egui::Color32, size: f32) -> egui::text::Lay
 }
 
 /// 渲染 AI 回复：```代码块→等宽代码框，正文→普通文本（对照 windows RenderAiReply）
-fn render_ai_reply(ui: &mut egui::Ui, text: &str, size: f32) {
+/// 渲染 AI 回复；代码块可点击→返回被点击的命令首行（调用方插入命令框，AI 交互增强，对照 windows）
+fn render_ai_reply(ui: &mut egui::Ui, text: &str, size: f32) -> Option<String> {
+    let mut clicked: Option<String> = None;
     for (i, seg) in text.split("```").enumerate() {
         if i % 2 == 1 {
             // 代码块：去首行语言标识
@@ -143,14 +145,18 @@ fn render_ai_reply(ui: &mut egui::Ui, text: &str, size: f32) {
                 _ => seg,
             }.trim();
             if !code.is_empty() {
-                egui::Frame::default().fill(egui::Color32::from_rgb(0x05, 0x06, 0x0C)).rounding(6.0).inner_margin(8.0)
-                    .show(ui, |ui| { ui.colored_label(SUCCESS(), egui::RichText::new(code).monospace().size(size)); });
+                let resp = egui::Frame::default().fill(egui::Color32::from_rgb(0x05, 0x06, 0x0C)).rounding(6.0).inner_margin(8.0)
+                    .show(ui, |ui| { ui.colored_label(SUCCESS(), egui::RichText::new(code).monospace().size(size)); }).response;
+                if resp.interact(egui::Sense::click()).on_hover_text("点击插入命令框").clicked() {
+                    clicked = Some(code.lines().next().unwrap_or(code).to_string());
+                }
             }
         } else {
             let body = seg.trim();
             if !body.is_empty() { ui.colored_label(TEXT_PRIMARY(), egui::RichText::new(body).size(size)); }
         }
     }
+    clicked
 }
 
 /// 解析 AI 回复里的 [EXECUTE]cmd[/EXECUTE]，返回命令列表
@@ -1187,6 +1193,7 @@ impl eframe::App for TermindApp {
                 // AI 真实对话（true=用户提问蓝气泡 / false=AI 真实回复气泡）；字号 U4 可调
                 let aifs = self.ai_font_size;
                 let aiq = self.ai_search.trim().to_lowercase();   // AI 对话搜索关键词
+                let mut cmd_pick: Option<String> = None;   // AI 代码块点击插入命令框
                 for (is_user, text) in &self.ai_msgs {
                     ui.add_space(6.0);
                     // 搜索命中气泡：橙色描边高亮（对照终端搜索）
@@ -1201,10 +1208,12 @@ impl eframe::App for TermindApp {
                             ui.colored_label(ACCENT(), egui::RichText::new(egui_phosphor::regular::SPARKLE).size(10.0));
                             ui.colored_label(TEXT_SECONDARY(), egui::RichText::new("AI").size(10.0).strong());
                         });
-                        egui::Frame::default().fill(BG()).rounding(10.0).inner_margin(10.0).stroke(stroke)
-                            .show(ui, |ui| { render_ai_reply(ui, text, aifs); });
+                        let picked = egui::Frame::default().fill(BG()).rounding(10.0).inner_margin(10.0).stroke(stroke)
+                            .show(ui, |ui| render_ai_reply(ui, text, aifs)).inner;
+                        if picked.is_some() { cmd_pick = picked; }
                     }
                 }
+                if let Some(c) = cmd_pick { self.cmd_input = c; }
                 if self.ai_busy {
                     ui.add_space(6.0);
                     ui.colored_label(TEXT_SECONDARY(), "✦ AI 思考中…");

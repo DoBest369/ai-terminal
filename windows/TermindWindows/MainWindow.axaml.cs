@@ -1292,17 +1292,26 @@ public partial class MainWindow : Window
                     ? string.Join("\n", lines[1..]) : seg;
                 code = code.Trim('\n', ' ');
                 if (code.Length == 0) continue;
-                panel.Children.Add(new Border
+                // 代码块即命令：点击/右键插入命令框（运维一键执行 AI 给的命令，AI 交互增强）
+                var codeBlock = new Border
                 {
                     Background = Brush.Parse("#05060C"), CornerRadius = new CornerRadius(6),
                     Padding = new Thickness(10, 8), Margin = new Thickness(0, 4, 0, 4),
+                    Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand),
                     Child = new TextBlock
                     {
                         Text = code, Foreground = Brush.Parse("#3FB950"),
                         FontFamily = (FontFamily)(this.FindResource("MonoFont") ?? FontFamily.Default),
                         FontSize = 12, TextWrapping = TextWrapping.Wrap
                     }
-                });
+                };
+                var firstLine = code.Split('\n')[0];
+                codeBlock.PointerPressed += (_, _) => { CmdInput.Text = firstLine; CmdInput.Focus(); };
+                var insMi = new MenuItem { Header = "插入到命令框", Foreground = Brush.Parse("#3FB950") };
+                insMi.Click += (_, _) => { CmdInput.Text = firstLine; CmdInput.Focus(); };
+                codeBlock.ContextFlyout = new MenuFlyout { Items = { insMi } };
+                ToolTip.SetTip(codeBlock, "点击插入命令框 · 右键菜单");
+                panel.Children.Add(codeBlock);
             }
             else
             {

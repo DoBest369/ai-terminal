@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 66 — 连接导入导出双端对齐（2026-06-28）
+
+- **连接导入导出（linux）**：工具栏导入/导出按钮，rfd 文件对话框 → 导出 conns 为 json（name/host/user/port/group/note），导入解析 → Box::leak 转 &'static 加连接（ServerConn 字段为编译期常量，少量泄漏可忽略）+ 跳过重复 host。
+- **连接管理双端对齐（windows/linux）**：分组（显示/输入/持久化）+ 搜索过滤 + 可达探测 + 批量导入导出，运维管理大量连接完整。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，1008 提交。
+
 ## 阶段 65 — 连接导入导出（json 批量管理，2026-06-28）
 
 - **连接导入导出（windows）**：设置面板导出/导入连接按钮，StorageProvider 文件对话框 → 导出用户连接为 json（name/addr/note/group 缩进格式），导入合并到列表（跳过重复 addr）+ 持久化 + 探测。对照 apple portability。

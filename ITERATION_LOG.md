@@ -5140,3 +5140,11 @@
 - **改动**：`linux main.rs`(ServerConn latency + probe_tcp 返回 + reach 通道 + card 显示)。
 - **验证**：`cargo build` **0 error/warning**（1.26s）。推送 37133c5。
 - **意义**：连接延迟显示 windows/linux 双端对齐（看连接网络质量）。下一步 质量收口 CHANGELOG 阶段76 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段76 连接延迟显示双端对齐
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1052 提交。五端 build 全绿。
+- **CHANGELOG 阶段76**：连接延迟显示双端对齐（TCP 探测耗时 ms+着色）+ 连接管理双端对齐增强。
+- **改动**：`CHANGELOG.md`(阶段76)。
+- **意义**：CHANGELOG 至阶段76。连接管理双端完整对齐。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

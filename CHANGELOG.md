@@ -5,6 +5,12 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 76 — 连接延迟显示双端对齐（2026-06-28）
+
+- **连接延迟显示（windows/linux）**：TCP 可达探测加耗时计时（windows Stopwatch / linux Instant）→ 连接列表显示延迟 ms + 着色（绿<100/橙<500/红≥500ms）。运维直观识别每个服务器网络质量。
+- **连接管理双端对齐增强**：分组 + 搜索 + 可达探测 + 延迟显示 + 导入导出 + 快速操作。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，1052 提交。
+
 ## 阶段 75 — 帮助/关于面板（易用性，2026-06-28）
 
 - **帮助/关于面板（windows/linux）**：工具栏帮助按钮（? 图标）→ Flyout/menu 展示 Termind 定位 + 核心功能（AI 三模式/监控套件六维/护城河/批量/SFTP/连接管理）+ 快捷键（↑↓ 历史/代码块插入/右键操作）。新用户快速了解功能，降低上手门槛。

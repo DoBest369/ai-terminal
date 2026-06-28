@@ -4883,3 +4883,11 @@
 - **改动**：`MainWindow.axaml`(分组输入框)、`MainWindow.axaml.cs`(_builtinAddrs + OnAddConn group + Save/LoadConfig group + OnEditConn group)。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 816d2c7。
 - **意义**：连接分组完善（新建连接可填环境分组 + 重启恢复 + 编辑保留），连接管理按环境组织。下一步 终端右键菜单 / 质量收口 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段61 连接分组完整(输入+持久化+编辑)
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；988 提交。五端 build 全绿。
+- **CHANGELOG 阶段61**：连接分组完整（新建分组输入 + 分组持久化 + 编辑保留）。
+- **改动**：`CHANGELOG.md`(阶段61)。
+- **意义**：CHANGELOG 至阶段61。连接管理按环境组织完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

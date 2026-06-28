@@ -5,6 +5,13 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 74 — 文档对齐真实成熟度 + apple 标杆确认（2026-06-28）
+
+- **apple 标杆确认**：swift build Build complete + Shots 渲染 10 张截图，主界面 UI 完整精美（三栏：连接分组+状态条指标+终端 ANSI+AI 面板含代码块/快捷追问），护城河 Z1-Z8 + 18 自测 + 5 主题，归档最新截图。
+- **README 更新**：定位前加 windows/linux 双端全功能对齐声明，平台矩阵状态从「三栏工作台 UI」→「全功能真实对齐 apple」。README/CHANGELOG/MATURITY 文档体系全反映 73 阶段真实成熟度，纠正旧「仅 UI/mock」过时描述。
+- **意义**：呼应核心需求——从「windows/linux 仅 UI+mock」到代码与文档都兑现全平台真实落地。
+- **质量基线**：五端 build 全绿，apple 18 自测全集无回归，1042 提交。
+
 ## 阶段 73 — 连接快速操作：填 SSH 登录命令（2026-06-28）
 
 - **连接快速操作（windows）**：连接右键菜单加「填 SSH 登录命令」→ 解析 user@host:port → ssh 命令（非 22 端口加 -p）填终端输入框，运维快速登录。

@@ -5100,3 +5100,11 @@
 - **内容**：README 定位前加 windows/linux 双端全功能对齐声明（AI 三模式/多会话/监控套件六维/安全防护/UI 品质 U1-U4）；平台矩阵 Linux/Windows 状态从「三栏工作台 UI」→「全功能真实对齐 apple」+ 技术栈补充（ssh2+ureq / SSH.NET+HttpClient）。
 - **改动**：`README.md`(定位声明 + 平台矩阵状态)。
 - **意义**：对外文档展示五端成熟度，纠正旧「仅 UI/mock」过时描述。README/CHANGELOG/MATURITY 文档体系全反映 73 阶段真实成熟度。下一步 帮助面板 / 持续打磨。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段74 文档对齐真实成熟度+apple标杆确认
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1042 提交。五端 build 全绿。
+- **CHANGELOG 阶段74**：apple 标杆确认（截图+18自测+5主题）+ README 更新（文档对齐真实成熟度）。
+- **改动**：`CHANGELOG.md`(阶段74)。
+- **意义**：CHANGELOG 至阶段74。文档体系全反映 73 阶段真实成熟度，呼应核心需求（windows/linux 全平台真实落地）。Termind 成熟全平台真实智能运维工作台。后续持续打磨/新功能。

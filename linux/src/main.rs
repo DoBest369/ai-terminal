@@ -1122,11 +1122,15 @@ impl eframe::App for TermindApp {
                     let mut session_action: Option<usize> = None;   // Some(i)=切到i, usize::MAX=新建
                     let mut del_session: Option<usize> = None;
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::TRASH).size(13.0).color(TEXT_SECONDARY()))
-                            .fill(egui::Color32::TRANSPARENT)).on_hover_text("清空当前会话").clicked() {
-                            self.ai_msgs.clear();
-                            self.pending_cmds.clear();
-                        }
+                        // 清空二次确认（防误清空整段对话，对照 windows Flyout 确认）
+                        ui.menu_button(egui::RichText::new(egui_phosphor::regular::TRASH).size(13.0).color(TEXT_SECONDARY()), |ui| {
+                            ui.label(egui::RichText::new("确认清空当前会话？").size(11.0).color(TEXT_PRIMARY()));
+                            if ui.button(egui::RichText::new("清空").size(11.0).color(egui::Color32::from_rgb(0xF8, 0x51, 0x49))).clicked() {
+                                self.ai_msgs.clear();
+                                self.pending_cmds.clear();
+                                ui.close_menu();
+                            }
+                        }).response.on_hover_text("清空当前会话");
                         if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::EXPORT).size(13.0).color(TEXT_SECONDARY()))
                             .fill(egui::Color32::TRANSPARENT)).on_hover_text("导出对话为 Markdown").clicked() {
                             trigger_export = true;

@@ -356,10 +356,19 @@
                             <PathIcon Width="14" Height="14" Foreground="#8B92A8"
                                       Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,8L14,2M12,19L8,15H10.5V12H13.5V15H16L12,19M13,9V3.5L18.5,9H13Z"/>
                         </Button>
-                        <Button Grid.Column="3" Click="OnClearChat" Background="Transparent" BorderThickness="0" Padding="4"
+                        <Button Grid.Column="3" Background="Transparent" BorderThickness="0" Padding="4"
                                 ToolTip.Tip="清空当前会话">
                             <PathIcon Width="14" Height="14" Foreground="#8B92A8"
                                       Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+                            <!-- 清空二次确认（防误清空整段对话）-->
+                            <Button.Flyout>
+                                <Flyout Placement="BottomEdgeAlignedRight">
+                                    <StackPanel Width="180" Spacing="6">
+                                        <TextBlock Text="确认清空当前会话？" Foreground="#C9D1D9" FontSize="12"/>
+                                        <Button Click="OnClearChat" Background="#1AF85149" Foreground="#F85149" BorderThickness="0" CornerRadius="6" Padding="10,5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="清空" FontSize="12"/>
+                                    </StackPanel>
+                                </Flyout>
+                            </Button.Flyout>
                         </Button>
                     </Grid>
                     <!-- AI 三模式切换器（Chat/Agent/Auto，安全梯度，对齐用户设计）+ AI 字号 -->

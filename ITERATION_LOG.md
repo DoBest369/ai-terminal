@@ -4851,3 +4851,11 @@
 - **改动**：`windows MainWindow.axaml.cs`(RenderAiReply 代码块交互)、`linux main.rs`(render_ai_reply 返回 + 调用方收集)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 cfd6622。
 - **意义**：AI 交互增强（看 AI 建议命令一键插入终端执行，不用手敲），双端。下一步 连接分组 / 质量收口 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段59 AI交互闭环代码块插入命令框
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；980 提交。五端 build 全绿。
+- **CHANGELOG 阶段59**：AI 代码块点击插入命令框（AI 交互闭环）windows/linux 双端。
+- **改动**：`CHANGELOG.md`(阶段59)。
+- **意义**：CHANGELOG 至阶段59。AI 交互闭环（建议命令一键执行）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

@@ -635,9 +635,12 @@ impl TermindApp {
             let (name, host, user) = (c.name.to_string(), c.host.to_string(), c.user.to_string());
             let (tx, cmd, pass) = (self.term_tx.clone(), cmd.clone(), pass.clone());
             std::thread::spawn(move || {
+                let start = std::time::Instant::now();
                 let out = ssh_exec(&host, 22, &user, &pass, &cmd);
+                let ms = start.elapsed().as_millis();
                 let ok = !out.starts_with('⚠');
-                let mut s = format!("── {} ({}) {} ──\n", name, host, if ok { "✓" } else { "✕" });
+                // 成功/失败标记 + 耗时（对照 windows 批量结果优化）
+                let mut s = format!("── {} ({}) {} · {}ms ──\n", name, host, if ok { "✓ 成功" } else { "✕ 失败" }, ms);
                 for line in out.split('\n') { s.push_str(&format!("  {}\n", line)); }
                 let _ = tx.send(s.trim_end().to_string());
             });

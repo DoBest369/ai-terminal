@@ -5116,3 +5116,11 @@
 - **改动**：`windows MainWindow.axaml`(品牌行加帮助按钮 Flyout + 工具栏列后移)、`linux main.rs`(帮助 menu_button)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning（QUESTION 图标）。推送 ca67b96。
 - **意义**：易用性增强（帮助面板让新用户快速了解功能/快捷键），双端。下一步 质量收口 / 批量可选目标 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段75 帮助/关于面板易用性
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1046 提交。五端 build 全绿。
+- **CHANGELOG 阶段75**：帮助/关于面板（版本+核心功能+快捷键）windows/linux 双端。
+- **改动**：`CHANGELOG.md`(阶段75)。
+- **意义**：CHANGELOG 至阶段75。易用性增强。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

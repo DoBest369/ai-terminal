@@ -4859,3 +4859,11 @@
 - **CHANGELOG 阶段59**：AI 代码块点击插入命令框（AI 交互闭环）windows/linux 双端。
 - **改动**：`CHANGELOG.md`(阶段59)。
 - **意义**：CHANGELOG 至阶段59。AI 交互闭环（建议命令一键执行）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## windows 连接分组标题动态重算（新增/删除/搜索后正确分组）
+- **内容**：ConnItem.ShowHeader 改可变属性 + Notify；RebuildConnGroups 遍历 _conns 按 GroupName 连续合并标题（同组只首个显示）；ctor/OnAddConn/OnDeleteConn/搜索清空后调用 → 新增连接不再重复组标题。
+- **改动**：`windows MainWindow.axaml.cs`(ShowHeader 可变 + RebuildConnGroups + 4 调用点)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活 + 截图（连接按环境分组显示）。推送 1f2b3c8。
+- **意义**：连接分组完善（连接列表按环境分组显示更整洁，新增连接正确归组）。下一步 质量收口 / 终端右键菜单 / 新功能。

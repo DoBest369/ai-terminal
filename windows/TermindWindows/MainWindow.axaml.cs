@@ -25,7 +25,7 @@ public class ConnItem : INotifyPropertyChanged
     public string Addr { get; }
     public IBrush Bar { get; }
     public string GroupName { get; }
-    public bool ShowHeader { get; }
+    private bool _showHeader; public bool ShowHeader { get => _showHeader; set { _showHeader = value; Notify(nameof(ShowHeader)); } }
     public string Note { get; }
     public bool HasNote { get; }
     public string LastUsed { get; }
@@ -38,7 +38,7 @@ public class ConnItem : INotifyPropertyChanged
     public ConnItem(string name, string addr, IBrush bar, IBrush dot, string groupName, bool showHeader,
         string reach, IBrush reachColor, string note, bool hasNote, string lastUsed, bool hasLastUsed)
     {
-        Name = name; Addr = addr; Bar = bar; _dot = dot; GroupName = groupName; ShowHeader = showHeader;
+        Name = name; Addr = addr; Bar = bar; _dot = dot; GroupName = groupName; _showHeader = showHeader;
         _reach = reach; _reachColor = reachColor; Note = note; HasNote = hasNote; LastUsed = lastUsed; HasLastUsed = hasLastUsed;
     }
 
@@ -65,6 +65,7 @@ public partial class MainWindow : Window
             new("开发机", "deploy@dev.example.com:2222", gray, gray, "开发环境", true, "⏳", gray, "", false, "", false),
         };
         ConnList.ItemsSource = _conns;
+        RebuildConnGroups();
         ConnList.SelectedIndex = 0;
         // 真实 TCP 可达性探测（对照 linux probe_tcp）：异步探测每个连接，结果回 UI 线程更新
         foreach (var item in _conns)
@@ -557,7 +558,7 @@ public partial class MainWindow : Window
     private void OnSearchConn(object? sender, Avalonia.Controls.TextChangedEventArgs e)
     {
         var q = SearchBox.Text?.Trim().ToLowerInvariant() ?? "";
-        if (string.IsNullOrEmpty(q)) { ConnList.ItemsSource = _conns; return; }
+        if (string.IsNullOrEmpty(q)) { ConnList.ItemsSource = _conns; RebuildConnGroups(); return; }
         ConnList.ItemsSource = _conns.Where(c =>
             c.Name.ToLowerInvariant().Contains(q) || c.Addr.ToLowerInvariant().Contains(q) || c.Note.ToLowerInvariant().Contains(q)).ToList();
     }
@@ -933,11 +934,19 @@ public partial class MainWindow : Window
         {
             _conns.Remove(item);
             if (ConnList.SelectedItem == null && _conns.Count > 0) ConnList.SelectedIndex = 0;
+            RebuildConnGroups();   // 删除后重算分组标题
             SaveConfig();   // 持久化（删除的用户连接不再恢复）
         }
     }
 
     /// 新建连接：读表单 name/host/user/port → 加入连接列表（ObservableCollection 自动刷新）
+    /// 重算连接分组标题（按当前顺序，同 GroupName 连续只首个显示标题）
+    private void RebuildConnGroups()
+    {
+        string? prev = null;
+        foreach (var c in _conns) { c.ShowHeader = c.GroupName != prev; prev = c.GroupName; }
+    }
+
     private void OnAddConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         var name = NewConnName.Text?.Trim();
@@ -948,6 +957,7 @@ public partial class MainWindow : Window
         var gray = Brush.Parse("#6B7280");
         var item = new ConnItem(name, $"{user}@{host}:{port}", Brush.Parse("#3FB950"), gray, "我的连接", true, "⏳", gray, "", false, "", false);
         _conns.Add(item);
+        RebuildConnGroups();   // 重算分组标题（同组连续只显示一次）
         ConnList.SelectedItem = item;
         _ = ProbeReachabilityAsync(item);   // 新连接异步探测可达性
         SaveConfig();                        // 持久化新连接（重启恢复）

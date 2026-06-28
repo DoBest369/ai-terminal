@@ -1288,7 +1288,9 @@ public partial class MainWindow : Window
             if (role == "user")
             {
                 AiMessages.Children.Add(new TextBlock { Text = "你", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right });
-                AiMessages.Children.Add(new Border { Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260, Child = new TextBlock { Text = content, Foreground = Brush.Parse("#FFFFFF"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap } });
+                var ub = new Border { Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9), HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260, Child = new TextBlock { Text = content, Foreground = Brush.Parse("#FFFFFF"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap } };
+                AddResendMenu(ub, content);
+                AiMessages.Children.Add(ub);
             }
             else
             {
@@ -1352,6 +1354,15 @@ public partial class MainWindow : Window
         ModeAuto.Background = mode == AiMode.Auto ? on : off; ModeAuto.Foreground = mode == AiMode.Auto ? onFg : offFg;
     }
 
+    /// 给用户提问气泡加右键「重新发送」菜单（AI 交互增强）：填回输入框 + 重新提问
+    private void AddResendMenu(Control bubble, string ask)
+    {
+        var mi = new MenuItem { Header = "重新发送", Foreground = Brush.Parse("#3B82F6") };
+        mi.Click += (_, _) => { AiInput.Text = ask; AppendAiAsk(); };
+        bubble.ContextFlyout = new MenuFlyout { Items = { mi } };
+        ToolTip.SetTip(bubble, "右键重新发送");
+    }
+
     private async void AppendAiAsk()
     {
         var ask = AiInput.Text?.Trim();
@@ -1364,6 +1375,7 @@ public partial class MainWindow : Window
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260,
             Child = new TextBlock { Text = ask, Foreground = Brush.Parse("#FFFFFF"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap }
         };
+        AddResendMenu(bubble, ask);   // 右键重发同问题
         AiMessages.Children.Add(label);
         AiMessages.Children.Add(bubble);
         // AI 回复气泡（先显「思考中…」，真实回复后更新）

@@ -229,6 +229,7 @@
                                         <Button Click="OnLoginUsers" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="登录" Foreground="#C9D1D9" FontSize="11"/>
                                         <Button Click="OnFirewall" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="防火墙" Foreground="#C9D1D9" FontSize="11"/>
                                         <Button Click="OnSysInfo" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="系统" Foreground="#C9D1D9" FontSize="11"/>
+                                        <Button Click="OnMonRefresh" Background="#1A3FB950" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="↻" Foreground="#3FB950" FontSize="12" ToolTip.Tip="刷新当前维度"/>
                                     </StackPanel>
                                     <StackPanel x:Name="MonitorContent" Spacing="1" MinHeight="40"/>
                                 </StackPanel>

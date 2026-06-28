@@ -363,9 +363,26 @@ public partial class MainWindow : Window
         catch (System.Exception ex) { AppendTerm($"✕ 导出失败：{ex.Message}", "#F85149"); }
     }
 
+    private string _curMon = "procs";   // 监控当前维度（刷新按钮用）
+
+    /// 监控刷新：重新采集当前维度（对照各 tab 切换）
+    private void OnMonRefresh(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        switch (_curMon)
+        {
+            case "procs": OnTopProcs(sender, e); break;
+            case "ports": OnListenPorts(sender, e); break;
+            case "disk": OnDiskParts(sender, e); break;
+            case "users": OnLoginUsers(sender, e); break;
+            case "fw": OnFirewall(sender, e); break;
+            case "sys": OnSysInfo(sender, e); break;
+        }
+    }
+
     /// 进程 Top 面板：SSH ps 取 CPU 高占用进程 → 解析展示（深化监控，对照 apple Z6）
     private async void OnTopProcs(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        _curMon = "procs";
         MonitorContent.Children.Clear();
         MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
@@ -409,6 +426,7 @@ public partial class MainWindow : Window
     /// 系统信息聚合面板：SSH 取系统/内核/发行版/CPU/内存概览 → key:value 展示（监控第 6 维）
     private async void OnSysInfo(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        _curMon = "sys";
         MonitorContent.Children.Clear();
         MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
@@ -438,6 +456,7 @@ public partial class MainWindow : Window
     /// 防火墙状态面板：SSH ufw status / iptables → 展示（安全运维，查防火墙规则）
     private async void OnFirewall(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        _curMon = "fw";
         MonitorContent.Children.Clear();
         MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
@@ -465,6 +484,7 @@ public partial class MainWindow : Window
     /// 登录用户/最近登录面板：SSH who（在线）+ last（最近）→ 展示（安全运维，查谁在登录）
     private async void OnLoginUsers(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        _curMon = "users";
         MonitorContent.Children.Clear();
         MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
@@ -499,6 +519,7 @@ public partial class MainWindow : Window
     /// 磁盘分区详情面板：SSH df -h 取全分区 → 展示使用率（监控补全，对照状态条聚合磁盘）
     private async void OnDiskParts(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        _curMon = "disk";
         MonitorContent.Children.Clear();
         MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try
@@ -529,6 +550,7 @@ public partial class MainWindow : Window
     /// 网络端口监听面板：SSH ss 取监听端口 + 进程 → 展示（深化监控，对照 apple/快捷命令 ss -tlnp）
     private async void OnListenPorts(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        _curMon = "ports";
         MonitorContent.Children.Clear();
         MonitorContent.Children.Add(new TextBlock { Text = "采集中…", Foreground = Brush.Parse("#6B7280"), FontSize = 12, Margin = new Thickness(4) });
         try

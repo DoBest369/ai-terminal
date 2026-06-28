@@ -5045,3 +5045,11 @@
 - **改动**：`linux main.rs`(run_batch_exec 耗时+标记)。
 - **验证**：`cargo build` **0 error/warning**（1.21s）。推送 c7f4124。
 - **意义**：批量群发结果优化 windows/linux 双端对齐（多主机结果清晰：成功失败标记+耗时）。护城河 batch 双端增强。下一步 质量收口 / AI 清空确认 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段71 批量群发结果优化双端对齐
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1028 提交。五端 build 全绿。
+- **CHANGELOG 阶段71**：批量群发结果优化双端对齐（linux 耗时+标记）+ 护城河 batch 双端增强。
+- **改动**：`CHANGELOG.md`(阶段71)。
+- **意义**：CHANGELOG 至阶段71。护城河 batch 双端完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

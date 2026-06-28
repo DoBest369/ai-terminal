@@ -5021,3 +5021,11 @@
 - **MATURITY**：全功能成熟度更新（安全/AI能力/监控套件六维/连接管理/终端/命令/UI品质U1-U4，windows/linux双端对齐apple）。
 - **改动**：`CHANGELOG.md`(阶段69)、`docs/MATURITY.md`。
 - **意义**：CHANGELOG 至阶段69。全功能成熟度 MATURITY 沉淀。Termind 成熟全平台真实智能 SSH 运维监控-诊断-处置工作台。后续持续打磨/新功能。
+
+---
+
+## windows 批量群发结果优化（成功/失败着色+耗时+失败置底，护城河 batch 增强）
+- **内容**：OnBatchExec 结果优化：各主机加 Stopwatch 耗时；标题成功绿 ✓/失败红 ✕ 着色；成功优先排序（失败置底醒目）；完成行成功/失败/总数计数（全成功绿/有失败橙）。
+- **改动**：`windows MainWindow.axaml.cs`(OnBatchExec 耗时+着色+排序+计数)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 fc8a5fe。
+- **意义**：批量群发结果清晰（多主机成功/失败一目了然 + 耗时 + 失败醒目），护城河 batch 增强。下一步 质量收口 / AI 清空确认 / 新功能。

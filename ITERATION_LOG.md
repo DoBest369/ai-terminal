@@ -5012,3 +5012,12 @@
 - **改动**：`windows MainWindow.axaml`(CmdRisk 标签 + Grid 列)、`MainWindow.axaml.cs`(OnCmdTextChanged)、`linux main.rs`(命令风险标签)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 180981d。
 - **意义**：安全增强（运维输入 rm-rf/mkfs 等危险命令实时警示，防误操作），双端。下一步 质量收口 / 批量群发优化 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段69 命令风险提示 + MATURITY全功能成熟度更新
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1020 提交。五端 build 全绿。
+- **CHANGELOG 阶段69**：命令风险实时提示（双重安全防护：输入即警示+执行需确认）。
+- **MATURITY**：全功能成熟度更新（安全/AI能力/监控套件六维/连接管理/终端/命令/UI品质U1-U4，windows/linux双端对齐apple）。
+- **改动**：`CHANGELOG.md`(阶段69)、`docs/MATURITY.md`。
+- **意义**：CHANGELOG 至阶段69。全功能成熟度 MATURITY 沉淀。Termind 成熟全平台真实智能 SSH 运维监控-诊断-处置工作台。后续持续打磨/新功能。

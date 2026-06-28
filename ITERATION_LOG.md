@@ -4980,3 +4980,11 @@
 - **改动**：`MainWindow.axaml`(刷新按钮)、`MainWindow.axaml.cs`(_curMon 字段 + OnMonRefresh + 各 OnXxx 设 _curMon)。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 0b433be。
 - **意义**：监控面板交互更便捷（刷新当前维度数据）。下一步 AI 气泡重发 / 质量收口 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段67 监控面板刷新按钮
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1012 提交。五端 build 全绿。
+- **CHANGELOG 阶段67**：监控面板刷新按钮（按当前维度重采，windows）。
+- **改动**：`CHANGELOG.md`(阶段67)。
+- **意义**：CHANGELOG 至阶段67。监控面板交互完善。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

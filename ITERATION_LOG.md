@@ -4947,3 +4947,11 @@
 - **改动**：`MainWindow.axaml`(连接管理区导出/导入按钮)、`MainWindow.axaml.cs`(OnExportConns/OnImportConns)。
 - **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 3ec2a8d。
 - **意义**：连接批量管理（迁移/备份/跨设备复用，对照 apple portability）。下一步 质量收口 / AI 气泡重发 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段65 连接导入导出json批量管理
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1004 提交。五端 build 全绿。
+- **CHANGELOG 阶段65**：连接导入导出（json 批量管理，对照 apple portability）。
+- **改动**：`CHANGELOG.md`(阶段65)。
+- **意义**：CHANGELOG 至阶段65。连接管理完整（CRUD/分组/搜索/导入导出）。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

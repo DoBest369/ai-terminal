@@ -4964,3 +4964,11 @@
 - **踩坑**：ServerConn 字段 &'static str，导入运行时字符串用 Box::leak::into_boxed_str 转 &'static。
 - **验证**：`cargo build` **0 error/warning**（2.01s）。推送 70c47ba。
 - **意义**：连接导入导出 windows/linux 双端对齐（迁移/备份/跨设备）。下一步 质量收口 CHANGELOG 阶段66 / AI 气泡重发 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段66 连接导入导出双端对齐
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；1008 提交。五端 build 全绿。
+- **CHANGELOG 阶段66**：连接导入导出双端对齐（linux rfd+Box::leak）+ 连接管理双端对齐（分组/搜索/探测/导入导出）。
+- **改动**：`CHANGELOG.md`(阶段66)。
+- **意义**：CHANGELOG 至阶段66。连接管理双端完整对齐。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

@@ -1654,6 +1654,16 @@ impl eframe::App for TermindApp {
                         }
                     }).response.on_hover_text("命令历史（点击重用）");
                     if let Some(c) = hist_pick { self.cmd_input = c; }
+                    // 命令风险实时提示（危险命令警示，复用 risk_level 四级，对照 windows）
+                    let cmd_trim = self.cmd_input.trim();
+                    if !cmd_trim.is_empty() {
+                        let r = risk_level(cmd_trim);
+                        let (rlabel, rcolor) = risk_style(r);
+                        if !rlabel.is_empty() {
+                            egui::Frame::default().fill(rcolor.linear_multiply(0.2)).rounding(4.0).inner_margin(egui::vec2(5.0, 1.0))
+                                .show(ui, |ui| { ui.colored_label(rcolor, egui::RichText::new(format!("⚠ {}", rlabel)).size(10.0)); });
+                        }
+                    }
                     let resp = ui.add_sized([ui.available_width(), 24.0],
                         egui::TextEdit::singleline(&mut self.cmd_input).hint_text("输入命令…").font(egui::TextStyle::Monospace));
                     // ↑/↓ 键回溯命令历史（终端常用交互）

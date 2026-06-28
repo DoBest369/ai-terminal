@@ -1465,6 +1465,19 @@ public partial class MainWindow : Window
     }
 
     /// 命令风险四级分级（对照 apple CommandRisk Z7）：安全/注意/高风险/极高危
+    /// 命令输入实时风险提示：输入危险命令时输入框旁显示风险标签（安全增强）
+    private void OnCmdTextChanged(object? sender, Avalonia.Controls.TextChangedEventArgs e)
+    {
+        var cmd = CmdInput.Text?.Trim() ?? "";
+        var risk = CommandRiskOf(cmd);
+        if (cmd.Length == 0 || risk < RiskLevel.Notice) { CmdRisk.IsVisible = false; return; }
+        var (label, color) = RiskStyle(risk);
+        CmdRisk.IsVisible = true;
+        CmdRiskText.Text = $"⚠ {label}";
+        CmdRiskText.Foreground = Brush.Parse(color);
+        CmdRisk.Background = Brush.Parse(color.Replace("#", "#33"));   // 同色半透明底
+    }
+
     private enum RiskLevel { Safe = 0, Notice = 1, High = 2, Critical = 3 }
 
     private static RiskLevel CommandRiskOf(string cmd)

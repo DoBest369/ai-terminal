@@ -300,12 +300,16 @@
             </ScrollViewer>
             <!-- 命令输入（可真实输入）+ 批量群发（护城河：多连接群发命令） -->
             <Border Grid.Row="3" Background="{DynamicResource ThemeCardBg}" CornerRadius="8" Margin="10,0,10,10">
-                <Grid ColumnDefinitions="*,Auto,Auto">
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                     <TextBox x:Name="CmdInput" Grid.Column="0" PlaceholderText="输入命令…" Background="Transparent" BorderThickness="0"
                              Foreground="#C9D1D9" FontFamily="{StaticResource MonoFont}" FontSize="13"
-                             Padding="12,9" CaretBrush="#FF4B6E" KeyDown="OnCmdKeyDown"/>
+                             Padding="12,9" CaretBrush="#FF4B6E" KeyDown="OnCmdKeyDown" TextChanged="OnCmdTextChanged"/>
+                    <!-- 命令风险实时提示（危险命令红色警示，复用 CommandRisk 四级）-->
+                    <Border x:Name="CmdRisk" Grid.Column="1" Background="#33F85149" CornerRadius="4" Padding="6,2" VerticalAlignment="Center" Margin="0,0,4,0" IsVisible="False">
+                        <TextBlock x:Name="CmdRiskText" Text="" Foreground="#F85149" FontSize="10" FontWeight="SemiBold"/>
+                    </Border>
                     <!-- 命令历史面板（点击重用，对照 apple/linux history）-->
-                    <Button Grid.Column="1" Click="OnHistoryOpen" Background="Transparent" BorderThickness="0" Padding="8"
+                    <Button Grid.Column="2" Click="OnHistoryOpen" Background="Transparent" BorderThickness="0" Padding="8"
                             VerticalAlignment="Center" ToolTip.Tip="命令历史（点击重用）">
                         <PathIcon Width="15" Height="15" Foreground="#8B92A8"
                                   Data="M13,3A9,9 0 0,0 4,12H1L4.89,15.89L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3M12,8V13L16.28,15.54L17,14.33L13.5,12.25V8H12Z"/>
@@ -318,7 +322,7 @@
                             </Flyout>
                         </Button.Flyout>
                     </Button>
-                    <Button Grid.Column="2" Click="OnBatchExec" Background="Transparent" BorderThickness="0" Padding="8"
+                    <Button Grid.Column="3" Click="OnBatchExec" Background="Transparent" BorderThickness="0" Padding="8"
                             VerticalAlignment="Center" ToolTip.Tip="批量群发：对所有连接执行此命令">
                         <PathIcon Width="15" Height="15" Foreground="#F59E0B"
                                   Data="M16,13C15.71,13 15.38,13 15.03,13.05C16.19,13.89 17,15 17,16.5V19H23V16.5C23,14.17 18.33,13 16,13M8,13C5.67,13 1,14.17 1,16.5V19H15V16.5C15,14.17 10.33,13 8,13M8,11A3,3 0 0,0 11,8A3,3 0 0,0 8,5A3,3 0 0,0 5,8A3,3 0 0,0 8,11M16,11A3,3 0 0,0 19,8A3,3 0 0,0 16,5A3,3 0 0,0 13,8A3,3 0 0,0 16,11Z"/>

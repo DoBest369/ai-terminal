@@ -4939,3 +4939,11 @@
 - **CHANGELOG 阶段64**：监控面板入口整合（6按钮→1监控下拉+6tab）+ 1000 提交里程碑。
 - **改动**：`CHANGELOG.md`(阶段64)。
 - **意义**：CHANGELOG 至阶段64，1000 提交里程碑。从「智能运维全平台落地」核心需求到完整成熟运维工作台，windows/linux 双端全面对齐 apple。Termind 成熟全平台真实智能 SSH 运维监控-诊断-处置工作台。后续持续打磨/新功能。
+
+---
+
+## windows 连接导入导出（json 批量管理，对照 apple portability）
+- **内容**：设置面板加导出/导入连接按钮；OnExportConns：StorageProvider Save → userConns（name/addr/note/group）json 缩进序列化；OnImportConns：Open → 解析 json 加连接（跳过重复 addr）+ RebuildConnGroups + 持久化 + 探测。
+- **改动**：`MainWindow.axaml`(连接管理区导出/导入按钮)、`MainWindow.axaml.cs`(OnExportConns/OnImportConns)。
+- **验证**：`dotnet build` 0 警告 0 错误；run 存活。推送 3ec2a8d。
+- **意义**：连接批量管理（迁移/备份/跨设备复用，对照 apple portability）。下一步 质量收口 / AI 气泡重发 / 新功能。

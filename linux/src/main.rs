@@ -710,6 +710,45 @@ impl TermindApp {
         });
     }
 
+    /// 导出连接到 json 文件（rfd 保存对话框，对照 windows portability）
+    fn export_conns(&mut self) {
+        let data: Vec<serde_json::Value> = self.conns.iter()
+            .map(|c| serde_json::json!({ "name": c.name, "host": c.host, "user": c.user, "port": c.port, "group": c.group, "note": c.note }))
+            .collect();
+        if let Some(path) = rfd::FileDialog::new().set_file_name("termind-connections.json").save_file() {
+            match std::fs::write(&path, serde_json::to_string_pretty(&data).unwrap_or_default()) {
+                Ok(_) => self.term_lines.push(format!("# 已导出 {} 个连接：{}", data.len(), path.display())),
+                Err(e) => self.term_lines.push(format!("✕ 导出连接失败：{}", e)),
+            }
+        }
+    }
+
+    /// 从 json 文件导入连接（rfd 选文件 → 解析 → Box::leak 转 &'static 加入；跳过重复 host）
+    fn import_conns(&mut self) {
+        let Some(path) = rfd::FileDialog::new().add_filter("json", &["json"]).pick_file() else { return; };
+        let Ok(text) = std::fs::read_to_string(&path) else { self.term_lines.push("✕ 读取文件失败".to_string()); return; };
+        let Ok(arr) = serde_json::from_str::<Vec<serde_json::Value>>(&text) else { self.term_lines.push("✕ json 解析失败".to_string()); return; };
+        let mut added = 0;
+        for c in &arr {
+            let host = c["host"].as_str().unwrap_or("");
+            let name = c["name"].as_str().unwrap_or("");
+            if host.is_empty() || name.is_empty() || self.conns.iter().any(|x| x.host == host) { continue; }
+            // 导入连接是运行时字符串，Box::leak 转 &'static（少量连接，泄漏可忽略）
+            self.conns.push(ServerConn {
+                name: Box::leak(name.to_string().into_boxed_str()),
+                host: Box::leak(host.to_string().into_boxed_str()),
+                user: Box::leak(c["user"].as_str().unwrap_or("root").to_string().into_boxed_str()),
+                port: c["port"].as_u64().unwrap_or(22) as u16,
+                group: Box::leak(c["group"].as_str().unwrap_or("我的连接").to_string().into_boxed_str()),
+                online: false, probed: false,
+                note: Box::leak(c["note"].as_str().unwrap_or("").to_string().into_boxed_str()),
+                last_used: "",
+            });
+            added += 1;
+        }
+        self.term_lines.push(format!("# 已导入 {} 个连接（跳过重复）", added));
+    }
+
     /// 导出当前 AI 对话为 Markdown（对照 windows OnExportChat）：rfd 文件对话框选保存位置
     fn export_chat(&mut self) {
         if self.ai_msgs.is_empty() {
@@ -836,6 +875,13 @@ impl eframe::App for TermindApp {
                     if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::FOLDER).size(16.0).color(TEXT_SECONDARY())).frame(false)).clicked() {
                         self.show_sftp = !self.show_sftp;
                         if self.show_sftp { self.run_sftp_ls("~"); }   // 打开时 SSH 取真实文件
+                    }
+                    // 连接导入/导出（json 批量管理，对照 windows portability）
+                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::DOWNLOAD_SIMPLE).size(15.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("导入连接（json）").clicked() {
+                        self.import_conns();
+                    }
+                    if ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::EXPORT).size(15.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("导出连接（json）").clicked() {
+                        self.export_conns();
                     }
                     let _ = ui.add(egui::Button::new(egui::RichText::new(egui_phosphor::regular::PLUS).size(16.0).color(ACCENT())).frame(false));
                 });

@@ -4899,3 +4899,11 @@
 - **改动**：`windows MainWindow.axaml`(ContextFlyout)、`MainWindow.axaml.cs`(OnClearTerm/OnScrollTermEnd)、`linux main.rs`(清屏按钮)。
 - **验证**：windows `dotnet build` 0 警告 0 错误 + run 存活；linux `cargo build` 0 warning。推送 05d028b。
 - **意义**：终端交互增强（清屏便利，输出多时一键清空），双端。下一步 系统信息面板 / 质量收口 / 新功能。
+
+---
+
+## 质量收口（全量）+ CHANGELOG阶段62 终端交互增强清屏+滚到底
+- **质量基线**：apple swift build Build complete + **8 自测全 true 无回归**；linux cargo Finished；windows dotnet 0 警告 0 错误；992 提交。五端 build 全绿。
+- **CHANGELOG 阶段62**：终端清屏/滚到底 + 终端交互完整（彩色/搜索/字号/导出/清屏/监控工具）windows/linux 双端。
+- **改动**：`CHANGELOG.md`(阶段62)。
+- **意义**：CHANGELOG 至阶段62。终端交互完整。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。

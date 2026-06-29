@@ -631,11 +631,16 @@ impl TermindApp {
         let cmd = self.cmd_input.trim().to_string();
         if cmd.is_empty() || self.conns.is_empty() { return; }
         self.cmd_input.clear();
-        self.term_lines.push(format!("⇶ 批量群发「{}」→ {} 台连接", cmd, self.conns.len()));
         let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
         if pass.is_empty() { self.term_lines.push("⚠️ 未配置 SSH 密码".to_string()); return; }
+        // 只群发可达连接（跳过离线，避免离线超时拖慢批量，对照 windows）
+        let targets: Vec<_> = self.conns.iter().filter(|c| c.online).collect();
+        let skipped = self.conns.len() - targets.len();
+        if targets.is_empty() { self.term_lines.push("⚠️ 无可达连接可群发（连接均离线或探测中）".to_string()); return; }
+        self.term_lines.push(format!("⇶ 批量群发「{}」→ {} 台可达连接{}", cmd, targets.len(),
+            if skipped > 0 { format!("（跳过 {} 台离线）", skipped) } else { String::new() }));
         // 各连接并发执行，结果带连接名经 term_tx 回传（聚合分段显示）
-        for c in &self.conns {
+        for c in &targets {
             let (name, host, user) = (c.name.to_string(), c.host.to_string(), c.user.to_string());
             let (tx, cmd, pass) = (self.term_tx.clone(), cmd.clone(), pass.clone());
             std::thread::spawn(move || {

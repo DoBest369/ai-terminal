@@ -908,9 +908,13 @@ public partial class MainWindow : Window
         var cmd = CmdInput.Text?.Trim();
         if (string.IsNullOrEmpty(cmd) || _conns.Count == 0) return;
         CmdInput.Text = "";
-        AppendTerm($"⇶ 批量群发「{cmd}」→ {_conns.Count} 台连接", "#F59E0B");
+        // 只群发可达连接（跳过离线，避免离线连接超时拖慢批量）
+        var targets = _conns.Where(c => c.Reach.StartsWith("✓")).ToList();
+        var skipped = _conns.Count - targets.Count;
+        if (targets.Count == 0) { AppendTerm("⚠ 无可达连接可群发（连接均离线或探测中）", "#F59E0B"); return; }
+        AppendTerm($"⇶ 批量群发「{cmd}」→ {targets.Count} 台可达连接" + (skipped > 0 ? $"（跳过 {skipped} 台离线）" : ""), "#F59E0B");
         // 各连接并发执行（解析 user@host:port），结果聚合分段显示
-        var tasks = _conns.Select(async c =>
+        var tasks = targets.Select(async c =>
         {
             var addr = c.Addr; string user = "root";
             var at = addr.IndexOf('@'); if (at >= 0) { user = addr[..at]; addr = addr[(at + 1)..]; }

@@ -1101,6 +1101,15 @@ impl eframe::App for TermindApp {
                             for &i in indices {
                                 let resp = server_card(ui, &self.conns[i], self.selected == Some(i));
                                 if resp.clicked() { clicked = Some(i); }
+                                // 右键填 SSH 登录命令到终端输入框（对照 windows OnFillSshLogin）
+                                resp.context_menu(|ui| {
+                                    if ui.button(format!("{} 填 SSH 登录命令", egui_phosphor::regular::TERMINAL)).clicked() {
+                                        let c = &self.conns[i];
+                                        self.cmd_input = if c.port == 22 { format!("ssh {}@{}", c.user, c.host) }
+                                            else { format!("ssh -p {} {}@{}", c.port, c.user, c.host) };
+                                        ui.close_menu();
+                                    }
+                                });
                             }
                         });
                 }

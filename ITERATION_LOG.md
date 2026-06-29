@@ -5148,3 +5148,12 @@
 - **CHANGELOG 阶段76**：连接延迟显示双端对齐（TCP 探测耗时 ms+着色）+ 连接管理双端对齐增强。
 - **改动**：`CHANGELOG.md`(阶段76)。
 - **意义**：CHANGELOG 至阶段76。连接管理双端完整对齐。Termind 全平台真实智能运维工作台日臻完善。后续持续打磨/新功能。
+
+---
+
+## CHANGELOG阶段77：批量只发可达+连接右键双端对齐 + Android构建验证（2026-06-29）
+- **批量只发可达（双端）**：windows OnBatchExec 过滤 Reach✓ / linux run_batch_exec 过滤 c.online，跳过离线避免超时拖慢。已落地（af9a7ba）。
+- **linux 连接右键填 SSH（对齐 windows）**：连接卡片 context_menu「填 SSH 登录命令」→ ssh 命令填 cmd_input。已落地（483b9a0）。
+- **Android 移动端构建验证**：`gradle assembleDebug`（JDK 24 temurin + AGP 8.7.3 + Gradle 8.13）BUILD SUCCESSFUL in 42s，出 app-debug.apk 21.6MB。移动端真实可构建。
+- **验证**：windows build 0 警告 + run 存活；linux cargo 0 warning；Android APK 21.6MB 出包。
+- **意义**：双端对齐收口 + 移动端构建打通验证（5 端编译全绿真实可信）。下一步 持续打磨 / 真机运行验证（CI/真 Linux）。

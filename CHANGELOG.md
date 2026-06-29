@@ -5,6 +5,13 @@
 >
 > 边界声明（真实，2026-06-28 更新）：开发机有完整 **Xcode 26.4 + Rust + .NET 9**（靠系统代理 1082 + 国外官方源装齐），**五端本机编译全打通**（macOS/iOS xcodebuild、Linux cargo、Android gradle、Windows Avalonia dotnet）。功能完整度：**windows/linux 已达 apple 标杆**——真实 AI（nexcores 流式）+ 真实 SSH（SSH.NET/ssh2 连 47.85.19.31）+ AI 三模式（Chat/Agent/Auto 自主闭环）+ 护城河（Z1-Z3 一键闭环/风险四级/batch）+ SFTP 全覆盖 + 连接 CRUD + 状态条全真实指标（CPU/内存/负载/服务点 SSH 取，无 mock）+ UI 品质 U1-U4。iOS 真机/上架需开发者签名；linux 真机运行验证留 CI/真 Linux（mac 上 egui icrate 兼容 bug，仅影响 mac 运行不影响编译）。
 
+## 阶段 77 — 批量只发可达 + 连接右键填 SSH 双端对齐 + Android 构建验证（2026-06-29）
+
+- **批量群发只发可达连接（windows/linux）**：批量群发过滤可达连接（windows Reach✓ / linux c.online），跳过离线避免超时拖慢，提示「跳过 N 台离线」，无可达友好提示。护城河 batch 智能选目标双端对齐。
+- **连接右键填 SSH 登录命令（linux 对齐 windows）**：连接卡片右键菜单「填 SSH 登录命令」→ 解析 port/user/host → ssh 命令（非 22 端口加 -p）填命令输入框。连接快速操作双端对齐。
+- **Android 移动端构建验证**：本机 `gradle assembleDebug`（JDK 24 + AGP 8.7.3 + Gradle 8.13）**BUILD SUCCESSFUL in 42s**，出 `app-debug.apk` 21.6MB。移动端真实可构建（仅工具链层 deprecation 提示，非代码警告）。
+- **质量基线**：windows build 0 警告 + run 存活，linux cargo 0 warning，Android APK 构建通过。
+
 ## 阶段 76 — 连接延迟显示双端对齐（2026-06-28）
 
 - **连接延迟显示（windows/linux）**：TCP 可达探测加耗时计时（windows Stopwatch / linux Instant）→ 连接列表显示延迟 ms + 着色（绿<100/橙<500/红≥500ms）。运维直观识别每个服务器网络质量。

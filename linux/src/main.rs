@@ -1132,7 +1132,7 @@ impl eframe::App for TermindApp {
             .frame(egui::Frame::default().fill(SURFACE()).inner_margin(12.0))
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
-                    ui.colored_label(ACCENT(), egui::RichText::new("✦ AI 助手").strong());
+                    ui.colored_label(ACCENT(), egui::RichText::new(format!("{} AI 助手", egui_phosphor::regular::SPARKLE)).strong());
                     // AI 字号 A-/A+（U4，对照 windows）
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui.add(egui::Button::new(egui::RichText::new("A+").size(11.0).color(TEXT_SECONDARY())).frame(false)).on_hover_text("放大 AI 字号").clicked() {
@@ -1231,7 +1231,7 @@ impl eframe::App for TermindApp {
                     ui.horizontal(|ui| {
                         ui.colored_label(rcolor,
                             egui::RichText::new(format!("{}{}", if rlabel.is_empty() { String::new() } else { format!("[{}] ", rlabel) }, cmd)).monospace().size(11.0));
-                        if ui.add(egui::Button::new(egui::RichText::new("▶ 执行").size(10.0).color(TEXT_PRIMARY()))
+                        if ui.add(egui::Button::new(egui::RichText::new(format!("{} 执行", egui_phosphor::regular::PLAY)).size(10.0).color(TEXT_PRIMARY()))
                             .fill(ACCENT()).rounding(6.0)).clicked() {
                             run_idx = Some(i);
                         }
@@ -1317,7 +1317,7 @@ impl eframe::App for TermindApp {
                 if let Some(m) = resend_pick { self.ai_input = m; self.pending_resend = true; }   // 重发：填输入框 + 触发发送
                 if self.ai_busy {
                     ui.add_space(6.0);
-                    ui.colored_label(TEXT_SECONDARY(), "✦ AI 思考中…");
+                    ui.colored_label(TEXT_SECONDARY(), format!("{} AI 思考中…", egui_phosphor::regular::SPARKLE));
                 }
                 ui.add_space(10.0);
                 // 运维快捷入口（对照 apple 护城河 Z1命令解释/Z2报错分析/Z3健康巡检 + windows）

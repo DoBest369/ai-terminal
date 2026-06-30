@@ -249,7 +249,9 @@
                                         <Button Click="OnLoginUsers" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="登录" Foreground="#C9D1D9" FontSize="11"/>
                                         <Button Click="OnFirewall" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="防火墙" Foreground="#C9D1D9" FontSize="11"/>
                                         <Button Click="OnSysInfo" Background="#22FFFFFF" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="系统" Foreground="#C9D1D9" FontSize="11"/>
-                                        <Button Click="OnMonRefresh" Background="#1A3FB950" BorderThickness="0" CornerRadius="6" Padding="8,4" Content="↻" Foreground="#3FB950" FontSize="12" ToolTip.Tip="刷新当前维度"/>
+                                        <Button Click="OnMonRefresh" Background="#1A3FB950" BorderThickness="0" CornerRadius="6" Padding="8,5" ToolTip.Tip="刷新当前维度">
+                                            <PathIcon Width="11" Height="11" Foreground="#3FB950" Data="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                                        </Button>
                                     </StackPanel>
                                     <StackPanel x:Name="MonitorContent" Spacing="1" MinHeight="40"/>
                                 </StackPanel>
@@ -356,7 +358,10 @@
             <Border Grid.Row="0" Padding="14,10">
                 <StackPanel Spacing="8">
                     <Grid ColumnDefinitions="*,Auto,Auto,Auto">
-                        <TextBlock Grid.Column="0" Text="✦ AI 助手" Foreground="#FF4B6E" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                            <PathIcon Width="13" Height="13" Foreground="#FF4B6E" Data="M12,1L14.5,9.5L23,12L14.5,14.5L12,23L9.5,14.5L1,12L9.5,9.5L12,1Z"/>
+                            <TextBlock Text="AI 助手" Foreground="#FF4B6E" FontSize="14" FontWeight="Bold"/>
+                        </StackPanel>
                         <!-- 会话管理（多会话切换/新建/删除，对照 apple ai-conv）-->
                         <Button Grid.Column="1" Click="OnSessionsOpen" Background="Transparent" BorderThickness="0" Padding="4"
                                 ToolTip.Tip="会话（切换/新建/删除）">
@@ -465,7 +470,7 @@
                              Foreground="#C9D1D9" FontSize="13" VerticalAlignment="Center" Padding="8,7" CaretBrush="#FF4B6E" KeyDown="OnAiKeyDown"/>
                     <Button Grid.Column="1" Background="#FF4B6E" CornerRadius="14" Width="28" Height="28" Padding="0"
                             VerticalAlignment="Center" Margin="4,0" Click="OnAiSend">
-                        <TextBlock Text="↑" Foreground="#FFFFFF" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <PathIcon Width="13" Height="13" Foreground="#FFFFFF" Data="M13,20H11V8L5.5,13.5L4.08,12.08L12,4.16L19.92,12.08L18.5,13.5L13,8V20Z"/>
                     </Button>
                 </Grid>
             </Border>

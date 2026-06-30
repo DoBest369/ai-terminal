@@ -134,15 +134,15 @@ struct InspectView: View {
                     if warnN > 0 {
                         // 点告警数→切换「仅看告警」
                         Button { onlyAlerts.toggle() } label: {
-                            Text("⚠️ 告警 \(warnN)").font(.system(size: 12, weight: .medium))
+                            Label("告警 \(warnN)", systemImage: "exclamationmark.triangle.fill").font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(onlyAlerts ? Color.white : Theme.danger)
                                 .padding(.horizontal, 8).padding(.vertical, 3)
                                 .background(onlyAlerts ? Theme.danger : Theme.danger.opacity(0.12))
                                 .clipShape(Capsule())
                         }.buttonStyle(.plain)
                     }
-                    Text("✅ 正常 \(okN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.success)
-                    if failN > 0 { Text("❌ 失败 \(failN)").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.textSecondary) }
+                    Label("正常 \(okN)", systemImage: "checkmark.circle.fill").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.success)
+                    if failN > 0 { Label("失败 \(failN)", systemImage: "xmark.circle.fill").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.textSecondary) }
                     Spacer()
                     if onlyAlerts { Text("仅看告警").font(.system(size: 11)).foregroundStyle(Theme.textSecondary) }
                 }

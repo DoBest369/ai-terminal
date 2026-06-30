@@ -1075,7 +1075,16 @@ impl eframe::App for TermindApp {
                 ui.add(egui::TextEdit::singleline(&mut self.search)
                     .hint_text(format!("{} 搜索连接", egui_phosphor::regular::MAGNIFYING_GLASS)).desired_width(f32::INFINITY));
                 ui.add_space(6.0);
-                ui.colored_label(TEXT_SECONDARY(), "SSH 连接");
+                // 连接区标题 + 在线统计（在线 N / 共 M，对照 windows）
+                let online_cnt = self.conns.iter().filter(|c| c.online).count();
+                let total_cnt = self.conns.len();
+                ui.horizontal(|ui| {
+                    ui.colored_label(TEXT_SECONDARY(), "SSH 连接");
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        ui.colored_label(if online_cnt > 0 { SUCCESS() } else { TEXT_SECONDARY() },
+                            egui::RichText::new(format!("在线 {} / 共 {}", online_cnt, total_cnt)).size(11.0));
+                    });
+                });
                 ui.add_space(6.0);
                 let q = self.search.trim().to_lowercase();
                 // 按分组聚合（过滤后），分组用 CollapsingHeader 可折叠（对照 apple/android）

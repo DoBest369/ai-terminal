@@ -242,7 +242,14 @@ struct TermindApp {
     last_refresh: f64,                          // 上次取指标的运行时刻（秒，定时 30s 自动刷新）
     metrics_tx: std::sync::mpsc::Sender<(u8, u8, u8, String, Vec<(String, bool)>)>,
     metrics_rx: std::sync::mpsc::Receiver<(u8, u8, u8, String, Vec<(String, bool)>)>,
+    // Auto 自主闭环：执行结果(命令,输出)回喂 AI 决策下一步（对照 windows agent loop）
+    auto_tx: std::sync::mpsc::Sender<(String, String)>,
+    auto_rx: std::sync::mpsc::Receiver<(String, String)>,
+    auto_depth: u32,                            // Auto 自主执行轮数（限 AUTO_MAX 防失控）
 }
+
+/// Auto 模式自主执行最大轮数（防 agent loop 失控，对照 windows AutoLoopMax）
+const AUTO_MAX: u32 = 5;
 
 /// 全局复用的 SSH 会话缓存（对照 windows _sshClient；多后台线程经 Mutex 串行复用）
 fn ssh_session_cache() -> &'static std::sync::Mutex<Option<ssh2::Session>> {
@@ -454,10 +461,11 @@ impl Default for TermindApp {
         let (term_tx, term_rx) = std::sync::mpsc::channel();
         let (metrics_tx, metrics_rx) = std::sync::mpsc::channel();
         let (sftp_tx, sftp_rx) = std::sync::mpsc::channel();
+        let (auto_tx, auto_rx) = std::sync::mpsc::channel();
         // 持久化配置优先：配置文件 > 环境变量 > 默认（对照 windows LoadConfig）
         let (cfg_key, cfg_url) = load_config();
         THEME_IDX.store(load_theme_idx(), std::sync::atomic::Ordering::Relaxed);   // U3 恢复持久化主题
-        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: { let s = load_sessions(); s.into_iter().next().unwrap_or_default() }, sessions: load_sessions(), cur_session: 0, cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), ai_search: String::new(), custom_cmds: load_custom_cmds(), new_cmd_input: String::new(), custom_asks: load_custom_asks(), new_ask_input: String::new(), pending_resend: false, metrics: (0, 0, 0, "--".to_string()), services: Vec::new(), metrics_target: String::new(), last_refresh: 0.0, metrics_tx, metrics_rx }
+        Self { conns, selected: None, search: String::new(), ai_input: String::new(), show_settings: false, api_key: cfg_key.unwrap_or_else(|| std::env::var("TERMIND_AI_KEY").unwrap_or_default()), base_url: cfg_url.unwrap_or_else(|| "https://www.nexcores.net/v1/messages".to_string()), sys_prompt: "你是 Termind 的资深 Linux/SSH 服务器运维专家。结合真实环境给针对性建议；命令用代码块；危险操作（删除/格式化/重启服务/改防火墙）标注风险等级+建议先备份；排障先诊断后修复验证。回答精炼、用中文。需执行命令用 [EXECUTE]命令[/EXECUTE] 标记。".to_string(), show_sftp: false, cmd_input: String::new(), term_lines: Vec::new(), ai_msgs: { let s = load_sessions(); s.into_iter().next().unwrap_or_default() }, sessions: load_sessions(), cur_session: 0, cmd_history: Vec::new(), hist_idx: None, reach_rx, ai_tx, ai_rx, ai_busy: false, term_tx, term_rx, ai_mode: AiMode::Chat, pending_cmds: Vec::new(), sftp_files: Vec::new(), sftp_path: String::new(), sftp_loading: false, sftp_tx, sftp_rx, new_dir_name: String::new(), sftp_renaming: None, term_font_size: load_font_size(), ai_font_size: load_ai_font_size(), term_search: String::new(), ai_search: String::new(), custom_cmds: load_custom_cmds(), new_cmd_input: String::new(), custom_asks: load_custom_asks(), new_ask_input: String::new(), pending_resend: false, metrics: (0, 0, 0, "--".to_string()), services: Vec::new(), metrics_target: String::new(), last_refresh: 0.0, metrics_tx, metrics_rx, auto_tx, auto_rx, auto_depth: 0 }
     }
 }
 
@@ -845,13 +853,15 @@ impl eframe::App for TermindApp {
                         let pass = std::env::var("TERMIND_SSH_PASS").unwrap_or_default();
                         if !pass.is_empty() {
                             let (host, user) = (active_host.clone(), active_user.clone());
-                            let (tx, c) = (self.term_tx.clone(), cmd.clone());
+                            // Auto 执行结果走 auto_tx（带命令上下文）→ 回喂 AI 决策下一步
+                            let (tx, c) = (self.auto_tx.clone(), cmd.clone());
                             std::thread::spawn(move || {
                                 let start = std::time::Instant::now();
                                 let out = ssh_exec(&host, 22, &user, &pass, &c);
                                 let ok = !out.starts_with('⚠');
                                 // 执行结果 + 耗时提示（运维参考，对照 windows）
-                                let _ = tx.send(format!("{}\n{} 耗时 {}ms", out, if ok { "✓" } else { "✕" }, start.elapsed().as_millis()));
+                                let body = format!("{}\n{} 耗时 {}ms", out, if ok { "✓" } else { "✕" }, start.elapsed().as_millis());
+                                let _ = tx.send((c, body));
                             });
                         }
                     } else {
@@ -863,6 +873,27 @@ impl eframe::App for TermindApp {
         // 接收 SSH 真实执行结果（后台线程 ssh_exec → term_rx）→ 追加终端
         while let Ok(out) = self.term_rx.try_recv() {
             for line in out.split('\n') { self.term_lines.push(line.to_string()); }
+        }
+        // Auto 自主闭环：执行结果回喂 AI 决策下一步（对照 windows ExecuteCommand→CallAiAsync，限 AUTO_MAX 轮防失控）
+        while let Ok((cmd, out)) = self.auto_rx.try_recv() {
+            for line in out.split('\n') { self.term_lines.push(line.to_string()); }
+            let ok = !out.starts_with('⚠');
+            if self.ai_mode == AiMode::Auto && ok && self.auto_depth < AUTO_MAX && !self.api_key.is_empty() && !self.ai_busy {
+                self.auto_depth += 1;
+                self.ai_busy = true;
+                self.term_lines.push(format!("{} Auto 第 {} 轮：回喂 AI 分析结果，决策下一步…", egui_phosphor::regular::SPARKLE, self.auto_depth));
+                // 单轮 ai_chat 无历史，故把命令+输出嵌入回喂消息，让 AI 有上下文决策
+                let feedback = format!(
+                    "我在 Auto 模式执行了命令 `{}`，输出如下：\n{}\n\n请判断：若需继续完成任务，用 [EXECUTE]下一条命令[/EXECUTE] 给出下一步；若任务已完成，用中文简短总结，且不要再输出 [EXECUTE]。",
+                    cmd, out.trim());
+                let (base, key, sys, tx) = (self.base_url.clone(), self.api_key.clone(), self.sys_prompt.clone(), self.ai_tx.clone());
+                std::thread::spawn(move || {
+                    let _ = tx.send(ai_chat(&base, &key, "claude-opus-4-8", &sys, &feedback));
+                });
+            } else if self.auto_depth >= AUTO_MAX {
+                self.term_lines.push(format!("⚠️ Auto 已达最大轮数 {}，停止自主执行（防失控）", AUTO_MAX));
+                self.auto_depth = 0;
+            }
         }
         // 接收 SFTP ls 结果 → 解析填文件列表（对照 windows）
         while let Ok(out) = self.sftp_rx.try_recv() {
@@ -1397,6 +1428,7 @@ impl eframe::App for TermindApp {
                         let user_msg = self.ai_input.trim().to_string();
                         self.ai_msgs.push((true, user_msg.clone()));
                         self.ai_input.clear();
+                        self.auto_depth = 0;   // 新任务重置 Auto 自主轮数
                         // 后台线程真实调 AI（对照 reach_rx 模式），结果经 ai_tx 回传
                         if self.api_key.is_empty() {
                             self.ai_msgs.push((false, "⚠️ 未配置 API Key（环境变量 TERMIND_AI_KEY 或设置面板）".to_string()));

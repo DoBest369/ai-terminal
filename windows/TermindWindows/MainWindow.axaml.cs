@@ -187,7 +187,7 @@ public partial class MainWindow : Window
 
     /// 真实 TCP 可达性探测（对照 linux）：ConnectAsync + 2s 超时，结果更新连接状态点/可达指示
     /// 整体 try/catch 包裹：fire-and-forget 异步任何未预期异常都不得使进程 abort（修 dotnet run 崩溃隐患）
-    private static async Task ProbeReachabilityAsync(ConnItem c)
+    private async Task ProbeReachabilityAsync(ConnItem c)
     {
         try
         {
@@ -209,9 +209,18 @@ public partial class MainWindow : Window
                 c.Reach = ok ? $"✓ {ms}ms" : "✕";
                 c.ReachColor = ok ? (ms < 100 ? green : ms < 500 ? Brush.Parse("#F59E0B") : Brush.Parse("#F85149")) : gray;
                 c.Dot = ok ? green : gray;
+                UpdateConnHeader();   // 探测完成刷新在线统计
             });
         }
         catch { /* 探测失败静默：保持探测中状态，绝不让后台任务异常崩溃进程 */ }
+    }
+
+    /// 刷新侧栏连接区标题的在线统计（在线 N / 共 M，对照 linux）
+    private void UpdateConnHeader()
+    {
+        if (ConnHeader == null) return;
+        var online = _conns.Count(x => x.Reach.StartsWith("✓"));
+        ConnHeader.Text = $"SSH 连接 · 在线 {online} / 共 {_conns.Count}";
     }
 
     private static async Task<bool> TcpReachableAsync(string host, int port)
@@ -1082,6 +1091,7 @@ public partial class MainWindow : Window
     {
         string? prev = null;
         foreach (var c in _conns) { c.ShowHeader = c.GroupName != prev; prev = c.GroupName; }
+        UpdateConnHeader();   // 连接增删/恢复后刷新在线统计
     }
 
     private void OnAddConn(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

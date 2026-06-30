@@ -157,7 +157,7 @@
                                  Foreground="#C9D1D9" FontSize="13" Padding="6,8" CaretBrush="#FF4B6E" TextChanged="OnSearchConn"/>
                     </Grid>
                 </Border>
-                <TextBlock Text="SSH 连接 (3)" FontSize="11" FontWeight="SemiBold"
+                <TextBlock x:Name="ConnHeader" Text="SSH 连接" FontSize="11" FontWeight="SemiBold"
                            Foreground="#6B7280" Margin="16,6,16,6"/>
                 <!-- 连接列表：ListBox 自带选中高亮 / hover / 键盘上下导航（真正可交互） -->
                 <ListBox x:Name="ConnList" Background="Transparent" BorderThickness="0" Margin="4,0" SelectionChanged="OnConnSelected">

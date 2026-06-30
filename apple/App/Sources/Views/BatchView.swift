@@ -99,6 +99,8 @@ struct BatchView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     Button("全选") { selected = Set(model.connections.map { $0.id }) }.buttonStyle(.bordered).tint(Theme.accent)
+                    // 仅可达：只选可达连接群发，跳过离线（对照 linux/windows only-reachable）
+                    Button("仅可达") { selected = Set(model.connections.filter { model.reachability[$0.id] == .reachable }.map { $0.id }) }.buttonStyle(.bordered).tint(Theme.success)
                     Button("清空") { selected.removeAll() }.buttonStyle(.bordered)
                     ForEach(groupNames, id: \.self) { g in
                         Button {

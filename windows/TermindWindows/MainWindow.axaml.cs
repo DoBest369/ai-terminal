@@ -1132,6 +1132,12 @@ public partial class MainWindow : Window
         if (sender is not Button b || b.Tag is not string tag) return;
         if (tag == "health") { RunHealthCheck(); return; }
         if (tag == "error") { RunErrorAnalysis(); return; }
+        // 解释命令：命令框有内容→一键真闭环解释；否则预填提问引导
+        if (tag == "explain")
+        {
+            var cmd = CmdInput.Text?.Trim();
+            if (!string.IsNullOrEmpty(cmd)) { RunExplain(cmd); return; }
+        }
         AiInput.Text = tag switch
         {
             "explain" => "解释这条命令的作用、参数含义和潜在风险：",
@@ -1172,6 +1178,30 @@ public partial class MainWindow : Window
             var cmd = m.Groups[1].Value.Trim();
             if (cmd.Length > 0) AddCommandCard(cmd);
         }
+        AiScroll.ScrollToEnd();
+    }
+
+    /// 一键解释命令（Z1，对照 apple explainCommand）：命令框有内容 → AI 解释作用/参数/风险（真闭环，非仅预填）
+    private async void RunExplain(string cmd)
+    {
+        AiMessages.Children.Add(new TextBlock { Text = $"你 · {System.DateTime.Now:HH:mm}", Foreground = Brush.Parse("#8B92A8"), FontSize = 10, FontWeight = FontWeight.Bold, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right });
+        AiMessages.Children.Add(new Border
+        {
+            Background = Brush.Parse("#3B82F6"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, MaxWidth = 260,
+            Child = new TextBlock { Text = $"解释命令：{cmd}", Foreground = Brush.Parse("#FFFFFF"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap }
+        });
+        var aiPanel = new StackPanel { Spacing = 2 };
+        aiPanel.Children.Add(new TextBlock { Text = "解释中…", Foreground = Brush.Parse("#C9D1D9"), FontSize = _aiFontSize, TextWrapping = TextWrapping.Wrap });
+        AiMessages.Children.Add(new Border
+        {
+            Background = Brush.Parse("#0D0E1A"), CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 9),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left, MaxWidth = 290, Child = aiPanel
+        });
+        AiScroll.ScrollToEnd();
+        var reply = await CallAiAsync($"请解释这条命令的作用、各参数含义、潜在风险与执行前注意事项：\n\n```\n{cmd}\n```",
+            delta => { ((TextBlock)aiPanel.Children[0]).Text = delta; AiScroll.ScrollToEnd(); });
+        RenderAiReply(aiPanel, reply);
         AiScroll.ScrollToEnd();
     }
 

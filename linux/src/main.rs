@@ -731,6 +731,22 @@ impl TermindApp {
         });
     }
 
+    /// 一键解释命令（Z1，对照 apple explainCommand）：取命令框内容 → AI 解释作用/参数/风险（真闭环，非仅预填）
+    fn run_explain(&mut self, cmd: String) {
+        if self.ai_busy { return; }
+        self.ai_msgs.push((true, format!("解释命令：{}", cmd)));
+        if self.api_key.is_empty() {
+            self.ai_msgs.push((false, "⚠️ 未配置 API Key（环境变量 TERMIND_AI_KEY 或设置面板）".to_string()));
+            return;
+        }
+        self.ai_busy = true;
+        let (base, key, sys, tx) = (self.base_url.clone(), self.api_key.clone(), self.sys_prompt.clone(), self.ai_tx.clone());
+        let user_msg = format!("请解释这条命令的作用、各参数含义、潜在风险与执行前注意事项：\n\n```\n{}\n```", cmd);
+        std::thread::spawn(move || {
+            let _ = tx.send(ai_chat(&base, &key, "claude-opus-4-8", &sys, &user_msg));
+        });
+    }
+
     /// 导出连接到 json 文件（rfd 保存对话框，对照 windows portability）
     fn export_conns(&mut self) {
         let data: Vec<serde_json::Value> = self.conns.iter()
@@ -1355,11 +1371,17 @@ impl eframe::App for TermindApp {
                 // 解释/报错 → 预填提问；健康巡检 → 一键真闭环（标记触发，循环外执行避免借用冲突）
                 let mut trigger_health = false;
                 let mut trigger_error = false;
+                let mut trigger_explain: Option<String> = None;
                 ui.horizontal(|ui| {
-                    // 解释命令：预填提问
+                    // 解释命令：命令框有内容→一键真闭环解释；否则预填提问引导
                     if ui.add(egui::Button::new(egui::RichText::new("解释命令").size(11.0).color(ACCENT()))
                         .fill(ACCENT().linear_multiply(0.12)).rounding(14.0)).clicked() {
-                        self.ai_input = "解释这条命令的作用、参数含义和潜在风险：".to_string();
+                        let cmd = self.cmd_input.trim().to_string();
+                        if cmd.is_empty() {
+                            self.ai_input = "解释这条命令的作用、参数含义和潜在风险：".to_string();
+                        } else {
+                            trigger_explain = Some(cmd);
+                        }
                     }
                     // 分析报错：一键触发（SSH 取错误日志 → AI 诊断）
                     if ui.add(egui::Button::new(egui::RichText::new("分析报错").size(11.0).color(SUCCESS()))
@@ -1374,6 +1396,7 @@ impl eframe::App for TermindApp {
                 });
                 if trigger_health { self.run_health_check(); }
                 if trigger_error { self.run_error_analysis(); }
+                if let Some(c) = trigger_explain { self.run_explain(c); }
                 ui.add_space(6.0);
                 // 快捷追问 chips（点击填入 AI 输入框，对照 apple/windows AI 面板 + 快捷命令交互）
                 ui.horizontal(|ui| {

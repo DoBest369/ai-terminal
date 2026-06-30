@@ -139,10 +139,11 @@ struct SidebarView: View {
                 } header: {
                     HStack {
                         Text("SSH 连接")
-                        // 始终显示连接数：搜索时为命中数、否则为总数
+                        // 在线统计：在线 N / 共 M（搜索时 M 为命中数），对照 linux/windows
                         if !model.connections.isEmpty {
-                            Text("(\(search.isEmpty ? model.connections.count : filtered.count))")
-                                .foregroundStyle(Theme.textSecondary)
+                            let onlineN = model.connections.filter { model.reachability[$0.id] == .reachable }.count
+                            Text("在线 \(onlineN) / 共 \(search.isEmpty ? model.connections.count : filtered.count)")
+                                .foregroundStyle(onlineN > 0 ? Theme.success : Theme.textSecondary)
                         }
                         Spacer()
                         if !model.connections.isEmpty {

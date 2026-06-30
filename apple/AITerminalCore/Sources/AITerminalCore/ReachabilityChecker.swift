@@ -41,6 +41,34 @@ public enum ReachabilityChecker {
             }
         }
     }
+
+    /// 探测并返回 TCP 建连延迟毫秒（可达时为耗时，不可达返回 nil）。对照 linux/windows 连接延迟显示。
+    public static func probeLatency(host: String, port: Int, timeout: TimeInterval = 5) async -> Int? {
+        let trimmed = host.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty, port > 0, port <= 65535 else { return nil }
+        let nwHost = NWEndpoint.Host(trimmed)
+        guard let nwPort = NWEndpoint.Port(rawValue: UInt16(port)) else { return nil }
+        let connection = NWConnection(host: nwHost, port: nwPort, using: .tcp)
+        let queue = DispatchQueue(label: "com.aiterminal.reachability.lat")
+        let start = Date()
+        return await withCheckedContinuation { (continuation: CheckedContinuation<Int?, Never>) in
+            let finished = LockedFlag()
+            @Sendable func finish(_ ms: Int?) {
+                guard finished.setIfUnset() else { return }
+                connection.cancel()
+                continuation.resume(returning: ms)
+            }
+            connection.stateUpdateHandler = { state in
+                switch state {
+                case .ready: finish(Int(Date().timeIntervalSince(start) * 1000))
+                case .failed, .cancelled: finish(nil)
+                default: break
+                }
+            }
+            connection.start(queue: queue)
+            queue.asyncAfter(deadline: .now() + timeout) { finish(nil) }
+        }
+    }
 }
 
 /// 极简一次性标志（线程安全），保证 continuation 只 resume 一次。

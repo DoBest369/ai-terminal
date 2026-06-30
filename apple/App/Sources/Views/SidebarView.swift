@@ -298,7 +298,14 @@ private struct ConnectionRow: View {
         case .checking:
             ProgressView().controlSize(.mini)
         case .reachable:
-            Image(systemName: "wifi").font(.system(size: 11)).foregroundStyle(Theme.success)
+            HStack(spacing: 3) {
+                Image(systemName: "wifi").font(.system(size: 11)).foregroundStyle(Theme.success)
+                // 延迟 ms 着色（绿<100/橙<500/红≥500），对照 linux/windows
+                if let ms = model.latency[connection.id] {
+                    Text("\(ms)ms").font(.system(size: 9))
+                        .foregroundStyle(ms < 100 ? Theme.success : ms < 500 ? Theme.warning : Theme.danger)
+                }
+            }
         case .unreachable:
             Image(systemName: "wifi.slash").font(.system(size: 11)).foregroundStyle(Theme.danger)
         case nil:

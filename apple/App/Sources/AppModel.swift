@@ -38,6 +38,8 @@ final class AppModel: ObservableObject {
     /// 连接可达性（TCP 探测结果）。缺省=未知。
     enum ReachState { case checking, reachable, unreachable }
     @Published var reachability: [UUID: ReachState] = [:]
+    /// 连接 TCP 建连延迟毫秒（可达时有值），对照 linux/windows 延迟显示
+    @Published var latency: [UUID: Int] = [:]
 
     /// 并发探测全部保存连接的可达性（连接数通常不多，直接全发；如需可加并发上限）
     func checkAllReachability() {
@@ -54,8 +56,9 @@ final class AppModel: ObservableObject {
         guard !host.isEmpty else { return }
         reachability[id] = .checking
         Task {
-            let ok = await ReachabilityChecker.probe(host: host, port: port)
-            self.reachability[id] = ok ? .reachable : .unreachable
+            let ms = await ReachabilityChecker.probeLatency(host: host, port: port)
+            self.reachability[id] = ms != nil ? .reachable : .unreachable
+            if let ms { self.latency[id] = ms } else { self.latency[id] = nil }
         }
     }
     // 打开的会话
